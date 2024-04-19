@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Metal Vault",
-  description: "Metal Vault is a music recommendation site for metalheads.",
+  description: "Metal Vault is a music recommendation and new album release info site for metalheads.",
 };
 
 export default function RootLayout({
