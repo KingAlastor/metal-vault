@@ -14,4 +14,9 @@ export const sidebarLinks = [
     route: "/user",
     label: "Profile",
   },
+  {
+    imgUrl: "LogOut.svg",
+    route: "/api/auth/signout",
+    label: "Log Out",
+  },
 ];

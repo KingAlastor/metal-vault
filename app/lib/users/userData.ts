@@ -1,25 +1,22 @@
+import { PrismaClient } from '@prisma/client';
 
 export interface User {
-  id: number;
-  email: string;
-  password: string;
+  userid: string;
+  password: string | null;
+  email: string | null;
+  lastmodified: Date | null;
+  added: Date | null;
 }
 
-export default async function getUserByEmail(email: string): Promise<User> {
-  return new Promise((resolve, reject) => {
-    // Perform SQL query here using the provided email
-    // Replace the following code with your SQL query implementation
-    const result: User = {
-      id: 1,
-      email: 'test@test.com',
-      password: 'test'
-    };
+// Instantiate PrismaClient outside of the function
+const prisma = new PrismaClient();
 
-    // You might want to add some logic here to check if the email matches the provided email
-    if (result.email === email) {
-      resolve(result);
-    } else {
-      reject('User not found');
+export default async function getUserByEmail(email: string): Promise<User | null> {
+  const user = await prisma.users.findUnique({
+    where: {
+      email: email
     }
   });
+
+  return user;
 }
