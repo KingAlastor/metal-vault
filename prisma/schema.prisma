@@ -7,13 +7,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
-  userid       String    @id @db.VarChar(30)
-  password     String    @db.VarChar(30)
-  email        String    @unique(map: "unique_email") @db.VarChar(60)
-  lastmodified DateTime? @default(now()) @map("_lastmodified") @db.Timestamp(6)
-  added        DateTime? @default(now()) @map("_added") @db.Timestamp(6)
+enum UserRole {
+  USER
+  ADMIN
+  BAND
+}
 
-  @@index([email], map: "idx_users_email")
-  @@index([userid], map: "idx_users_userid")
+model User {
+  id            String    @id @default(cuid())
+  name          String?    
+  password      String?    
+  email         String?    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole    @default(USER)
+  accounts      Account[]
+  lastLoginDate DateTime? @default(now()) @map("_lastlogin") @db.Timestamp(6)
+  addedDate     DateTime? @default(now()) @map("_added") @db.Timestamp(6)
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@unique([provider, providerAccountId])
 }

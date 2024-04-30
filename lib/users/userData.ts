@@ -11,10 +11,11 @@ export interface User {
 // Instantiate PrismaClient outside of the function
 const prisma = new PrismaClient();
 
-export default async function getUserByEmail(email: string): Promise<User | null> {
+export default async function getUserByEmail(email: string, password: string): Promise<User | null> {
   const user = await prisma.users.findUnique({
     where: {
-      email: email
+      email: email,
+      password: password,
     }
   });
 
