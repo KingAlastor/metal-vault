@@ -11,13 +11,6 @@ export default auth((req) => {
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  console.log({
-    "Logged in": isLoggedIn,
-    "isApiAuthRoute": isApiAuthRoute,
-    "isPublicRoute": isPublicRoute,
-    "nextUrl.pathname": nextUrl.pathname,
-    "isAuthRoute": isAuthRoute
-  });
 
   if (isApiAuthRoute) {
     return;
@@ -30,12 +23,14 @@ export default auth((req) => {
     return;
   }
 // This should route user back to login if they're trying to access non-public routes
-/* const isNextAuthRoute = nextUrl.pathname.startsWith("/api/auth/");
+
+
+const isNextAuthRoute = nextUrl.pathname.startsWith("/api/auth/");
 
 if (!isLoggedIn && !isPublicRoute && !isNextAuthRoute && !nextUrl.pathname.startsWith("/auth/login")) {
   console.log("Redirecting to login");
   return Response.redirect(new URL("/auth/login", nextUrl));
-} */
+}
 
   return;
 })

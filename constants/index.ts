@@ -1,16 +1,16 @@
 export const sidebarLinks = [ 
   {
-    imgUrl: "Vinyl.svg",
+    imgUrl: "/Vinyl.svg",
     route: "/releases",
     label: "Upcoming Releases",
   },
   {
-    imgUrl: "ThumbUp.svg",
+    imgUrl: "/ThumbUp.svg",
     route: "/recommendations",
     label: "Recommendations",
   },
   {
-    imgUrl: "",
+    imgUrl: "/Events.svg",
     route: "/events",
     label: "Events",
   },

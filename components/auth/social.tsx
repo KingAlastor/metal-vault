@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 export const Social = () => {
-const onClick = (provider: "Google" | "GitHub") => {
+const onClick = (provider: "google" | "github") => {
   signIn(provider, {
     callbackUrl: DEFAULT_LOGIN_REDIRECT,
   });
@@ -19,7 +19,7 @@ const onClick = (provider: "Google" | "GitHub") => {
         size="lg"
         className="w-full bg-gray-500"
         variant="outline"
-        onClick={() => onClick("Google")}
+        onClick={() => onClick("google")}
       >
         <FcGoogle />
       </Button>
@@ -27,7 +27,7 @@ const onClick = (provider: "Google" | "GitHub") => {
         size="lg"
         className="w-full bg-gray-500"
         variant="outline"
-        onClick={() => onClick("GitHub")}
+        onClick={() => onClick("github")}
       >
         <FaGithub />
       </Button>
