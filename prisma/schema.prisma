@@ -22,6 +22,8 @@ model User {
   image         String?
   role          UserRole    @default(USER)
   accounts      Account[]
+  isTwoFactorEnabled Boolean @default(false)
+  twoFactorConfirmation TwoFactorConfirmation?
   lastLoginDate DateTime? @default(now()) @map("_lastlogin") @db.Timestamp(6)
   addedDate     DateTime? @default(now()) @map("_added") @db.Timestamp(6)
 }
@@ -61,4 +63,22 @@ model PasswordResetToken {
   expiresAt DateTime
 
   @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id        String   @id @default(cuid())
+
+  userId   String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
 }
