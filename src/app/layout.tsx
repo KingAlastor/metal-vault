@@ -6,7 +6,7 @@ import LeftSidebar from "@/components/home/LeftSidebar";
 import RightSidebar from "@/components/home/RightSidebar";
 import Bottombar from "@/components/home/Bottombar";
 import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
+import getSession from "@/lib/auth/getSession";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +20,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
+  const session = await getSession();
 
   return (
     <SessionProvider session={session}>
