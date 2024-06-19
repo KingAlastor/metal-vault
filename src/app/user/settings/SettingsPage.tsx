@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { updateProfile } from "./dataActions";
+import { updateProfile } from "./settingsDataActions";
 
 interface SettingsPageProps {
   user: User;

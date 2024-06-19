@@ -13,54 +13,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime? @map("email_verified")
+  image           String?
+  role            String?
+  emailSettings   Json?     @map("email_settings")
+  bandsSettings   Json?     @map("bands_settings")
+  releaseSettings Json?     @map("release_settings")
+  accounts        Account[]
+  sessions        Session[]
+
+  @@map("users")
+}
+
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String  @map("user_id")
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
- 
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
- 
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique @map("session_token")
   userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@map("sessions")
 }
- 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  role          String?
-  accounts      Account[]
-  sessions      Session[]
- 
-  @@map("users")
-}
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@unique([identifier, token])
   @@map("verificationtokens")
+}
+
+model Bands {
+  id           String       @id @default(cuid())
+  name         String
+  namePretty   String       @map("name_pretty")
+  genreTags    String[]     @map("genre_tags") @db.VarChar
+  country      String
+  status       String
+  followers    Int?
+  archivesLink String       @map("archives_link")
+  spotifyId    String?      @map("spotify_id")
+  albums       BandAlbums[]
+
+  @@index([genreTags], type: Gin)
+  @@map("bands")
+}
+
+model BandAlbums {
+  id          String   @id @default(cuid())
+  bandId      String   @map("band_id")
+  albumName   String   @map("album_name")
+  tracks      Json
+  releaseDate DateTime @map("release_date")
+  band        Bands    @relation(fields: [bandId], references: [id], onDelete: Cascade)
+
+  @@map("band_albums")
+}
+
+model BandFollowers0 {
+  id     String @id @default(cuid())
+  bandId String @map("band_id")
+  userId String @map("user_id")
+
+  @@map("band_followers_0")
+}
+
+model BandFollowers1 {
+  id     String @id @default(cuid())
+  bandId String @map("band_id")
+  userId String @map("user_id")
+
+  @@map("band_followers_1")
+}
+
+model GenreTags {
+  genres String @id
+
+  @@map("genre_tags")
 }

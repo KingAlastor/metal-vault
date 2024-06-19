@@ -2,20 +2,25 @@ import getSession from "@/lib/auth/getSession";
 
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import SettingsPage from "./SettingsPage";
+import FollowArtistsPage from "./FollowArtistsPage";
 
 export const metadata: Metadata = {
-  title: "Settings",
+  title: "Followed Bands",
 };
 
 export default async function Page() {
+  //client side vs server side
   const session = await getSession();
   const user = session?.user;
-  console.log(session);
 
   if (!user) {
-    redirect("/api/auth/signin?callbackUrl=/settings");
+    redirect("/api/auth/signin?callbackUrl=/user/followArtists");
   }
 
-  return <SettingsPage user={user} />;
+  /* return <FollowArtistsPage user={user} />; */
+  return (
+    <div>
+      Follow Artists Page
+    </div>
+  )
 }

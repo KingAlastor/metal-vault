@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { SignIn } from "../auth/signin-button";
-import { SignOut } from "../auth/signout-button";
+import { UserMenu } from "../auth/user-dropdown-menu";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 export const NavBar = () => {
   const { status, data } = useSession();
-
+  
   return (
     <nav className="navbar">
       <Link href="/" className="flex items-center gap-4">
@@ -19,7 +19,7 @@ export const NavBar = () => {
         {status === "authenticated" ? (
           <>
             <span>{data.user?.name}</span>
-            <SignOut />
+            <UserMenu user={data.user}/>
           </>
         ) : (
           <SignIn />
