@@ -20,6 +20,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       });
     },
   },
+  callbacks: {
+    session({ session, user }) {
+      session.user.role = user.role;
+      return session;
+    },
+  },
   adapter: PrismaAdapter(prisma),
   providers: [Google],
 });
