@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { BandAlbum } from "./releases-table-columns";
-import { getReleases } from "./filters-data-actions";
+import { getReleasesByFilters, ReleasesFilters } from "./filters-data-actions";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -46,7 +46,11 @@ export function FiltersForm({
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const fetchReleases = async () => {
-      const releases = await getReleases(data);
+      let filters: ReleasesFilters = {
+        favorites_only: data.favorites_only ?? false,
+        favorite_genres_only: data.favorite_genres_only ?? false,
+      };
+      const releases = await getReleasesByFilters(filters);
       setReleases(releases);
       setIsOpen(false);
     };

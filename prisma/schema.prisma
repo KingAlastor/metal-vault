@@ -20,6 +20,7 @@ model User {
   emailVerified   DateTime? @map("email_verified")
   image           String?
   role            String?
+  shard           Int?
   emailSettings   Json?     @map("email_settings")
   bandsSettings   Json?     @map("bands_settings")
   releaseSettings Json?     @map("release_settings")

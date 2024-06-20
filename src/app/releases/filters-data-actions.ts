@@ -3,17 +3,17 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-export interface FormData {
+export type ReleasesFilters = {
   favorites_only: boolean;
   favorite_genres_only: boolean;
 }
 
-export async function getReleases(data: FormData) {
+export async function getReleasesByFilters(filters: ReleasesFilters) {
   const session = await auth();
   const userId = session?.user?.id;
   let bandIds: string[] | undefined;
 
-  if (data.favorites_only) {
+  if (filters.favorites_only) {
     const followedBands = await prisma.bandFollowers0.findMany({
       select: {
         bandId: true,
@@ -46,7 +46,7 @@ export async function getReleases(data: FormData) {
   return releases;
 }
 
-export async function updateProfile(data: FormData) {
+export async function updateProfile(filters: ReleasesFilters) {
   const session = await auth();
   const userId = session?.user?.id;
 
@@ -55,7 +55,7 @@ export async function updateProfile(data: FormData) {
       id: userId,
     },
     data: {
-      releaseSettings: data.favorites_only,
+      releaseSettings: filters.favorites_only,
     },
   });
 }
