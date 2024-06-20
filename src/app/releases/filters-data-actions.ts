@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { getUserById } from "@/lib/auth/getUser";
 import { prisma } from "@/lib/prisma";
 
 export type ReleasesFilters = {
@@ -8,12 +9,26 @@ export type ReleasesFilters = {
   favorite_genres_only: boolean;
 }
 
+type PrismaBandFollowersModel = {
+  findMany: (args: any) => Promise<any>;
+};
+
 export async function getReleasesByFilters(filters: ReleasesFilters) {
   const session = await auth();
-  const userId = session?.user?.id;
+  const userId = session?.user.id;
   let bandIds: string[] | undefined;
+  
+  
 
   if (filters.favorites_only) {
+    
+    const user = await getUserById(userId!);
+    if (!user) {
+      throw new Error("User ID is undefined. User must be logged in to access favorites.");
+    }
+    const shard = user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma] ? user.shard : '0';
+    const model = prisma[`bandFollowers${shard}` as keyof typeof prisma] as PrismaBandFollowersModel;
+    
     const followedBands = await prisma.bandFollowers0.findMany({
       select: {
         bandId: true,
