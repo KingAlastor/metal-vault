@@ -76,13 +76,28 @@ model Bands {
   genreTags    String[]     @map("genre_tags") @db.VarChar
   country      String
   status       String
-  followers    Int?
+  followers    Int?         @default(0)
   archivesLink String       @map("archives_link")
   spotifyId    String?      @map("spotify_id")
   albums       BandAlbums[]
 
   @@index([genreTags], type: Gin)
+  @@unique([archivesLink])
   @@map("bands")
+}
+
+model BandsBackup {
+  id           String       @id 
+  name         String
+  namePretty   String       @map("name_pretty")
+  genreTags    String[]     @map("genre_tags") @db.VarChar
+  country      String
+  status       String
+  followers    Int?         @default(0)
+  archivesLink String       @map("archives_link")
+  spotifyId    String?      @map("spotify_id")
+
+  @@map("bands_backup")
 }
 
 model BandAlbums {
