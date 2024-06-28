@@ -60,54 +60,48 @@ model Session {
   @@map("sessions")
 }
 
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verificationtokens")
-}
-
 model Bands {
   id           String       @id @default(cuid())
   name         String
   namePretty   String       @map("name_pretty")
   genreTags    String[]     @map("genre_tags") @db.VarChar
-  country      String
-  status       String
+  country      String?
+  status       String?
   followers    Int?         @default(0)
-  archivesLink String       @map("archives_link")
+  archivesLink BigInt       @map("archives_link")
   spotifyId    String?      @map("spotify_id")
   albums       BandAlbums[]
 
-  @@index([genreTags], type: Gin)
   @@unique([archivesLink])
+  @@index([genreTags], type: Gin)
   @@map("bands")
 }
 
 model BandsBackup {
-  id           String       @id 
+  id           String   @id
   name         String
-  namePretty   String       @map("name_pretty")
-  genreTags    String[]     @map("genre_tags") @db.VarChar
-  country      String
-  status       String
-  followers    Int?         @default(0)
-  archivesLink String       @map("archives_link")
-  spotifyId    String?      @map("spotify_id")
+  namePretty   String   @map("name_pretty")
+  genreTags    String[] @map("genre_tags") @db.VarChar
+  country      String?
+  status       String?
+  followers    Int?     @default(0)
+  archivesLink BigInt   @map("archives_link")
+  spotifyId    String?  @map("spotify_id")
 
   @@map("bands_backup")
 }
 
 model BandAlbums {
-  id          String   @id @default(cuid())
-  bandId      String   @map("band_id")
-  albumName   String   @map("album_name")
-  tracks      Json
-  releaseDate DateTime @map("release_date")
-  band        Bands    @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  id           String    @id @default(cuid())
+  bandId       String    @map("band_id")
+  name         String    @map("name")
+  namePretty   String    @map("name_pretty")
+  archivesLink BigInt    @map("archives_link")
+  type         String?
+  releaseDate  DateTime? @map("release_date")
+  band         Bands     @relation(fields: [bandId], references: [id], onDelete: Cascade)
 
+  @@unique([archivesLink])
   @@map("band_albums")
 }
 

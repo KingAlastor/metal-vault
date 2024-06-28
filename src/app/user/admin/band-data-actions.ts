@@ -44,8 +44,8 @@ export async function syncBandDataFromArchives() {
         if (data.aaData.length === 0 || data.aaData.length < iDisplayLength) {
           hasMoreData = false;
           console.log("total records: ", data.iTotalRecords);
-        } 
-        
+        }
+
         if (iDisplayStart === 0) iDisplayStart++;
         iDisplayStart += iDisplayLength;
       } catch (error) {
@@ -93,7 +93,7 @@ type BandsData = {
   genreTags: string[];
   country: string;
   status: string;
-  archivesLink: string;
+  archivesLink: number;
 }[];
 
 async function updateBandsTableData(bandsData: BandsData) {
@@ -107,3 +107,4 @@ async function updateBandsTableData(bandsData: BandsData) {
     console.error("Error updating bands table data:", error);
   }
 }
+
