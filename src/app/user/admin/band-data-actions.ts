@@ -87,7 +87,76 @@ function extractBandDetails(band: Array<any>) {
   };
 }
 
-type BandsData = {
+export async function syncLatestBandAdditionsFromArchives() {
+  const currentDate = new Date();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+  const date = `${currentDate.getFullYear()}-${month}`;
+  const baseUrl = `https://www.metal-archives.com/archives/ajax-band-list/selection/${date}/by/created//json/1?sEcho=1&iColumns=6&sColumns=&iDisplayStart=`;
+  const iDisplayLength = 200;
+  let iDisplayStart = 0;
+  let hasMoreData = true;
+
+  while (hasMoreData) {
+    const url = `${baseUrl}${iDisplayStart}&iDisplayLength=${iDisplayLength}`;
+    try {
+      let bandsData: BandsData = [];
+      const response = await axios.get(url);
+      const data = response.data;
+
+      for (const band of data.aaData) {
+        const data = extractLatestBandAdditionDetails(band);
+        bandsData.push(data);
+      }
+      updateBandsTableData(bandsData);
+
+      if (data.aaData.length === 0 || data.aaData.length < iDisplayLength) {
+        hasMoreData = false;
+        console.log("total records: ", data.iTotalRecords);
+      }
+
+      if (iDisplayStart === 0) iDisplayStart++;
+      iDisplayStart += iDisplayLength;
+    } catch (error) {
+      console.error(`Error fetching data:`, error);
+      hasMoreData = false;
+    }
+
+    // Wait for 3 seconds to respect metal-archives robots.txt delay request
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+  }
+}
+
+const extractLatestBandAdditionDetails = (band: Array<any> ) => {
+  const [date, bandLink, countryLink, genres] = band;
+
+  const bandNameMatch = bandLink.match(/\/bands\/([^\/]+)\//);
+  const name = bandNameMatch ? bandNameMatch[1] : null;
+
+  const displayNameMatch = bandLink.match(/>([^<]+)</);
+  const namePretty = displayNameMatch ? displayNameMatch[1] : null;
+
+  const numericValueMatch = bandLink.match(/\/bands\/[^\/]+\/(\d+)/);
+  const archivesLink = numericValueMatch ? numericValueMatch[1] : null;
+
+  const genre = genres.replace(/ Metal|\(early\)|\(later\)/g, "").trim();
+  const genreTags = genre.split(/\/|;|,/).map((tag: string) => tag.trim());
+
+  const countryMatch = countryLink.match(/>([^<]+)</);
+  const country = countryMatch ? countryMatch[1] : null;
+
+  const status = 'Active';
+
+  return {
+    name,
+    namePretty,
+    genreTags,
+    country,
+    status,
+    archivesLink,
+  };
+};
+
+export type BandsData = {
   name: string;
   namePretty: string;
   genreTags: string[];
@@ -96,7 +165,8 @@ type BandsData = {
   archivesLink: number;
 }[];
 
-async function updateBandsTableData(bandsData: BandsData) {
+
+export const updateBandsTableData = async (bandsData: BandsData) => {
   try {
     await prisma.bands.createMany({
       data: bandsData,
@@ -106,5 +176,4 @@ async function updateBandsTableData(bandsData: BandsData) {
   } catch (error) {
     console.error("Error updating bands table data:", error);
   }
-}
-
+};

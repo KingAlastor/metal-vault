@@ -9,7 +9,7 @@ interface FollowArtistsPageProps {
   user: User;
 }
 
-export default async function FollowArtistsPage({
+export defaul function FollowArtistsPage({
   user,
 }: FollowArtistsPageProps) {
   const bands: Band[] = await prisma.bands.findMany({

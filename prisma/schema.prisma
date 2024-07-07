@@ -85,7 +85,7 @@ model BandsBackup {
   country      String?
   status       String?
   followers    Int?     @default(0)
-  archivesLink BigInt   @map("archives_link")
+  archivesLink BigInt?  @map("archives_link")
   spotifyId    String?  @map("spotify_id")
 
   @@map("bands_backup")
@@ -96,13 +96,28 @@ model BandAlbums {
   bandId       String    @map("band_id")
   name         String    @map("name")
   namePretty   String    @map("name_pretty")
-  archivesLink BigInt    @map("archives_link")
+  archivesLink BigInt?   @map("archives_link")
   type         String?
   releaseDate  DateTime? @map("release_date")
   band         Bands     @relation(fields: [bandId], references: [id], onDelete: Cascade)
 
   @@unique([archivesLink])
   @@map("band_albums")
+}
+
+model UpcomingReleases {
+  id                String    @id @default(cuid())
+  bandId            String    @map("band_id")
+  bandName          String    @map("band_name")
+  albumName         String    @map("album_name")
+  genreTags         String[]  @map("genre_tags") @db.VarChar
+  bandArchivesLink  BigInt?   @map("band_archives_link")
+  albumArchivesLink BigInt?   @map("album_archives_link")
+  type              String?
+  releaseDate       DateTime? @map("release_date")
+
+  @@unique([albumArchivesLink])
+  @@map("upcoming_releases")
 }
 
 model BandFollowers0 {
