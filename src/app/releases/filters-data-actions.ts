@@ -50,7 +50,9 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
     },
     where: {
       ...(bandIds ? { bandId: { in: bandIds } } : {}),
-
+      releaseDate: {
+        gte: new Date(),
+      },
     },
   });
   return releases;
