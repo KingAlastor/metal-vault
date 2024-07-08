@@ -5,8 +5,8 @@ import { getUserById } from "@/lib/auth/getUser";
 import { prisma } from "@/lib/prisma";
 
 export type ReleasesFilters = {
-  favorites_only: boolean;
-  favorite_genres_only: boolean;
+  favorites_only?: boolean;
+  favorite_genres_only?: boolean;
 }
 
 type PrismaBandFollowersModel = {
@@ -18,8 +18,6 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
   const userId = session?.user.id;
   let bandIds: string[] | undefined;
   
-  
-
   if (filters.favorites_only) {
     
     const user = await getUserById(userId!);
@@ -29,7 +27,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
     const shard = user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma] ? user.shard : '0';
     const model = prisma[`bandFollowers${shard}` as keyof typeof prisma] as PrismaBandFollowersModel;
     
-    const followedBands = await prisma.bandFollowers0.findMany({
+    const followedBands = await model.findMany({
       select: {
         bandId: true,
       },
@@ -38,20 +36,16 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
       },
     });
 
-    bandIds = followedBands.map(band => band.bandId);
+    bandIds = followedBands.map((band: { bandId: string }) => band.bandId);
   }
 
-  const releases = await prisma.bandAlbums.findMany({
+  const releases = await prisma.upcomingReleases.findMany({
     select: {
-      id: true,
       bandId: true,
+      bandName: true,
       albumName: true,
       releaseDate: true,
-      band: {
-        select: {
-          namePretty: true,
-        },
-      },
+      genreTags: true,
     },
     where: {
       ...(bandIds ? { bandId: { in: bandIds } } : {}),

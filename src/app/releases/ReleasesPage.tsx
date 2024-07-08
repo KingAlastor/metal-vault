@@ -10,7 +10,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import { getReleases } from "./filters-data-actions";
+import { getReleasesByFilters } from "./filters-data-actions";
 import { User } from "next-auth";
 
 interface ReleasesPageProps {
@@ -22,15 +22,19 @@ export default function ReleasesPage({user}: ReleasesPageProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const jsonData = user?.emailSettings;
+    let filters = {};
+    const settingsJson = user?.emailSettings;
+    if (settingsJson) {
+      filters = JSON.parse(settingsJson as unknown as string);
+    }
 
     const fetchReleases = async () => {
-      const releases = await getReleases(jsonData);
+      const releases = await getReleasesByFilters(filters);
       setReleases(releases);
     };
   
     fetchReleases(); 
-  }, []);
+  }, [user]);
 
   return (
     <div className="container mx-auto py-10">
@@ -39,13 +43,13 @@ export default function ReleasesPage({user}: ReleasesPageProps) {
         onOpenChange={setIsOpen}
         className="w-full space-y-2 mb-4"
       >
-        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center">
+        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center text-white">
           Filters{" "}
           <div className="h-4 w-4">
             <ChevronDown />
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent>
+        <CollapsibleContent className="text-white">
           <FiltersForm
             setIsOpen={setIsOpen}
             releases={releases}

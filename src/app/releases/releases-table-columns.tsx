@@ -3,18 +3,16 @@
 import { ColumnDef } from "@tanstack/react-table"
 
 export type BandAlbum = {
-  id: string;
   bandId: string;
+  bandName: string,
   albumName: string;
-  releaseDate: Date;
-  band: {
-    namePretty: string;
-  };
+  genreTags: string[];
+  releaseDate: Date | null;
 };
 
 export const columns: ColumnDef<BandAlbum>[] = [
   {
-    accessorFn: (row) => row.band.namePretty,
+    accessorKey: "bandName",
     header: "Band",
   },
   {
