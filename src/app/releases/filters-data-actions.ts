@@ -54,6 +54,9 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
         gte: new Date(),
       },
     },
+    orderBy: {
+      releaseDate: 'asc',
+    },
   });
   return releases;
 }
