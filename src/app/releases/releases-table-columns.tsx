@@ -17,6 +17,7 @@ export type BandAlbum = {
   bandId: string;
   bandName: string,
   albumName: string;
+  type: string | null;
   genreTags: string[];
   releaseDate: Date | null;
 };
@@ -29,6 +30,14 @@ export const columns: ColumnDef<BandAlbum>[] = [
   {
     accessorKey: "albumName",
     header: "Album",
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+  },
+  {
+    accessorKey: "genreTags",
+    header: "Genres",
   },
   {
     accessorKey: "releaseDate",

@@ -44,6 +44,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
       bandId: true,
       bandName: true,
       albumName: true,
+      type: true,
       releaseDate: true,
       genreTags: true,
     },
