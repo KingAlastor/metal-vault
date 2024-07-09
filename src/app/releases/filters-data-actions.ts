@@ -3,15 +3,13 @@
 import { auth } from "@/auth";
 import { getUserById } from "@/lib/auth/getUser";
 import { prisma } from "@/lib/prisma";
+import { PrismaBandFollowersModel } from "../../../prisma/models";
 
 export type ReleasesFilters = {
   favorites_only?: boolean;
   favorite_genres_only?: boolean;
 }
 
-type PrismaBandFollowersModel = {
-  findMany: (args: any) => Promise<any>;
-};
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
   const session = await auth();

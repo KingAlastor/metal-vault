@@ -125,6 +125,8 @@ model BandFollowers0 {
   bandId String @map("band_id")
   userId String @map("user_id")
 
+  @@unique([userId, bandId], name: "userId_bandId")
+  @@index([userId])
   @@map("band_followers_0")
 }
 
@@ -133,6 +135,8 @@ model BandFollowers1 {
   bandId String @map("band_id")
   userId String @map("user_id")
 
+  @@unique([userId, bandId], name: "userId_bandId")
+  @@index([userId])
   @@map("band_followers_1")
 }
 

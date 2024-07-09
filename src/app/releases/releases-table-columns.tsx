@@ -12,6 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useSession } from "next-auth/react"
+import { followArtistByBandId } from "./releases-data-actions"
 
 export type BandAlbum = {
   bandId: string;
@@ -51,7 +53,11 @@ export const columns: ColumnDef<BandAlbum>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const bandAlbum = row.original
+      const bandAlbum = row.original;
+
+      const handleAddToFavoritesClick = async () => {
+        await followArtistByBandId(bandAlbum.bandId);
+      };
  
       return (
         <DropdownMenu>
@@ -64,9 +70,9 @@ export const columns: ColumnDef<BandAlbum>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(bandAlbum.bandId)}
+              onClick={handleAddToFavoritesClick}
             >
-              Copy Band Id
+              Follow Artist
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
