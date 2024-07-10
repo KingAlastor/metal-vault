@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut } from "next-auth/react"
+import { signOut } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,46 +18,43 @@ import Link from "next/link";
 //import avatarPlaceholder from "../../../../public/User.svg"
 
 interface UserButtonProps {
-  user: User
+  user: User;
 }
-
 
 export function UserMenu({ user }: UserButtonProps) {
   console.log("User button", user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>
-          User
-        </Button>
+        <Button>User</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{user.name || "User"}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-        <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild>
             <Link href="/user/emailUpdates">
               <Mail className="mr-2 h-4 w-4" />
-              <span>Subscribe to Updates</span>
+              <span className="dropdown-options">Subscribe to Updates</span>
             </Link>
           </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild>
             <Link href="/user/followArtists">
               <Music className="mr-2 h-4 w-4" />
-              <span>Follow Artists</span>
+              <span className="dropdown-options">Follow Artists</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/user/settings">
               <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <span className="dropdown-options">Settings</span>
             </Link>
           </DropdownMenuItem>
           {user.role === "admin" && (
             <DropdownMenuItem asChild>
               <Link href="/user/admin">
                 <Lock className="mr-2 h-4 w-4" />
-                Admin
+                <span className="dropdown-options">Admin</span>
               </Link>
             </DropdownMenuItem>
           )}
@@ -68,10 +65,11 @@ export function UserMenu({ user }: UserButtonProps) {
             onClick={() => signOut({ callbackUrl: "/" })}
             className="flex w-full items-center"
           >
-            <LogOut className="mr-2 h-4 w-4" /> Sign Out
+            <LogOut className="mr-2 h-4 w-4" />{" "}
+            <span className="dropdown-options">Sign Out</span>
           </button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

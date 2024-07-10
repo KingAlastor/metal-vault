@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
- 
-import { Button } from "@/components/ui/button"
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,13 +11,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useSession } from "next-auth/react"
-import { followArtistByBandId } from "./releases-data-actions"
+} from "@/components/ui/dropdown-menu";
+import { useSession } from "next-auth/react";
+import { followArtistByBandId } from "./releases-data-actions";
 
 export type BandAlbum = {
   bandId: string;
-  bandName: string,
+  bandName: string;
   albumName: string;
   type: string | null;
   genreTags: string[];
@@ -46,7 +46,9 @@ export const columns: ColumnDef<BandAlbum>[] = [
     header: "Release Date",
     cell: ({ row }) => {
       const dateFull: string = row.getValue("releaseDate");
-      const dateFormatted: string = new Date(dateFull).toLocaleDateString("en-GB");
+      const dateFormatted: string = new Date(dateFull).toLocaleDateString(
+        "en-GB"
+      );
       return <div>{dateFormatted}</div>;
     },
   },
@@ -58,7 +60,7 @@ export const columns: ColumnDef<BandAlbum>[] = [
       const handleAddToFavoritesClick = async () => {
         await followArtistByBandId(bandAlbum.bandId);
       };
- 
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -69,14 +71,12 @@ export const columns: ColumnDef<BandAlbum>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={handleAddToFavoritesClick}
-            >
-              Follow Artist
+            <DropdownMenuItem onClick={handleAddToFavoritesClick}>
+              <div className="dropdown-options">Follow Artist</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];
