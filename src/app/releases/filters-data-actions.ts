@@ -37,6 +37,8 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
     bandIds = followedBands.map((band: { bandId: string }) => band.bandId);
   }
 
+  const today = new Date(new Date().setHours(0, 0, 0, 0));
+
   const releases = await prisma.upcomingReleases.findMany({
     select: {
       bandId: true,
@@ -49,7 +51,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
     where: {
       ...(bandIds ? { bandId: { in: bandIds } } : {}),
       releaseDate: {
-        gte: new Date(),
+        gte: today,
       },
     },
     orderBy: {
