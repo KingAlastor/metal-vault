@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { BandAlbum } from "./releases-table-columns";
-import { getReleasesByFilters, ReleasesFilters } from "./filters-data-actions";
+import { getReleasesByFilters, ReleasesFilters, updateProfileFilters } from "./filters-data-actions";
+import { User } from "next-auth";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -25,22 +26,21 @@ const FormSchema = z.object({
 
 interface FiltersFormProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  releases: BandAlbum[];
   setReleases: Dispatch<SetStateAction<BandAlbum[]>>;
+  filters: ReleasesFilters;
 }
 
 export function FiltersForm({
   setIsOpen,
-  releases,
   setReleases,
+  filters,
 }: FiltersFormProps) {
-  //TODO: fetch user settings and change default values based on user setup dynamically
-
+  console.log("filters-Form", filters);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      favorites_only: false,
-      favorite_genres_only: false,
+      favorites_only: filters?.favorites_only || false,
+      favorite_genres_only: filters?.favorite_genres_only || false, 
     },
   });
 
@@ -53,6 +53,7 @@ export function FiltersForm({
       const releases = await getReleasesByFilters(filters);
       setReleases(releases);
       setIsOpen(false);
+      updateProfileFilters(data);
     };
 
     fetchReleases();

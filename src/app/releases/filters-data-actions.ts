@@ -8,33 +8,21 @@ import { PrismaBandFollowersModel } from "../../../prisma/models";
 export type ReleasesFilters = {
   favorites_only?: boolean;
   favorite_genres_only?: boolean;
-}
-
+};
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
   const session = await auth();
-  const userId = session?.user.id;
+  console.log("getReleasesByFilters", session?.user);
+  const user = session?.user;
   let bandIds: string[] | undefined;
-  
-  if (filters.favorites_only) {
-    
-    const user = await getUserById(userId!);
-    if (!user) {
-      throw new Error("User ID is undefined. User must be logged in to access favorites.");
-    }
-    const shard = user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma] ? user.shard : '0';
-    const model = prisma[`bandFollowers${shard}` as keyof typeof prisma] as PrismaBandFollowersModel;
-    
-    const followedBands = await model.findMany({
-      select: {
-        bandId: true,
-      },
-      where: {
-        userId: userId,
-      },
-    });
 
-    bandIds = followedBands.map((band: { bandId: string }) => band.bandId);
+  if (user) {
+    if (filters.favorites_only) {
+      bandIds = await getBandIdsByUserId(user);
+    }
+    /*     if (filters.favorite_genres_only) {
+      genres
+    } */
   }
 
   const today = new Date(new Date().setHours(0, 0, 0, 0));
@@ -55,22 +43,57 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
       },
     },
     orderBy: {
-      releaseDate: 'asc',
+      releaseDate: "asc",
     },
   });
   return releases;
 }
 
-export async function updateProfile(filters: ReleasesFilters) {
+const getBandIdsByUserId = async (user: any) => {
+  const shard =
+    user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
+      ? user.shard
+      : "0";
+  const model = prisma[
+    `bandFollowers${shard}` as keyof typeof prisma
+  ] as PrismaBandFollowersModel;
+
+  const followedBands = await model.findMany({
+    select: {
+      bandId: true,
+    },
+    where: {
+      userId: user.id,
+    },
+  });
+
+  return followedBands.map((band: { bandId: string }) => band.bandId);
+};
+
+export const getUserReleaseFilters = async (id: string) => {
+  try {
+    return await prisma.user.findUnique({
+      select: {
+        releaseSettings: true,
+      },
+      where: { id },
+    });
+  } catch {
+    return null;
+  }
+};
+
+export async function updateProfileFilters(filters: ReleasesFilters) {
   const session = await auth();
   const userId = session?.user?.id;
+  const filtersJson = JSON.stringify(filters);
 
   await prisma.user.update({
     where: {
       id: userId,
     },
     data: {
-      releaseSettings: filters.favorites_only,
+      releaseSettings: filtersJson,
     },
   });
 }

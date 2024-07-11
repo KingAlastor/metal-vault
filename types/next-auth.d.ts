@@ -8,8 +8,5 @@ declare module "next-auth" {
   interface User {
     role: String | null,
     shard: number,
-    emailSettings: JSON | null,
-    bandsSettings: JSON | null,
-    releaseSettings: JSON | null,
   }
 }

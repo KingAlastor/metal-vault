@@ -10,30 +10,46 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import { getReleasesByFilters } from "./filters-data-actions";
+import {
+  getReleasesByFilters,
+  getUserReleaseFilters,
+} from "./filters-data-actions";
 import { User } from "next-auth";
 
 interface ReleasesPageProps {
   user?: User;
 }
 
-export default function ReleasesPage({user}: ReleasesPageProps) {
+export default function ReleasesPage({ user }: ReleasesPageProps) {
   const [releases, setReleases] = useState<BandAlbum[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [filters, setFilters] = useState({}); 
+
+  console.log("sessionuser:", user);
 
   useEffect(() => {
     let filters = {};
-    const settingsJson = user?.emailSettings;
-    if (settingsJson) {
-      filters = JSON.parse(settingsJson as unknown as string);
-    }
+    const fetchUserFilters = async () => {
+      if (user?.id) {
+        const userFilters = await getUserReleaseFilters(user.id!);
+        if (userFilters?.releaseSettings) {
+          console.log("releasePage", userFilters.releaseSettings);
+          if (typeof userFilters.releaseSettings === 'string') {
+            setFilters(JSON.parse(userFilters.releaseSettings));
+          } else {
+            setFilters(userFilters.releaseSettings);
+          }
+        }
+      }
+    };
 
     const fetchReleases = async () => {
       const releases = await getReleasesByFilters(filters);
       setReleases(releases);
     };
-  
-    fetchReleases(); 
+
+    fetchUserFilters();
+    fetchReleases();
   }, [user]);
 
   return (
@@ -52,8 +68,8 @@ export default function ReleasesPage({user}: ReleasesPageProps) {
         <CollapsibleContent className="text-white">
           <FiltersForm
             setIsOpen={setIsOpen}
-            releases={releases}
             setReleases={setReleases}
+            filters={filters}
           />
         </CollapsibleContent>
       </Collapsible>

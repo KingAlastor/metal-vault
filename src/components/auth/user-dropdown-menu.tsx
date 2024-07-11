@@ -15,14 +15,13 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
 import Link from "next/link";
-//import avatarPlaceholder from "../../../../public/User.svg"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface UserButtonProps {
   user: User;
 }
 
 export function UserMenu({ user }: UserButtonProps) {
-  console.log("User button", user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
