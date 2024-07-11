@@ -23,34 +23,26 @@ interface ReleasesPageProps {
 export default function ReleasesPage({ user }: ReleasesPageProps) {
   const [releases, setReleases] = useState<BandAlbum[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState({}); 
-
-  console.log("sessionuser:", user);
+  const [filters, setFilters] = useState({});
 
   useEffect(() => {
-    let filters = {};
     const fetchUserFilters = async () => {
       if (user?.id) {
-        const userFilters = await getUserReleaseFilters(user.id!);
-        if (userFilters?.releaseSettings) {
-          console.log("releasePage", userFilters.releaseSettings);
-          if (typeof userFilters.releaseSettings === 'string') {
-            setFilters(JSON.parse(userFilters.releaseSettings));
-          } else {
-            setFilters(userFilters.releaseSettings);
-          }
-        }
+        let userFilters = await getUserReleaseFilters(user.id!);
+        setFilters(userFilters);
       }
+      fetchUserFilters();
     };
+  });
 
+  useEffect(() => {
     const fetchReleases = async () => {
       const releases = await getReleasesByFilters(filters);
       setReleases(releases);
     };
 
-    fetchUserFilters();
     fetchReleases();
-  }, [user]);
+  }, [filters]);
 
   return (
     <div className="container mx-auto py-10">
@@ -68,8 +60,8 @@ export default function ReleasesPage({ user }: ReleasesPageProps) {
         <CollapsibleContent className="text-white">
           <FiltersForm
             setIsOpen={setIsOpen}
-            setReleases={setReleases}
             filters={filters}
+            setFilters={setFilters}
           />
         </CollapsibleContent>
       </Collapsible>

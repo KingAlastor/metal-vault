@@ -72,12 +72,21 @@ const getBandIdsByUserId = async (user: any) => {
 
 export const getUserReleaseFilters = async (id: string) => {
   try {
-    return await prisma.user.findUnique({
+    let filters; 
+    const userFilters = await prisma.user.findUnique({
       select: {
         releaseSettings: true,
       },
       where: { id },
     });
+    
+    if (userFilters?.releaseSettings) {
+      console.log("releasePage", userFilters.releaseSettings);
+      if (typeof userFilters.releaseSettings === 'string') {
+        filters = JSON.parse(userFilters.releaseSettings);
+      } 
+    };
+    return filters;   
   } catch {
     return null;
   }

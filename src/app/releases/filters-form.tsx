@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { BandAlbum } from "./releases-table-columns";
-import { getReleasesByFilters, ReleasesFilters, updateProfileFilters } from "./filters-data-actions";
+import { getReleasesByFilters, getUserReleaseFilters, ReleasesFilters, updateProfileFilters } from "./filters-data-actions";
 import { User } from "next-auth";
 
 const FormSchema = z.object({
@@ -26,16 +26,15 @@ const FormSchema = z.object({
 
 interface FiltersFormProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  setReleases: Dispatch<SetStateAction<BandAlbum[]>>;
-  filters: ReleasesFilters;
+  filters: any;
+  setFilters: Dispatch<SetStateAction<ReleasesFilters>>;
 }
 
 export function FiltersForm({
   setIsOpen,
-  setReleases,
   filters,
+  setFilters,
 }: FiltersFormProps) {
-  console.log("filters-Form", filters);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -45,18 +44,16 @@ export function FiltersForm({
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    const fetchReleases = async () => {
+    const updateFilters = async () => {
       let filters: ReleasesFilters = {
         favorites_only: data.favorites_only ?? false,
         favorite_genres_only: data.favorite_genres_only ?? false,
       };
-      const releases = await getReleasesByFilters(filters);
-      setReleases(releases);
+      setFilters(filters);
       setIsOpen(false);
       updateProfileFilters(data);
     };
-
-    fetchReleases();
+    updateFilters();
   }
 
   return (
