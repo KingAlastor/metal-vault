@@ -2,7 +2,7 @@ import getSession from "@/lib/auth/getSession";
 
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import EmailUpdatesPage from "./EmailUpdatesPage";
+import EmailUpdatesPage from "../../../components/user/emailSettings/EmailUpdatesPage";
 
 export const metadata: Metadata = {
   title: "Email Setup",

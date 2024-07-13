@@ -8,7 +8,7 @@ import Image from "next/image";
 
 export const NavBar = () => {
   const { status, data } = useSession();
-  
+
   return (
     <nav className="navbar">
       <Link href="/" className="flex items-center gap-4">
@@ -18,8 +18,7 @@ export const NavBar = () => {
       <div>
         {status === "authenticated" ? (
           <>
-            <span>{data.user?.name}</span>
-            <UserMenu user={data.user}/>
+            <UserMenu user={data.user} />
           </>
         ) : (
           <SignIn />

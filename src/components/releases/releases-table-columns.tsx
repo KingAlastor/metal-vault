@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "next-auth/react";
-import { followArtistByBandId } from "./releases-data-actions";
+import { followArtistByBandId } from "../../lib/data/releases/releases-data-actions";
 
 export type BandAlbum = {
   bandId: string;

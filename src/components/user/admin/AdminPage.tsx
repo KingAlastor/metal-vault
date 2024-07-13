@@ -5,9 +5,9 @@ import { User } from "next-auth";
 import {
   syncBandDataFromArchives,
   syncLatestBandAdditionsFromArchives,
-} from "./band-data-actions";
-import { syncAlbumDataFromArchives } from "./album-data-actions";
-import { syncUpcomingReleaseDataFromArchives } from "./latest-releases-data-actions";
+} from "../../../lib/data/user/admin/band-data-actions";
+import { syncAlbumDataFromArchives } from "../../../lib/data/user/admin/album-data-actions";
+import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
 import { useState } from "react";
 
 interface EmailUpdatesPageProps {

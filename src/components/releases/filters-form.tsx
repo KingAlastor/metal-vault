@@ -9,15 +9,12 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { BandAlbum } from "./releases-table-columns";
-import { getReleasesByFilters, getUserReleaseFilters, ReleasesFilters, updateProfileFilters } from "./filters-data-actions";
-import { User } from "next-auth";
+import { ReleasesFilters, updateProfileFilters } from "../../lib/data/releases/filters-data-actions";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),

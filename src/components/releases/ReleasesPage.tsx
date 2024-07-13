@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ReleasesDataTable } from "./releases-data-table";
+import { ReleasesDataTable } from "../../lib/data/releases/releases-data-table";
 import { BandAlbum, columns } from "./releases-table-columns";
 import { FiltersForm } from "./filters-form";
 import {
@@ -13,7 +13,7 @@ import { ChevronDown } from "lucide-react";
 import {
   getReleasesByFilters,
   getUserReleaseFilters,
-} from "./filters-data-actions";
+} from "../../lib/data/releases/filters-data-actions";
 import { User } from "next-auth";
 
 interface ReleasesPageProps {

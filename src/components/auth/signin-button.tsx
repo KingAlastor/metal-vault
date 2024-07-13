@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react"
  
 export function SignIn() {
   return (
-    <Button onClick={() => signIn("google", { redirectTo: "/" })}>
+    <Button className="button" onClick={() => signIn("google", { redirectTo: "/" })}>
       Sign In
     </Button>
   )

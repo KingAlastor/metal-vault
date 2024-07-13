@@ -2,7 +2,7 @@
 
 import getSession from "@/lib/auth/getSession";
 import { prisma } from "@/lib/prisma";
-import { PrismaBandFollowersModel } from "../../../prisma/models";
+import { PrismaBandFollowersModel } from "../../../../prisma/models";
 
 export const followArtistByBandId = async (bandId: string) => {
   const session = await getSession();

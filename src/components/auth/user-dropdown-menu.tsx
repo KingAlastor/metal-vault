@@ -15,7 +15,7 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserButtonProps {
   user: User;
@@ -25,7 +25,12 @@ export function UserMenu({ user }: UserButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>User</Button>
+        <Button>
+          <Avatar className="w-8 h-8">
+            <AvatarImage src={user.image || ""} />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{user.name || "User"}</DropdownMenuLabel>

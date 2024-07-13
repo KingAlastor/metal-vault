@@ -1,7 +1,7 @@
 import getSession from "@/lib/auth/getSession";
 
 import { Metadata } from "next";
-import ReleasesPage from "./ReleasesPage";
+import ReleasesPage from "../../components/releases/ReleasesPage";
 
 export const metadata: Metadata = {
   title: "Releases",

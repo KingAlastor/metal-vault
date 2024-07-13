@@ -48,6 +48,16 @@
   .dropdown-options:hover {
     font-weight: bold;
   }
+
+  .button {
+    border: 1px solid white; 
+    border-radius: 2px;
+    margin: 0 4px;
+  }
+
+  .input {
+    @apply bg-gray-800;
+  }
 }
 
 @layer base {

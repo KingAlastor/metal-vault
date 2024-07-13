@@ -1,7 +1,7 @@
 import getSession from "@/lib/auth/getSession";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import AdminPage from "./AdminPage";
+import AdminPage from "../../../components/user/admin/AdminPage";
 
 export const metadata: Metadata = {
   title: "Admin",

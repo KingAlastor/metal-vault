@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { getUserById } from "@/lib/auth/getUser";
 import { prisma } from "@/lib/prisma";
-import { PrismaBandFollowersModel } from "../../../prisma/models";
+import { PrismaBandFollowersModel } from "../../../../prisma/models";
 
 export type ReleasesFilters = {
   favorites_only?: boolean;

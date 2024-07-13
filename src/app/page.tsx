@@ -1,3 +1,4 @@
+import { CreatePost } from "@/components/posts/CreatePost";
 
 
 export default async function Home() {
@@ -5,7 +6,7 @@ export default async function Home() {
   return (
     <main>
       <div className="text-white">
-        Home
+        <CreatePost />
       </div>
     </main>
   );
