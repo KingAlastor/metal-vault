@@ -1,4 +1,4 @@
-import { CreatePost } from "@/components/posts/CreatePost";
+import { CreatePost } from "@/components/posts/create-post-form";
 
 
 export default async function Home() {

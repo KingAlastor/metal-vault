@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -41,10 +41,27 @@ interface PostFormProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-export function CreatePost({ setIsOpen }: PostFormProps) {
+export function CreatePost() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
+
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const MAX_HEIGHT = 200;
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "inherit"; 
+      const newHeight = Math.min(textarea.scrollHeight, MAX_HEIGHT);
+      textarea.style.height = `${newHeight}px`; 
+      textarea.style.overflowY = newHeight === MAX_HEIGHT ? "auto" : "hidden"; 
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight(); 
+  }, []);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const addPost = async () => {
@@ -56,7 +73,6 @@ export function CreatePost({ setIsOpen }: PostFormProps) {
           </pre>
         ),
       });
-      setIsOpen(false);
     };
     addPost();
   }
@@ -91,6 +107,8 @@ export function CreatePost({ setIsOpen }: PostFormProps) {
                         placeholder="Tell us a little bit about yourself"
                         className="resize-none bg-black text-white"
                         {...field}
+                        ref={textareaRef}
+                        onInput={adjustTextareaHeight}
                       />
                     </FormControl>
                   </FormItem>
@@ -99,7 +117,7 @@ export function CreatePost({ setIsOpen }: PostFormProps) {
             </div>
             <div className="flex justify-end">
               <DialogClose>
-                <Button type="submit">Apply</Button>
+                <Button type="submit">Post</Button>
               </DialogClose>
             </div>
           </form>
