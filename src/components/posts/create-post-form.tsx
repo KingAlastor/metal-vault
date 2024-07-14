@@ -26,6 +26,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "../ui/use-toast";
 
+const initialFormState = {
+  post_message: '',
+};
+
 const FormSchema = z.object({
   post_message: z
     .string()
@@ -42,8 +46,9 @@ interface PostFormProps {
 }
 
 export function CreatePost() {
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const { reset, ...form } = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: initialFormState,
   });
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -65,14 +70,8 @@ export function CreatePost() {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const addPost = async () => {
-      toast({
-        title: "You submitted the following values:",
-        description: (
-          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
-      });
+      // await addPost(data);
+      reset(initialFormState);  
     };
     addPost();
   }
@@ -91,7 +90,7 @@ export function CreatePost() {
             Make changes to your profile here. Click save whenre done.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
+        <Form reset={reset} {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-6"
