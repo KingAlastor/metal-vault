@@ -9,6 +9,7 @@ import {
 import { syncAlbumDataFromArchives } from "../../../lib/data/user/admin/album-data-actions";
 import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
 import { useState } from "react";
+import { SearchBandsDropDown } from "@/components/global/search-bands-dropdown";
 
 interface EmailUpdatesPageProps {
   user: User;
@@ -45,7 +46,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center flex-col">
       <Button
         className="text-white"
         onClick={handleBandSyncClick}
@@ -74,6 +75,7 @@ export default function AdminPage() {
       >
         {isLatestBandsLoading ? "Loading..." : "Sync Latest Bands"}
       </Button>
+      <SearchBandsDropDown />
     </div>
   );
 }

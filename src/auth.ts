@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import Google from "next-auth/providers/google";
-import { getUserById } from "./lib/auth/getUser";
 
 const prisma = new PrismaClient();
 

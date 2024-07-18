@@ -21,6 +21,7 @@ export const followArtistByBandId = async (bandId: string) => {
   const model = prisma[
     `bandFollowers${shard}` as keyof typeof prisma
   ] as PrismaBandFollowersModel;
+  
   try {
     await model.upsert({
       where: {

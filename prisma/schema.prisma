@@ -140,6 +140,21 @@ model BandFollowers1 {
   @@map("band_followers_1")
 }
 
+model UserPosts0 {
+  id           String  @id @default(cuid())
+  userId       String  @map("user_id")
+  bandId       String? @map("band_id")
+  bandName     String? @map("bandname")
+  genre        String? 
+  postContent  String  @map("post_content")
+  YTLink       String? @map("yt_link")
+  SpotifyLink  String? @map("spotify_link")
+  BandCampLink String? @map("bandcamp_link")
+
+  @@index([userId])
+  @@map("user_posts_0")
+}
+
 model GenreTags {
   genres String @id
 

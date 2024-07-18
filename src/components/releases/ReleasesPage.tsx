@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ReleasesDataTable } from "../../lib/data/releases/releases-data-table";
+import { ReleasesDataTable } from "./releases-data-table";
 import { BandAlbum, columns } from "./releases-table-columns";
 import { FiltersForm } from "./releases-filters-form";
 import {
