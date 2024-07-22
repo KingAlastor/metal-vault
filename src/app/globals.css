@@ -58,6 +58,13 @@
   .input {
     @apply bg-gray-800;
   }
+
+  .log-links {
+    display: flex;
+    align-items: center; 
+    justify-content: start; 
+    gap: 10px;
+  }
 }
 
 @layer base {

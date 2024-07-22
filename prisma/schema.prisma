@@ -14,18 +14,23 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(cuid())
+  id              String       @id @default(cuid())
   name            String?
-  email           String?   @unique
-  emailVerified   DateTime? @map("email_verified")
+  email           String?      @unique
+  emailVerified   DateTime?    @map("email_verified")
   image           String?
   role            String?
   shard           Int?
-  emailSettings   Json?     @map("email_settings")
-  bandsSettings   Json?     @map("bands_settings")
-  releaseSettings Json?     @map("release_settings")
+  emailSettings   Json?        @map("email_settings")
+  bandsSettings   Json?        @map("bands_settings")
+  releaseSettings Json?        @map("release_settings")
+  postsSettings   Json?        @map("posts_settings")
   accounts        Account[]
   sessions        Session[]
+  UserPosts0      UserPosts0[]
+  UserPosts1      UserPosts1[]
+  UserPosts2      UserPosts2[]
+  UserPosts3      UserPosts3[]
 
   @@map("users")
 }
@@ -141,18 +146,71 @@ model BandFollowers1 {
 }
 
 model UserPosts0 {
-  id           String  @id @default(cuid())
-  userId       String  @map("user_id")
-  bandId       String? @map("band_id")
-  bandName     String? @map("bandname")
-  genre        String? 
-  postContent  String  @map("post_content")
-  YTLink       String? @map("yt_link")
-  SpotifyLink  String? @map("spotify_link")
-  BandCampLink String? @map("bandcamp_link")
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  bandId       String?  @map("band_id")
+  bandName     String?  @map("bandname")
+  genre        String?
+  postContent  String   @map("post_content")
+  YTLink       String?  @map("yt_link")
+  SpotifyLink  String?  @map("spotify_link")
+  BandCampLink String?  @map("bandcamp_link")
+  postDateTime DateTime @default(now()) @map("post_datetime")
+  user         User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@map("user_posts_0")
+}
+
+model UserPosts1 {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  bandId       String?  @map("band_id")
+  bandName     String?  @map("bandname")
+  genre        String?
+  postContent  String   @map("post_content")
+  YTLink       String?  @map("yt_link")
+  SpotifyLink  String?  @map("spotify_link")
+  BandCampLink String?  @map("bandcamp_link")
+  postDateTime DateTime @default(now()) @map("post_datetime")
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("user_posts_1")
+}
+
+model UserPosts2 {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  bandId       String?  @map("band_id")
+  bandName     String?  @map("bandname")
+  genre        String?
+  postContent  String   @map("post_content")
+  YTLink       String?  @map("yt_link")
+  SpotifyLink  String?  @map("spotify_link")
+  BandCampLink String?  @map("bandcamp_link")
+  postDateTime DateTime @default(now()) @map("post_datetime")
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("user_posts_2")
+}
+
+model UserPosts3 {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  bandId       String?  @map("band_id")
+  bandName     String?  @map("bandname")
+  genre        String?
+  postContent  String   @map("post_content")
+  YTLink       String?  @map("yt_link")
+  SpotifyLink  String?  @map("spotify_link")
+  BandCampLink String?  @map("bandcamp_link")
+  postDateTime DateTime @default(now()) @map("post_datetime")
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("user_posts_3")
 }
 
 model GenreTags {

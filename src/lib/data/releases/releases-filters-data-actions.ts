@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@/auth";
-import { getUserById } from "@/lib/auth/getUser";
 import { prisma } from "@/lib/prisma";
 import { PrismaBandFollowersModel } from "../../../../prisma/models";
 
@@ -12,7 +11,6 @@ export type ReleasesFilters = {
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
   const session = await auth();
-  console.log("getReleasesByFilters", session?.user);
   const user = session?.user;
   let bandIds: string[] | undefined;
 

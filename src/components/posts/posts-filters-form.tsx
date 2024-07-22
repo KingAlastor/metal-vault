@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import React, { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,8 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { ReleasesFilters, updateProfileFilters } from "../../lib/data/releases/releases-filters-data-actions";
+import { updateProfileFilters } from "../../lib/data/releases/releases-filters-data-actions";
+import { PostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -24,10 +25,10 @@ const FormSchema = z.object({
 interface FiltersFormProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   filters: any;
-  setFilters: Dispatch<SetStateAction<ReleasesFilters>>;
+  setFilters: Dispatch<SetStateAction<PostsFilters>>;
 }
 
-export function FiltersForm({
+export function PostsFiltersForm({
   setIsOpen,
   filters,
   setFilters,
@@ -42,7 +43,7 @@ export function FiltersForm({
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const updateFilters = async () => {
-      let filters: ReleasesFilters = {
+      let filters: PostsFilters = {
         favorites_only: data.favorites_only ?? false,
         favorite_genres_only: data.favorite_genres_only ?? false,
       };

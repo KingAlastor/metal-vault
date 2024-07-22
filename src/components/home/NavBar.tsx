@@ -5,6 +5,7 @@ import { SignIn } from "../auth/signin-button";
 import { UserMenu } from "../auth/user-dropdown-menu";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { Button } from "../ui/button";
 
 export const NavBar = () => {
   const { status, data } = useSession();
@@ -15,7 +16,12 @@ export const NavBar = () => {
         <Image src="/logo.svg" alt="Logo" width={28} height={28} />
         <p className="font-bold max-xs:hidden"> Metal Vault</p>
       </Link>
-      <div>
+      <div className="flex">
+        <Button className="bg-black text-white" variant="outline">
+          <Link href="/post">
+            <span className="dropdown-options">Create Post</span>
+          </Link>
+        </Button>
         {status === "authenticated" ? (
           <>
             <UserMenu user={data.user} />

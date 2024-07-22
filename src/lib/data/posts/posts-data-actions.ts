@@ -5,14 +5,14 @@ import { PrismaUserPostsModel } from "../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
 
 type PostProps = {
-  band_name?: string,
-  bandId?: string,
-  genre?: string,
-  post_message: string,
-  yt_link?: string,
-  spotify_link?: string,
-  bandcamp_link?: string, 
-}
+  band_name?: string;
+  bandId?: string;
+  genre?: string;
+  post_message: string;
+  yt_link?: string;
+  spotify_link?: string;
+  bandcamp_link?: string;
+};
 
 export const addPost = async (post: PostProps) => {
   const session = await auth();
@@ -50,4 +50,46 @@ export const addPost = async (post: PostProps) => {
   } catch (error) {
     console.error("Error updating bands table data:", error);
   }
+};
+
+type PostFilters = {};
+
+export const getPostsByFilters = async (filters: PostFilters) => {
+  const session = await auth();
+  const user = session?.user;
+
+  let allPosts = [];
+
+  for (let shardSuffix = 0; shardSuffix < 3; shardSuffix++) {
+    const model = prisma[
+      `userPosts${shardSuffix}` as keyof typeof prisma
+    ] as PrismaUserPostsModel;
+
+    const posts = await model.findMany({
+      select: {
+        id: true,
+        userId: true,
+        bandId: true,
+        bandName: true,
+        genre: true,
+        postContent: true,
+        YTLink: true,
+        SpotifyLink: true,
+        BandCampLink: true,
+        postDateTime: true,
+        user: {
+          select: {
+            name: true,
+            image: true,
+            role: true,
+          },
+        },
+      },
+    });
+    if (posts.length > 0) {
+      allPosts.push(...posts);
+    }
+  }
+
+  return allPosts;
 };

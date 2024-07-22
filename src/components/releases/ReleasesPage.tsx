@@ -13,7 +13,7 @@ import { ChevronDown } from "lucide-react";
 import {
   getReleasesByFilters,
   getUserReleaseFilters,
-} from "../../lib/data/releases/filters-data-actions";
+} from "../../lib/data/releases/releases-filters-data-actions";
 import { User } from "next-auth";
 
 interface ReleasesPageProps {
