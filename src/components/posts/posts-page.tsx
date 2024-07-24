@@ -42,7 +42,7 @@ export default function PostsPage({ user }: PostsPageProps) {
   useEffect(() => {
     const fetchPosts = async () => {
       const posts = await getPostsByFilters(filters);
-      posts.sort((a, b) => +new Date(a.postDateTime) - +new Date(b.postDateTime));
+      posts.sort((b, a) => +new Date(a.postDateTime) - +new Date(b.postDateTime));
       setPosts(posts);
     };
 

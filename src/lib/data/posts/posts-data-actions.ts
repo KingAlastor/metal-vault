@@ -7,11 +7,13 @@ import { prisma } from "@/lib/prisma";
 type PostProps = {
   band_name?: string;
   bandId?: string;
+  /* title?: string; */
   genre?: string;
   post_message: string;
   yt_link?: string;
   spotify_link?: string;
   bandcamp_link?: string;
+  /* preview_url?: string; */
 };
 
 export const addPost = async (post: PostProps) => {
@@ -38,17 +40,20 @@ export const addPost = async (post: PostProps) => {
         userId: user.id,
         bandId: post.bandId,
         bandName: post.band_name,
+        /* title: post.title, */
         genre: post.genre,
         postContent: post.post_message,
         YTLink: post.yt_link,
         SpotifyLink: post.spotify_link,
         BandCampLink: post.bandcamp_link,
+        /* preview_url: post.preview_url, */
       },
     });
 
     return newPost;
   } catch (error) {
     console.error("Error updating bands table data:", error);
+    throw error;
   }
 };
 
@@ -71,11 +76,13 @@ export const getPostsByFilters = async (filters: PostFilters) => {
         userId: true,
         bandId: true,
         bandName: true,
+        /* title: true, */
         genre: true,
         postContent: true,
         YTLink: true,
         SpotifyLink: true,
         BandCampLink: true,
+        /* preview_url: true, */
         postDateTime: true,
         user: {
           select: {

@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { User } from "next-auth";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
+import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 
 const initialFormState = {
   post_message: "",
@@ -58,9 +59,9 @@ const FormSchema = z.object({
 
 type PostPageProps = {
   user?: User;
-}
+};
 
-export function CreatePost({user}: PostPageProps) {
+export function CreatePost({ user }: PostPageProps) {
   const { reset, ...form } = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: initialFormState,
@@ -88,9 +89,16 @@ export function CreatePost({user}: PostPageProps) {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log("submit was pressed");
     const addNewPost = async () => {
-      await addPost(data);
-      reset(initialFormState);
-      router.push("/");
+      try {
+        const post = await addPost(data);
+        console.log("Post added successfully:", post);
+        await updatePreviewAndTitle(post);
+        console.log("previewUpdateCalled");
+        reset(initialFormState);
+        router.push("/");
+      } catch (error) {
+        console.error("Error adding post:", error);
+      }
     };
     addNewPost();
   }
@@ -213,3 +221,53 @@ export function CreatePost({user}: PostPageProps) {
     </Form>
   );
 }
+
+const updatePreviewAndTitle = async (post: any) => {
+  let medialink: string | undefined;
+  let source: string | undefined;
+
+  console.log("post:", post);
+  console.log("post.yt_link:", post.YTLink);
+
+  if (post.YTLink) {
+    medialink = post.YTLink;
+    source = "YT";
+  }
+
+  console.log("medialink:", medialink);
+  console.log("source:", source);
+
+  if (medialink && source) {
+    const videoData = await fetchPreviewUrl(medialink, source);
+    console.log(videoData);
+  }
+};
+
+const fetchPreviewUrl = async (medialink: string, source: string) => {
+  console.log("fetchPreviewUrl called with:", medialink, source);
+  switch (source) {
+    case "YT":
+      const regExp =
+        /(?:https?:\/\/)?(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = regExp.exec(medialink);
+      if (match && match[2]) {
+        const videoId = match[2]; // Correctly extract the video ID
+        console.log(videoId);
+        const previewUrl = await fetchYoutubeVideoData(videoId);
+        console.log("previewUrl:", previewUrl);
+        return previewUrl;
+      } else {
+        console.log("No match found for YT link");
+        return null;
+      }
+    case "SPOTIFY":
+      // Code for case 2
+      break;
+    case "BC":
+      // Code for case 3
+      break;
+    default:
+      console.log("Unknown source");
+      return null;
+  }
+};
