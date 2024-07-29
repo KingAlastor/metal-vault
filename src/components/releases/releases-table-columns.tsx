@@ -43,10 +43,8 @@ export const columns: ColumnDef<BandAlbum>[] = [
     accessorKey: "releaseDate",
     header: "Release Date",
     cell: ({ row }) => {
-      const dateFull: string = row.getValue("releaseDate");
-      const dateFormatted: string = new Date(dateFull).toLocaleDateString(
-        "en-GB"
-      );
+      const dateFull: Date = row.getValue("releaseDate");
+      const dateFormatted: string = formatDate(dateFull);
       return <div>{dateFormatted}</div>;
     },
   },
@@ -78,3 +76,26 @@ export const columns: ColumnDef<BandAlbum>[] = [
     },
   },
 ];
+
+const formatDate = (date: Date) => {
+  const d = new Date(date);
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = months[d.getMonth()];
+  const day = d.getDate();
+  const year = d.getFullYear();
+
+  return `${month} ${day} ${year}`;
+};

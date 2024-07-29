@@ -7,25 +7,14 @@ import { ChevronDown } from "lucide-react";
 import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
 import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 import { PostsFiltersForm } from "./posts-filters-form";
-import { Posts, PostsProps } from "./posts";
+import { Post, Posts } from "./posts";
 
 interface PostsPageProps {
   user?: User;
 }
 
-/* type Posts = {
-  band_name?: string,
-  bandId?: string,
-  genre?: string,
-  post_message: string,
-  yt_link?: string,
-  spotify_link?: string,
-  bandcamp_link?: string, 
-  postDateTime: Date,
-} */
-
 export default function PostsPage({ user }: PostsPageProps) {
-  const [posts, setPosts] = useState<PostsProps[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState({});
 

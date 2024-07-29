@@ -19,7 +19,7 @@ type PostUser = {
   role: string;
 };
 
-type Post = {
+export type Post = {
   id: string;
   userId: string;
   bandId: string;
@@ -38,7 +38,7 @@ export type PostsProps = {
 };
 
 export const Posts = ({ posts }: PostsProps) => {
-  console.log(posts);
+  console.table(posts);
 
   return (
     <div>
@@ -60,8 +60,8 @@ export const Posts = ({ posts }: PostsProps) => {
                 <Image
                   src="https://i.ytimg.com/vi/WNMFnW34F-0/mqdefault.jpg" // Example external URL
                   alt="Bandcamp Album Cover"
-                  width={100} // Desired width
-                  height={100} // Desired height
+                  width={100}
+                  height={100} 
                 />
               </div>
             </div>
