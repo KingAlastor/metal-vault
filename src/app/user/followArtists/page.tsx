@@ -1,8 +1,8 @@
+import FollowArtistsPage from "@/components/user/followArtists/follow-artists-page";
 import getSession from "@/lib/auth/getSession";
 
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import FollowArtistsPage from "./FollowArtistsPage";
 
 export const metadata: Metadata = {
   title: "Followed Bands",
@@ -20,7 +20,7 @@ export default async function Page() {
   /* return <FollowArtistsPage user={user} />; */
   return (
     <div>
-      Follow Artists Page
+      <FollowArtistsPage user={user}/>
     </div>
   )
 }

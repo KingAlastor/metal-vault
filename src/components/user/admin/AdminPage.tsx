@@ -11,10 +11,6 @@ import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admi
 import { useState } from "react";
 import { SearchBandsDropDown } from "@/components/global/search-bands-dropdown";
 
-interface EmailUpdatesPageProps {
-  user: User;
-}
-
 export default function AdminPage() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
   const [isAlbumSyncLoading, setIsAlbumSyncLoading] = useState(false);

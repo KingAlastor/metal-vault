@@ -16,14 +16,11 @@ import {
 
 export interface Band {
   id: string;
-  name: string;
   namePretty: string;
   genreTags: string[];
-  country: string;
-  status: string;
+  country: string | null;
+  status: string | null;
   followers: number | null;
-  archivesLink: string;
-  spotifyId: string | null;
 }
 
 export const columns: ColumnDef<Band>[] = [
@@ -50,7 +47,7 @@ export const columns: ColumnDef<Band>[] = [
   {
     accessorKey: "namePretty",
     header: "Name",
-    cell: ({ row }) => <a href={`/band/${row.original.name}`}>{row.getValue("namePretty")}</a>,
+    cell: ({ row }) => <a href={`/band/${row.original.namePretty}`}>{row.getValue("namePretty")}</a>,
   },
   {
     accessorKey: "genreTags",
