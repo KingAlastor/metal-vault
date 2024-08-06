@@ -4,7 +4,6 @@ import { User } from "next-auth";
 import { DataTable } from "./bands-data-table";
 import { Band, columns } from "./bands-table-columns";
 import { useEffect, useState } from "react";
-import { debounce } from "lodash";
 import { fetchBandsByFilters } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 import { Input } from "@/components/ui/input";
 
@@ -21,19 +20,22 @@ export default function FollowArtistsPage({ user }: FollowArtistsPageProps) {
       const bands = await fetchBandsByFilters(searchTerm);
       console.log("fetch ran, length: ", bands.length);
       setBands(bands);
-    }
-    else {
+    } else {
       console.log("search too short: ", searchTerm);
       setBands([]);
     }
   };
 
-  const debouncedFetchBands = debounce(fetchBands, 300);
-
   useEffect(() => {
-    debouncedFetchBands(searchTerm);
+    const handler = setTimeout(() => {
+      fetchBands(searchTerm);
+    }, 300);
+
     console.log("looping useEffect");
-    return () => debouncedFetchBands.cancel();
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [searchTerm]);
 
   return (
