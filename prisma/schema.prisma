@@ -17,7 +17,6 @@ model User {
   id              String       @id @default(cuid())
   name            String?
   email           String?      @unique
-  emailVerified   DateTime?    @map("email_verified")
   image           String?
   role            String?
   shard           Int?
@@ -25,6 +24,9 @@ model User {
   bandsSettings   Json?        @map("bands_settings")
   releaseSettings Json?        @map("release_settings")
   postsSettings   Json?        @map("posts_settings")
+  emailVerified   DateTime?    @map("email_verified")
+  accountCreated  DateTime?    @map("account_created")
+  lastLogin       DateTime?    @map("last_login")
   accounts        Account[]
   sessions        Session[]
   UserPosts0      UserPosts0[]
@@ -165,17 +167,17 @@ model UserPosts0 {
 }
 
 model UserPosts1 {
-  id           String  @id @default(cuid())
-  userId       String  @map("user_id")
-  bandId       String? @map("band_id")
-  bandName     String? @map("bandname")
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  bandId       String?  @map("band_id")
+  bandName     String?  @map("bandname")
   title        String?
   genre        String?
-  postContent  String  @map("post_content")
-  YTLink       String? @map("yt_link")
-  SpotifyLink  String? @map("spotify_link")
-  BandCampLink String? @map("bandcamp_link")
-  preview_url  String? @map("preview_url")
+  postContent  String   @map("post_content")
+  YTLink       String?  @map("yt_link")
+  SpotifyLink  String?  @map("spotify_link")
+  BandCampLink String?  @map("bandcamp_link")
+  preview_url  String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
 
@@ -184,17 +186,17 @@ model UserPosts1 {
 }
 
 model UserPosts2 {
-  id           String  @id @default(cuid())
-  userId       String  @map("user_id")
-  bandId       String? @map("band_id")
-  bandName     String? @map("bandname")
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  bandId       String?  @map("band_id")
+  bandName     String?  @map("bandname")
   title        String?
   genre        String?
-  postContent  String  @map("post_content")
-  YTLink       String? @map("yt_link")
-  SpotifyLink  String? @map("spotify_link")
-  BandCampLink String? @map("bandcamp_link")
-  preview_url  String? @map("preview_url")
+  postContent  String   @map("post_content")
+  YTLink       String?  @map("yt_link")
+  SpotifyLink  String?  @map("spotify_link")
+  BandCampLink String?  @map("bandcamp_link")
+  preview_url  String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
 
@@ -203,17 +205,17 @@ model UserPosts2 {
 }
 
 model UserPosts3 {
-  id           String  @id @default(cuid())
-  userId       String  @map("user_id")
-  bandId       String? @map("band_id")
-  bandName     String? @map("bandname")
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  bandId       String?  @map("band_id")
+  bandName     String?  @map("bandname")
   title        String?
   genre        String?
-  postContent  String  @map("post_content")
-  YTLink       String? @map("yt_link")
-  SpotifyLink  String? @map("spotify_link")
-  BandCampLink String? @map("bandcamp_link")
-  preview_url  String? @map("preview_url")
+  postContent  String   @map("post_content")
+  YTLink       String?  @map("yt_link")
+  SpotifyLink  String?  @map("spotify_link")
+  BandCampLink String?  @map("bandcamp_link")
+  preview_url  String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
 
