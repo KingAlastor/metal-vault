@@ -2,6 +2,10 @@
 
 import { prisma } from "@/lib/prisma";
 
+/** 
+* Fetches bands based on search term
+*/
+
 export const fetchBandsByFilters = async (search: string) => {
     const response = await prisma.bands.findMany({
     select: {
