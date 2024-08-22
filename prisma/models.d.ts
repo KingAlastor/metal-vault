@@ -10,3 +10,7 @@ export type PrismaUserPostsModel = {
   upsert: (args: any) => Promise<any>;
   create: (args: any) => Promise<any>;
 }
+
+export type PrismaBandFollowersModel = {
+  findMany: (args: any) => Promise<any>;
+}

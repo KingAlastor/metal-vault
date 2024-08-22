@@ -12,6 +12,8 @@
     "@auth/prisma-adapter": "^2.1.0",
     "@custom-react-hooks/use-media-query": "^1.4.19",
     "@hookform/resolvers": "^3.4.2",
+    "@nextui-org/react": "^2.4.6",
+    "@nextui-org/table": "^2.0.39",
     "@prisma/client": "^5.15.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-checkbox": "^1.0.4",

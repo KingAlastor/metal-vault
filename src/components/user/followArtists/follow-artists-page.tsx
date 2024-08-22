@@ -1,30 +1,33 @@
 "use client";
 
-import { User } from "next-auth";
 import { DataTable } from "./bands-data-table";
 import { Band, columns } from "./bands-table-columns";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchBandsByFilters } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 import { Input } from "@/components/ui/input";
 
-interface FollowArtistsPageProps {
-  user: User;
-}
-
-export default function FollowArtistsPage({ user }: FollowArtistsPageProps) {
+export default function FollowArtistsPage() {
   const [bands, setBands] = useState<Band[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("A");
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
-  const fetchBands = async (search: string) => {
+  const fetchBands = useCallback(async (search: string) => {
     if (search.length > 2) {
-      const bands = await fetchBandsByFilters(searchTerm);
+      const bands = await fetchBandsByFilters(search);
+      const selectionPreset = filterFavoritesPresets(bands, userFavorites);
+
       console.log("fetch ran, length: ", bands.length);
-      setBands(bands);
+      if (bands) {
+        setBands(bands);
+      }
+      if (selectionPreset) {
+        setRowSelection(selectionPreset);
+      }
     } else {
-      console.log("search too short: ", searchTerm);
+      console.log("search too short: ", search);
       setBands([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -36,7 +39,24 @@ export default function FollowArtistsPage({ user }: FollowArtistsPageProps) {
     return () => {
       clearTimeout(handler);
     };
-  }, [searchTerm]);
+  }, [searchTerm, fetchBands]);
+
+  const saveSelectedRows = useCallback(async (rowSelection: string[]) => {
+    const favorites = getUserFavorites(bands, rowSelection);
+    await saveFavorites(favorites);
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveSelectedRows(rowSelection);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [rowSelection, setRowSelection]);
 
   return (
     <div className="container mx-auto py-10">
@@ -46,7 +66,16 @@ export default function FollowArtistsPage({ user }: FollowArtistsPageProps) {
         className="max-w-sm bg-black text-white mb-4"
       />
 
-      <DataTable columns={columns} data={bands} />
+      <DataTable
+        columns={columns}
+        data={bands}
+        rowSelection={rowSelection}
+        setRowSelection={setRowSelection}
+      />
     </div>
   );
 }
+
+const getUserFavorites = (bands: Band[], selectedRows: {}) => {
+  return Object.keys(selectedRows).map((index) => bands[parseInt(index)].id);
+};

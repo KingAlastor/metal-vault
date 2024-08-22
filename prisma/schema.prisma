@@ -128,7 +128,6 @@ model UpcomingReleases {
 }
 
 model BandFollowers0 {
-  id     String @id @default(cuid())
   bandId String @map("band_id")
   userId String @map("user_id")
 
@@ -138,7 +137,6 @@ model BandFollowers0 {
 }
 
 model BandFollowers1 {
-  id     String @id @default(cuid())
   bandId String @map("band_id")
   userId String @map("user_id")
 
