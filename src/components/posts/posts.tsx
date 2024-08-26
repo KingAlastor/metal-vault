@@ -38,7 +38,7 @@ export type PostsProps = {
 };
 
 export const Posts = ({ posts }: PostsProps) => {
-  console.table(posts);
+  console.table("logging posts");
 
   return (
     <div>

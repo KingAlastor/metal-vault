@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 export interface Band {
   id: string;
@@ -22,6 +22,14 @@ export interface Band {
   status: string | null;
   followers: number | null;
 }
+
+const handleCheckedChange = (row, value) => {
+  console.log("logging row:", row, "value", value);
+  row.toggleSelected(!!value);
+  const id = row.original.id;
+  console.log("row id: ", id);
+  
+};
 
 export const columns: ColumnDef<Band>[] = [
   {
@@ -34,20 +42,26 @@ export const columns: ColumnDef<Band>[] = [
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
+        className="border-white"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value) => handleCheckedChange(row, value)}
         aria-label="Select row"
+        className="border-white"
       />
     ),
   },
   {
     accessorKey: "namePretty",
     header: "Name",
-    cell: ({ row }) => <a href={`/band/${row.original.namePretty}`}>{row.getValue("namePretty")}</a>,
+    cell: ({ row }) => (
+      <a href={`/band/${row.original.namePretty}`}>
+        {row.getValue("namePretty")}
+      </a>
+    ),
   },
   {
     accessorKey: "genreTags",
@@ -72,7 +86,7 @@ export const columns: ColumnDef<Band>[] = [
           Followers
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
       const followers: number = row.getValue("followers");
@@ -83,8 +97,8 @@ export const columns: ColumnDef<Band>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const band = row.original
- 
+      const band = row.original;
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -105,7 +119,7 @@ export const columns: ColumnDef<Band>[] = [
             <DropdownMenuItem>View payment details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
 ];

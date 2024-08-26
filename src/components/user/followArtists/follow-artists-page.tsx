@@ -11,34 +11,31 @@ export default function FollowArtistsPage() {
   const [searchTerm, setSearchTerm] = useState("A");
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
-  const fetchBands = useCallback(async (search: string) => {
-    if (search.length > 2) {
-      const bands = await fetchBandsByFilters(search);
-      const selectionPreset = filterFavoritesPresets(bands, userFavorites);
+  useEffect(() => {
+    const getFavorites = async () => {
+      const favorites = await getUserFavorites();
+    }
 
-      console.log("fetch ran, length: ", bands.length);
+    getFavorites();
+  }, []);
+
+
+  const fetchBands = useCallback(async (search: string) => {
+      const bands = await fetchBandsByFilters(search);
+//      const selectionPreset = filterFavoritesPresets(bands, userFavorites);
+
       if (bands) {
         setBands(bands);
       }
-      if (selectionPreset) {
+/*       if (selectionPreset) {
         setRowSelection(selectionPreset);
-      }
-    } else {
-      console.log("search too short: ", search);
-      setBands([]);
-    }
+      } */
   }, []);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
       fetchBands(searchTerm);
-    }, 300);
 
     console.log("looping useEffect");
-
-    return () => {
-      clearTimeout(handler);
-    };
   }, [searchTerm, fetchBands]);
 
   const saveSelectedRows = useCallback(async (rowSelection: string[]) => {
@@ -48,9 +45,10 @@ export default function FollowArtistsPage() {
 
   useEffect(() => {
     const handleBeforeUnload = () => {
-      saveSelectedRows(rowSelection);
+      /* saveSelectedRows(rowSelection); */
+      updateUserFavorites()
     };
-
+    console.log("row selection useeffect triggered");
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
@@ -60,11 +58,6 @@ export default function FollowArtistsPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <Input
-        placeholder="Search for a band..."
-        onChange={(event) => setSearchTerm(event.target.value)}
-        className="max-w-sm bg-black text-white mb-4"
-      />
 
       <DataTable
         columns={columns}

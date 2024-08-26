@@ -7,6 +7,7 @@ import RightSidebar from "@/components/home/RightSidebar";
 import Bottombar from "@/components/home/Bottombar";
 import { SessionProvider } from "next-auth/react";
 import getSession from "@/lib/auth/getSession";
+import { UserFavoritesProvider } from "@/components/global/user-favorites-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,7 +31,14 @@ export default async function RootLayout({
           <main className="flex flex-row">
             <LeftSidebar />
             <section className="main-container">
-              <div className="w-full max-w-4xl">{children}</div>
+              <div className="w-full max-w-4xl">
+                {" "}
+                {session ? (
+                  <UserFavoritesProvider>{children}</UserFavoritesProvider>
+                ) : (
+                  children
+                )}
+              </div>
             </section>
             <RightSidebar />
           </main>
