@@ -2,73 +2,93 @@
 
 import { DataTable } from "./bands-data-table";
 import { Band, columns } from "./bands-table-columns";
-import { useCallback, useEffect, useState } from "react";
-import { fetchBandsByFilters } from "@/lib/data/user/followArtists/follow-artists-data-actions";
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  Bands,
+  fetchBandsByFilters,
+  fetchUserFavoriteBands,
+  saveUserFavorites,
+} from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export default function FollowArtistsPage() {
   const [bands, setBands] = useState<Band[]>([]);
-  const [searchTerm, setSearchTerm] = useState("A");
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [searchLetter, setSearchLetter] = useState("A");
+  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const pathname = usePathname();
 
   useEffect(() => {
     const getFavorites = async () => {
-      const favorites = await getUserFavorites();
-    }
+      let followedBands = [];
+      followedBands = JSON.parse(localStorage.getItem("userFavorites") || "[]");
+      if (followedBands.length === 0) {
+        console.log("fetch bands from database due empty array");
+        followedBands = await fetchUserFavoriteBands();
+      }
+      console.log("db fetch: ", followedBands);
+      if (followedBands) {
+        localStorage.setItem("userFavorites", JSON.stringify(followedBands));
+      }
+    };
 
     getFavorites();
   }, []);
 
-
-  const fetchBands = useCallback(async (search: string) => {
+  useEffect(() => {
+    const fetchBands = async (search: string) => {
       const bands = await fetchBandsByFilters(search);
-//      const selectionPreset = filterFavoritesPresets(bands, userFavorites);
-
-      if (bands) {
-        setBands(bands);
+      setBands(bands);
+      const followedBands = JSON.parse(
+        localStorage.getItem("userFavorites") || "[]"
+      );
+      console.log("followed bands:", followedBands);
+      if (followedBands) {
+        const favorites = parseUserFavorites(bands, followedBands);
+        console.log("preselect favorites: ", favorites);
+        setFavorites(favorites);
       }
-/*       if (selectionPreset) {
-        setRowSelection(selectionPreset);
-      } */
-  }, []);
-
-  useEffect(() => {
-      fetchBands(searchTerm);
-
+    };
+    fetchBands(searchLetter);
     console.log("looping useEffect");
-  }, [searchTerm, fetchBands]);
-
-  const saveSelectedRows = useCallback(async (rowSelection: string[]) => {
-    const favorites = getUserFavorites(bands, rowSelection);
-    await saveFavorites(favorites);
-  }, []);
+  }, [searchLetter]);
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      /* saveSelectedRows(rowSelection); */
-      updateUserFavorites()
+    const handlePageLeave = () => {
+      console.log("beforeunload event triggered", pathname);
+      const favorites = localStorage.getItem("userFavorites");
+      if (favorites) {
+        console.log("handle page leave", favorites);
+        const favoritesArray = JSON.parse(favorites) as string[];
+        saveUserFavorites(favoritesArray);
+      } else {
+        console.log("No favorites found in local storage");
+      }
     };
-    console.log("row selection useeffect triggered");
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
+  
+    console.log("row selection useEffect triggered");
+    window.addEventListener("beforeunload", handlePageLeave);
+  
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      console.log("Cleaning up beforeunload event listener");
+      window.removeEventListener("beforeunload", handlePageLeave);
     };
-  }, [rowSelection, setRowSelection]);
+  }, [pathname]);
 
   return (
     <div className="container mx-auto py-10">
-
-      <DataTable
-        columns={columns}
-        data={bands}
-        rowSelection={rowSelection}
-        setRowSelection={setRowSelection}
-      />
+      <DataTable columns={columns} data={bands} favorites={favorites} />
     </div>
   );
 }
 
-const getUserFavorites = (bands: Band[], selectedRows: {}) => {
-  return Object.keys(selectedRows).map((index) => bands[parseInt(index)].id);
+const parseUserFavorites = (bands: Bands[], followedBands: Array<string>) => {
+  let favorites: { [index: number]: boolean } = {};
+
+  bands.forEach((band, index) => {
+    if (followedBands.includes(band.id)) {
+      favorites[index] = true;
+    }
+  });
+
+  return favorites;
 };

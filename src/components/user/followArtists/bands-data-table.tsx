@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -28,18 +28,24 @@ import { Input } from "@/components/ui/input";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  rowSelection: Record<string, boolean>;
-  setRowSelection: Dispatch<SetStateAction<{}>>;
+  favorites: Record<string, boolean>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  rowSelection,
-  setRowSelection,
+  favorites,
 }: DataTableProps<TData, TValue>) {
+  console.log("initial page load:", favorites);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = useState(favorites);
+
+  useEffect(() => {
+    console.log("favorites prop:", favorites);
+    setRowSelection(favorites);
+  }, [favorites]);
+
   const table = useReactTable({
     data,
     columns,
@@ -57,16 +63,18 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  console.log("table", table);
+  // console.log("table", table);
   console.log("row selection", rowSelection);
-  console.log("data", data);
+  /* console.log("data", data); */
 
   return (
     <div>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter bands..."
-          value={(table.getColumn("namePretty")?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn("namePretty")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
             table.getColumn("namePretty")?.setFilterValue(event.target.value)
           }

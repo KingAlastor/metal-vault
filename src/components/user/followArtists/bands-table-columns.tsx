@@ -23,12 +23,18 @@ export interface Band {
   followers: number | null;
 }
 
-const handleCheckedChange = (row, value) => {
-  console.log("logging row:", row, "value", value);
+const handleCheckedChange = (row: any, value: string | boolean) => {
   row.toggleSelected(!!value);
   const id = row.original.id;
-  console.log("row id: ", id);
-  
+  let updatedFavorites = [];
+
+  const favorites = JSON.parse(localStorage.getItem("userFavorites") || "[]");
+  if (value) {
+    updatedFavorites = [...favorites, id];
+  } else {
+    updatedFavorites = favorites.filter((bandId: string) => bandId !== id);
+  }
+  localStorage.setItem("userFavorites", JSON.stringify(updatedFavorites));
 };
 
 export const columns: ColumnDef<Band>[] = [
