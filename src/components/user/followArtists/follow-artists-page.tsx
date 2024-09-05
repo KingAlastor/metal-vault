@@ -3,7 +3,7 @@
 import { DataTable } from "./bands-data-table";
 import { Band, columns } from "./bands-table-columns";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Bands,
   fetchBandsByFilters,
@@ -15,7 +15,8 @@ export default function FollowArtistsPage() {
   const [bands, setBands] = useState<Band[]>([]);
   const [searchLetter, setSearchLetter] = useState("A");
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
 
   useEffect(() => {
     const getFavorites = async () => {
@@ -54,25 +55,20 @@ export default function FollowArtistsPage() {
 
   useEffect(() => {
     const handlePageLeave = () => {
-      console.log("beforeunload event triggered", pathname);
       const favorites = localStorage.getItem("userFavorites");
       if (favorites) {
-        console.log("handle page leave", favorites);
         const favoritesArray = JSON.parse(favorites) as string[];
         saveUserFavorites(favoritesArray);
-      } else {
-        console.log("No favorites found in local storage");
-      }
+      } 
     };
   
-    console.log("row selection useEffect triggered");
     window.addEventListener("beforeunload", handlePageLeave);
   
     return () => {
-      console.log("Cleaning up beforeunload event listener");
+      handlePageLeave();
       window.removeEventListener("beforeunload", handlePageLeave);
     };
-  }, [pathname]);
+  }, [searchParams]);
 
   return (
     <div className="container mx-auto py-10">
