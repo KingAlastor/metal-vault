@@ -10,6 +10,7 @@ import {
   fetchUserFavoriteBands,
   saveUserFavorites,
 } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import { AlphabetCombobox } from "./alphabet-combobox";
 
 export default function FollowArtistsPage() {
   const [bands, setBands] = useState<Band[]>([]);
@@ -26,7 +27,7 @@ export default function FollowArtistsPage() {
         console.log("fetch bands from database due empty array");
         followedBands = await fetchUserFavoriteBands();
       }
-      console.log("db fetch: ", followedBands);
+
       if (followedBands) {
         localStorage.setItem("userFavorites", JSON.stringify(followedBands));
       }
@@ -37,20 +38,19 @@ export default function FollowArtistsPage() {
 
   useEffect(() => {
     const fetchBands = async (search: string) => {
+      console.log("fetching bands");
       const bands = await fetchBandsByFilters(search);
       setBands(bands);
       const followedBands = JSON.parse(
         localStorage.getItem("userFavorites") || "[]"
       );
-      console.log("followed bands:", followedBands);
-      if (followedBands) {
+
+      if (followedBands.length > 0) {
         const favorites = parseUserFavorites(bands, followedBands);
-        console.log("preselect favorites: ", favorites);
         setFavorites(favorites);
       }
     };
     fetchBands(searchLetter);
-    console.log("looping useEffect");
   }, [searchLetter]);
 
   useEffect(() => {
@@ -72,6 +72,7 @@ export default function FollowArtistsPage() {
 
   return (
     <div className="container mx-auto py-10">
+      <AlphabetCombobox setSearchLetter={setSearchLetter}/>
       <DataTable columns={columns} data={bands} favorites={favorites} />
     </div>
   );

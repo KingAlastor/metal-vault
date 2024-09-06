@@ -36,13 +36,11 @@ export function DataTable<TData, TValue>({
   data,
   favorites,
 }: DataTableProps<TData, TValue>) {
-  console.log("initial page load:", favorites);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState(favorites);
 
   useEffect(() => {
-    console.log("favorites prop:", favorites);
     setRowSelection(favorites);
   }, [favorites]);
 
@@ -63,10 +61,6 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // console.log("table", table);
-  console.log("row selection", rowSelection);
-  /* console.log("data", data); */
-
   return (
     <div>
       <div className="flex items-center py-4">
@@ -79,7 +73,7 @@ export function DataTable<TData, TValue>({
             table.getColumn("namePretty")?.setFilterValue(event.target.value)
           }
           className="max-w-sm bg-black text-white"
-        />
+        />        
       </div>
       <div className="rounded-md border text-white">
         <Table>
