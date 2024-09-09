@@ -27,7 +27,7 @@ export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
-  
+
   let whereCondition: Prisma.BandsWhereInput;
 
   if (search === '#') {
@@ -88,8 +88,7 @@ export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
       },
     };
   }
-  console.log("where condition", whereCondition);
-  console.log("input", search);
+
   try {
     const response = await prisma.bands.findMany({
       select: {

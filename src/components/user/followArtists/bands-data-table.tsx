@@ -1,12 +1,13 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
+  VisibilityState,
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
@@ -24,6 +25,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useWindowSize from "@/lib/hooks/get-window-size";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -39,6 +41,15 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState(favorites);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+
+  const size = useWindowSize();
+
+  useEffect(() => {
+    const columns = getColumnVisibilityBySize(size.width);
+    console.log("size width: ", size.width);
+    setColumnVisibility(columns);
+  }, [size.width]);
 
   useEffect(() => {
     setRowSelection(favorites);
@@ -54,10 +65,12 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
     state: {
       rowSelection,
       sorting,
       columnFilters,
+      columnVisibility,
     },
   });
 
@@ -147,3 +160,56 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
+
+const getColumnVisibilityBySize = (width: number) => {
+  switch (true) {
+    case width > 1000:
+      return {
+        namePretty: true,
+        country: true,
+        genreTags: true,
+        followers: true,
+        status: true,
+      };
+    case width <= 1000 && width > 800:
+      return {
+        namePretty: true,
+        country: true,
+        genreTags: true,
+        followers: true,
+        status: false,
+      };
+    case width <= 800 && width > 600:
+      return {
+        namePretty: true,
+        country: true,
+        genreTags: true,
+        followers: false,
+        status: false,
+      };
+    case width <= 600 && width > 400:
+      return {
+        namePretty: true,
+        country: true,
+        genreTags: false,
+        followers: false,
+        status: false,
+      };
+    case width <= 400 && width > 320:
+      return {
+        namePretty: true,
+        country: false,
+        genreTags: false,
+        followers: false,
+        status: false,
+      };
+    default:
+      return {
+        namePretty: true,
+        country: false,
+        genreTags: false,
+        followers: false,
+        status: false,
+      };
+  }
+};

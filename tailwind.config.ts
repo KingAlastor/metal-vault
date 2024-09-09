@@ -54,6 +54,14 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      screens: {
+        xs: '400px', // Define the xs breakpoint at 480px
+        sm: '640px', // Default sm breakpoint
+        md: '768px', // Default md breakpoint
+        lg: '1024px', // Default lg breakpoint
+        xl: '1280px', // Default xl breakpoint
+        '2xl': '1536px', // Default 2xl breakpoint
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

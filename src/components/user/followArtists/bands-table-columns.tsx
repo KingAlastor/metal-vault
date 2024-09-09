@@ -5,15 +5,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 export interface Band {
   id: string;
   namePretty: string;
@@ -64,8 +55,11 @@ export const columns: ColumnDef<Band>[] = [
     accessorKey: "namePretty",
     header: "Name",
     cell: ({ row }) => (
-      <a href={`/band/${row.original.namePretty}`}>
-        {row.getValue("namePretty")}
+      <a href={`/band/${row.original.namePretty}`} className="block">
+        <div className="font-bold">{row.original.namePretty}</div>
+        <div className="block xs:hidden text-sm text-gray-500 ml-2">
+          {row.original.country}
+        </div>
       </a>
     ),
   },
@@ -98,34 +92,6 @@ export const columns: ColumnDef<Band>[] = [
       const followers: number = row.getValue("followers");
 
       return <div className="text-center">{followers}</div>;
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const band = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(band.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
     },
   },
 ];
