@@ -47,7 +47,6 @@ export function DataTable<TData, TValue>({
 
   useEffect(() => {
     const columns = getColumnVisibilityBySize(size.width);
-    console.log("size width: ", size.width);
     setColumnVisibility(columns);
   }, [size.width]);
 

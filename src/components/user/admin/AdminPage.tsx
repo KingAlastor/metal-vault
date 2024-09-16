@@ -10,12 +10,15 @@ import { syncAlbumDataFromArchives } from "../../../lib/data/user/admin/album-da
 import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
 import { useState } from "react";
 import { SearchBandsDropDown } from "@/components/global/search-bands-dropdown";
+import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 
 export default function AdminPage() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
   const [isAlbumSyncLoading, setIsAlbumSyncLoading] = useState(false);
-  const [isUpcomingReleasesLoading, setIsUpcomingReleasesLoading] = useState(false);
+  const [isUpcomingReleasesLoading, setIsUpcomingReleasesLoading] =
+    useState(false);
   const [isLatestBandsLoading, setIsLatestBandsLoading] = useState(false);
+  const [isTestApiLoading, setIsTestApiLoading] = useState(false);
 
   const handleBandSyncClick = async () => {
     setIsBandSyncLoading(true);
@@ -39,6 +42,28 @@ export default function AdminPage() {
     setIsLatestBandsLoading(true);
     await syncLatestBandAdditionsFromArchives();
     setIsLatestBandsLoading(false);
+  };
+
+  const handleTestApi = async () => {
+    setIsTestApiLoading(true);
+    const response = async () => {
+      const medialink = "https://www.youtube.com/watch?v=mWFLCU0irEE";
+      const regExp =
+        /(?:https?:\/\/)?(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = regExp.exec(medialink);
+      if (match && match[2]) {
+        const videoId = match[2]; // Correctly extract the video ID
+        console.log(videoId);
+        const previewUrl = await fetchYoutubeVideoData(videoId);
+        console.log("previewUrl:", previewUrl);
+        return previewUrl;
+      } else {
+        console.log("No match found for YT link");
+        return null;
+      }
+    };
+    response();
+    setIsTestApiLoading(false);
   };
 
   return (
@@ -70,6 +95,13 @@ export default function AdminPage() {
         disabled={isLatestBandsLoading}
       >
         {isLatestBandsLoading ? "Loading..." : "Sync Latest Bands"}
+      </Button>
+      <Button
+        className="text-white"
+        onClick={handleTestApi}
+        disabled={isTestApiLoading}
+      >
+        {isLatestBandsLoading ? "Loading..." : "Test API"}
       </Button>
       <SearchBandsDropDown />
     </div>

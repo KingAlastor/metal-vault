@@ -247,15 +247,7 @@ const fetchPreviewUrl = async (medialink: string, source: string) => {
   console.log("fetchPreviewUrl called with:", medialink, source);
   switch (source) {
     case "YT":
-      const regExp =
-        /(?:https?:\/\/)?(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-      const match = regExp.exec(medialink);
-      if (match && match[2]) {
-        const videoId = match[2]; // Correctly extract the video ID
-        console.log(videoId);
-        const previewUrl = await fetchYoutubeVideoData(videoId);
-        console.log("previewUrl:", previewUrl);
-        return previewUrl;
+
       } else {
         console.log("No match found for YT link");
         return null;

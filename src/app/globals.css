@@ -82,6 +82,10 @@
   .xs-font {
     font-size: 10px;
   }
+
+  .max-width {
+    max-width: 720px;
+  }
 }
 
 /* Webkit Browsers, Chromium */

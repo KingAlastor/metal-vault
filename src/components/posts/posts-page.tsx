@@ -39,11 +39,11 @@ export default function PostsPage({ user }: PostsPageProps) {
   }, [filters]);
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 flex flex-col justify-center ">
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}
-        className="w-full space-y-2 mb-4"
+        className="w-[800] space-y-2 mb-4 max-width bg-gray-900"
       >
         <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center text-white">
           Filters{" "}
@@ -60,7 +60,7 @@ export default function PostsPage({ user }: PostsPageProps) {
         </CollapsibleContent>
       </Collapsible>
 
-      <Posts posts={posts} />
+      <Posts posts={posts}/>
     </div>
   );
 }
