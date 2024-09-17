@@ -16,6 +16,15 @@ import { UserToolTip } from "./user-tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { MoreVertical } from "lucide-react";
 
 type PostUser = {
   name: string;
@@ -46,6 +55,10 @@ export const Posts = ({ posts }: PostsProps) => {
   const size = useWindowSize();
   console.log("window size", size);
 
+  const handleAddToFavoritesClick = () => {
+    console.log("clicked");
+  };
+
   return (
     <div>
       {posts.map((post) => {
@@ -61,41 +74,53 @@ export const Posts = ({ posts }: PostsProps) => {
         return (
           <Card key={post.id} className="text-white mb-4 max-width bg-gray-900">
             <CardHeader>
-              <div>
-                <UserToolTip user={post.user}>
-                  <Link href={`/user/${post.user.name}`}>
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={post.user.image || ""} />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </Link>
-                </UserToolTip>
-                <div className="xs-font ml-2">
-                  {formatDate(post.postDateTime)}
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center">
+                    <UserToolTip user={post.user}>
+                      <Link href={`/user/${post.user.name}`}>
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={post.user.image} />
+                          <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                      </Link>
+                    </UserToolTip>
+                  </div>
+                  <div className="xs-font ml-2">
+                    {formatDate(post.postDateTime)}
+                  </div>
                 </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleAddToFavoritesClick}>
+                      <div className="dropdown-options">Save post</div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleAddToFavoritesClick}>
+                      <div className="dropdown-options">Report Post</div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </CardHeader>
             <CardContent>
               <div>
                 <p className="mb-3">{post.postContent}</p>
                 {imageUrl && (
-                  <div
-                    style={{
-                      width: "680px",
-                      height: "355px",
-                      overflow: "hidden",
-                    }}
-                  >
+                  <div className="w-full max-w-[680px] max-h-[355px] overflow-hidden">
                     <Image
                       src={imageUrl}
                       alt="YouTube Thumbnail"
+                      layout="responsive"
                       width={680}
                       height={355}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
+                      className="object-cover w-full h-full"
+                      style={{ objectPosition: 'center center' }}
                     />
                   </div>
                 )}

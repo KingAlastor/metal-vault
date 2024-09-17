@@ -246,12 +246,6 @@ const updatePreviewAndTitle = async (post: any) => {
 const fetchPreviewUrl = async (medialink: string, source: string) => {
   console.log("fetchPreviewUrl called with:", medialink, source);
   switch (source) {
-    case "YT":
-
-      } else {
-        console.log("No match found for YT link");
-        return null;
-      }
     case "SPOTIFY":
       // Code for case 2
       break;
