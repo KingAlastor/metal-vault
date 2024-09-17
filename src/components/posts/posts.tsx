@@ -70,6 +70,7 @@ export const Posts = ({ posts }: PostsProps) => {
           console.log("video ID:", videoID, "YT Link: ", post.YTLink);
           imageUrl = getImageUrl(videoID!, prefix);
           console.log("img url: ", imageUrl);
+          console.log("User: ", post.user);
         }
         return (
           <Card key={post.id} className="text-white mb-4 max-width bg-gray-900">
@@ -120,7 +121,7 @@ export const Posts = ({ posts }: PostsProps) => {
                       width={680}
                       height={355}
                       className="object-cover w-full h-full"
-                      style={{ objectPosition: 'center center' }}
+                      style={{ objectPosition: "center center" }}
                     />
                   </div>
                 )}
@@ -129,7 +130,7 @@ export const Posts = ({ posts }: PostsProps) => {
             <CardFooter>
               <div className="flex justify-between items-center w-full">
                 <div className="flex space-x-4">
-                  <span> Links: </span>
+                  {size.width > 600 && <span> Links: </span>}
                   {post.YTLink && (
                     <Link href={post.YTLink} passHref legacyBehavior>
                       <a target="_blank" rel="noopener noreferrer">
