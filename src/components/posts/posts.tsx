@@ -13,7 +13,6 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { UserToolTip } from "./user-tooltip";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 import {
@@ -25,6 +24,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { MoreVertical } from "lucide-react";
+import UserAvatar from "./user-avatar";
 
 type PostUser = {
   name: string;
@@ -51,8 +51,8 @@ export type PostsProps = {
 };
 
 export const Posts = ({ posts }: PostsProps) => {
-  console.table("logging posts");
-  const size = useWindowSize();
+/*   console.table("logging posts");
+ */  const size = useWindowSize();
   console.log("window size", size);
 
   const handleAddToFavoritesClick = () => {
@@ -65,13 +65,14 @@ export const Posts = ({ posts }: PostsProps) => {
         let imageUrl = "";
         if (post.YTLink) {
           const prefix = getImagePrefix(size.width);
-          console.log("prefix", prefix);
-          const videoID = extractYTID(post.YTLink);
-          console.log("video ID:", videoID, "YT Link: ", post.YTLink);
-          imageUrl = getImageUrl(videoID!, prefix);
-          console.log("img url: ", imageUrl);
-          console.log("User: ", post.user);
+/*           console.log("prefix", prefix);
+ */          const videoID = extractYTID(post.YTLink);
+/*           console.log("video ID:", videoID, "YT Link: ", post.YTLink);
+ */          imageUrl = getImageUrl(videoID!, prefix);
+/*           console.log("img url: ", imageUrl); */
         }
+        console.log("User image: ", post.user.image);
+
         return (
           <Card key={post.id} className="text-white mb-4 max-width bg-gray-900">
             <CardHeader>
@@ -80,10 +81,7 @@ export const Posts = ({ posts }: PostsProps) => {
                   <div className="flex items-center">
                     <UserToolTip user={post.user}>
                       <Link href={`/user/${post.user.name}`}>
-                        <Avatar className="w-8 h-8">
-                          <AvatarImage src={post.user.image} />
-                          <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
+                        <UserAvatar avatarUrl={post.user.image} />
                       </Link>
                     </UserToolTip>
                   </div>

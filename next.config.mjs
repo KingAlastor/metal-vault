@@ -6,6 +6,7 @@ const nextConfig = {
       { hostname: 'yt3.ggpht.com' },
       { hostname: 'i.ytimg.com' },
       { hostname: 'i.scdn.co' },
+      { hostname: 'lh3.googleusercontent.com' },
     ],
   },
 };
