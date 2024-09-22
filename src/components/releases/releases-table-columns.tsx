@@ -26,6 +26,21 @@ export const columns: ColumnDef<BandAlbum>[] = [
   {
     accessorKey: "bandName",
     header: "Band",
+    cell: ({ row }) => (
+      <div>
+        <div className="hidden xs:block">
+          {row.original.bandName}
+        </div>
+        <div className="block xs:hidden text-sm ml-2">
+          {row.original.bandName}
+          <div className="text-gray-500 ml-2">
+            {row.original.albumName}
+            <br />
+            {getShortDate(row.original.releaseDate!)}
+          </div>
+        </div>
+      </div>
+    )
   },
   {
     accessorKey: "albumName",
@@ -44,7 +59,7 @@ export const columns: ColumnDef<BandAlbum>[] = [
     header: "Release Date",
     cell: ({ row }) => {
       const dateFull: Date = row.getValue("releaseDate");
-      const dateFormatted: string = formatDate(dateFull);
+      const dateFormatted: string = getFullDate(dateFull);
       return <div>{dateFormatted}</div>;
     },
   },
@@ -77,6 +92,16 @@ export const columns: ColumnDef<BandAlbum>[] = [
   },
 ];
 
+const getFullDate = (date: Date) => {
+  const d = formatDate(date);
+  return `${d.month} ${d.day} ${d.year}`;
+}
+
+const getShortDate = (date: Date) => {
+  const d = formatDate(date);
+  return `${d.month} ${d.day}`;
+}
+
 const formatDate = (date: Date) => {
   const d = new Date(date);
   const months = [
@@ -93,9 +118,10 @@ const formatDate = (date: Date) => {
     "Nov",
     "Dec",
   ];
-  const month = months[d.getMonth()];
-  const day = d.getDate();
-  const year = d.getFullYear();
 
-  return `${month} ${day} ${year}`;
+  return {
+    day: d.getDate(),
+    month: months[d.getMonth()],
+    year: d.getFullYear(),
+  }
 };

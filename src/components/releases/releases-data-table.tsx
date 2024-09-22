@@ -1,6 +1,6 @@
 "use client";
 
-import { useState} from "react";
+import { useEffect, useState} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,6 +8,7 @@ import {
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
+  VisibilityState,
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
@@ -21,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useWindowSize from "@/lib/hooks/get-window-size";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,6 +36,7 @@ export function ReleasesDataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const table = useReactTable({
     data,
@@ -42,10 +45,19 @@ export function ReleasesDataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
     state: {
       columnFilters,
+      columnVisibility,
     },
   });
+
+  const size = useWindowSize();
+
+  useEffect(() => {
+    const columns = getColumnVisibilityBySize(size.width);
+    setColumnVisibility(columns);
+  }, [size.width]);
 
   return (
     <div>
@@ -130,3 +142,57 @@ export function ReleasesDataTable<TData, TValue>({
     </div>
   );
 }
+
+
+const getColumnVisibilityBySize = (width: number) => {
+  switch (true) {
+    case width > 1000:
+      return {
+        bandName: true,
+        albumName: true,
+        type: true,
+        genreTags: true,
+        releaseDate: true,
+      };
+    case width <= 1000 && width > 800:
+      return {
+        bandName: true,
+        albumName: true,
+        type: true,
+        genreTags: true,
+        releaseDate: false,
+      };
+    case width <= 800 && width > 600:
+      return {
+        bandName: true,
+        albumName: true,
+        type: true,
+        genreTags: false,
+        releaseDate: false,
+      };
+    case width <= 600 && width > 400:
+      return {
+        bandName: true,
+        albumName: true,
+        type: false,
+        genreTags: false,
+        releaseDate: false,
+      };
+    case width <= 400:
+      return {
+        bandName: true,
+        albumName: false,
+        type: false,
+        genreTags: false,
+        releaseDate: false,
+      };
+    default:
+      return {
+        bandName: true,
+        albumName: true,
+        type: true,
+        genreTags: true,
+        releaseDate: true,
+      };
+  }
+};
