@@ -39,7 +39,7 @@ export default function PostsPage({ user }: PostsPageProps) {
   }, [filters]);
 
   return (
-    <div className="container mx-auto py-10 flex flex-col justify-center ">
+    <div className="container mx-auto px-0 sm:px-4 md:px-6 py-10 flex flex-col justify-center ">
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}

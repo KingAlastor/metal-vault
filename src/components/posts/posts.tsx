@@ -118,7 +118,7 @@ export const Posts = ({ posts }: PostsProps) => {
                       layout="responsive"
                       width={680}
                       height={355}
-                      className="object-cover w-full h-full"
+                      className="object-fit: cover w-full h-full"
                       style={{ objectPosition: "center center" }}
                     />
                   </div>

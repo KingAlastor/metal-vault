@@ -2,7 +2,7 @@ import getSession from "@/lib/auth/getSession";
 
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import SettingsPage from "./SettingsPage";
+import SettingsPage from "@/components/user/settings/SettingsPage";
 
 export const metadata: Metadata = {
   title: "Settings",
