@@ -74,7 +74,7 @@ export const Posts = ({ posts }: PostsProps) => {
         console.log("User image: ", post.user.image);
 
         return (
-          <Card key={post.id} className="text-white mb-4 max-width bg-gray-900">
+          <Card key={post.id} className="text-white mb-4 max-width">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div className="flex flex-col items-start">

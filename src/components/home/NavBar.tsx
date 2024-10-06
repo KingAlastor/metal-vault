@@ -17,7 +17,7 @@ export const NavBar = () => {
         <p className="font-bold max-xs:hidden"> Metal Vault</p>
       </Link>
       <div className="flex">
-        <Button className="bg-black text-white" variant="outline">
+        <Button variant="outline">
           <Link href="/post">
             <span className="dropdown-options">Create Post</span>
           </Link>

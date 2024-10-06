@@ -101,7 +101,7 @@ function StatusList({
       <CommandInput placeholder="Filter status..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup className="bg-black text-white">
+        <CommandGroup>
           {statuses.map((status) => (
             <CommandItem
               key={status.value}

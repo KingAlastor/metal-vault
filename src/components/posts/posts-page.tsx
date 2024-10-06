@@ -43,7 +43,7 @@ export default function PostsPage({ user }: PostsPageProps) {
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}
-        className="w-[800] space-y-2 mb-4 max-width bg-gray-900"
+        className="w-[800] space-y-2 mb-4 max-width"
       >
         <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center text-white">
           Filters{" "}

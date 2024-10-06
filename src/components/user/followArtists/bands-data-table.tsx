@@ -84,10 +84,10 @@ export function DataTable<TData, TValue>({
           onChange={(event) =>
             table.getColumn("namePretty")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm bg-black text-white"
+          className="max-w-sm"
         />        
       </div>
-      <div className="rounded-md border text-white">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

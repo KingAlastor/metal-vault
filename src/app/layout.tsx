@@ -7,6 +7,7 @@ import RightSidebar from "@/components/home/RightSidebar";
 import Bottombar from "@/components/home/Bottombar";
 import { SessionProvider } from "next-auth/react";
 import getSession from "@/lib/auth/getSession";
+import { ThemeProvider } from "next-themes";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,15 +27,22 @@ export default async function RootLayout({
     <SessionProvider session={session}>
       <html lang="en">
         <body className={inter.className}>
-          <NavBar />
-          <main className="flex flex-row">
-            <LeftSidebar />
-            <section className="main-container">
-              <div className="w-full max-w-4xl"> {children}</div>
-            </section>
-            <RightSidebar />
-          </main>
-          <Bottombar />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <NavBar />
+            <main className="flex flex-row">
+              <LeftSidebar />
+              <section className="main-container">
+                <div className="w-full max-w-4xl"> {children}</div>
+              </section>
+              <RightSidebar />
+            </main>
+            <Bottombar />
+          </ThemeProvider>
         </body>
       </html>
     </SessionProvider>

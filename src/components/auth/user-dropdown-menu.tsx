@@ -16,6 +16,7 @@ import Image from "next/image";
 import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ThemeToggle } from "./theme-toggle-button";
 
 interface UserButtonProps {
   user: User;
@@ -32,7 +33,7 @@ export function UserMenu({ user }: UserButtonProps) {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-black text-white">
+      <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{user.name || "User"}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
@@ -64,6 +65,7 @@ export function UserMenu({ user }: UserButtonProps) {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <ThemeToggle />
         <DropdownMenuItem asChild>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}

@@ -115,7 +115,7 @@ export function CreatePost({ user }: PostPageProps) {
                 <FormControl>
                   <Textarea
                     placeholder="Tell us a little bit about yourself"
-                    className="resize-none bg-black text-white"
+                    className="resize-none"
                     {...field}
                     ref={textareaRef}
                     onInput={adjustTextareaHeight}
@@ -133,7 +133,6 @@ export function CreatePost({ user }: PostPageProps) {
                   <FormLabel>Band</FormLabel>
                   <FormControl>
                     <Input
-                      className="bg-black text-white"
                       placeholder="Band name"
                       {...field}
                     />
@@ -150,7 +149,6 @@ export function CreatePost({ user }: PostPageProps) {
                   <FormLabel>Genre</FormLabel>
                   <FormControl>
                     <Input
-                      className="bg-black text-white"
                       placeholder="Genre"
                       {...field}
                     />
@@ -169,7 +167,6 @@ export function CreatePost({ user }: PostPageProps) {
                   <FormLabel>Youtube Link</FormLabel>
                   <FormControl>
                     <Input
-                      className="bg-black text-white"
                       placeholder="Youtube Link"
                       {...field}
                     />
@@ -186,7 +183,6 @@ export function CreatePost({ user }: PostPageProps) {
                   <FormLabel>Spotify Link</FormLabel>
                   <FormControl>
                     <Input
-                      className="bg-black text-white"
                       placeholder="Spotify Link"
                       {...field}
                     />
@@ -203,7 +199,6 @@ export function CreatePost({ user }: PostPageProps) {
                   <FormLabel>BandCamp Link</FormLabel>
                   <FormControl>
                     <Input
-                      className="bg-black text-white"
                       placeholder="BandCamp Link"
                       {...field}
                     />
