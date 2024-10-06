@@ -45,7 +45,7 @@ export default function PostsPage({ user }: PostsPageProps) {
         onOpenChange={setIsOpen}
         className="w-[800] space-y-2 mb-4 max-width"
       >
-        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center">
+        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center bg-collapsible">
           Filters{" "}
           <div className="h-4 w-4">
             <ChevronDown />

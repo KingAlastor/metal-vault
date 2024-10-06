@@ -14,7 +14,7 @@
   }
 
   .navbar {
-    @apply fixed top-0 z-30 flex w-full items-center justify-between px-6 py-3 border-b border-b-[hsl(var(--navbar-border))] rounded-b-lg;
+    @apply fixed top-0 z-30 flex w-full items-center justify-between px-6 py-3 bg-background;
     background-color: hsl(var(--navbar-bg));
   }
 
@@ -31,7 +31,7 @@
   }
 
   .leftsidebar {
-    @apply sticky left-0 top-0 z-20 flex h-screen w-fit flex-col justify-between overflow-auto border-r border-r-black pb-5 pt-28 max-md:hidden;
+    @apply sticky left-0 top-0 z-20 flex h-screen w-fit flex-col justify-between overflow-auto pb-5 pt-28 max-md:hidden;
   }
 
   .leftsidebar_link {
@@ -39,7 +39,7 @@
   }
 
   .rightsidebar {
-    @apply sticky right-0 top-0 z-20 flex h-screen w-fit flex-col justify-between gap-12 overflow-auto border-l border-l-black px-10 pb-6 pt-28 max-xl:hidden;
+    @apply sticky right-0 top-0 z-20 flex h-screen w-fit flex-col justify-between gap-12 overflow-auto px-10 pb-6 pt-28 max-xl:hidden;
   }
 
   .dropdown-options {
@@ -107,6 +107,9 @@ input:autofill {
     --card: 0 0% 90%; /* Light grey */
     --card-foreground: 0 0% 20%; /* Very dark grey */
 
+    --collapsible: 0 0% 90%; /* Light grey */
+    --collapsible-foreground: 0 0% 20%; /* Very dark grey */
+
     --popover: 0 0% 90%; /* Light grey */
     --popover-foreground: 0 0% 20%; /* Very dark grey */
 
@@ -138,6 +141,9 @@ input:autofill {
 
     --card: 0 0% 20%; /* Dark grey */
     --card-foreground: 0 0% 90%; /* Very light grey */
+
+    --collapsible: 0 0% 20%; /* Dark grey */
+    --collapsible-foreground: 0 0% 90%; /* Very light grey */
 
     --popover: 0 0% 20%; /* Dark grey */
     --popover-foreground: 0 0% 90%; /* Very light grey */

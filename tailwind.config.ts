@@ -53,6 +53,10 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        collapsible: {
+          DEFAULT: "hsl(var(--collapsible))",
+          foreground: "hsl(var(--collapsible-foreground))",
+        },
       },
       screens: {
         xs: '400px', // Define the xs breakpoint at 480px
