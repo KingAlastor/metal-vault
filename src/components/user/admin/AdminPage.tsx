@@ -68,39 +68,25 @@ export default function AdminPage() {
 
   return (
     <div className="flex justify-center flex-col">
-      <Button
-        className="text-white"
-        onClick={handleBandSyncClick}
-        disabled={isBandSyncLoading}
-      >
+      <Button onClick={handleBandSyncClick} disabled={isBandSyncLoading}>
         {isBandSyncLoading ? "Loading..." : "Sync Band Data"}
       </Button>
-      <Button
-        className="text-white"
-        onClick={handleAlbumSyncClick}
-        disabled={isAlbumSyncLoading}
-      >
+      <Button onClick={handleAlbumSyncClick} disabled={isAlbumSyncLoading}>
         {isAlbumSyncLoading ? "Loading..." : "Sync Album Data"}
       </Button>
       <Button
-        className="text-white"
         onClick={handleUpcomingReleasesSyncClick}
         disabled={isUpcomingReleasesLoading}
       >
         {isUpcomingReleasesLoading ? "Loading..." : "Sync Upcoming Releases"}
       </Button>
       <Button
-        className="text-white"
         onClick={handleSyncLatestBandsClick}
         disabled={isLatestBandsLoading}
       >
         {isLatestBandsLoading ? "Loading..." : "Sync Latest Bands"}
       </Button>
-      <Button
-        className="text-white"
-        onClick={handleTestApi}
-        disabled={isTestApiLoading}
-      >
+      <Button onClick={handleTestApi} disabled={isTestApiLoading}>
         {isLatestBandsLoading ? "Loading..." : "Test API"}
       </Button>
       <SearchBandsDropDown />

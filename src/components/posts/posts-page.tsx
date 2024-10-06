@@ -45,13 +45,13 @@ export default function PostsPage({ user }: PostsPageProps) {
         onOpenChange={setIsOpen}
         className="w-[800] space-y-2 mb-4 max-width"
       >
-        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center text-white">
+        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center">
           Filters{" "}
           <div className="h-4 w-4">
             <ChevronDown />
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent className="text-white">
+        <CollapsibleContent>
           <PostsFiltersForm
             setIsOpen={setIsOpen}
             filters={filters}

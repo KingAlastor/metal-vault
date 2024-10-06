@@ -10,5 +10,5 @@ export default async function Page() {
   const session = await getSession();
   const user = session?.user;
 
-  return <div className="text-white">band page</div>;
+  return <div>band page</div>;
 }

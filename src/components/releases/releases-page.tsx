@@ -51,13 +51,13 @@ export default function ReleasesPage({ user }: ReleasesPageProps) {
         onOpenChange={setIsOpen}
         className="w-full space-y-2 mb-4"
       >
-        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center text-white">
+        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center">
           Filters{" "}
           <div className="h-4 w-4">
             <ChevronDown />
           </div>
         </CollapsibleTrigger>
-        <CollapsibleContent className="text-white">
+        <CollapsibleContent>
           <FiltersForm
             setIsOpen={setIsOpen}
             filters={filters}
