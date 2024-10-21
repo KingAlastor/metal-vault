@@ -16,6 +16,7 @@ export interface Band {
 
 const handleCheckedChange = (row: any, value: string | boolean) => {
   row.toggleSelected(!!value);
+  console.log(row);
   const id = row.original.id;
   let updatedFavorites = [];
 

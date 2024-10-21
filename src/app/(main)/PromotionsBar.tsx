@@ -35,7 +35,7 @@ export default function PromotionsBar() {
       className="w-full max-w-xs relative"
       plugins={[
         Autoplay({
-          delay: 2000,
+          delay: 5000,
         }),
       ]}
     >
