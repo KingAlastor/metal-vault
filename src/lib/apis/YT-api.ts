@@ -4,9 +4,7 @@ import axios from "axios";
 
 export const fetchYoutubeVideoData = async (videoId: string) => {
   const apiKey = process.env.YOUTUBE_APIKEY;
-  console.log("API Key:", apiKey); // Verify the API key
   const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&fields=items(snippet(title,description,thumbnails(default,medium,high,standard,maxres)))&part=snippet`;
-  console.log(url);
 
   try {
     const response = await axios.get(url, {
