@@ -32,7 +32,7 @@ export default function PromotionsBar() {
 
   return (
     <Carousel
-      className="w-full max-w-xs relative"
+      className="hidden sm:block w-full max-w-xs relative"
       plugins={[
         Autoplay({
           delay: 5000,
