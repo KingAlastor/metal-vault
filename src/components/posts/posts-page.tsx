@@ -2,7 +2,11 @@
 
 import { User } from "next-auth";
 import { useEffect, useState } from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
 import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
@@ -31,7 +35,9 @@ export default function PostsPage({ user }: PostsPageProps) {
   useEffect(() => {
     const fetchPosts = async () => {
       const posts = await getPostsByFilters(filters);
-      posts.sort((b, a) => +new Date(a.postDateTime) - +new Date(b.postDateTime));
+      posts.sort(
+        (b, a) => +new Date(a.postDateTime) - +new Date(b.postDateTime)
+      );
       setPosts(posts);
     };
 
@@ -39,11 +45,11 @@ export default function PostsPage({ user }: PostsPageProps) {
   }, [filters]);
 
   return (
-    <div className="container mx-auto px-0 sm:px-4 md:px-6 py-10 flex flex-col justify-center ">
+    <div>
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}
-        className="w-[800] space-y-2 mb-4 max-width"
+        className="w-[800] space-y-2 mb-4"
       >
         <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center bg-collapsible">
           Filters{" "}
@@ -60,7 +66,7 @@ export default function PostsPage({ user }: PostsPageProps) {
         </CollapsibleContent>
       </Collapsible>
 
-      <Posts posts={posts}/>
+      <Posts posts={posts} />
     </div>
   );
 }

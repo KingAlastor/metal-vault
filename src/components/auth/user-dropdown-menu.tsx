@@ -26,7 +26,7 @@ export function UserMenu({ user }: UserButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>
+        <Button >
           <Avatar className="w-8 h-8">
             <AvatarImage src={user.image || ""} />
             <AvatarFallback>CN</AvatarFallback>

@@ -71,7 +71,7 @@ export default function FollowArtistsPage() {
   }, [searchParams]);
 
   return (
-    <div className="container mx-auto py-10">
+    <div>
       <AlphabetCombobox setSearchLetter={setSearchLetter}/>
       <DataTable columns={columns} data={bands} favorites={favorites} />
     </div>
