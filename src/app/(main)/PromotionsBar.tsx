@@ -35,7 +35,7 @@ export default function PromotionsBar() {
       className="hidden sm:block w-full max-w-xs relative"
       plugins={[
         Autoplay({
-          delay: 5000,
+          delay: 50000,
         }),
       ]}
     >
