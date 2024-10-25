@@ -50,9 +50,9 @@ export function UserMenu({ user }: UserButtonProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/user/settings">
+            <Link href="/user/profile">
               <Settings className="mr-2 h-4 w-4" />
-              <span className="dropdown-options">Settings</span>
+              <span className="dropdown-options">Profile</span>
             </Link>
           </DropdownMenuItem>
           {user.role === "admin" && (

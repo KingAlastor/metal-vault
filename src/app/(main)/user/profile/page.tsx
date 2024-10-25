@@ -2,7 +2,7 @@ import getSession from "@/lib/auth/getSession";
 
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import SettingsPage from "@/components/user/settings/SettingsPage";
+import ProfilePage from "@/components/user/profile/ProfilePage";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -16,5 +16,5 @@ export default async function Page() {
     redirect("/api/auth/signin?callbackUrl=/settings");
   }
 
-  return <SettingsPage user={user} />;
+  return <ProfilePage user={user} />;
 }

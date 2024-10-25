@@ -23,7 +23,7 @@ interface SettingsPageProps {
   user: User;
 }
 
-export default function SettingsPage({ user }: SettingsPageProps) {
+export default function ProfilePage({ user }: SettingsPageProps) {
   const { toast } = useToast();
 
   const session = useSession();

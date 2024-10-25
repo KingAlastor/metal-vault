@@ -51,6 +51,8 @@ export default function PromotionsBar() {
                     layout="fill"
                     objectFit="cover"
                     className="rounded-lg"
+                    sizes="(max-width: 320px) 100vw, 320px"
+                    priority={index === 0}
                   />
                 </CardContent>
               </Card>
