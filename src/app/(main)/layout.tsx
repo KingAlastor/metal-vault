@@ -1,7 +1,4 @@
-import Bottombar from "@/components/home/Bottombar";
-import LeftSidebar from "@/components/home/LeftSidebar";
-import NavBar from "@/components/home/NavBar";
-import RightSidebar from "@/components/home/RightSidebar";
+import NavBar from "@/app/(main)/NavBar";
 import getSession from "@/lib/auth/getSession";
 import MenuBar from "./MenuBar";
 import { SessionProvider } from "next-auth/react";

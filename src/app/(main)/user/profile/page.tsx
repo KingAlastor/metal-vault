@@ -2,10 +2,10 @@ import getSession from "@/lib/auth/getSession";
 
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import ProfilePage from "@/components/user/profile/ProfilePage";
+import ProfilePage from "@/components/user/profile/profile-page";
 
 export const metadata: Metadata = {
-  title: "Settings",
+  title: "Profile",
 };
 
 export default async function Page() {

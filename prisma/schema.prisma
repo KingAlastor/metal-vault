@@ -16,7 +16,9 @@ datasource db {
 model User {
   id              String       @id @default(cuid())
   name            String?
+  userName        String?
   email           String?      @unique
+  location        String?
   image           String?
   role            String?
   shard           Int?
@@ -27,6 +29,8 @@ model User {
   emailVerified   DateTime?    @map("email_verified")
   accountCreated  DateTime?    @map("account_created")
   lastLogin       DateTime?    @map("last_login")
+  genreTags       String[]     @map("genre_tags") @db.VarChar
+  notifications   Json?
   accounts        Account[]
   sessions        Session[]
   UserPosts0      UserPosts0[]

@@ -14,7 +14,10 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { ReleasesFilters, updateProfileFilters } from "../../lib/data/releases/releases-filters-data-actions";
+import {
+  ReleasesFilters,
+  updateProfileFilters,
+} from "../../lib/data/releases/releases-filters-data-actions";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -36,7 +39,7 @@ export function FiltersForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       favorites_only: filters?.favorites_only || false,
-      favorite_genres_only: filters?.favorite_genres_only || false, 
+      favorite_genres_only: filters?.favorite_genres_only || false,
     },
   });
 
@@ -97,7 +100,9 @@ export function FiltersForm({
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit">Apply</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                Apply
+              </Button>
             </div>
           </div>
         </div>

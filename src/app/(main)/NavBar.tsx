@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { SignIn } from "../auth/signin-button";
-import { UserMenu } from "../auth/user-dropdown-menu";
+import { SignIn } from "../../components/auth/signin-button";
+import { UserMenu } from "../../components/auth/user-dropdown-menu";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { Button } from "../ui/button";
+import { Button } from "../../components/ui/button";
 import getSession from "@/lib/auth/getSession";
 
 export default function NavBar() {

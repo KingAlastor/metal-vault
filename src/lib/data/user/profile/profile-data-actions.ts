@@ -1,11 +1,15 @@
-/* "use server";
+"use server";
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { UpdateProfileValues, updateProfileSchema } from "@/lib/app/settings/validation";
 import { revalidatePath } from "next/cache";
 
-export async function updateProfile(values: UpdateProfileValues) {
+export type UserProfile = {
+  userName?: string,
+  country?: string,
+}
+
+export async function updateProfile(data: UserProfile) {
   const session = await auth();
   const userId = session?.user?.id;
 
@@ -13,16 +17,15 @@ export async function updateProfile(values: UpdateProfileValues) {
     throw Error("Unauthorized");
   }
 
-  const { name } = updateProfileSchema.parse(values);
-
   await prisma.user.update({
     where: {
       id: userId,
     },
     data: {
-      name,
+      userName: data.userName,
+      location: data.country,
     },
   });
 
   revalidatePath("/");
-} */
+}

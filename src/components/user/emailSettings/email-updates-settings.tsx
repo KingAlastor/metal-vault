@@ -212,7 +212,9 @@ export default function EmailUpdatesPage({ user }: EmailUpdatesPageProps) {
               </>
             )}
             <div className="flex justify-end">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                Submit
+              </Button>
             </div>
           </div>
         </div>
