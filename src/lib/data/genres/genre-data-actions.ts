@@ -20,6 +20,9 @@ export const getUniqueGenres = async () => {
   return uniqueGenres;
 };
 
+export type Genre = {
+  genres: string;
+}
 
 export const getGenres = async () => {
   return await prisma.genreTags.findMany();

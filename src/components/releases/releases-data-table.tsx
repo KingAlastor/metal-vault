@@ -159,24 +159,24 @@ const getColumnVisibilityBySize = (width: number) => {
         bandName: true,
         albumName: true,
         type: true,
-        genreTags: true,
-        releaseDate: false,
+        genreTags: false,
+        releaseDate: true,
       };
     case width <= 800 && width > 600:
       return {
         bandName: true,
         albumName: true,
-        type: true,
+        type: false,
         genreTags: false,
-        releaseDate: false,
+        releaseDate: true,
       };
     case width <= 600 && width > 400:
       return {
         bandName: true,
-        albumName: true,
+        albumName: false,
         type: false,
         genreTags: false,
-        releaseDate: false,
+        releaseDate: true,
       };
     case width <= 400:
       return {

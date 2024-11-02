@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 export type UserProfile = {
   userName?: string,
   country?: string,
+  genreTags?: string[],
 }
 
 export async function updateProfile(data: UserProfile) {
@@ -24,6 +25,7 @@ export async function updateProfile(data: UserProfile) {
     data: {
       userName: data.userName,
       location: data.country,
+      genreTags: data.genreTags
     },
   });
 

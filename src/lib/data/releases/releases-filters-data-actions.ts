@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { PrismaBandFollowersModel } from "../../../../prisma/models";
 
 export type ReleasesFilters = {
-  favorites_only?: boolean;
-  favorite_genres_only?: boolean;
+  favorite_bands?: boolean;
+  favorite_genres?: boolean;
+  genreTags: string[];
 };
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
@@ -15,7 +16,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
   let bandIds: string[] | undefined;
 
   if (user) {
-    if (filters.favorites_only) {
+    if (filters.favorite_bands) {
       bandIds = await getBandIdsByUserId(user);
     }
     /*     if (filters.favorite_genres_only) {
@@ -36,6 +37,9 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
     },
     where: {
       ...(bandIds ? { bandId: { in: bandIds } } : {}),
+      ...(filters.genreTags && filters.genreTags.length > 0
+        ? { genreTags: { hasSome: filters.genreTags } }
+        : {}),
       releaseDate: {
         gte: today,
       },
@@ -44,6 +48,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
       releaseDate: "asc",
     },
   });
+
   return releases;
 }
 
@@ -70,21 +75,20 @@ const getBandIdsByUserId = async (user: any) => {
 
 export const getUserReleaseFilters = async (id: string) => {
   try {
-    let filters; 
+    let filters;
     const userFilters = await prisma.user.findUnique({
       select: {
         releaseSettings: true,
       },
       where: { id },
     });
-    
+
     if (userFilters?.releaseSettings) {
-      console.log("releasePage", userFilters.releaseSettings);
-      if (typeof userFilters.releaseSettings === 'string') {
+      if (typeof userFilters.releaseSettings === "string") {
         filters = JSON.parse(userFilters.releaseSettings);
-      } 
-    };
-    return filters;   
+      }
+    }
+    return filters;
   } catch {
     return null;
   }

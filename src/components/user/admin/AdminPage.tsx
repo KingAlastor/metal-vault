@@ -9,7 +9,6 @@ import {
 import { syncAlbumDataFromArchives } from "../../../lib/data/user/admin/album-data-actions";
 import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
 import { useState } from "react";
-import { SearchBandsDropDown } from "@/components/global/search-bands-dropdown";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 
 export default function AdminPage() {
@@ -89,7 +88,6 @@ export default function AdminPage() {
       <Button onClick={handleTestApi} disabled={isTestApiLoading}>
         {isLatestBandsLoading ? "Loading..." : "Test API"}
       </Button>
-      <SearchBandsDropDown />
     </div>
   );
 }

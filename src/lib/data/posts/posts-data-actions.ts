@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { PrismaUserPostsModel } from "../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
+import { MaxTableShards } from "@/lib/enums";
 
 type PostProps = {
   band_name?: string;
@@ -57,7 +58,9 @@ export const addPost = async (post: PostProps) => {
   }
 };
 
-type PostFilters = {};
+type PostFilters = {
+  genres?: string[];
+};
 
 export const getPostsByFilters = async (filters: PostFilters) => {
   const session = await auth();
@@ -65,7 +68,7 @@ export const getPostsByFilters = async (filters: PostFilters) => {
 
   let allPosts = [];
 
-  for (let shardSuffix = 0; shardSuffix < 3; shardSuffix++) {
+  for (let shardSuffix = 0; shardSuffix < MaxTableShards.UserPosts; shardSuffix++) {
     const model = prisma[
       `userPosts${shardSuffix}` as keyof typeof prisma
     ] as PrismaUserPostsModel;

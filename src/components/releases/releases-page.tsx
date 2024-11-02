@@ -13,6 +13,7 @@ import { ChevronDown } from "lucide-react";
 import {
   getReleasesByFilters,
   getUserReleaseFilters,
+  ReleasesFilters,
 } from "../../lib/data/releases/releases-filters-data-actions";
 import { User } from "next-auth";
 
@@ -23,7 +24,9 @@ interface ReleasesPageProps {
 export default function ReleasesPage({ user }: ReleasesPageProps) {
   const [releases, setReleases] = useState<BandAlbum[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState<ReleasesFilters>(
+    {} as ReleasesFilters
+  );
 
   useEffect(() => {
     const fetchUserFilters = async () => {
@@ -31,9 +34,9 @@ export default function ReleasesPage({ user }: ReleasesPageProps) {
         let userFilters = await getUserReleaseFilters(user.id!);
         setFilters(userFilters);
       }
-      fetchUserFilters();
     };
-  });
+    fetchUserFilters();
+  }, [user]);
 
   useEffect(() => {
     const fetchReleases = async () => {

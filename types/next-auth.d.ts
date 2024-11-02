@@ -11,5 +11,6 @@ declare module "next-auth" {
     shard: number,
     location: string,
     notifications: string,
+    genreTags: string,
   }
 }

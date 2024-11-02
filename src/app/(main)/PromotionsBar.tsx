@@ -22,8 +22,6 @@ export default function PromotionsBar() {
         "/bandAds/behemoth.jpg",
         "/bandAds/halo_effect.jpg",
       ];
-      /*       const response = await fetch('/api/ads');
-      const data = await response.json(); */
       setBandAds(ads);
     };
 

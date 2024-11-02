@@ -28,8 +28,8 @@ export default function PostsPage({ user }: PostsPageProps) {
         let userFilters = await getUserPostsFilters(user.id!);
         setFilters(userFilters);
       }
-      fetchUserFilters();
     };
+    fetchUserFilters();
   });
 
   useEffect(() => {

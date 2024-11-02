@@ -29,7 +29,7 @@ model User {
   emailVerified   DateTime?    @map("email_verified")
   accountCreated  DateTime?    @map("account_created")
   lastLogin       DateTime?    @map("last_login")
-  genreTags       String[]     @map("genre_tags") @db.VarChar
+  genreTags       String[]     @map("genre_tags") 
   notifications   Json?
   accounts        Account[]
   sessions        Session[]
@@ -75,7 +75,7 @@ model Bands {
   id           String       @id @default(cuid())
   name         String
   namePretty   String       @map("name_pretty")
-  genreTags    String[]     @map("genre_tags") @db.VarChar
+  genreTags    String[]     @map("genre_tags") 
   country      String?
   status       String?
   followers    Int?         @default(0)
@@ -92,7 +92,7 @@ model BandsBackup {
   id           String   @id
   name         String
   namePretty   String   @map("name_pretty")
-  genreTags    String[] @map("genre_tags") @db.VarChar
+  genreTags    String[] @map("genre_tags")
   country      String?
   status       String?
   followers    Int?     @default(0)
@@ -121,7 +121,7 @@ model UpcomingReleases {
   bandId            String    @map("band_id")
   bandName          String    @map("band_name")
   albumName         String    @map("album_name")
-  genreTags         String[]  @map("genre_tags") @db.VarChar
+  genreTags         String[]  @map("genre_tags") 
   bandArchivesLink  BigInt?   @map("band_archives_link")
   albumArchivesLink BigInt?   @map("album_archives_link")
   type              String?
