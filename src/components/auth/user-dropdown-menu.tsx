@@ -17,6 +17,8 @@ import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "./theme-toggle-button";
+import { cn } from "@/lib/utils";
+import UserAvatar from "./user-avatar";
 
 interface UserButtonProps {
   user: User;
@@ -26,12 +28,9 @@ export function UserMenu({ user }: UserButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button >
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={user.image || ""} />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        </Button>
+        <button className={cn("flex-none rounded-full sm:ms-auto")}>
+          <UserAvatar avatarUrl={user.image} size={40} />
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{user.name || "User"}</DropdownMenuLabel>

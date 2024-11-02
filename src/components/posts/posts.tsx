@@ -24,7 +24,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { MoreVertical } from "lucide-react";
-import UserAvatar from "./user-avatar";
+import UserAvatar from "../auth/user-avatar";
 
 type PostUser = {
   name: string;

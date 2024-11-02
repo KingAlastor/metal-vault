@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -14,11 +12,9 @@ export default function UserAvatar({
   size,
   className,
 }: UserAvatarProps) {
-  console.log("avatar url: ", avatarUrl);
-
   return (
     <Image
-      src={avatarUrl || "/avatar-placeholder.png"}
+      src={avatarUrl || '/avatar-placeholder.png'}
       alt="User avatar"
       width={size ?? 48}
       height={size ?? 48}
