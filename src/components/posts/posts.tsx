@@ -51,8 +51,8 @@ export type PostsProps = {
 };
 
 export const Posts = ({ posts }: PostsProps) => {
-/*   console.table("logging posts");
- */  const size = useWindowSize();
+  /*   console.table("logging posts");
+   */ const size = useWindowSize();
   console.log("window size", size);
 
   const handleAddToFavoritesClick = () => {
@@ -65,11 +65,11 @@ export const Posts = ({ posts }: PostsProps) => {
         let imageUrl = "";
         if (post.YTLink) {
           const prefix = getImagePrefix(size.width);
-/*           console.log("prefix", prefix);
- */          const videoID = extractYTID(post.YTLink);
-/*           console.log("video ID:", videoID, "YT Link: ", post.YTLink);
- */          imageUrl = getImageUrl(videoID!, prefix);
-/*           console.log("img url: ", imageUrl); */
+          /*           console.log("prefix", prefix);
+           */ const videoID = extractYTID(post.YTLink);
+          /*           console.log("video ID:", videoID, "YT Link: ", post.YTLink);
+           */ imageUrl = getImageUrl(videoID!, prefix);
+          /*           console.log("img url: ", imageUrl); */
         }
         console.log("User image: ", post.user.image);
 
@@ -111,15 +111,23 @@ export const Posts = ({ posts }: PostsProps) => {
               <div>
                 <p className="mb-3">{post.postContent}</p>
                 {imageUrl && (
-                  <div className="w-full max-w-[680px] max-h-[355px] overflow-hidden">
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      maxWidth: "680px",
+                      aspectRatio: "680 / 355",
+                    }}
+                  >
                     <Image
                       src={imageUrl}
-                      alt="YouTube Thumbnail"
-                      layout="responsive"
-                      width={680}
-                      height={355}
-                      className="object-fit: cover w-full h-full"
-                      style={{ objectPosition: "center center" }}
+                      alt="Cropped image"
+                      fill
+                      sizes="(max-width: 680px) 100vw, 680px"
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
                     />
                   </div>
                 )}
