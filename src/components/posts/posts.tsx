@@ -74,7 +74,7 @@ export const Posts = ({ posts }: PostsProps) => {
 
         return (
           <Card key={post.id} className="mb-4 w-full">
-            <CardHeader>
+            <CardHeader className="p-4">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col items-start">
                   <div className="flex items-center">
@@ -107,7 +107,7 @@ export const Posts = ({ posts }: PostsProps) => {
                 </DropdownMenu>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
               <div>
                 <p className="mb-3">{post.postContent}</p>
                 {imageUrl && (
@@ -133,7 +133,7 @@ export const Posts = ({ posts }: PostsProps) => {
                 )}
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="p-4">
               <div className="flex justify-between items-center w-full">
                 <div className="flex space-x-4">
                   {size.width > 600 && <span> Links: </span>}
