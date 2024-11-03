@@ -51,8 +51,7 @@ export type PostsProps = {
 };
 
 export const Posts = ({ posts }: PostsProps) => {
-  /*   console.table("logging posts");
-   */ const size = useWindowSize();
+  const size = useWindowSize();
   console.log("window size", size);
 
   const handleAddToFavoritesClick = () => {
@@ -79,6 +78,7 @@ export const Posts = ({ posts }: PostsProps) => {
               <div className="flex justify-between items-center">
                 <div className="flex flex-col items-start">
                   <div className="flex items-center">
+                    {/* Not working currently */}
                     <UserToolTip user={post.user}>
                       <Link href={`/user/${post.user.name}`}>
                         <UserAvatar avatarUrl={post.user.image} />
