@@ -43,15 +43,23 @@ export default function PromotionsBar() {
             <div className="p-1 relative">
               <Card className="rounded-lg overflow-hidden">
                 <CardContent className="flex aspect-square items-center justify-center p-0">
-                  <Image
-                    src={ad}
-                    alt={`Ad ${index + 1}`}
-                    layout="fill"
-                    objectFit="cover"
-                    className="rounded-lg"
-                    sizes="(max-width: 320px) 100vw, 320px"
-                    priority={index === 0}
-                  />
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    <Image
+                      src={ad}
+                      alt={`Ad ${index + 1}`}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      className="rounded-lg"
+                      sizes="(max-width: 320px) 100vw, 320px"
+                      priority={index === 0}
+                    />
+                  </div>
                 </CardContent>
               </Card>
               <CarouselPrevious className="absolute left-0 top-1/2 transform -translate-y-1/2" />

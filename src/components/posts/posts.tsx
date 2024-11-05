@@ -5,26 +5,15 @@ import * as React from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import Link from "next/link";
 import Image from "next/image";
-import { UserToolTip } from "./user-tooltip";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { MoreVertical } from "lucide-react";
 import UserAvatar from "../auth/user-avatar";
+import PostDropdownMenu from "./post-dropdown-menu";
+import PostLinkIcons from "./post-link-icons";
 
 type PostUser = {
   name: string;
@@ -54,10 +43,6 @@ export const Posts = ({ posts }: PostsProps) => {
   const size = useWindowSize();
   console.log("window size", size);
 
-  const handleAddToFavoritesClick = () => {
-    console.log("clicked");
-  };
-
   return (
     <div>
       {posts.map((post) => {
@@ -74,42 +59,25 @@ export const Posts = ({ posts }: PostsProps) => {
 
         return (
           <Card key={post.id} className="mb-4 w-full">
-            <CardHeader className="p-4">
+            <CardHeader className="p-4 pt-2 pb-1">
               <div className="flex justify-between items-center">
-                <div className="flex flex-col items-start">
-                  <div className="flex items-center">
-                    {/* Not working currently */}
-                    <UserToolTip user={post.user}>
-                      <Link href={`/user/${post.user.name}`}>
-                        <UserAvatar avatarUrl={post.user.image} />
-                      </Link>
-                    </UserToolTip>
+                <div className="flex">
+                  <div className="flex justify-center items-center">
+                    <UserAvatar avatarUrl={post.user.image} size={30} />
                   </div>
-                  <div className="xs-font ml-2">
-                    {formatDate(post.postDateTime)}
+                  <div className="flex flex-col pl-2">
+                    <div>{post.user.name}</div>
+                    <div className="xs-font ml-2">
+                      {formatDate(post.postDateTime)}
+                    </div>
                   </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleAddToFavoritesClick}>
-                      <div className="dropdown-options">Save post</div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleAddToFavoritesClick}>
-                      <div className="dropdown-options">Report Post</div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <PostDropdownMenu />
               </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-4 pt-1 pb-1">
               <div>
-                <p className="mb-3">{post.postContent}</p>
+                <p className="mb-3 m-font">{post.postContent}</p>
                 {imageUrl && (
                   <div
                     style={{
@@ -133,45 +101,29 @@ export const Posts = ({ posts }: PostsProps) => {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="p-4">
+            <CardFooter className="p-4 pt-1 pb-2">
               <div className="flex justify-between items-center w-full">
                 <div className="flex space-x-4">
-                  {size.width > 600 && <span> Links: </span>}
                   {post.YTLink && (
-                    <Link href={post.YTLink} passHref legacyBehavior>
-                      <a target="_blank" rel="noopener noreferrer">
-                        <Image
-                          src="/YTLogo.svg"
-                          alt="YouTube Logo"
-                          width={24}
-                          height={24}
-                        />
-                      </a>
-                    </Link>
+                    <PostLinkIcons
+                      link={post.YTLink}
+                      src="/YTLogo.svg"
+                      alt="YouTube Logo"
+                    />
                   )}
                   {post.SpotifyLink && (
-                    <Link href={post.SpotifyLink} passHref legacyBehavior>
-                      <a target="_blank" rel="noopener noreferrer">
-                        <Image
-                          src="/SpotifyLogo.svg"
-                          alt="Spotify Logo"
-                          width={24}
-                          height={24}
-                        />
-                      </a>
-                    </Link>
+                    <PostLinkIcons
+                      link={post.SpotifyLink}
+                      src="/SpotifyLogo.svg"
+                      alt="Spotify Logo"
+                    />
                   )}
                   {post.BandCampLink && (
-                    <Link href={post.BandCampLink} passHref legacyBehavior>
-                      <a target="_blank" rel="noopener noreferrer">
-                        <Image
-                          src="/BandcampLogo.svg"
-                          alt="Bandcamp Logo"
-                          width={24}
-                          height={24}
-                        />
-                      </a>
-                    </Link>
+                    <PostLinkIcons
+                      link={post.BandCampLink}
+                      src="/BandcampLogo.svg"
+                      alt="Bandcamp Logo"
+                    />
                   )}
                 </div>
               </div>
