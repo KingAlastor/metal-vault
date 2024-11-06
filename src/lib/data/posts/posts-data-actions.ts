@@ -90,6 +90,7 @@ export const getPostsByFilters = async (filters: PostFilters) => {
         user: {
           select: {
             name: true,
+            userName: true,
             image: true,
             role: true,
           },

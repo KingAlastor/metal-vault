@@ -14,9 +14,11 @@ import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 import UserAvatar from "../auth/user-avatar";
 import PostDropdownMenu from "./post-dropdown-menu";
 import PostLinkIcons from "./post-link-icons";
+import Link from "next/link";
 
 type PostUser = {
   name: string;
+  userName: string;
   image: string;
   role: string;
 };
@@ -41,7 +43,6 @@ export type PostsProps = {
 
 export const Posts = ({ posts }: PostsProps) => {
   const size = useWindowSize();
-  console.log("window size", size);
 
   return (
     <div>
@@ -49,13 +50,9 @@ export const Posts = ({ posts }: PostsProps) => {
         let imageUrl = "";
         if (post.YTLink) {
           const prefix = getImagePrefix(size.width);
-          /*           console.log("prefix", prefix);
-           */ const videoID = extractYTID(post.YTLink);
-          /*           console.log("video ID:", videoID, "YT Link: ", post.YTLink);
-           */ imageUrl = getImageUrl(videoID!, prefix);
-          /*           console.log("img url: ", imageUrl); */
+          const videoID = extractYTID(post.YTLink);
+          imageUrl = getImageUrl(videoID!, prefix);
         }
-        console.log("User image: ", post.user.image);
 
         return (
           <Card key={post.id} className="mb-4 w-full">
@@ -66,8 +63,10 @@ export const Posts = ({ posts }: PostsProps) => {
                     <UserAvatar avatarUrl={post.user.image} size={30} />
                   </div>
                   <div className="flex flex-col pl-2">
-                    <div>{post.user.name}</div>
-                    <div className="xs-font ml-2">
+                    <div>
+                      {post.user.userName ? post.user.userName : post.user.name}
+                    </div>
+                    <div className="xs-font">
                       {formatDate(post.postDateTime)}
                     </div>
                   </div>
@@ -87,16 +86,20 @@ export const Posts = ({ posts }: PostsProps) => {
                       aspectRatio: "680 / 355",
                     }}
                   >
-                    <Image
-                      src={imageUrl}
-                      alt="Cropped image"
-                      fill
-                      sizes="(max-width: 680px) 100vw, 680px"
-                      style={{
-                        objectFit: "cover",
-                        objectPosition: "center",
-                      }}
-                    />
+                    <Link href={post.YTLink!} passHref legacyBehavior>
+                      <a target="_blank" rel="noopener noreferrer">
+                        <Image
+                          src={imageUrl}
+                          alt="Cropped image"
+                          fill
+                          sizes="(max-width: 680px) 100vw, 680px"
+                          style={{
+                            objectFit: "cover",
+                            objectPosition: "center",
+                          }}
+                        />
+                      </a>
+                    </Link>
                   </div>
                 )}
               </div>
