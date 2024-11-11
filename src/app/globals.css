@@ -94,6 +94,8 @@ input:autofill {
     --ring: 0 0% 20%; /* Very dark grey */
 
     --radius: 0.5rem; /* Border radius */
+
+    --icon-stroke-color: 0 0% 20%; /* Default fill color for light mode */
   }
 
   .dark {
@@ -127,5 +129,7 @@ input:autofill {
     --border: 0 0% 20%; /* Dark grey */
     --input: 0 0% 20%; /* Dark grey */
     --ring: 0 0% 90%; /* Very light grey */
+
+    --icon-stroke-color: #fff; /* Fill color for dark mode */
   }
 }

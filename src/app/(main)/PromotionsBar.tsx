@@ -12,8 +12,13 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { cn } from "@/lib/utils";
 
-export default function PromotionsBar() {
+interface PromotionsBarProps {
+  className?: string;
+}
+
+export default function PromotionsBar({className}: PromotionsBarProps) {
   const [bandAds, setBandAds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -30,7 +35,7 @@ export default function PromotionsBar() {
 
   return (
     <Carousel
-      className="hidden sm:block w-full max-w-xs relative"
+     className={cn("relative", className)}
       plugins={[
         Autoplay({
           delay: 50000,

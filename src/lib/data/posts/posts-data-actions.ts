@@ -4,13 +4,14 @@ import { auth } from "@/auth";
 import { PrismaUserPostsModel } from "../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
 import { MaxTableShards } from "@/lib/enums";
+import { PostsFilters } from "./posts-filters-data-actions";
 
 type PostProps = {
   band_name?: string;
   bandId?: string;
   /* title?: string; */
   genre?: string;
-  post_message: string;
+  post_message?: string;
   yt_link?: string;
   spotify_link?: string;
   bandcamp_link?: string;
@@ -104,3 +105,18 @@ export const getPostsByFilters = async (filters: PostFilters) => {
 
   return allPosts;
 };
+
+export async function updateProfileFilters(filters: PostsFilters) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const filtersJson = JSON.stringify(filters);
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      postsSettings: filtersJson,
+    },
+  });
+}

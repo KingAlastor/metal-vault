@@ -14,8 +14,8 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { updateProfileFilters } from "../../lib/data/releases/releases-filters-data-actions";
 import { PostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
+import { updateProfileFilters } from "@/lib/data/posts/posts-data-actions";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),

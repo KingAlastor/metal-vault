@@ -1,4 +1,3 @@
-import { CreatePost } from "@/components/posts/create-post-form";
 import getSession from "@/lib/auth/getSession";
 
 export default async function Page() {
@@ -7,7 +6,7 @@ export default async function Page() {
 
   return (
     <div>
-      <CreatePost user={user}/>
+      Add possible post view page, maybe for edit
     </div>
   )
 };

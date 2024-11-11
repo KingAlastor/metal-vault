@@ -1,26 +1,21 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import React, { useRef, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { User } from "next-auth";
+import { Textarea } from "../ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useRouter, useSearchParams } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
-import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 
 const initialFormState = {
   post_message: "",
@@ -32,42 +27,28 @@ const initialFormState = {
 };
 
 const FormSchema = z.object({
-  post_message: z
-    .string()
-    .min(10, {
-      message: "Bio must be at least 10 characters.",
-    })
-    .max(160, {
-      message: "Bio must not be longer than 30 characters.",
-    }),
-  band_name: z.string().max(30, {
-    message: "Bio must not be longer than 30 characters.",
+  post_message: z.string().optional(),
+  band_name: z.string().min(1, {
+    message: "Please enter a band name",
   }),
-  genre: z.string().max(40, {
-    message: "Bio must not be longer than 30 characters.",
-  }),
-  yt_link: z.string().max(160, {
-    message: "Bio must not be longer than 30 characters.",
-  }),
-  spotify_link: z.string().max(160, {
-    message: "Bio must not be longer than 30 characters.",
-  }),
-  bandcamp_link: z.string().max(160, {
-    message: "Bio must not be longer than 30 characters.",
-  }),
+  genre: z.string().optional(),
+  yt_link: z.string().optional(),
+  spotify_link: z.string().optional(),
+  bandcamp_link: z.string().optional(),
 });
 
-type PostPageProps = {
-  user?: User;
+type CreatePostFormProps = {
+  setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export function CreatePost({ user }: PostPageProps) {
+export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   const { reset, ...form } = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: initialFormState,
   });
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const MAX_HEIGHT = 200;
@@ -90,12 +71,12 @@ export function CreatePost({ user }: PostPageProps) {
     console.log("submit was pressed");
     const addNewPost = async () => {
       try {
-        const post = await addPost(data);
-        console.log("Post added successfully:", post);
-        await updatePreviewAndTitle(post);
+        //        const post = await addPost(data);
         console.log("previewUpdateCalled");
         reset(initialFormState);
-        router.push("/");
+        console.log("search params: ", searchParams.has);
+        setOpen(false);
+        //        router.push("/");
       } catch (error) {
         console.error("Error adding post:", error);
       }
@@ -111,7 +92,7 @@ export function CreatePost({ user }: PostPageProps) {
             control={form.control}
             name="post_message"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between">
+              <FormItem className="flex flex-row items-center justify-between mb-4">
                 <FormControl>
                   <Textarea
                     placeholder="Tell us a little bit about yourself"
@@ -124,18 +105,14 @@ export function CreatePost({ user }: PostPageProps) {
               </FormItem>
             )}
           />
-          <div className="flex space-x-4">
+          <div className="flex space-x-4 mb-4">
             <FormField
               control={form.control}
               name="band_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Band</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Band name"
-                      {...field}
-                    />
+                    <Input placeholder="Band name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,12 +123,8 @@ export function CreatePost({ user }: PostPageProps) {
               name="genre"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Genre</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Genre"
-                      {...field}
-                    />
+                    <Input placeholder="Genre" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -163,13 +136,9 @@ export function CreatePost({ user }: PostPageProps) {
               control={form.control}
               name="yt_link"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Youtube Link</FormLabel>
+                <FormItem className="mb-4">
                   <FormControl>
-                    <Input
-                      placeholder="Youtube Link"
-                      {...field}
-                    />
+                    <Input placeholder="Youtube Link" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -179,13 +148,9 @@ export function CreatePost({ user }: PostPageProps) {
               control={form.control}
               name="spotify_link"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Spotify Link</FormLabel>
+                <FormItem className="mb-4">
                   <FormControl>
-                    <Input
-                      placeholder="Spotify Link"
-                      {...field}
-                    />
+                    <Input placeholder="Spotify Link" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -195,13 +160,9 @@ export function CreatePost({ user }: PostPageProps) {
               control={form.control}
               name="bandcamp_link"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>BandCamp Link</FormLabel>
+                <FormItem className="mb-4">
                   <FormControl>
-                    <Input
-                      placeholder="BandCamp Link"
-                      {...field}
-                    />
+                    <Input placeholder="BandCamp Link" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -209,46 +170,8 @@ export function CreatePost({ user }: PostPageProps) {
             />
           </div>
         </div>
-        <div className="flex justify-end">
-          <Button type="submit">Post</Button>
-        </div>
+        <Button type="submit">Create Post</Button>
       </form>
     </Form>
   );
 }
-
-const updatePreviewAndTitle = async (post: any) => {
-  let medialink: string | undefined;
-  let source: string | undefined;
-
-  console.log("post:", post);
-  console.log("post.yt_link:", post.YTLink);
-
-  if (post.YTLink) {
-    medialink = post.YTLink;
-    source = "YT";
-  }
-
-  console.log("medialink:", medialink);
-  console.log("source:", source);
-
-  if (medialink && source) {
-    const videoData = await fetchPreviewUrl(medialink, source);
-    console.log(videoData);
-  }
-};
-
-const fetchPreviewUrl = async (medialink: string, source: string) => {
-  console.log("fetchPreviewUrl called with:", medialink, source);
-  switch (source) {
-    case "SPOTIFY":
-      // Code for case 2
-      break;
-    case "BC":
-      // Code for case 3
-      break;
-    default:
-      console.log("Unknown source");
-      return null;
-  }
-};
