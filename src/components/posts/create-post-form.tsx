@@ -14,7 +14,7 @@ import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
 
 const initialFormState = {
@@ -47,8 +47,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     defaultValues: initialFormState,
   });
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const MAX_HEIGHT = 200;
@@ -64,6 +63,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   };
 
   useEffect(() => {
+    console.log("component reloaded")
     adjustTextareaHeight();
   }, []);
 
@@ -71,12 +71,14 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     console.log("submit was pressed");
     const addNewPost = async () => {
       try {
-        //        const post = await addPost(data);
+        const post = await addPost(data);
         console.log("previewUpdateCalled");
         reset(initialFormState);
-        console.log("search params: ", searchParams.has);
+        console.log("pathanme: ", pathname);
         setOpen(false);
-        //        router.push("/");
+        if (pathname === "/") {
+          window.location.reload();
+        }
       } catch (error) {
         console.error("Error adding post:", error);
       }

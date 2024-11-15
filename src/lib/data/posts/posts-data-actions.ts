@@ -5,6 +5,8 @@ import { PrismaUserPostsModel } from "../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
 import { MaxTableShards } from "@/lib/enums";
 import { PostsFilters } from "./posts-filters-data-actions";
+import { revalidateTag, unstable_cache } from "next/cache";
+import { User } from "next-auth";
 
 type PostProps = {
   band_name?: string;
@@ -52,6 +54,7 @@ export const addPost = async (post: PostProps) => {
       },
     });
 
+    revalidateTag("posts");
     return newPost;
   } catch (error) {
     console.error("Error updating bands table data:", error);
@@ -63,13 +66,46 @@ type PostFilters = {
   genres?: string[];
 };
 
+export const deletePost = async (postId: string, user: User) => {
+  if (!user) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  const shard =
+    user.shard && prisma[`userPosts${user.shard}` as keyof typeof prisma]
+      ? user.shard
+      : "0";
+  const model = prisma[
+    `userPosts${shard}` as keyof typeof prisma
+  ] as PrismaUserPostsModel;
+
+  try {
+    const deletePost = await model.delete({
+      where: {
+        id: postId,
+      },
+    });
+    console.log("posts revalidated");
+    revalidateTag("posts");
+  } catch (error) {
+    console.error("Error updating bands table data:", error);
+    throw error;
+  }
+};
+
 export const getPostsByFilters = async (filters: PostFilters) => {
   const session = await auth();
   const user = session?.user;
 
   let allPosts = [];
 
-  for (let shardSuffix = 0; shardSuffix < MaxTableShards.UserPosts; shardSuffix++) {
+  for (
+    let shardSuffix = 0;
+    shardSuffix < MaxTableShards.UserPosts;
+    shardSuffix++
+  ) {
     const model = prisma[
       `userPosts${shardSuffix}` as keyof typeof prisma
     ] as PrismaUserPostsModel;

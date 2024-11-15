@@ -71,7 +71,7 @@ export const Posts = ({ posts }: PostsProps) => {
                     </div>
                   </div>
                 </div>
-                <PostDropdownMenu />
+                <PostDropdownMenu post={post}/>
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">

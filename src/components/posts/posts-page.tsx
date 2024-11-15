@@ -12,6 +12,7 @@ import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
 import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 import { PostsFiltersForm } from "./posts-filters-form";
 import { Post, Posts } from "./posts";
+import { unstable_cache } from "next/cache";
 
 interface PostsPageProps {
   user?: User;
