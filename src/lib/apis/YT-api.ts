@@ -3,16 +3,22 @@
 import axios from "axios";
 
 export const fetchYoutubeVideoData = async (videoId: string) => {
+  console.log(videoId);
   const apiKey = process.env.YOUTUBE_APIKEY;
   const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&fields=items(snippet(title,description,thumbnails(default,medium,high,standard,maxres)))&part=snippet`;
 
   try {
     const response = await axios.get(url, {
       headers: {
-        Referer: "localhost:3000", 
+        Referer: "localhost:3000",
       },
     });
-    const data = response.data;
+
+    if (!response.data.items || response.data.items.length === 0) {
+      throw new Error("No video data found for the provided video ID.");
+    }
+
+    const data = response.data.items[0].snippet;
     console.log(data);
     return data;
   } catch (error) {

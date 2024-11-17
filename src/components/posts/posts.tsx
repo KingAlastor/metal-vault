@@ -28,6 +28,7 @@ export type Post = {
   userId: string;
   bandId: string;
   bandName: string;
+  title: string;
   genre: string;
   postContent: string;
   YTLink: string | null;
@@ -47,6 +48,9 @@ export const Posts = ({ posts }: PostsProps) => {
   return (
     <div>
       {posts.map((post) => {
+        {
+          console.log(post);
+        }
         let imageUrl = "";
         if (post.YTLink) {
           const prefix = getImagePrefix(size.width);
@@ -101,6 +105,11 @@ export const Posts = ({ posts }: PostsProps) => {
                       </a>
                     </Link>
                   </div>
+                )}
+                {post.title ? (
+                  <p className="mt-1">{post.title}</p>
+                ) : (
+                  <p className="mt-1">Title not available</p>
                 )}
               </div>
             </CardContent>

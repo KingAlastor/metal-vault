@@ -16,6 +16,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { usePathname } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
+import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
+import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 
 const initialFormState = {
   post_message: "",
@@ -96,23 +98,22 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     adjustTextareaHeight();
   }, []);
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log("submit was pressed");
-    const addNewPost = async () => {
-      try {
-        const post = await addPost(data);
-        console.log("previewUpdateCalled");
-        reset(initialFormState);
-        console.log("pathanme: ", pathname);
-        setOpen(false);
-        if (pathname === "/") {
-          window.location.reload();
-        }
-      } catch (error) {
-        console.error("Error adding post:", error);
+    try {
+      const title = await getVideoTitle(data);
+      const formData =  {...data, title};
+      const post = await addPost(formData);
+      console.log("previewUpdateCalled");
+      reset(initialFormState);
+      console.log("pathanme: ", pathname);
+      setOpen(false);
+      if (pathname === "/") {
+        window.location.reload();
       }
-    };
-    addNewPost();
+    } catch (error) {
+      console.error("Error adding post:", error);
+    }
   }
 
   return (
@@ -206,3 +207,20 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     </Form>
   );
 }
+
+const getVideoTitle = async (data: z.infer<typeof FormSchema>) => {
+  if (data.yt_link) {
+    const videoId = extractYTID(data.yt_link);
+    if (videoId) {
+      const videoData = await fetchYoutubeVideoData(videoId);
+      return videoData.title;
+    }
+    else return null; 
+  }
+  else if (data.spotify_link) {
+    // do spotify link stuff 
+  }
+  else if (data.bandcamp_link) {
+    // do bandcamp link stuff
+  }
+};

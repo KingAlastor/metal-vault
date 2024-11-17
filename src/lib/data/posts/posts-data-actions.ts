@@ -10,7 +10,7 @@ import { User } from "next-auth";
 type PostProps = {
   band_name?: string;
   bandId?: string;
-  /* title?: string; */
+  title?: string; 
   genre?: string;
   post_message?: string;
   yt_link?: string;
@@ -43,7 +43,7 @@ export const addPost = async (post: PostProps) => {
         userId: user.id,
         bandId: post.bandId,
         bandName: post.band_name,
-        /* title: post.title, */
+        title: post.title, 
         genre: post.genre,
         postContent: post.post_message,
         YTLink: post.yt_link,
@@ -112,7 +112,7 @@ export const getPostsByFilters = async (filters: PostFilters) => {
         userId: true,
         bandId: true,
         bandName: true,
-        /* title: true, */
+        title: true,
         genre: true,
         postContent: true,
         YTLink: true,
