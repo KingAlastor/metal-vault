@@ -71,7 +71,7 @@ export const Posts = ({ posts }: PostsProps) => {
                     </div>
                   </div>
                 </div>
-                <PostDropdownMenu post={post}/>
+                <PostDropdownMenu post={post} />
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
@@ -79,8 +79,8 @@ export const Posts = ({ posts }: PostsProps) => {
                 <p className="mb-3 m-font">{post.postContent}</p>
                 {imageUrl && (
                   <div
+                    className="relative"
                     style={{
-                      position: "relative",
                       width: "100%",
                       maxWidth: "680px",
                       aspectRatio: "680 / 355",

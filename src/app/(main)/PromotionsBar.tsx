@@ -18,7 +18,7 @@ interface PromotionsBarProps {
   className?: string;
 }
 
-export default function PromotionsBar({className}: PromotionsBarProps) {
+export default function PromotionsBar({ className }: PromotionsBarProps) {
   const [bandAds, setBandAds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function PromotionsBar({className}: PromotionsBarProps) {
 
   return (
     <Carousel
-     className={cn("relative", className)}
+      className={cn("relative", className)}
       plugins={[
         Autoplay({
           delay: 50000,
@@ -48,13 +48,7 @@ export default function PromotionsBar({className}: PromotionsBarProps) {
             <div className="p-1 relative">
               <Card className="rounded-lg overflow-hidden">
                 <CardContent className="flex aspect-square items-center justify-center p-0">
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                    }}
-                  >
+                  <div className="relative w-full h-full">
                     <Image
                       src={ad}
                       alt={`Ad ${index + 1}`}

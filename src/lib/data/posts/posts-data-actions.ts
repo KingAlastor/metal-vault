@@ -5,7 +5,6 @@ import { PrismaUserPostsModel } from "../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
 import { MaxTableShards } from "@/lib/enums";
 import { PostsFilters } from "./posts-filters-data-actions";
-import { revalidateTag, unstable_cache } from "next/cache";
 import { User } from "next-auth";
 
 type PostProps = {
@@ -54,7 +53,6 @@ export const addPost = async (post: PostProps) => {
       },
     });
 
-    revalidateTag("posts");
     return newPost;
   } catch (error) {
     console.error("Error updating bands table data:", error);
@@ -87,8 +85,6 @@ export const deletePost = async (postId: string, user: User) => {
         id: postId,
       },
     });
-    console.log("posts revalidated");
-    revalidateTag("posts");
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;

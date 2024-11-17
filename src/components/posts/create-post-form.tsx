@@ -14,7 +14,7 @@ import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
 
 const initialFormState = {
@@ -26,16 +26,45 @@ const initialFormState = {
   bandcamp_link: "",
 };
 
-const FormSchema = z.object({
-  post_message: z.string().optional(),
-  band_name: z.string().min(1, {
-    message: "Please enter a band name",
-  }),
-  genre: z.string().optional(),
-  yt_link: z.string().optional(),
-  spotify_link: z.string().optional(),
-  bandcamp_link: z.string().optional(),
-});
+const validYTLink = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+const validSpotifyLink = /^(https?:\/\/)?(open\.spotify\.com)\/.+$/;
+const validBandcampLink = /^(https?:\/\/)?([a-z0-9]+\.bandcamp\.com)\/.+$/;
+
+const FormSchema = z
+  .object({
+    post_message: z.string().optional(),
+    band_name: z.string().min(1, {
+      message: "Please enter a band name",
+    }),
+    genre: z.string().optional(),
+    yt_link: z
+      .string()
+      .optional()
+      .refine((value) => !value || validYTLink.test(value), {
+        message: "Invalid Youtube link",
+      }),
+    spotify_link: z
+      .string()
+      .optional()
+      .refine((value) => !value || validSpotifyLink.test(value), {
+        message: "Invalid Spotify link",
+      }),
+    bandcamp_link: z
+      .string()
+      .optional()
+      .refine((value) => !value || validBandcampLink.test(value), {
+        message: "Invalid Bandcamp link",
+      }),
+  })
+  .refine(
+    (data) => {
+      return data.yt_link || data.spotify_link || data.bandcamp_link;
+    },
+    {
+      message: "Please fill out at least one of the links (YouTube, Spotify, or Bandcamp)",
+      path: ["yt_link"],
+    }
+  );
 
 type CreatePostFormProps = {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -63,7 +92,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   };
 
   useEffect(() => {
-    console.log("component reloaded")
+    console.log("component reloaded");
     adjustTextareaHeight();
   }, []);
 

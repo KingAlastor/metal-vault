@@ -308,7 +308,7 @@ export default function ProfilePage({ user }: SettingsPageProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+            <Button type="submit">Save</Button>
           </form>
         </section>
       </main>
