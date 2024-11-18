@@ -106,11 +106,7 @@ export const Posts = ({ posts }: PostsProps) => {
                     </Link>
                   </div>
                 )}
-                {post.title ? (
-                  <p className="mt-1">{post.title}</p>
-                ) : (
-                  <p className="mt-1">Title not available</p>
-                )}
+                {post.title && <p className="mt-1">{post.title}</p>}
               </div>
             </CardContent>
             <CardFooter className="p-4 pt-1 pb-2">
