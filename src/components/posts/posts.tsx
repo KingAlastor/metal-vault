@@ -48,9 +48,6 @@ export const Posts = ({ posts }: PostsProps) => {
   return (
     <div>
       {posts.map((post) => {
-        {
-          console.log(post);
-        }
         let imageUrl = "";
         if (post.YTLink) {
           const prefix = getImagePrefix(size.width);
@@ -95,6 +92,7 @@ export const Posts = ({ posts }: PostsProps) => {
                         <Image
                           src={imageUrl}
                           alt="Cropped image"
+                          priority={true}
                           fill
                           sizes="(max-width: 680px) 100vw, 680px"
                           style={{
