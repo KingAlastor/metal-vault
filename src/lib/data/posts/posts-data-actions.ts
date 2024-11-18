@@ -70,7 +70,7 @@ export const deletePost = async (postId: string, user: User) => {
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
-
+  
   const shard =
     user.shard && prisma[`userPosts${user.shard}` as keyof typeof prisma]
       ? user.shard

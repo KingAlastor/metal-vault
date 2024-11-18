@@ -26,7 +26,7 @@ const PostDropdownMenu = ({ post }: PostDropdownMenuProps) => {
   };
 
     const handleDeletePostClick = async () => {
-      const result = deletePost(post.id, data!.user);
+      const result = await deletePost(post.id, data!.user);
       if (pathname === "/") {
         window.location.reload();
       }
