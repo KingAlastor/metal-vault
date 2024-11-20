@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { Dispatch, SetStateAction, useState } from "react";
 
-const frameworks = [
+const alphabet = [
   { value: "A", label: "A" },
   { value: "B", label: "B" },
   { value: "C", label: "C" },
@@ -68,7 +68,7 @@ export function AlphabetCombobox({setSearchLetter}: AlphabetComboboxProps) {
           className="w-[75px] justify-between"
         >
           {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+            ? alphabet.find((letter) => letter.value === value)?.label
             : "Select"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -76,17 +76,17 @@ export function AlphabetCombobox({setSearchLetter}: AlphabetComboboxProps) {
       <PopoverContent className="w-[75px] p-0">
         <Command>
           <CommandList>
-            {frameworks.map((framework) => (
+            {alphabet.map((letter) => (
               <CommandItem
-                key={framework.value}
-                value={framework.value}
+                key={letter.value}
+                value={letter.value}
                 onSelect={(currentValue) => {
                   setValue(currentValue === value ? "" : currentValue);
                   setOpen(false);
                   setSearchLetter(currentValue);
                 }}
               >
-                {framework.label}
+                {letter.label}
               </CommandItem>
             ))}
           </CommandList>
