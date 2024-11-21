@@ -30,61 +30,61 @@ export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
 
   let whereCondition: Prisma.BandsWhereInput;
 
-  if (search === '#') {
+  if (search === "#") {
     whereCondition = {
       OR: [
-        { namePretty: { startsWith: '0', mode: 'insensitive' } },
-        { namePretty: { startsWith: '1', mode: 'insensitive' } },
-        { namePretty: { startsWith: '2', mode: 'insensitive' } },
-        { namePretty: { startsWith: '3', mode: 'insensitive' } },
-        { namePretty: { startsWith: '4', mode: 'insensitive' } },
-        { namePretty: { startsWith: '5', mode: 'insensitive' } },
-        { namePretty: { startsWith: '6', mode: 'insensitive' } },
-        { namePretty: { startsWith: '7', mode: 'insensitive' } },
-        { namePretty: { startsWith: '8', mode: 'insensitive' } },
-        { namePretty: { startsWith: '9', mode: 'insensitive' } },
+        { namePretty: { startsWith: "0", mode: "insensitive" } },
+        { namePretty: { startsWith: "1", mode: "insensitive" } },
+        { namePretty: { startsWith: "2", mode: "insensitive" } },
+        { namePretty: { startsWith: "3", mode: "insensitive" } },
+        { namePretty: { startsWith: "4", mode: "insensitive" } },
+        { namePretty: { startsWith: "5", mode: "insensitive" } },
+        { namePretty: { startsWith: "6", mode: "insensitive" } },
+        { namePretty: { startsWith: "7", mode: "insensitive" } },
+        { namePretty: { startsWith: "8", mode: "insensitive" } },
+        { namePretty: { startsWith: "9", mode: "insensitive" } },
       ],
     };
-  } else if (search === '~') {
+  } else if (search === "~") {
     whereCondition = {
       OR: [
-        { namePretty: { startsWith: '!', mode: 'insensitive' } },
-        { namePretty: { startsWith: '@', mode: 'insensitive' } },
-        { namePretty: { startsWith: '#', mode: 'insensitive' } },
-        { namePretty: { startsWith: '$', mode: 'insensitive' } },
-        { namePretty: { startsWith: '%', mode: 'insensitive' } },
-        { namePretty: { startsWith: '^', mode: 'insensitive' } },
-        { namePretty: { startsWith: '&', mode: 'insensitive' } },
-        { namePretty: { startsWith: '*', mode: 'insensitive' } },
-        { namePretty: { startsWith: '(', mode: 'insensitive' } },
-        { namePretty: { startsWith: ')', mode: 'insensitive' } },
-        { namePretty: { startsWith: '-', mode: 'insensitive' } },
-        { namePretty: { startsWith: '_', mode: 'insensitive' } },
-        { namePretty: { startsWith: '=', mode: 'insensitive' } },
-        { namePretty: { startsWith: '+', mode: 'insensitive' } },
-        { namePretty: { startsWith: '[', mode: 'insensitive' } },
-        { namePretty: { startsWith: ']', mode: 'insensitive' } },
-        { namePretty: { startsWith: '{', mode: 'insensitive' } },
-        { namePretty: { startsWith: '}', mode: 'insensitive' } },
-        { namePretty: { startsWith: '|', mode: 'insensitive' } },
-        { namePretty: { startsWith: '\\', mode: 'insensitive' } },
-        { namePretty: { startsWith: ':', mode: 'insensitive' } },
-        { namePretty: { startsWith: ';', mode: 'insensitive' } },
-        { namePretty: { startsWith: '"', mode: 'insensitive' } },
-        { namePretty: { startsWith: "'", mode: 'insensitive' } },
-        { namePretty: { startsWith: '<', mode: 'insensitive' } },
-        { namePretty: { startsWith: '>', mode: 'insensitive' } },
-        { namePretty: { startsWith: ',', mode: 'insensitive' } },
-        { namePretty: { startsWith: '.', mode: 'insensitive' } },
-        { namePretty: { startsWith: '?', mode: 'insensitive' } },
-        { namePretty: { startsWith: '/', mode: 'insensitive' } },
+        { namePretty: { startsWith: "!", mode: "insensitive" } },
+        { namePretty: { startsWith: "@", mode: "insensitive" } },
+        { namePretty: { startsWith: "#", mode: "insensitive" } },
+        { namePretty: { startsWith: "$", mode: "insensitive" } },
+        { namePretty: { startsWith: "%", mode: "insensitive" } },
+        { namePretty: { startsWith: "^", mode: "insensitive" } },
+        { namePretty: { startsWith: "&", mode: "insensitive" } },
+        { namePretty: { startsWith: "*", mode: "insensitive" } },
+        { namePretty: { startsWith: "(", mode: "insensitive" } },
+        { namePretty: { startsWith: ")", mode: "insensitive" } },
+        { namePretty: { startsWith: "-", mode: "insensitive" } },
+        { namePretty: { startsWith: "_", mode: "insensitive" } },
+        { namePretty: { startsWith: "=", mode: "insensitive" } },
+        { namePretty: { startsWith: "+", mode: "insensitive" } },
+        { namePretty: { startsWith: "[", mode: "insensitive" } },
+        { namePretty: { startsWith: "]", mode: "insensitive" } },
+        { namePretty: { startsWith: "{", mode: "insensitive" } },
+        { namePretty: { startsWith: "}", mode: "insensitive" } },
+        { namePretty: { startsWith: "|", mode: "insensitive" } },
+        { namePretty: { startsWith: "\\", mode: "insensitive" } },
+        { namePretty: { startsWith: ":", mode: "insensitive" } },
+        { namePretty: { startsWith: ";", mode: "insensitive" } },
+        { namePretty: { startsWith: '"', mode: "insensitive" } },
+        { namePretty: { startsWith: "'", mode: "insensitive" } },
+        { namePretty: { startsWith: "<", mode: "insensitive" } },
+        { namePretty: { startsWith: ">", mode: "insensitive" } },
+        { namePretty: { startsWith: ",", mode: "insensitive" } },
+        { namePretty: { startsWith: ".", mode: "insensitive" } },
+        { namePretty: { startsWith: "?", mode: "insensitive" } },
+        { namePretty: { startsWith: "/", mode: "insensitive" } },
       ],
     };
   } else {
     whereCondition = {
       namePretty: {
         startsWith: search,
-        mode: 'insensitive',
+        mode: "insensitive",
       },
     };
   }
@@ -101,7 +101,7 @@ export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
       },
       where: whereCondition,
       orderBy: {
-        name: 'asc',
+        name: "asc",
       },
     });
 
@@ -170,5 +170,53 @@ export const saveUserFavorites = async (favorites: string[]) => {
       data,
       skipDuplicates: true,
     });
+  }
+};
+
+export const incrementBandFollowersValue = async (id: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+  try {
+    await prisma.bands.update({
+      where: { id },
+      data: {
+        followers: {
+          increment: 1,
+        },
+      },
+    });
+    console.log("follower count updated for id: ", id);
+  } catch (error) {
+    console.log("Failed to increment follower count.", (error as any).message);
+  }
+};
+
+export const decrementBandFollowersValue = async (id: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+  try {
+    await prisma.bands.update({
+      where: { id },
+      data: {
+        followers: {
+          decrement: 1,
+        },
+      },
+    });
+    console.log("follower count updated for id: ", id);
+  } catch (error) {
+    console.log("Failed to decrement follower count.", (error as any).message);
   }
 };

@@ -4,6 +4,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  decrementBandFollowersValue,
+  incrementBandFollowersValue,
+} from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export interface Band {
   id: string;
@@ -23,8 +27,12 @@ const handleCheckedChange = (row: any, value: string | boolean) => {
   const favorites = JSON.parse(localStorage.getItem("userFavorites") || "[]");
   if (value) {
     updatedFavorites = [...favorites, id];
+    // Currently using this without await due to no error handling
+    incrementBandFollowersValue(id);
   } else {
     updatedFavorites = favorites.filter((bandId: string) => bandId !== id);
+    // Currently using this without await due to no error handling
+    decrementBandFollowersValue(id);
   }
   localStorage.setItem("userFavorites", JSON.stringify(updatedFavorites));
 };
