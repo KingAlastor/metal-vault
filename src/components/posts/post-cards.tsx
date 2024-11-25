@@ -69,11 +69,17 @@ export const SpotifyCard = (post: Post) => {
           className="flex flex-col justify-between ml-4"
           style={{ height: "158px" }}
         >
-          <div>
-            <p className="font-bold">{name}</p>
-            <p>{artist}</p>
-            <p className="s-font">{formatDateWithNamedMonth(releaseDate)}</p>
-          </div>
+          <Link href={post.SpotifyLink!} passHref legacyBehavior>
+            <a target="_blank" rel="noopener noreferrer">
+              <div>
+                <p className="font-bold">{name}</p>
+                <p>{artist}</p>
+                <p className="s-font">
+                  {formatDateWithNamedMonth(releaseDate)}
+                </p>
+              </div>
+            </a>
+          </Link>
           {post.previewUrl && (
             <audio controls className="mt-2">
               <source src={post.previewUrl} type="audio/mpeg" />
