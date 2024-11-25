@@ -3,7 +3,6 @@
 import axios from "axios";
 
 export const fetchYoutubeVideoData = async (videoId: string) => {
-  console.log(videoId);
   const apiKey = process.env.YOUTUBE_APIKEY;
   const url = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${apiKey}&fields=items(snippet(title,description,thumbnails(default,medium,high,standard,maxres)))&part=snippet`;
 
@@ -19,7 +18,6 @@ export const fetchYoutubeVideoData = async (videoId: string) => {
     }
 
     const data = response.data.items[0].snippet;
-    console.log(data);
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

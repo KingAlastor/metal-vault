@@ -16,7 +16,7 @@ type PostProps = {
   yt_link?: string;
   spotify_link?: string;
   bandcamp_link?: string;
-  /* preview_url?: string; */
+  previewUrl?: string;
 };
 
 export const addPost = async (post: PostProps) => {
@@ -38,22 +38,20 @@ export const addPost = async (post: PostProps) => {
   ] as PrismaUserPostsModel;
 
   try {
-    const newPost = await model.create({
+    await model.create({
       data: {
         userId: user.id,
         bandId: post.bandId,
         bandName: post.band_name,
         title: post.title, 
-        genre: post.genre,
+        genreTags: post.genre,
         postContent: post.post_message,
         YTLink: post.yt_link,
         SpotifyLink: post.spotify_link,
         BandCampLink: post.bandcamp_link,
-        /* preview_url: post.preview_url, */
+        previewUrl: post.previewUrl,
       },
     });
-
-    return newPost;
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;
@@ -113,12 +111,12 @@ export const getPostsByFilters = async (filters: PostFilters) => {
         bandId: true,
         bandName: true,
         title: true,
-        genre: true,
+        genreTags: true,
         postContent: true,
         YTLink: true,
         SpotifyLink: true,
         BandCampLink: true,
-        /* preview_url: true, */
+        previewUrl: true, 
         postDateTime: true,
         user: {
           select: {

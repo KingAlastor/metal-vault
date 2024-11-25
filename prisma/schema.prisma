@@ -155,12 +155,12 @@ model UserPosts0 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genre        String?
+  genreTags    String[] @map("genre_tags") 
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
   BandCampLink String?  @map("bandcamp_link")
-  preview_url  String?  @map("preview_url")
+  previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
 
@@ -174,12 +174,12 @@ model UserPosts1 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genre        String?
+  genreTags    String[] @map("genre_tags") 
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
   BandCampLink String?  @map("bandcamp_link")
-  preview_url  String?  @map("preview_url")
+  previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
 
@@ -193,12 +193,12 @@ model UserPosts2 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genre        String?
+  genreTags    String[] @map("genre_tags") 
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
   BandCampLink String?  @map("bandcamp_link")
-  preview_url  String?  @map("preview_url")
+  previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
 
@@ -212,12 +212,12 @@ model UserPosts3 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genre        String?
+  genreTags    String[] @map("genre_tags") 
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
   BandCampLink String?  @map("bandcamp_link")
-  preview_url  String?  @map("preview_url")
+  previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
 

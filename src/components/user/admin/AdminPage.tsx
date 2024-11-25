@@ -43,7 +43,7 @@ export default function AdminPage() {
     setIsLatestBandsLoading(false);
   };
 
-  const handleTestApi = async () => {
+  const handleYoutubeApi = async () => {
     setIsTestApiLoading(true);
     const response = async () => {
       const medialink = "https://www.youtube.com/watch?v=mWFLCU0irEE";
@@ -85,7 +85,7 @@ export default function AdminPage() {
       >
         {isLatestBandsLoading ? "Loading..." : "Sync Latest Bands"}
       </Button>
-      <Button onClick={handleTestApi} disabled={isTestApiLoading}>
+      <Button onClick={handleYoutubeApi} disabled={isTestApiLoading}>
         {isLatestBandsLoading ? "Loading..." : "Test API"}
       </Button>
     </div>

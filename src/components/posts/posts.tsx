@@ -15,6 +15,8 @@ import UserAvatar from "../auth/user-avatar";
 import PostDropdownMenu from "./post-dropdown-menu";
 import PostLinkIcons from "./post-link-icons";
 import Link from "next/link";
+import { BandCampCard, SpotifyCard, YTCard } from "./post-cards";
+import { formatDateAndTime } from "@/lib/general/date";
 
 type PostUser = {
   name: string;
@@ -35,6 +37,7 @@ export type Post = {
   SpotifyLink: string | null;
   BandCampLink: string | null;
   postDateTime: Date;
+  previewUrl: string;
   user: PostUser;
 };
 
@@ -43,18 +46,9 @@ export type PostsProps = {
 };
 
 export const Posts = ({ posts }: PostsProps) => {
-  const size = useWindowSize();
-
   return (
     <div>
       {posts.map((post) => {
-        let imageUrl = "";
-        if (post.YTLink) {
-          const prefix = getImagePrefix(size.width);
-          const videoID = extractYTID(post.YTLink);
-          imageUrl = getImageUrl(videoID!, prefix);
-        }
-
         return (
           <Card key={post.id} className="mb-4 w-full">
             <CardHeader className="p-4 pt-2 pb-1">
@@ -68,7 +62,7 @@ export const Posts = ({ posts }: PostsProps) => {
                       {post.user.userName ? post.user.userName : post.user.name}
                     </div>
                     <div className="xs-font">
-                      {formatDate(post.postDateTime)}
+                      {formatDateAndTime(post.postDateTime)}
                     </div>
                   </div>
                 </div>
@@ -76,36 +70,13 @@ export const Posts = ({ posts }: PostsProps) => {
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
-              <div>
-                <p className="mb-3 m-font">{post.postContent}</p>
-                {imageUrl && (
-                  <div
-                    className="relative"
-                    style={{
-                      width: "100%",
-                      maxWidth: "680px",
-                      aspectRatio: "680 / 355",
-                    }}
-                  >
-                    <Link href={post.YTLink!} passHref legacyBehavior>
-                      <a target="_blank" rel="noopener noreferrer">
-                        <Image
-                          src={imageUrl}
-                          alt="Cropped image"
-                          priority={true}
-                          fill
-                          sizes="(max-width: 680px) 100vw, 680px"
-                          style={{
-                            objectFit: "cover",
-                            objectPosition: "center",
-                          }}
-                        />
-                      </a>
-                    </Link>
-                  </div>
-                )}
-                {post.title && <p className="mt-1">{post.title}</p>}
-              </div>
+              {post.YTLink ? (
+                <YTCard {...post} />
+              ) : post.SpotifyLink ? (
+                <SpotifyCard {...post} />
+              ) : post.BandCampLink ? (
+                <BandCampCard {...post} />
+              ) : null}
             </CardContent>
             <CardFooter className="p-4 pt-1 pb-2">
               <div className="flex justify-between items-center w-full">
@@ -141,35 +112,3 @@ export const Posts = ({ posts }: PostsProps) => {
   );
 };
 
-const formatDate = (date: Date) => {
-  const d = new Date(date);
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const month = months[d.getMonth()];
-  const day = d.getDate();
-  const hour = d.getHours().toString().padStart(2, "0");
-  const minute = d.getMinutes().toString().padStart(2, "0");
-
-  return `${month} ${day} ${hour}:${minute}`;
-};
-
-const getImageUrl = (videoId: string, prefix: string) => {
-  return `https://i.ytimg.com/vi/${videoId}/${prefix}default.jpg`;
-};
-
-const getImagePrefix = (width: number) => {
-  if (width <= 480) return "sd";
-  return "hq";
-};

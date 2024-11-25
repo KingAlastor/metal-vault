@@ -18,11 +18,12 @@ import { usePathname } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
+import { fetchSpotifyData } from "@/lib/apis/Spotify-api";
 
 const initialFormState = {
   post_message: "",
   band_name: "",
-  genre: "",
+  genreTags: "",
   yt_link: "",
   spotify_link: "",
   bandcamp_link: "",
@@ -38,7 +39,7 @@ const FormSchema = z
     band_name: z.string().min(1, {
       message: "Please enter a band name",
     }),
-    genre: z.string().optional(),
+    genreTags: z.string().optional(),
     yt_link: z
       .string()
       .optional()
@@ -63,7 +64,8 @@ const FormSchema = z
       return data.yt_link || data.spotify_link || data.bandcamp_link;
     },
     {
-      message: "Please fill out at least one of the links (YouTube, Spotify, or Bandcamp)",
+      message:
+        "Please fill out at least one of the links (YouTube, Spotify, or Bandcamp)",
       path: ["yt_link"],
     }
   );
@@ -101,9 +103,14 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log("submit was pressed");
     try {
-      const title = await getVideoTitle(data);
-      const formData =  {...data, title};
-      const post = await addPost(formData);
+      const linkData = await getLinkData(data);
+      const formData = {
+        ...data,
+        previewUrl: linkData?.previewUrl,
+        title: JSON.stringify(linkData?.title),
+      };
+      // Will not return error message for now
+      await addPost(formData);
       console.log("previewUpdateCalled");
       reset(initialFormState);
       console.log("pathanme: ", pathname);
@@ -152,7 +159,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
             />
             <FormField
               control={form.control}
-              name="genre"
+              name="genreTags"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -208,19 +215,55 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   );
 }
 
-const getVideoTitle = async (data: z.infer<typeof FormSchema>) => {
+const getLinkData = async (data: z.infer<typeof FormSchema>) => {
   if (data.yt_link) {
     const videoId = extractYTID(data.yt_link);
     if (videoId) {
       const videoData = await fetchYoutubeVideoData(videoId);
-      return videoData.title;
+      return {
+        title: {
+          name: videoData.title,
+        },
+      };
+    } else return null;
+  } else if (data.spotify_link) {
+    const linkData = await fetchSpotifyData(data.spotify_link);
+    console.log("linkData: ", linkData);
+    switch (linkData.type) {
+      case "track":
+        return {
+          title: {
+            name: linkData.data.album.name,
+            artist: linkData.data.artists[0].name,
+            releaseDate: linkData.data.album.release_date,
+            imageUrl: linkData.data.album.images[1].url,
+            type: "Track",
+          },
+          previewUrl: linkData.data.preview_url,
+        };
+      case "album":
+        return {
+          title: {
+            name: linkData.data.name,
+            artist: linkData.data.artists.name,
+            releaseDate: linkData.data.release_date,
+            type: "Album",
+            imageUrl: linkData.data.images[1].url,
+          },
+          previewUrl: linkData.data.preview_url,
+        };
+      case "artist":
+        return {
+          title: {
+            name: linkData.data.name,
+            type: "Artist",
+          },
+          previewUrl: linkData.data.preview_url,
+        };
+      default:
+        return null;
     }
-    else return null; 
-  }
-  else if (data.spotify_link) {
-    // do spotify link stuff 
-  }
-  else if (data.bandcamp_link) {
+  } else if (data.bandcamp_link) {
     // do bandcamp link stuff
   }
 };
