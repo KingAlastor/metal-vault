@@ -7,6 +7,7 @@ import { formatDateWithNamedMonth } from "@/lib/general/date";
 
 export const YTCard = (post: Post) => {
   const size = useWindowSize();
+  const { name } = JSON.parse(post.title);
 
   const prefix = getImagePrefix(size.width);
   const videoID = extractYTID(post.YTLink!);
@@ -40,7 +41,7 @@ export const YTCard = (post: Post) => {
           </Link>
         </div>
       )}
-      {post.title && <p className="mt-1">{post.title}</p>}
+      {name && <p className="mt-1">{name}</p>}
     </div>
   );
 };
