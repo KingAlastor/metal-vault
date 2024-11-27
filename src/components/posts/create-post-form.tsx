@@ -19,6 +19,7 @@ import { addPost } from "@/lib/data/posts/posts-data-actions";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 import { fetchSpotifyBandTopTracks, fetchSpotifyData } from "@/lib/apis/Spotify-api";
+import { fetchBandcampData } from "@/lib/apis/Bandcamp-api";
 
 const initialFormState = {
   post_message: "",
@@ -228,7 +229,6 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
     } else return null;
   } else if (data.spotify_link) {
     const linkData = await fetchSpotifyData(data.spotify_link);
-    console.log("linkData: ", linkData);
     switch (linkData.type) {
       case "track":
         return {
@@ -266,6 +266,13 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
         return null;
     }
   } else if (data.bandcamp_link) {
-    // do bandcamp link stuff
+    const bandcampData = await fetchBandcampData(data.bandcamp_link);
+    return {
+      title: {
+        name: bandcampData.trackTitle,
+        artist: bandcampData.bandName,
+        imageUrl: bandcampData.imgSrc,
+      }
+    }
   }
 };

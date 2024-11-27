@@ -98,8 +98,8 @@ export const Posts = ({ posts }: PostsProps) => {
                   {post.BandCampLink && (
                     <PostLinkIcons
                       link={post.BandCampLink}
-                      src="/BandcampLogo.svg"
-                      alt="Bandcamp Logo"
+                      src="/BandCampLogo.png"
+                      alt="BandCamp Logo"
                     />
                   )}
                 </div>
