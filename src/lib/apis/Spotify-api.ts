@@ -7,7 +7,6 @@ export const fetchSpotifyData = async (spotifyLink: string) => {
   console.log("access token: ", accessToken);
 
   const { id, type } = extractSpotifyIdAndType(spotifyLink);
-  console.log("spotify ID and type: ", id, type);
 
   if (!type || !id) {
     throw new Error("Invalid Spotify link");
@@ -19,13 +18,6 @@ export const fetchSpotifyData = async (spotifyLink: string) => {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  console.log(response.data);
-
-  console.log("album name: ", response.data.album.name);
-  console.log("artist name: ", response.data.artists[0].name);
-  console.log("release date: ", response.data.album.release_date);
-  console.log("image url: ", response.data.album.images[1].url);
-  console.log("prev url: ", response.data.preview_url);
 
   return {
     data: response.data,
@@ -52,6 +44,19 @@ const getAccessToken = async () => {
   );
 
   return response.data.access_token;
+};
+
+export const fetchSpotifyBandTopTracks = async (id: string) => {
+  const accessToken = await getAccessToken();
+  console.log("id", id, "accesstoken: ", accessToken);
+  const url = `https://api.spotify.com/v1/artists/${id}/top-tracks`;
+  const response = await axios.get(url, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  console.log("fetch top tracks: ", response.data)
+  return response.data;
 };
 
 const extractSpotifyIdAndType = (spotifyLink: string) => {

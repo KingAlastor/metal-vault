@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
-import { fetchSpotifyData } from "@/lib/apis/Spotify-api";
+import { fetchSpotifyBandTopTracks, fetchSpotifyData } from "@/lib/apis/Spotify-api";
 
 const initialFormState = {
   post_message: "",
@@ -250,15 +250,17 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
             type: "Album",
             imageUrl: linkData.data.images[1].url,
           },
-          previewUrl: linkData.data.preview_url,
+          previewUrl: linkData.data.tracks.items[1].preview_url,
         };
       case "artist":
+        const topTrackData = await fetchSpotifyBandTopTracks(linkData.data.id)
         return {
           title: {
             name: linkData.data.name,
             type: "Artist",
+            imageUrl: linkData.data.images[1].url,
           },
-          previewUrl: linkData.data.preview_url,
+          previewUrl: topTrackData.tracks[0].preview_url,
         };
       default:
         return null;
