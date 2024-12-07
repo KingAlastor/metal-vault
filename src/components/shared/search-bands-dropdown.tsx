@@ -1,123 +1,111 @@
-"use client"
+"use client";
 
-import * as React from "react"
-
-import useMediaQuery from '@custom-react-hooks/use-media-query';
-import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/command";
+import { useEffect, useRef, useState } from "react";
+import { getBandsBySearchTerm } from "@/lib/data/bands/search-bands-data-actions";
 
-type Status = {
-  value: string
-  label: string
-}
+export function BandSearchBar() {
+  const [bands, setBands] = useState<{ bandId: string; bandName: string }[]>(
+    []
+  );
+  const [inputValue, setInputValue] = useState("");
+  const [selectedValues, setSelectedValues] = useState<
+    { bandId: string; bandName: string }[]
+  >([]);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
-const statuses: Status[] = [
-  {
-    value: "backlog",
-    label: "Backlog",
-  },
-  {
-    value: "todo",
-    label: "Todo",
-  },
-  {
-    value: "in progress",
-    label: "In Progress",
-  },
-  {
-    value: "done",
-    label: "Done",
-  },
-  {
-    value: "canceled",
-    label: "Canceled",
-  },
-]
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputValue(value);
 
-export function   SearchBandsDropDown() {
-  const [open, setOpen] = React.useState(false)
-  const isDesktop = useMediaQuery("(min-width: 768px)")
-  const [selectedStatus, setSelectedStatus] = React.useState<Status | null>(
-    null
-  )
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-  if (isDesktop) {
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[150px] justify-start">
-            {selectedStatus ? <>{selectedStatus.label}</> : <>+ Set status</>}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
-          <StatusList setOpen={setOpen} setSelectedStatus={setSelectedStatus} />
-        </PopoverContent>
-      </Popover>
-    )
-  }
+    timeoutRef.current = setTimeout(() => {
+      fetchBands(value);
+    }, 300);
+  };
+
+  const fetchBands = async (searchTerm: string) => {
+    const bands = await getBandsBySearchTerm(searchTerm);
+    if (bands.length < 20) {
+      setBands(bands);
+      setIsCommandOpen(true);
+      console.log("Debounced value:");
+    }
+  };
+
+  const handleSelect = (band: { bandId: string; bandName: string }) => {
+    setSelectedValues((prev) => [...prev, band]);
+    setInputValue("");
+    setBands([]);
+    setIsCommandOpen(false)
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      setIsCommandOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleInputFocus = () => {
+    if (bands.length > 0) {
+      setIsCommandOpen(true);
+    }
+  };
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button variant="outline" className="w-[150px] justify-start">
-          {selectedStatus ? <>{selectedStatus.label}</> : <>+ Set status</>}
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <div className="mt-4 border-t">
-          <StatusList setOpen={setOpen} setSelectedStatus={setSelectedStatus} />
+    <div ref={containerRef} className="w-full max-w-sm space-y-4">
+      <Input
+        type="text"
+        placeholder="Search..."
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={handleInputFocus}
+      />
+      {isCommandOpen && bands.length > 0 && (
+        <Command className="rounded-lg border shadow-md">
+          <CommandList className="max-h-[300px] overflow-y-auto">
+            <CommandGroup heading="Results" className="text-muted-foreground">
+              {bands.map((item) => (
+                <CommandItem
+                  key={item.bandId}
+                  onSelect={() => handleSelect(item)}
+                >
+                  {item.bandName}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      )}
+      {selectedValues.length > 0 && (
+        <div>
+          <h3>Selected Bands:</h3>
+          <ul>
+            {selectedValues.map((value) => (
+              <li key={value.bandId}>{value.bandName}</li>
+            ))}
+          </ul>
         </div>
-      </DrawerContent>
-    </Drawer>
-  )
-}
-
-function StatusList({
-  setOpen,
-  setSelectedStatus,
-}: {
-  setOpen: (open: boolean) => void
-  setSelectedStatus: (status: Status | null) => void
-}) {
-  return (
-    <Command>
-      <CommandInput placeholder="Filter status..." />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup>
-          {statuses.map((status) => (
-            <CommandItem
-              key={status.value}
-              value={status.value}
-              onSelect={(value) => {
-                setSelectedStatus(
-                  statuses.find((priority) => priority.value === value) || null
-                )
-                setOpen(false)
-              }}
-            >
-              {status.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
-  )
+      )}
+    </div>
+  );
 }
