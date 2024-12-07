@@ -17,12 +17,14 @@ export const getBandsBySearchTerm = async (searchTerm: string) => {
       namePretty: true,
       country: true,
       genreTags: true,
+      followers: true,
     },
   });
 
   const bandsWithFormattedNames = result.map(band => ({
     bandId: band.id,
     bandName: `${band.namePretty} (${band.country}) {${band.genreTags.join(', ')}}`, 
+    followers: band.followers,
   }));
 
   console.log(bandsWithFormattedNames);

@@ -10,7 +10,7 @@ import {
   fetchUserFavoriteBands,
   saveUserFavorites,
 } from "@/lib/data/user/followArtists/follow-artists-data-actions";
-import { AlphabetCombobox } from "./alphabet-combobox";
+import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
 
 export default function FollowArtistsPage() {
   const [bands, setBands] = useState<Band[]>([]);
@@ -72,7 +72,7 @@ export default function FollowArtistsPage() {
 
   return (
     <div>
-      <AlphabetCombobox setSearchLetter={setSearchLetter}/>
+      <BandSearchBar />
       <DataTable columns={columns} data={bands} favorites={favorites} />
     </div>
   );

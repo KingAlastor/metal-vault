@@ -13,6 +13,7 @@ import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions
 import { PostsFiltersForm } from "./posts-filters-form";
 import { Post, Posts } from "./posts";
 import { unstable_cache } from "next/cache";
+import { BandSearchBar } from "../shared/search-bands-dropdown";
 
 interface PostsPageProps {
   user?: User;
