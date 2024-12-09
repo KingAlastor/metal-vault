@@ -1,22 +1,30 @@
 "use client";
 
 import { DataTable } from "./bands-data-table";
-import { Band, columns } from "./bands-table-columns";
-import { useEffect, useState } from "react";
+import { columns } from "./bands-table-columns";
 import { fetchUserFavBandsFullData } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 export default function FollowArtistsPage() {
-  const [bands, setBands] = useState<Band[]>([]);
+  const {
+    data: bands,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["favbands"],
+    queryFn: () => fetchUserFavBandsFullData(),
+  });
 
-  useEffect(() => {
-    const getFavorites = async () => {
-      const followedBands = await fetchUserFavBandsFullData();
-      setBands(followedBands);
-    };
-
-    getFavorites();
-  }, []);
+  if (isLoading)
+    return (
+      <div>
+        <Loader2 />
+      </div>
+    );
+  if (isError) return <div>Error: {error.message}</div>;
 
   return (
     <div>
