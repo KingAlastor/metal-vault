@@ -73,9 +73,12 @@ export function BandSearchBar() {
 
   return (
     <div ref={containerRef} className="w-full max-w-sm space-y-4">
+      <div>
+        Add bands to favorites
+      </div>
       <Input
         type="text"
-        placeholder="Search..."
+        placeholder="Search bands from database..."
         value={inputValue}
         onChange={handleInputChange}
         onFocus={handleInputFocus}

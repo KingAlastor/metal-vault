@@ -21,7 +21,10 @@ export default function FollowArtistsPage() {
   return (
     <div>
       <BandSearchBar />
-      <DataTable columns={columns} data={bands} />
+      <div className="rounded-lg border p-4 mt-4">
+        <h2 className="text-lg font-bold mb-4">My Favorites</h2>
+        <DataTable columns={columns} data={bands} />
+      </div>
     </div>
   );
 }
