@@ -1,13 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  decrementBandFollowersValue,
-  incrementBandFollowersValue,
-} from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export interface Band {
   id: string;
@@ -18,54 +13,13 @@ export interface Band {
   followers: number | null;
 }
 
-const handleCheckedChange = (row: any, value: string | boolean) => {
-  row.toggleSelected(!!value);
-  console.log(row);
-  const id = row.original.id;
-  let updatedFavorites = [];
-
-  const favorites = JSON.parse(localStorage.getItem("userFavorites") || "[]");
-  if (value) {
-    updatedFavorites = [...favorites, id];
-    // Currently using this without await due to no error handling
-    incrementBandFollowersValue(id);
-  } else {
-    updatedFavorites = favorites.filter((bandId: string) => bandId !== id);
-    // Currently using this without await due to no error handling
-    decrementBandFollowersValue(id);
-  }
-  localStorage.setItem("userFavorites", JSON.stringify(updatedFavorites));
-};
-
 export const columns: ColumnDef<Band>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="border-white"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => handleCheckedChange(row, value)}
-        aria-label="Select row"
-        className="border-white"
-      />
-    ),
-  },
   {
     accessorKey: "namePretty",
     header: "Name",
     cell: ({ row }) => (
       <a href={`/band/${row.original.namePretty}`} className="block">
-        <div className="font-bold">{row.original.namePretty}</div>
+        <div>{row.original.namePretty}</div>
         <div className="block xs:hidden text-sm text-gray-500 ml-2">
           {row.original.country}
         </div>
