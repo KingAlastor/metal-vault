@@ -29,7 +29,7 @@ model User {
   emailVerified   DateTime?    @map("email_verified")
   accountCreated  DateTime?    @map("account_created")
   lastLogin       DateTime?    @map("last_login")
-  genreTags       String[]     @map("genre_tags") 
+  genreTags       String[]     @map("genre_tags")
   notifications   Json?
   accounts        Account[]
   sessions        Session[]
@@ -72,16 +72,18 @@ model Session {
 }
 
 model Bands {
-  id           String       @id @default(cuid())
-  name         String
-  namePretty   String       @map("name_pretty")
-  genreTags    String[]     @map("genre_tags") 
-  country      String?
-  status       String?
-  followers    Int?         @default(0)
-  archivesLink BigInt       @map("archives_link")
-  spotifyId    String?      @map("spotify_id")
-  albums       BandAlbums[]
+  id             String           @id @default(cuid())
+  name           String
+  namePretty     String           @map("name_pretty")
+  genreTags      String[]         @map("genre_tags")
+  country        String?
+  status         String?
+  followers      Int?             @default(0)
+  archivesLink   BigInt           @map("archives_link")
+  spotifyId      String?          @map("spotify_id")
+  albums         BandAlbums[]
+  BandFollowers0 BandFollowers0[]
+  BandFollowers1 BandFollowers1[]
 
   @@unique([archivesLink])
   @@index([genreTags], type: Gin)
@@ -121,7 +123,7 @@ model UpcomingReleases {
   bandId            String    @map("band_id")
   bandName          String    @map("band_name")
   albumName         String    @map("album_name")
-  genreTags         String[]  @map("genre_tags") 
+  genreTags         String[]  @map("genre_tags")
   bandArchivesLink  BigInt?   @map("band_archives_link")
   albumArchivesLink BigInt?   @map("album_archives_link")
   type              String?
@@ -134,18 +136,20 @@ model UpcomingReleases {
 model BandFollowers0 {
   bandId String @map("band_id")
   userId String @map("user_id")
+  band   Bands  @relation(fields: [bandId], references: [id])
 
   @@unique([userId, bandId], name: "userId_bandId")
-  @@index([userId])
+  @@index([bandId, userId])
   @@map("band_followers_0")
 }
 
 model BandFollowers1 {
   bandId String @map("band_id")
   userId String @map("user_id")
+  band   Bands  @relation(fields: [bandId], references: [id])
 
   @@unique([userId, bandId], name: "userId_bandId")
-  @@index([userId])
+  @@index([bandId, userId])
   @@map("band_followers_1")
 }
 
@@ -155,7 +159,7 @@ model UserPosts0 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genreTags    String[] @map("genre_tags") 
+  genreTags    String[] @map("genre_tags")
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
@@ -174,7 +178,7 @@ model UserPosts1 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genreTags    String[] @map("genre_tags") 
+  genreTags    String[] @map("genre_tags")
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
@@ -193,7 +197,7 @@ model UserPosts2 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genreTags    String[] @map("genre_tags") 
+  genreTags    String[] @map("genre_tags")
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
@@ -212,7 +216,7 @@ model UserPosts3 {
   bandId       String?  @map("band_id")
   bandName     String?  @map("bandname")
   title        String?
-  genreTags    String[] @map("genre_tags") 
+  genreTags    String[] @map("genre_tags")
   postContent  String   @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")

@@ -30,17 +30,14 @@ import useWindowSize from "@/lib/hooks/get-window-size";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  favorites: Record<string, boolean>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  favorites,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState(favorites);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const size = useWindowSize();
@@ -50,23 +47,18 @@ export function DataTable<TData, TValue>({
     setColumnVisibility(columns);
   }, [size.width]);
 
-  useEffect(() => {
-    setRowSelection(favorites);
-  }, [favorites]);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
-      rowSelection,
       sorting,
       columnFilters,
       columnVisibility,

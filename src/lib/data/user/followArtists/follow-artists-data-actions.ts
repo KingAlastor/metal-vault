@@ -14,6 +14,7 @@ export type Bands = {
   status: string | null;
 };
 
+
 /**
  * Fetches bands based on search term
  */
@@ -134,6 +135,43 @@ export const fetchUserFavoriteBands = async () => {
   const bandIds = favorites.map((row: any) => row.bandId);
 
   return bandIds;
+};
+
+export const fetchUserFavBandsFullData = async () => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  const shard =
+    user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
+      ? user.shard
+      : "0";
+  const model = prisma[
+    `bandFollowers${shard}` as keyof typeof prisma
+  ] as PrismaBandFollowersModel;
+
+  const favorites = await model.findMany({
+    where: { userId: user.id },
+    select: {
+      band: {
+        select: {
+          id: true,
+          namePretty: true,
+          country: true,
+          genreTags: true,
+          followers: true,
+          status: true,
+        },
+      },
+    },
+  });
+  
+  return favorites.map((bands: any) => bands.band);
 };
 
 export const saveUserFavorites = async (favorites: string[]) => {
