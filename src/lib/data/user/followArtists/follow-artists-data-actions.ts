@@ -14,7 +14,6 @@ export type Bands = {
   status: string | null;
 };
 
-
 /**
  * Fetches bands based on search term
  */
@@ -170,7 +169,7 @@ export const fetchUserFavBandsFullData = async () => {
       },
     },
   });
-  
+
   return favorites.map((bands: any) => bands.band);
 };
 
@@ -209,6 +208,46 @@ export const saveUserFavorites = async (favorites: string[]) => {
       skipDuplicates: true,
     });
   }
+};
+
+export const saveUserFavoriteBand = async (bandId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  const userId = user.id;
+  const shard =
+    user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
+      ? user.shard
+      : "0";
+  const model = prisma[
+    `bandFollowers${shard}` as keyof typeof prisma
+  ] as PrismaBandFollowersModel;
+
+  console.log("save band to table: ", bandId, user.id);
+  const result = await model.upsert({
+    where: {
+      userId_bandId: {
+        userId: user.id,
+        bandId: bandId,
+      },
+    },
+    update: {
+      bandId: bandId, // This is a no-op, sets bandId value to bandId
+    },
+    create: {
+      userId: user.id,
+      bandId: bandId,
+    },
+  });
+
+  return result;
 };
 
 export const incrementBandFollowersValue = async (id: string) => {

@@ -10,18 +10,26 @@ import {
 } from "@/components/ui/command";
 import { useEffect, useRef, useState } from "react";
 import { getBandsBySearchTerm } from "@/lib/data/bands/search-bands-data-actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { saveUserFavoriteBand } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export function BandSearchBar() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (bandId: string) => saveUserFavoriteBand(bandId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["favbands"] });
+    },
+  });
+
   const [bands, setBands] = useState<{ bandId: string; bandName: string }[]>(
     []
   );
   const [inputValue, setInputValue] = useState("");
-  const [selectedValues, setSelectedValues] = useState<
-    { bandId: string; bandName: string }[]
-  >([]);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -41,19 +49,21 @@ export function BandSearchBar() {
     if (bands.length < 20) {
       setBands(bands);
       setIsCommandOpen(true);
-      console.log("Debounced value:");
     }
   };
 
   const handleSelect = (band: { bandId: string; bandName: string }) => {
-    setSelectedValues((prev) => [...prev, band]);
+    mutation.mutate(band.bandId);
     setInputValue("");
     setBands([]);
-    setIsCommandOpen(false)
+    setIsCommandOpen(false);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+    if (
+      containerRef.current &&
+      !containerRef.current.contains(event.target as Node)
+    ) {
       setIsCommandOpen(false);
     }
   };
@@ -73,9 +83,7 @@ export function BandSearchBar() {
 
   return (
     <div ref={containerRef} className="w-full max-w-sm space-y-4">
-      <div>
-        Add bands to favorites
-      </div>
+      <div>Add bands to favorites</div>
       <Input
         type="text"
         placeholder="Search bands from database..."
@@ -98,16 +106,6 @@ export function BandSearchBar() {
             </CommandGroup>
           </CommandList>
         </Command>
-      )}
-      {selectedValues.length > 0 && (
-        <div>
-          <h3>Selected Bands:</h3>
-          <ul>
-            {selectedValues.map((value) => (
-              <li key={value.bandId}>{value.bandName}</li>
-            ))}
-          </ul>
-        </div>
       )}
     </div>
   );
