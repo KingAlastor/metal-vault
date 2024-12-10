@@ -11,13 +11,16 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { getBandsBySearchTerm } from "@/lib/data/bands/search-bands-data-actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { saveUserFavoriteBand } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import { incrementBandFollowersValue, saveUserFavoriteBand } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export function BandSearchBar() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (bandId: string) => saveUserFavoriteBand(bandId),
+    mutationFn: async (bandId: string) => {
+      await saveUserFavoriteBand(bandId);
+      await incrementBandFollowersValue(bandId);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favbands"] });
     },
