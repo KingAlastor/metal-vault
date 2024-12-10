@@ -36,9 +36,11 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "namePretty", desc: false },
+  ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const size = useWindowSize();
 
@@ -46,7 +48,6 @@ export function DataTable<TData, TValue>({
     const columns = getColumnVisibilityBySize(size.width);
     setColumnVisibility(columns);
   }, [size.width]);
-
 
   const table = useReactTable({
     data,
@@ -77,7 +78,7 @@ export function DataTable<TData, TValue>({
             table.getColumn("namePretty")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
-        />        
+        />
       </div>
       <div className="rounded-md border">
         <Table>
