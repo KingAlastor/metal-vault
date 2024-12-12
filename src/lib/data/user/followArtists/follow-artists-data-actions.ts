@@ -221,7 +221,6 @@ export const saveUserFavoriteBand = async (bandId: string) => {
     );
   }
 
-  const userId = user.id;
   const shard =
     user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
       ? user.shard
@@ -249,6 +248,41 @@ export const saveUserFavoriteBand = async (bandId: string) => {
 
   return result;
 };
+
+export const deleteFavoriteArtist = async (bandId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  const shard =
+    user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
+      ? user.shard
+      : "0";
+  const model = prisma[
+    `bandFollowers${shard}` as keyof typeof prisma
+  ] as PrismaBandFollowersModel;
+
+  try {
+    await model.delete({
+      where: {
+        userId_bandId: {
+          userId: user.id,
+          bandId: bandId,
+        },
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting favorite artist:", error);
+    return { success: false, error: (error as any).message };
+  }
+}
 
 export const incrementBandFollowersValue = async (id: string) => {
   const session = await auth();

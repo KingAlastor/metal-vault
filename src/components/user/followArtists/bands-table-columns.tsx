@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ActionsCell from "./actions-cell";
 
 export interface Band {
   id: string;
@@ -55,6 +56,12 @@ export const columns: ColumnDef<Band>[] = [
       const followers: number = row.getValue("followers");
 
       return <div className="text-center">{followers}</div>;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return <ActionsCell bandId={row.original.id} />;
     },
   },
 ];
