@@ -37,6 +37,7 @@ model User {
   UserPosts1      UserPosts1[]
   UserPosts2      UserPosts2[]
   UserPosts3      UserPosts3[]
+  UserTokens      UserTokens[]
 
   @@map("users")
 }
@@ -69,6 +70,17 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model UserTokens {
+  id           Int    @id @default(autoincrement())
+  userId       String
+  provider     String
+  refreshToken String
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@map("user_tokens")
 }
 
 model Bands {
