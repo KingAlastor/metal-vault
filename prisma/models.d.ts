@@ -6,6 +6,7 @@ export type PrismaBandFollowersModel = {
   createMany: (args: any) => Promise<any>;
   deleteMany: (args: any) => Promise<any>;
   delete: (args: any) => Promise<any>; 
+  create: (args: any) => Promise<any>;
 };
 
 export type PrismaUserPostsModel = {

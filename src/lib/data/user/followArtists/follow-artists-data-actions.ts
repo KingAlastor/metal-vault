@@ -210,12 +210,13 @@ export const saveUserFavorites = async (favorites: string[]) => {
   }
 };
 
-export const saveUserFavoriteBand = async (bandId: string) => {
+export const saveUserFavoriteAndUpdateFollowerCount = async (
+  bandId: string
+) => {
   const session = await auth();
   const user = session?.user;
 
-
-  if (!user) {
+  if (!user?.id) {
     throw new Error(
       "User ID is undefined. User must be logged in to access favorites."
     );
@@ -229,30 +230,49 @@ export const saveUserFavoriteBand = async (bandId: string) => {
     `bandFollowers${shard}` as keyof typeof prisma
   ] as PrismaBandFollowersModel;
 
-  console.log("save band to table: ", bandId, user.id);
-  const result = await model.upsert({
+  const existingRecord = await prisma.bandFollowers0.findUnique({
     where: {
       userId_bandId: {
         userId: user.id,
-        bandId: bandId,
+        bandId,
       },
-    },
-    update: {
-      bandId: bandId, // This is a no-op, sets bandId value to bandId
-    },
-    create: {
-      userId: user.id,
-      bandId: bandId,
     },
   });
 
-  return result;
+  if (!existingRecord) {
+    try {
+      await model.create({
+        data: {
+          userId: user.id,
+          bandId,
+        },
+      });
+    } catch (error) {
+      console.log("Failed to add favorite: ", (error as any).message);
+    }
+
+    try {
+      await prisma.bands.update({
+        where: { id: bandId },
+        data: {
+          followers: {
+            increment: 1,
+          },
+        },
+      });
+      console.log("follower count updated for id: ", bandId);
+    } catch (error) {
+      console.log(
+        "Failed to increment follower count.",
+        (error as any).message
+      );
+    }
+  }
 };
 
 export const deleteFavoriteArtist = async (bandId: string) => {
   const session = await auth();
   const user = session?.user;
-
 
   if (!user) {
     throw new Error(
@@ -282,7 +302,7 @@ export const deleteFavoriteArtist = async (bandId: string) => {
     console.error("Error deleting favorite artist:", error);
     return { success: false, error: (error as any).message };
   }
-}
+};
 
 export const incrementBandFollowersValue = async (id: string) => {
   const session = await auth();
@@ -329,5 +349,73 @@ export const decrementBandFollowersValue = async (id: string) => {
     console.log("follower count updated for id: ", id);
   } catch (error) {
     console.log("Failed to decrement follower count.", (error as any).message);
+  }
+};
+
+export const getRefreshTokenFromUserTokens = async (provider: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user?.id) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  try {
+    const userToken = await prisma.userTokens.findUnique({
+      where: {
+        userId_provider: {
+          userId: user.id,
+          provider: provider,
+        },
+      },
+      select: {
+        refreshToken: true,
+      },
+    });
+
+    if (!userToken) {
+      throw new Error("Refresh token not found.");
+    }
+
+    return userToken.refreshToken;
+  } catch (error) {
+    console.error("Error fetching refresh token:", error);
+    throw new Error("Failed to fetch refresh token. Please try again later.");
+  }
+};
+
+export const checkBandExists = async (bandNamePretty: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user?.id) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  try {
+    const band = await prisma.bands.findFirst({
+      select: {
+        id: true,
+      },
+      orderBy: {
+        namePretty: "asc",
+      },
+      take: 1,
+      where: {
+        namePretty: {
+          equals: bandNamePretty,
+          mode: "insensitive",
+        },
+      },
+    });
+
+    return band?.id;
+  } catch (error) {
+    console.error("Error checking if band exists:", error);
+    throw new Error("Failed to check if band exists. Please try again later.");
   }
 };

@@ -2,15 +2,31 @@
 
 import { DataTable } from "./bands-data-table";
 import { columns } from "./bands-table-columns";
-import { fetchUserFavBandsFullData } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import {
+  checkBandExists,
+  fetchUserFavBandsFullData,
+  getRefreshTokenFromUserTokens,
+  incrementBandFollowersValue,
+  saveUserFavoriteAndUpdateFollowerCount,
+} from "@/lib/data/user/followArtists/follow-artists-data-actions";
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchEnvironmentVariables } from "@/lib/general/env-variables";
 import { useEffect, useState } from "react";
+import {
+  Artist,
+  getFollowedArtistsFromSpotify,
+  refreshSpotifyAccessToken,
+} from "@/lib/apis/Spotify-api";
+import { UnresolvedBands } from "./unresolved-bands";
+
+const BASE_URL = "https://accounts.spotify.com/authorize";
 
 export default function FollowArtistsPage() {
+  const queryClient = useQueryClient();
+
   const {
     data: bands,
     isLoading,
@@ -21,14 +37,22 @@ export default function FollowArtistsPage() {
     queryFn: () => fetchUserFavBandsFullData(),
   });
 
-  const [hasToken, setHasToken] = useState(false);
+  const [unresolvedBands, setUnresolvedBands] = useState<string[]>([]);
+  const [isBandsDialogOpen, setIsBandsDialogOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessage = async (event: MessageEvent) => {
       if (event.data.type === "AUTH_COMPLETE") {
-        setHasToken(true);
-        console.log("handle message event fired");
-        // You can also store the token in your application state if needed
+        setIsSyncing(true);
+        const token = event.data.token;
+        sessionStorage.setItem("spotify_access_token", token);
+        const followedBands = await getFollowedArtistsFromSpotify(token);
+        const unresolvedBands = await handleBandMapping(followedBands);
+        setUnresolvedBands(unresolvedBands);
+        setIsBandsDialogOpen(true);
+        queryClient.invalidateQueries({ queryKey: ["favbands"] });
+        setIsSyncing(false);
       }
     };
 
@@ -40,20 +64,24 @@ export default function FollowArtistsPage() {
   }, []);
 
   const handleSpotifyRedirect = async () => {
-    const scope = await fetchEnvironmentVariables("SPOTIFY_SCOPE");
-    const redirectUrl = await fetchEnvironmentVariables("SPOTIFY_REDIRECT_URL");
-    const spotifyId = await fetchEnvironmentVariables("SPOTIFY_ID");
+    setIsSyncing(true);
+    const token = await handleSpotifyTokenRevalidation();
+    const followedBands = await getFollowedArtistsFromSpotify(token);
+    const unresolvedBands = await handleBandMapping(followedBands);
+    setUnresolvedBands(unresolvedBands);
+    setIsBandsDialogOpen(true);
+    queryClient.invalidateQueries({ queryKey: ["favbands"] });
+    setIsSyncing(false);
+  };
 
-    const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${spotifyId}&scope=${encodeURIComponent(
-      scope
-    )}&redirect_uri=${encodeURIComponent(redirectUrl)}`;
-    window.open(authUrl, "Auth", "width=500,height=600");
+  const handleDialogClose = () => {
+    setIsBandsDialogOpen(false);
   };
 
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-screen">
-        <Loader2 />
+        <Loader2 className="animate-spin" />
       </div>
     );
   if (isError) return <div>Error: {error.message}</div>;
@@ -65,9 +93,54 @@ export default function FollowArtistsPage() {
         <h2 className="text-lg font-bold mb-4">My Favorites</h2>
         <DataTable columns={columns} data={bands} />
       </div>
-      <Button onClick={handleSpotifyRedirect}>
-        <p>Sync from Spotify</p>
+      <Button
+        variant="outline"
+        className="mt-4 mb-4"
+        onClick={handleSpotifyRedirect}
+        disabled={isSyncing}
+      >
+        {isSyncing ? (
+          <Loader2 className="animate-spin" />
+        ) : (
+          <p>Sync from Spotify</p>
+        )}
       </Button>
+      <UnresolvedBands
+        unresolvedBands={unresolvedBands}
+        isOpen={isBandsDialogOpen}
+        onClose={handleDialogClose}
+      />
     </div>
   );
 }
+
+const handleSpotifyTokenRevalidation = async () => {
+  const refreshToken = await getRefreshTokenFromUserTokens("spotify");
+  if (refreshToken) {
+    const token = await refreshSpotifyAccessToken(refreshToken);
+    return token;
+  } else {
+    const scope = await fetchEnvironmentVariables("SPOTIFY_SCOPE");
+    const redirectUrl = await fetchEnvironmentVariables("SPOTIFY_REDIRECT_URL");
+    const spotifyId = await fetchEnvironmentVariables("SPOTIFY_ID");
+
+    const authUrl = `${BASE_URL}?response_type=code&client_id=${spotifyId}&scope=${encodeURIComponent(
+      scope
+    )}&redirect_uri=${encodeURIComponent(redirectUrl)}`;
+    window.open(authUrl, "Auth", "width=500,height=600");
+  }
+};
+
+const handleBandMapping = async (followedBands: Artist[]) => {
+  let unresolvedBands: string[] = [];
+  for (let i = 0; i < followedBands.length; i++) {
+    const bandId = await checkBandExists(followedBands[i].name);
+    if (bandId) {
+      await saveUserFavoriteAndUpdateFollowerCount(bandId);
+    } else {
+      unresolvedBands = [...unresolvedBands, followedBands[i].name];
+    }
+  }
+
+  return unresolvedBands;
+};

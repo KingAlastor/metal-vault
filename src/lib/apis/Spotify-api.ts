@@ -55,8 +55,59 @@ export const fetchSpotifyBandTopTracks = async (id: string) => {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  console.log("fetch top tracks: ", response.data)
+  console.log("fetch top tracks: ", response.data);
   return response.data;
+};
+
+export const refreshSpotifyAccessToken = async (refreshToken: string) => {
+  const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
+  const response = await axios.post(
+    TOKEN_ENDPOINT,
+    new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    }),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${Buffer.from(
+          `${process.env.SPOTIFY_ID}:${process.env.SPOTIFY_SECRET}`
+        ).toString("base64")}`,
+      },
+    }
+  );
+  return response.data.access_token;
+};
+
+export type Artist = {
+  name: string;
+  spotifyID: string;
+};
+
+export const getFollowedArtistsFromSpotify = async (token: string) => {
+  let artists: Artist[] = [];
+  let nextUrl = "https://api.spotify.com/v1/me/following?type=artist&limit=50";
+
+  while (nextUrl) {
+    const response = await axios.get(nextUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const { items, next } = response.data.artists;
+
+    for (let i = 0; i < items.length; i++) {
+      const artist = {
+        name: items[i].name,
+        spotifyID: items[i].id,
+      };
+      artists.push(artist);
+    }
+    nextUrl = next;
+  }
+  console.log("artists");
+  return artists;
 };
 
 const extractSpotifyIdAndType = (spotifyLink: string) => {
