@@ -95,12 +95,12 @@ export default function FollowArtistsPage() {
       </div>
       <Button
         variant="outline"
-        className="mt-4 mb-4"
+        className="mt-4 mb-4 flex items-center justify-center"
         onClick={handleSpotifyRedirect}
         disabled={isSyncing}
       >
         {isSyncing ? (
-          <Loader2 className="animate-spin" />
+          <Loader2 className="animate-spin h-5 w-5" />
         ) : (
           <p>Sync from Spotify</p>
         )}

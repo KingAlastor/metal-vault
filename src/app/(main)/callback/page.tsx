@@ -38,7 +38,7 @@ export default function Callback() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <Loader2 />
+      <Loader2 className="animate-spin"/>
     </div>
   );
 }
