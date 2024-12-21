@@ -9,25 +9,17 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useEffect, useRef, useState } from "react";
-import { getBandsBySearchTerm } from "@/lib/data/bands/search-bands-data-actions";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { saveUserFavoriteAndUpdateFollowerCount } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import {
+  Band,
+  getBandsBySearchTerm,
+} from "@/lib/data/bands/search-bands-data-actions";
 
-export function BandSearchBar() {
-  const queryClient = useQueryClient();
+type BandSearchBarProps = {
+  onBandSelect: (band: Band) => void;
+};
 
-  const mutation = useMutation({
-    mutationFn: async (bandId: string) => {
-      await saveUserFavoriteAndUpdateFollowerCount(bandId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["favbands"] });
-    },
-  });
-
-  const [bands, setBands] = useState<{ bandId: string; bandName: string }[]>(
-    []
-  );
+export function BandSearchBar({ onBandSelect }: BandSearchBarProps) {
+  const [bands, setBands] = useState<Band[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -54,8 +46,8 @@ export function BandSearchBar() {
     }
   };
 
-  const handleSelect = (band: { bandId: string; bandName: string }) => {
-    mutation.mutate(band.bandId);
+  const handleSelect = (band: Band) => {
+    onBandSelect(band);
     setInputValue("");
     setBands([]);
     setIsCommandOpen(false);
@@ -97,12 +89,12 @@ export function BandSearchBar() {
         <Command className="rounded-lg border shadow-md">
           <CommandList className="max-h-[300px] overflow-y-auto">
             <CommandGroup heading="Results" className="text-muted-foreground">
-              {bands.map((item) => (
+              {bands.map((band) => (
                 <CommandItem
-                  key={item.bandId}
-                  onSelect={() => handleSelect(item)}
+                  key={band.bandId}
+                  onSelect={() => handleSelect(band)}
                 >
-                  {item.bandName}
+                  {band.bandName}
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -21,6 +21,7 @@ import {
   refreshSpotifyAccessToken,
 } from "@/lib/apis/Spotify-api";
 import { UnresolvedBands } from "./unresolved-bands";
+import { Band } from "@/lib/data/bands/search-bands-data-actions";
 
 export default function FollowArtistsPage() {
   const queryClient = useQueryClient();
@@ -59,7 +60,7 @@ export default function FollowArtistsPage() {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
+  }, [queryClient]);
 
   const handleSpotifyRedirect = async () => {
     setIsSyncing(true);
@@ -76,6 +77,11 @@ export default function FollowArtistsPage() {
     setIsBandsDialogOpen(false);
   };
 
+  const handleBandSelect = async (band: Band) => {
+    await saveUserFavoriteAndUpdateFollowerCount(band.bandId);
+    queryClient.invalidateQueries({ queryKey: ["favbands"] });
+  };
+
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-screen">
@@ -86,7 +92,7 @@ export default function FollowArtistsPage() {
 
   return (
     <div>
-      <BandSearchBar />
+      <BandSearchBar onBandSelect={handleBandSelect} />
       <div className="rounded-lg border p-4 mt-4">
         <h2 className="text-lg font-bold mb-4">My Favorites</h2>
         <DataTable columns={columns} data={bands} />

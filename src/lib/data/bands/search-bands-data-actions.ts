@@ -2,7 +2,15 @@
 
 import { prisma } from "@/lib/prisma";
 
-export const getBandsBySearchTerm = async (searchTerm: string) => {
+export type Band = {
+  bandId: string;
+  bandName: string;
+  country: string | null;
+  genreTags: string[];
+  followers: number;
+}
+
+export const getBandsBySearchTerm = async (searchTerm: string): Promise<Band[]> => {
   console.log(searchTerm);
 
   const result = await prisma.bands.findMany({
@@ -23,8 +31,10 @@ export const getBandsBySearchTerm = async (searchTerm: string) => {
 
   const bandsWithFormattedNames = result.map(band => ({
     bandId: band.id,
+    country: band.country || null,
+    genreTags: band.genreTags || [],
     bandName: `${band.namePretty} (${band.country}) {${band.genreTags.join(', ')}}`, 
-    followers: band.followers,
+    followers: band.followers ?? 0,
   }));
 
   console.log(bandsWithFormattedNames);

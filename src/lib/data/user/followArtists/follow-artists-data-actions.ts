@@ -346,7 +346,7 @@ export const decrementBandFollowersValue = async (id: string) => {
         },
       },
     });
-    console.log("follower count updated for id: ", id);
+    console.log("follower count decreased for id: ", id);
   } catch (error) {
     console.log("Failed to decrement follower count.", (error as any).message);
   }

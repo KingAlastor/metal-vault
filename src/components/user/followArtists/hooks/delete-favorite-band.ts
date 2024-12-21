@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteFavoriteArtist } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import { decrementBandFollowersValue, deleteFavoriteArtist } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export const useDeleteFavorite = () => {
   const queryClient = useQueryClient();
@@ -9,6 +9,7 @@ export const useDeleteFavorite = () => {
   const mutation = useMutation({
     mutationFn: async (bandId: string) => {
       await deleteFavoriteArtist(bandId);
+      await decrementBandFollowersValue(bandId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favbands"] });
