@@ -22,8 +22,6 @@ import {
 } from "@/lib/apis/Spotify-api";
 import { UnresolvedBands } from "./unresolved-bands";
 
-const BASE_URL = "https://accounts.spotify.com/authorize";
-
 export default function FollowArtistsPage() {
   const queryClient = useQueryClient();
 
@@ -123,6 +121,7 @@ const handleSpotifyTokenRevalidation = async () => {
     const scope = await fetchEnvironmentVariables("SPOTIFY_SCOPE");
     const redirectUrl = await fetchEnvironmentVariables("SPOTIFY_REDIRECT_URL");
     const spotifyId = await fetchEnvironmentVariables("SPOTIFY_ID");
+    const BASE_URL = "https://accounts.spotify.com/authorize";
 
     const authUrl = `${BASE_URL}?response_type=code&client_id=${spotifyId}&scope=${encodeURIComponent(
       scope
