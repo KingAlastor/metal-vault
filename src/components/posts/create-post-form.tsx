@@ -103,12 +103,10 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   };
 
   useEffect(() => {
-    console.log("component reloaded");
     adjustTextareaHeight();
   }, []);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("submit was pressed");
     try {
       const linkData = await getLinkData(data);
       const formData = {
@@ -118,9 +116,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
       };
       // Will not return error message for now
       await addPost(formData);
-      console.log("previewUpdateCalled");
       reset(initialFormState);
-      console.log("pathanme: ", pathname);
       setOpen(false);
       if (pathname === "/") {
         window.location.reload();
@@ -131,7 +127,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   }
 
   const searchInputProps = {
-    inputPlaceholder: "Enter band...",
+    inputPlaceholder: "Enter band name",
     clearInput: false,
   }
 
@@ -152,7 +148,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
               <FormItem className="flex flex-row items-center justify-between mb-4">
                 <FormControl>
                   <Textarea
-                    placeholder="Tell us a little bit about yourself"
+                    placeholder="Add a comment..."
                     className="resize-none"
                     {...field}
                     ref={textareaRef}
@@ -182,7 +178,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Genre" {...field} />
+                    <Input placeholder="Genres" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

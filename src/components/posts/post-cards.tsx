@@ -188,7 +188,7 @@ export const BandCampCard = (post: Post) => {
             aspectRatio: "680 / 355",
           }}
         >
-          <Link href={post.YTLink!} passHref legacyBehavior>
+          <Link href={post.BandCampLink!} passHref legacyBehavior>
             <a target="_blank" rel="noopener noreferrer">
               <Image
                 src={imageUrl}
