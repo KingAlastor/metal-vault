@@ -6,7 +6,6 @@ import {
   checkBandExists,
   fetchUserFavBandsFullData,
   getRefreshTokenFromUserTokens,
-  incrementBandFollowersValue,
   saveUserFavoriteAndUpdateFollowerCount,
 } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";

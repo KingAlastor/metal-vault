@@ -48,10 +48,15 @@ export function BandSearchBar({
   };
 
   const fetchBands = async (searchTerm: string) => {
-    const bands = await getBandsBySearchTerm(searchTerm);
-    if (bands.length < 20) {
-      setBands(bands);
-      setIsCommandOpen(true);
+    if (searchTerm.length > 0) {
+      const bands = await getBandsBySearchTerm(searchTerm);
+      if (bands.length < 50) {
+        setBands(bands);
+        setIsCommandOpen(true);
+      }
+    }
+    else {
+      setBands([]);
     }
   };
 
@@ -100,7 +105,7 @@ export function BandSearchBar({
       {isCommandOpen && bands.length > 0 && (
         <Command className="rounded-lg border shadow-md">
           <CommandList className="max-h-[300px] overflow-y-auto">
-            <CommandGroup heading="Results" className="text-muted-foreground">
+            <CommandGroup heading="Bands" className="text-muted-foreground">
               {bands.map((band) => (
                 <CommandItem
                   key={band.bandId}
