@@ -138,6 +138,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   const handleBandSelect = (band: Band) => {
     console.log(band);
     setValue("band_name", band.namePretty);
+    setValue("genreTags", band.genreTags.join(','));
   };
 
   return (
