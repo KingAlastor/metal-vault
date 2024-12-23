@@ -39,6 +39,10 @@ export default function FollowArtistsPage() {
   const [unresolvedBands, setUnresolvedBands] = useState<string[]>([]);
   const [isBandsDialogOpen, setIsBandsDialogOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const searchInputProps = {
+    inputPlaceholder: "Search band from database...",
+    clearInput: true,
+  }
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
@@ -92,7 +96,10 @@ export default function FollowArtistsPage() {
 
   return (
     <div>
-      <BandSearchBar onBandSelect={handleBandSelect} />
+      <div>
+        Add bands to favorites
+        <BandSearchBar searchInputProps={searchInputProps} onBandSelect={handleBandSelect} />
+      </div>
       <div className="rounded-lg border p-4 mt-4">
         <h2 className="text-lg font-bold mb-4">My Favorites</h2>
         <DataTable columns={columns} data={bands} />

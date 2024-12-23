@@ -14,11 +14,20 @@ import {
   getBandsBySearchTerm,
 } from "@/lib/data/bands/search-bands-data-actions";
 
+type searchInputProps = {
+  inputPlaceholder: string;
+  clearInput: boolean;
+};
+
 type BandSearchBarProps = {
+  searchInputProps: searchInputProps;
   onBandSelect: (band: Band) => void;
 };
 
-export function BandSearchBar({ onBandSelect }: BandSearchBarProps) {
+export function BandSearchBar({
+  searchInputProps,
+  onBandSelect,
+}: BandSearchBarProps) {
   const [bands, setBands] = useState<Band[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isCommandOpen, setIsCommandOpen] = useState(false);
@@ -48,7 +57,11 @@ export function BandSearchBar({ onBandSelect }: BandSearchBarProps) {
 
   const handleSelect = (band: Band) => {
     onBandSelect(band);
-    setInputValue("");
+    if (searchInputProps.clearInput) {
+      setInputValue("");
+    } else {
+      setInputValue(band.namePretty);
+    }
     setBands([]);
     setIsCommandOpen(false);
   };
@@ -77,10 +90,9 @@ export function BandSearchBar({ onBandSelect }: BandSearchBarProps) {
 
   return (
     <div ref={containerRef} className="w-full max-w-sm space-y-4">
-      <div>Add bands to favorites</div>
       <Input
         type="text"
-        placeholder="Search bands from database..."
+        placeholder={searchInputProps.inputPlaceholder}
         value={inputValue}
         onChange={handleInputChange}
         onFocus={handleInputFocus}

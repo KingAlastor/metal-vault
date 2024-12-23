@@ -12,14 +12,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "../ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReset } from "react-hook-form";
 import { z } from "zod";
 import { usePathname } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
-import { fetchSpotifyBandTopTracks, fetchSpotifyData } from "@/lib/apis/Spotify-api";
+import {
+  fetchSpotifyBandTopTracks,
+  fetchSpotifyData,
+} from "@/lib/apis/Spotify-api";
 import { fetchBandcampData } from "@/lib/apis/Bandcamp-api";
+import { BandSearchBar } from "../shared/search-bands-dropdown";
+import { Band } from "@/lib/data/bands/search-bands-data-actions";
 
 const initialFormState = {
   post_message: "",
@@ -76,10 +81,11 @@ type CreatePostFormProps = {
 };
 
 export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
-  const { reset, ...form } = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: initialFormState,
   });
+  const { reset, setValue } = form;
 
   const pathname = usePathname();
 
@@ -124,8 +130,18 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     }
   }
 
+  const searchInputProps = {
+    inputPlaceholder: "Enter band...",
+    clearInput: false,
+  }
+
+  const handleBandSelect = (band: Band) => {
+    console.log(band);
+    setValue("band_name", band.namePretty);
+  };
+
   return (
-    <Form reset={reset} {...form}>
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
         <div>
           <FormField
@@ -152,7 +168,8 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Band name" {...field} />
+                    {/* <Input placeholder="Band name" {...field} /> */}
+                    <BandSearchBar searchInputProps={searchInputProps} onBandSelect={handleBandSelect} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -253,7 +270,7 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
           previewUrl: linkData.data.tracks.items[1].preview_url,
         };
       case "artist":
-        const topTrackData = await fetchSpotifyBandTopTracks(linkData.data.id)
+        const topTrackData = await fetchSpotifyBandTopTracks(linkData.data.id);
         return {
           title: {
             name: linkData.data.name,
@@ -272,7 +289,7 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
         name: bandcampData.trackTitle,
         artist: bandcampData.bandName,
         imageUrl: bandcampData.imgSrc,
-      }
-    }
+      },
+    };
   }
 };
