@@ -1,9 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Check } from 'lucide-react'
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,27 +11,28 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
 
 export interface Option {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
 interface MultiSelectDropdownProps {
-  options: Option[]
-  placeholder?: string
-  emptyMessage?: string
-  onChange: (selectedValues: string[]) => void
-  value?: string[]
-  triggerText?: string
+  options: Option[];
+  placeholder?: string;
+  emptyMessage?: string;
+  onChange: (selectedValues: string[]) => void;
+  value?: string[];
+  triggerText?: string;
 }
 
 export function MultiSelectDropdown({
@@ -43,14 +43,14 @@ export function MultiSelectDropdown({
   value = [],
   triggerText = "Select options",
 }: MultiSelectDropdownProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false);
 
   const handleSelect = (optionValue: string) => {
     const newSelectedValues = value.includes(optionValue)
-      ? value.filter(v => v !== optionValue)
-      : [...value, optionValue]
-    onChange(newSelectedValues)
-  }
+      ? value.filter((v) => v !== optionValue)
+      : [...value, optionValue];
+    onChange(newSelectedValues);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -99,11 +99,12 @@ export function MultiSelectDropdown({
             <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
-                const isSelected = value.includes(option.value)
+                const isSelected = value.includes(option.value);
                 return (
                   <CommandItem
                     key={option.value}
                     onSelect={() => handleSelect(option.value)}
+                    className="cursor-pointer"
                   >
                     <div
                       className={cn(
@@ -117,7 +118,7 @@ export function MultiSelectDropdown({
                     </div>
                     <span>{option.label}</span>
                   </CommandItem>
-                )
+                );
               })}
             </CommandGroup>
           </CommandList>
@@ -137,6 +138,5 @@ export function MultiSelectDropdown({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
-

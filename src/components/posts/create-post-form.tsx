@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,9 +10,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, UseFormReset } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { usePathname } from "next/navigation";
 import { addPost } from "@/lib/data/posts/posts-data-actions";
@@ -23,13 +23,19 @@ import {
   fetchSpotifyData,
 } from "@/lib/apis/Spotify-api";
 import { fetchBandcampData } from "@/lib/apis/Bandcamp-api";
-import { BandSearchBar } from "../shared/search-bands-dropdown";
+import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
 import { Band } from "@/lib/data/bands/search-bands-data-actions";
+import {
+  MultiSelectDropdown,
+  Option,
+} from "@/components/shared/multiselect-dropdown";
+import { getGenres } from "@/lib/data/genres/genre-data-actions";
 
 const initialFormState = {
   post_message: "",
   band_name: "",
-  genreTags: "",
+  genreTags: [] as string[],
+  testing: [] as string[],
   yt_link: "",
   spotify_link: "",
   bandcamp_link: "",
@@ -45,7 +51,9 @@ const FormSchema = z
     band_name: z.string().min(1, {
       message: "Please enter a band name",
     }),
-    genreTags: z.string().optional(),
+    genreTags: z.array(z.string(), {
+      message: "Please add at least 1 genre",
+    }),
     yt_link: z
       .string()
       .optional()
@@ -85,7 +93,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: initialFormState,
   });
-  const { reset, setValue } = form;
+  const { reset, setValue, control, handleSubmit, watch } = form;
 
   const pathname = usePathname();
 
@@ -106,6 +114,21 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     adjustTextareaHeight();
   }, []);
 
+  const [genres, setGenres] = useState<Option[]>([]);
+
+  useEffect(() => {
+    const fetchGenres = async () => {
+      const genresData = await getGenres();
+      setGenres(
+        genresData.map((genre) => ({
+          value: genre.genres,
+          label: genre.genres,
+        }))
+      );
+    };
+    fetchGenres();
+  }, []);
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const linkData = await getLinkData(data);
@@ -114,7 +137,6 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
         previewUrl: linkData?.previewUrl,
         title: JSON.stringify(linkData?.title),
       };
-      // Will not return error message for now
       await addPost(formData);
       reset(initialFormState);
       setOpen(false);
@@ -129,101 +151,109 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   const searchInputProps = {
     inputPlaceholder: "Enter band name",
     clearInput: false,
-  }
+  };
 
   const handleBandSelect = (band: Band) => {
     console.log(band);
     setValue("band_name", band.namePretty);
-    setValue("genreTags", band.genreTags.join(','));
+    setValue("genreTags", band.genreTags);
   };
+
+  const genreTags = watch("genreTags");
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
-        <div>
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
+        <FormField
+          control={control}
+          name="post_message"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Textarea
+                  placeholder="Add a comment..."
+                  className="resize-none"
+                  {...field}
+                  ref={textareaRef}
+                  onInput={adjustTextareaHeight}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <div className="flex space-x-4">
           <FormField
-            control={form.control}
-            name="post_message"
+            control={control}
+            name="band_name"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between mb-4">
+              <FormItem className="flex-1">
                 <FormControl>
-                  <Textarea
-                    placeholder="Add a comment..."
-                    className="resize-none"
-                    {...field}
-                    ref={textareaRef}
-                    onInput={adjustTextareaHeight}
+                  <BandSearchBar
+                    searchInputProps={searchInputProps}
+                    onBandSelect={handleBandSelect}
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
-          <div className="flex space-x-4 mb-4">
-            <FormField
-              control={form.control}
-              name="band_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    {/* <Input placeholder="Band name" {...field} /> */}
-                    <BandSearchBar searchInputProps={searchInputProps} onBandSelect={handleBandSelect} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="genreTags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="Genres" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex-col">
-            <FormField
-              control={form.control}
-              name="yt_link"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormControl>
-                    <Input placeholder="Youtube Link" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="spotify_link"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormControl>
-                    <Input placeholder="Spotify Link" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="bandcamp_link"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormControl>
-                    <Input placeholder="BandCamp Link" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={control}
+            name="genreTags"
+            render={({ field }) => (
+              <FormItem className="flex-1 relative">
+                <FormControl>
+                  <MultiSelectDropdown
+                    options={genres}
+                    onChange={(newValue) => {
+                      field.onChange(newValue);
+                      setValue("genreTags", newValue);
+                    }}
+                    value={genreTags}
+                    triggerText="Select genres"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+        <FormField
+          control={control}
+          name="yt_link"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Youtube Link" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="spotify_link"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Spotify Link" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="bandcamp_link"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="BandCamp Link" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type="submit">Create Post</Button>
       </form>
     </Form>
