@@ -15,7 +15,3 @@ export type PrismaUserPostsModel = {
   create: (args: any) => Promise<any>;
   delete: (args: any) => Promise<any>; 
 }
-
-export type PrismaBandFollowersModel = {
-  findMany: (args: any) => Promise<any>;
-}
