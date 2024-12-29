@@ -6,7 +6,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../ui/collapsible";
+} from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
 import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
@@ -30,7 +30,7 @@ export default function PostsPage({ user }: PostsPageProps) {
       }
     };
     fetchUserFilters();
-  });
+  }, [user]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -45,19 +45,21 @@ export default function PostsPage({ user }: PostsPageProps) {
   }, [filters]);
 
   return (
-    <div>
+    <div className="w-full max-w-2xl mx-auto px-4">
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}
-        className="w-[800] space-y-2 mb-4"
+        className="w-full space-y-2 mb-4"
       >
-        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center bg-collapsible">
-          Filters{" "}
-          <div className="h-4 w-4">
-            <ChevronDown />
-          </div>
+        <CollapsibleTrigger className="w-full rounded-lg border p-4 flex justify-between items-center bg-collapsible text-left">
+          <span>Filters</span>
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
         </CollapsibleTrigger>
-        <CollapsibleContent>
+        <CollapsibleContent className="mt-2">
           <PostsFiltersForm
             setIsOpen={setIsOpen}
             filters={filters}
