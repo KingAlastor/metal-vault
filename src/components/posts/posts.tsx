@@ -99,6 +99,7 @@ export const Posts = ({ posts }: PostsProps) => {
                     (link) =>
                       post[link.source] && (
                         <PostLinkIcons
+                          key={link.source}
                           link={post[link.source] as string}
                           src={link.logo}
                           alt={link.alt}
