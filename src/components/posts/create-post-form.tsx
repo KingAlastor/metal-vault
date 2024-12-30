@@ -177,43 +177,41 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
             </FormItem>
           )}
         />
-        <div className="flex space-x-4">
-          <FormField
-            control={control}
-            name="band_name"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormControl>
-                  <BandSearchBar
-                    searchInputProps={searchInputProps}
-                    onBandSelect={handleBandSelect}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="genreTags"
-            render={({ field }) => (
-              <FormItem className="flex-1 relative">
-                <FormControl>
-                  <MultiSelectDropdown
-                    options={genres || []}
-                    onChange={(newValue) => {
-                      field.onChange(newValue);
-                      setValue("genreTags", newValue);
-                    }}
-                    value={field.value}
-                    triggerText="Select genres"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={control}
+          name="band_name"
+          render={({ field }) => (
+            <FormItem className="flex-1">
+              <FormControl>
+                <BandSearchBar
+                  searchInputProps={searchInputProps}
+                  onBandSelect={handleBandSelect}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="genreTags"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormControl>
+                <MultiSelectDropdown
+                  options={genres || []}
+                  onChange={(newValue) => {
+                    field.onChange(newValue);
+                    setValue("genreTags", newValue);
+                  }}
+                  value={field.value}
+                  triggerText="Select genres"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name="yt_link"
