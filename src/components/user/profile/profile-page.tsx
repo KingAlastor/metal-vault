@@ -39,6 +39,7 @@ import {
   MultiSelectDropdown,
   Option,
 } from "@/components/shared/multiselect-dropdown";
+import { useQuery } from "@tanstack/react-query";
 
 interface SettingsPageProps {
   user: User;
@@ -70,7 +71,6 @@ export default function ProfilePage({ user }: SettingsPageProps) {
   });
 
   const [countries, setCountries] = useState<Country[]>([]);
-  const [genres, setGenres] = useState<Option[]>([]);
   const [open, setOpen] = useState(false);
   const { data: session, update: updateSession } = useSession();
 
@@ -92,18 +92,17 @@ export default function ProfilePage({ user }: SettingsPageProps) {
     fetchCountries();
   }, []);
 
-  useEffect(() => {
-    const fetchGenres = async () => {
+  const { data: genres } = useQuery({
+    queryKey: ["genreTags"],
+    queryFn: async () => {
       const genresData = await getGenres();
-      setGenres(
-        genresData.map((genre) => ({
-          value: genre.genres,
-          label: genre.genres,
-        }))
-      );
-    };
-    fetchGenres();
-  }, []);
+      return genresData.map((genre) => ({
+        value: genre.genres,
+        label: genre.genres,
+      }));
+    },
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
@@ -201,7 +200,7 @@ export default function ProfilePage({ user }: SettingsPageProps) {
                   <FormLabel>Genres</FormLabel>
                   <FormDescription>Add your favorite genres</FormDescription>
                   <MultiSelectDropdown
-                    options={genres}
+                    options={genres || []}
                     onChange={field.onChange}
                     value={field.value}
                     triggerText="Select genres"
