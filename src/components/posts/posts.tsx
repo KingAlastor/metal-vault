@@ -8,13 +8,9 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import Image from "next/image";
-import useWindowSize from "@/lib/hooks/get-window-size";
-import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 import UserAvatar from "../auth/user-avatar";
 import PostDropdownMenu from "./post-dropdown-menu";
 import PostLinkIcons from "./post-link-icons";
-import Link from "next/link";
 import { BandCampCard, SpotifyCard, YTCard } from "./post-cards";
 import { formatDateAndTime } from "@/lib/general/date";
 
@@ -44,6 +40,24 @@ export type Post = {
 export type PostsProps = {
   posts: Post[];
 };
+
+const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
+  {
+    source: "YTLink",
+    logo: "/YTLogo.svg",
+    alt: "YouTube Logo",
+  },
+  {
+    source: "SpotifyLink",
+    logo: "/SpotifyLogo.svg",
+    alt: "Spotify Logo",
+  },
+  {
+    source: "BandCampLink",
+    logo: "/BandCampLogo.png",
+    alt: "BandCamp Logo",
+  },
+];
 
 export const Posts = ({ posts }: PostsProps) => {
   return (
@@ -81,26 +95,15 @@ export const Posts = ({ posts }: PostsProps) => {
             <CardFooter className="p-4 pt-1 pb-2">
               <div className="flex justify-between items-center w-full">
                 <div className="flex space-x-4">
-                  {post.YTLink && (
-                    <PostLinkIcons
-                      link={post.YTLink}
-                      src="/YTLogo.svg"
-                      alt="YouTube Logo"
-                    />
-                  )}
-                  {post.SpotifyLink && (
-                    <PostLinkIcons
-                      link={post.SpotifyLink}
-                      src="/SpotifyLogo.svg"
-                      alt="Spotify Logo"
-                    />
-                  )}
-                  {post.BandCampLink && (
-                    <PostLinkIcons
-                      link={post.BandCampLink}
-                      src="/BandCampLogo.png"
-                      alt="BandCamp Logo"
-                    />
+                  {audioLinks.map(
+                    (link) =>
+                      post[link.source] && (
+                        <PostLinkIcons
+                          link={post[link.source] as string}
+                          src={link.logo}
+                          alt={link.alt}
+                        />
+                      )
                   )}
                 </div>
               </div>
@@ -111,4 +114,3 @@ export const Posts = ({ posts }: PostsProps) => {
     </div>
   );
 };
-
