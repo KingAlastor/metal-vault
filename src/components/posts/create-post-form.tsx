@@ -30,6 +30,7 @@ import {
   Option,
 } from "@/components/shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
+import { useQuery } from "@tanstack/react-query";
 
 const initialFormState = {
   post_message: "",
@@ -114,20 +115,17 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     adjustTextareaHeight();
   }, []);
 
-  const [genres, setGenres] = useState<Option[]>([]);
-
-  useEffect(() => {
-    const fetchGenres = async () => {
+  const { data: genres } = useQuery({
+    queryKey: ["genreTags"],
+    queryFn: async () => {
       const genresData = await getGenres();
-      setGenres(
-        genresData.map((genre) => ({
-          value: genre.genres,
-          label: genre.genres,
-        }))
-      );
-    };
-    fetchGenres();
-  }, []);
+      return genresData.map((genre) => ({
+        value: genre.genres,
+        label: genre.genres,
+      }));
+    },
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
@@ -158,8 +156,6 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     setValue("band_name", band.namePretty);
     setValue("genreTags", band.genreTags);
   };
-
-  const genreTags = watch("genreTags");
 
   return (
     <Form {...form}>
@@ -204,12 +200,12 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
               <FormItem className="flex-1 relative">
                 <FormControl>
                   <MultiSelectDropdown
-                    options={genres}
+                    options={genres || []}
                     onChange={(newValue) => {
                       field.onChange(newValue);
                       setValue("genreTags", newValue);
                     }}
-                    value={genreTags}
+                    value={field.value}
                     triggerText="Select genres"
                   />
                 </FormControl>
