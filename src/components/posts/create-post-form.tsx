@@ -248,7 +248,9 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">Create Post</Button>
+        <div className="text-right">
+          <Button type="submit">Create Post</Button>
+        </div>
       </form>
     </Form>
   );
