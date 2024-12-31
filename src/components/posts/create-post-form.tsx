@@ -248,7 +248,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
             </FormItem>
           )}
         />
-        <div className="text-right">
+        <div className="flex justify-end">
           <Button type="submit">Create Post</Button>
         </div>
       </form>
