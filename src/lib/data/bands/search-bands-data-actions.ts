@@ -14,18 +14,44 @@ export type Band = {
 export const getBandsBySearchTerm = async (
   searchTerm: string
 ): Promise<Band[]> => {
-  const result = await prisma.bands.findMany({
+  let bands;
+  if (searchTerm.length <= 3) {
+    bands = await fetchBands(searchTerm, "equals");
+    if (bands.length === 0) {
+      bands = await fetchBands(searchTerm, "startsWith");
+    }
+  } else {
+    bands = await fetchBands(searchTerm, "contains");
+    if (bands.length > 30) {
+      bands = await fetchBands(searchTerm, "equals");
+      if (bands.length === 0) {
+        bands = await fetchBands(searchTerm, "startsWith");
+      }
+    }
+  }
+
+  if (bands) {
+    const bandsWithFormattedNames = bands.map((band) => ({
+      bandId: band.id,
+      namePretty: band.namePretty,
+      country: band.country || null,
+      genreTags: band.genreTags || [],
+      bandName: `${band.namePretty} (${band.country}) {${band.genreTags.join(
+        ", "
+      )}}`,
+      followers: band.followers ?? 0,
+    }));
+
+    return bandsWithFormattedNames;
+  } else return [];
+};
+
+type WhereCondition = 'equals' | 'contains' | 'startsWith';
+
+const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
+  return await prisma.bands.findMany({
     where: {
-      namePretty:
-        searchTerm.length <= 3
-          ? {
-              equals: searchTerm,
-              mode: "insensitive",
-            }
-          : {
-              contains: searchTerm,
-              mode: "insensitive",
-            },
+      namePretty: { [condition]: searchTerm, mode: "insensitive" },
     },
     select: {
       id: true,
@@ -35,19 +61,5 @@ export const getBandsBySearchTerm = async (
       followers: true,
     },
   });
-
-  const bandsWithFormattedNames = result.map((band) => ({
-    bandId: band.id,
-    namePretty: band.namePretty,
-    country: band.country || null,
-    genreTags: band.genreTags || [],
-    bandName: `${band.namePretty} (${band.country}) {${band.genreTags.join(
-      ", "
-    )}}`,
-    followers: band.followers ?? 0,
-  }));
-
-  console.log(bandsWithFormattedNames);
-
-  return bandsWithFormattedNames;
 };
+
