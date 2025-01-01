@@ -14,22 +14,22 @@ datasource db {
 }
 
 model User {
-  id              String       @id @default(cuid())
+  id              String           @id @default(cuid())
   name            String?
   userName        String?
-  email           String?      @unique
+  email           String?          @unique
   location        String?
   image           String?
   role            String?
   shard           Int?
-  emailSettings   Json?        @map("email_settings")
-  bandsSettings   Json?        @map("bands_settings")
-  releaseSettings Json?        @map("release_settings")
-  postsSettings   Json?        @map("posts_settings")
-  emailVerified   DateTime?    @map("email_verified")
-  accountCreated  DateTime?    @map("account_created")
-  lastLogin       DateTime?    @map("last_login")
-  genreTags       String[]     @map("genre_tags")
+  emailSettings   Json?            @map("email_settings")
+  bandsSettings   Json?            @map("bands_settings")
+  releaseSettings Json?            @map("release_settings")
+  postsSettings   Json?            @map("posts_settings")
+  emailVerified   DateTime?        @map("email_verified")
+  accountCreated  DateTime?        @map("account_created")
+  lastLogin       DateTime?        @map("last_login")
+  genreTags       String[]         @map("genre_tags")
   notifications   Json?
   accounts        Account[]
   sessions        Session[]
@@ -38,6 +38,8 @@ model User {
   UserPosts2      UserPosts2[]
   UserPosts3      UserPosts3[]
   UserTokens      UserTokens[]
+  BandFollowers0  BandFollowers0[]
+  BandFollowers1  BandFollowers1[]
 
   @@map("users")
 }
@@ -152,6 +154,7 @@ model UpcomingReleases {
 model BandFollowers0 {
   bandId String @map("band_id")
   userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
   band   Bands  @relation(fields: [bandId], references: [id])
 
   @@unique([userId, bandId], name: "userId_bandId")
@@ -162,6 +165,7 @@ model BandFollowers0 {
 model BandFollowers1 {
   bandId String @map("band_id")
   userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
   band   Bands  @relation(fields: [bandId], references: [id])
 
   @@unique([userId, bandId], name: "userId_bandId")
