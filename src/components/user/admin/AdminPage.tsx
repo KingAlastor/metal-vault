@@ -10,6 +10,7 @@ import { syncAlbumDataFromArchives } from "../../../lib/data/user/admin/album-da
 import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
 import { useState } from "react";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
+import { syncGenresTableFromBands } from "@/lib/data/user/admin/genres-data-actions";
 
 export default function AdminPage() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
@@ -18,6 +19,7 @@ export default function AdminPage() {
     useState(false);
   const [isLatestBandsLoading, setIsLatestBandsLoading] = useState(false);
   const [isTestApiLoading, setIsTestApiLoading] = useState(false);
+  const [isGenresSyncLoading, setIsGenresSyncLoading] = useState(false);
 
   const handleBandSyncClick = async () => {
     setIsBandSyncLoading(true);
@@ -41,6 +43,12 @@ export default function AdminPage() {
     setIsLatestBandsLoading(true);
     await syncLatestBandAdditionsFromArchives();
     setIsLatestBandsLoading(false);
+  };
+
+  const handleSyncGenresClick = async () => {
+    setIsGenresSyncLoading(true);
+    await syncGenresTableFromBands();
+    setIsGenresSyncLoading(false);
   };
 
   const handleYoutubeApi = async () => {
@@ -84,6 +92,12 @@ export default function AdminPage() {
         disabled={isLatestBandsLoading}
       >
         {isLatestBandsLoading ? "Loading..." : "Sync Latest Bands"}
+      </Button>
+      <Button
+        onClick={handleSyncGenresClick}
+        disabled={isGenresSyncLoading}
+      >
+        {isLatestBandsLoading ? "Loading..." : "Sync Genres Table"}
       </Button>
       <Button onClick={handleYoutubeApi} disabled={isTestApiLoading}>
         {isLatestBandsLoading ? "Loading..." : "Test API"}
