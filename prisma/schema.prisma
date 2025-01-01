@@ -96,6 +96,10 @@ model Bands {
   albums         BandAlbums[]
   BandFollowers0 BandFollowers0[]
   BandFollowers1 BandFollowers1[]
+  UserPosts0     UserPosts0[]
+  UserPosts1     UserPosts1[]
+  UserPosts2     UserPosts2[]
+  UserPosts3     UserPosts3[]
 
   @@unique([archivesLink])
   @@index([genreTags], type: Gin)
@@ -179,6 +183,7 @@ model UserPosts0 {
   previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
+  band         Bands?   @relation(fields: [bandId], references: [id])
 
   @@index([userId])
   @@map("user_posts_0")
@@ -198,6 +203,7 @@ model UserPosts1 {
   previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
+  band         Bands?   @relation(fields: [bandId], references: [id])
 
   @@index([userId])
   @@map("user_posts_1")
@@ -217,6 +223,7 @@ model UserPosts2 {
   previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
+  band         Bands?   @relation(fields: [bandId], references: [id])
 
   @@index([userId])
   @@map("user_posts_2")
@@ -236,6 +243,7 @@ model UserPosts3 {
   previewUrl   String?  @map("preview_url")
   postDateTime DateTime @default(now()) @map("post_datetime")
   user         User     @relation(fields: [userId], references: [id])
+  band         Bands?   @relation(fields: [bandId], references: [id])
 
   @@index([userId])
   @@map("user_posts_3")
