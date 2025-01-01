@@ -8,10 +8,10 @@ import { PostsFilters } from "./posts-filters-data-actions";
 import { User } from "next-auth";
 
 type PostProps = {
-  band_name?: string;
-  bandId?: string;
+  band_name: string;
+  bandId?: string | null;
   title?: string; 
-  genre?: string;
+  genreTags: string[];
   post_message?: string;
   yt_link?: string;
   spotify_link?: string;
@@ -36,6 +36,7 @@ export const addPost = async (post: PostProps) => {
   const model = prisma[
     `userPosts${shard}` as keyof typeof prisma
   ] as PrismaUserPostsModel;
+  console.log("create post data: ", post)
 
   try {
     await model.create({
@@ -44,7 +45,7 @@ export const addPost = async (post: PostProps) => {
         bandId: post.bandId,
         bandName: post.band_name,
         title: post.title, 
-        genreTags: post.genre,
+        genreTags: post.genreTags,
         postContent: post.post_message,
         YTLink: post.yt_link,
         SpotifyLink: post.spotify_link,

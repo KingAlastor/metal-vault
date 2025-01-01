@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,10 +25,7 @@ import {
 import { fetchBandcampData } from "@/lib/apis/Bandcamp-api";
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
 import { Band } from "@/lib/data/bands/search-bands-data-actions";
-import {
-  MultiSelectDropdown,
-  Option,
-} from "@/components/shared/multiselect-dropdown";
+import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { useQuery } from "@tanstack/react-query";
 
@@ -53,7 +50,7 @@ const FormSchema = z
       message: "Please enter a band name",
     }),
     genreTags: z.array(z.string(), {
-      message: "Please add at least 1 genre",
+      message: "Please select at least one genre",
     }),
     yt_link: z
       .string()
@@ -94,11 +91,11 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: initialFormState,
   });
-  const { reset, setValue, control, handleSubmit, watch } = form;
+  const { reset, setValue, control, handleSubmit } = form;
 
   const pathname = usePathname();
-
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const bandIdRef = useRef<string | null>(null);
   const MAX_HEIGHT = 200;
 
   const adjustTextareaHeight = () => {
@@ -134,6 +131,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
         ...data,
         previewUrl: linkData?.previewUrl,
         title: JSON.stringify(linkData?.title),
+        bandId: bandIdRef.current,
       };
       await addPost(formData);
       reset(initialFormState);
@@ -152,9 +150,9 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   };
 
   const handleBandSelect = (band: Band) => {
-    console.log(band);
     setValue("band_name", band.namePretty);
     setValue("genreTags", band.genreTags);
+    bandIdRef.current = band.bandId; 
   };
 
   return (
