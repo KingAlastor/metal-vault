@@ -2,7 +2,6 @@
 
 export enum MaxTableShards {
   BandFollowers = 1,
-  UserPosts = 3,
 }
 
 export enum Months {

@@ -14,32 +14,30 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  name            String?
-  userName        String?
-  email           String?          @unique
-  location        String?
-  image           String?
-  role            String?
-  shard           Int?
-  emailSettings   Json?            @map("email_settings")
-  bandsSettings   Json?            @map("bands_settings")
-  releaseSettings Json?            @map("release_settings")
-  postsSettings   Json?            @map("posts_settings")
-  emailVerified   DateTime?        @map("email_verified")
-  accountCreated  DateTime?        @map("account_created")
-  lastLogin       DateTime?        @map("last_login")
-  genreTags       String[]         @map("genre_tags")
-  notifications   Json?
-  accounts        Account[]
-  sessions        Session[]
-  UserPosts0      UserPosts0[]
-  UserPosts1      UserPosts1[]
-  UserPosts2      UserPosts2[]
-  UserPosts3      UserPosts3[]
-  UserTokens      UserTokens[]
-  BandFollowers0  BandFollowers0[]
-  BandFollowers1  BandFollowers1[]
+  id                String              @id @default(cuid())
+  name              String?
+  userName          String?
+  email             String?             @unique
+  location          String?
+  image             String?
+  role              String?
+  shard             Int?
+  emailSettings     Json?               @map("email_settings")
+  bandsSettings     Json?               @map("bands_settings")
+  releaseSettings   Json?               @map("release_settings")
+  postsSettings     Json?               @map("posts_settings")
+  emailVerified     DateTime?           @map("email_verified")
+  accountCreated    DateTime?           @map("account_created")
+  lastLogin         DateTime?           @map("last_login")
+  genreTags         String[]            @map("genre_tags")
+  notifications     Json?
+  accounts          Account[]
+  sessions          Session[]
+  UserTokens        UserTokens[]
+  BandFollowers0    BandFollowers0[]
+  BandFollowers1    BandFollowers1[]
+  UserPostsActive   UserPostsActive[]
+  UserPostsArchived UserPostsArchived[]
 
   @@map("users")
 }
@@ -86,22 +84,20 @@ model UserTokens {
 }
 
 model Bands {
-  id             String           @id @default(cuid())
-  name           String
-  namePretty     String           @map("name_pretty")
-  genreTags      String[]         @map("genre_tags")
-  country        String?
-  status         String?
-  followers      Int?             @default(0)
-  archivesLink   BigInt           @map("archives_link")
-  spotifyId      String?          @map("spotify_id")
-  albums         BandAlbums[]
-  BandFollowers0 BandFollowers0[]
-  BandFollowers1 BandFollowers1[]
-  UserPosts0     UserPosts0[]
-  UserPosts1     UserPosts1[]
-  UserPosts2     UserPosts2[]
-  UserPosts3     UserPosts3[]
+  id                String              @id @default(cuid())
+  name              String
+  namePretty        String              @map("name_pretty")
+  genreTags         String[]            @map("genre_tags")
+  country           String?
+  status            String?
+  followers         Int?                @default(0)
+  archivesLink      BigInt              @map("archives_link")
+  spotifyId         String?             @map("spotify_id")
+  albums            BandAlbums[]
+  BandFollowers0    BandFollowers0[]
+  BandFollowers1    BandFollowers1[]
+  UserPostsActive   UserPostsActive[]
+  UserPostsArchived UserPostsArchived[]
 
   @@unique([archivesLink])
   @@index([genreTags], type: Gin)
@@ -173,14 +169,14 @@ model BandFollowers1 {
   @@map("band_followers_1")
 }
 
-model UserPosts0 {
+model UserPostsActive {
   id           String   @id @default(cuid())
   userId       String   @map("user_id")
   bandId       String?  @map("band_id")
-  bandName     String?  @map("bandname")
+  bandName     String   @map("bandname")
   title        String?
   genreTags    String[] @map("genre_tags")
-  postContent  String   @map("post_content")
+  postContent  String?  @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
   BandCampLink String?  @map("bandcamp_link")
@@ -189,18 +185,18 @@ model UserPosts0 {
   user         User     @relation(fields: [userId], references: [id])
   band         Bands?   @relation(fields: [bandId], references: [id])
 
-  @@index([userId])
-  @@map("user_posts_0")
+  @@index([userId, bandName, genreTags])
+  @@map("user_posts_active")
 }
 
-model UserPosts1 {
+model UserPostsArchived {
   id           String   @id @default(cuid())
   userId       String   @map("user_id")
   bandId       String?  @map("band_id")
-  bandName     String?  @map("bandname")
+  bandName     String   @map("bandname")
   title        String?
   genreTags    String[] @map("genre_tags")
-  postContent  String   @map("post_content")
+  postContent  String?  @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
   BandCampLink String?  @map("bandcamp_link")
@@ -210,47 +206,7 @@ model UserPosts1 {
   band         Bands?   @relation(fields: [bandId], references: [id])
 
   @@index([userId])
-  @@map("user_posts_1")
-}
-
-model UserPosts2 {
-  id           String   @id @default(cuid())
-  userId       String   @map("user_id")
-  bandId       String?  @map("band_id")
-  bandName     String?  @map("bandname")
-  title        String?
-  genreTags    String[] @map("genre_tags")
-  postContent  String   @map("post_content")
-  YTLink       String?  @map("yt_link")
-  SpotifyLink  String?  @map("spotify_link")
-  BandCampLink String?  @map("bandcamp_link")
-  previewUrl   String?  @map("preview_url")
-  postDateTime DateTime @default(now()) @map("post_datetime")
-  user         User     @relation(fields: [userId], references: [id])
-  band         Bands?   @relation(fields: [bandId], references: [id])
-
-  @@index([userId])
-  @@map("user_posts_2")
-}
-
-model UserPosts3 {
-  id           String   @id @default(cuid())
-  userId       String   @map("user_id")
-  bandId       String?  @map("band_id")
-  bandName     String?  @map("bandname")
-  title        String?
-  genreTags    String[] @map("genre_tags")
-  postContent  String   @map("post_content")
-  YTLink       String?  @map("yt_link")
-  SpotifyLink  String?  @map("spotify_link")
-  BandCampLink String?  @map("bandcamp_link")
-  previewUrl   String?  @map("preview_url")
-  postDateTime DateTime @default(now()) @map("post_datetime")
-  user         User     @relation(fields: [userId], references: [id])
-  band         Bands?   @relation(fields: [bandId], references: [id])
-
-  @@index([userId])
-  @@map("user_posts_3")
+  @@map("user_posts_archived")
 }
 
 model GenreTags {

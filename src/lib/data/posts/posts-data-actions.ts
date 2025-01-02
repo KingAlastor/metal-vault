@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@/auth";
-import { PrismaUserPostsModel } from "../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
 import { MaxTableShards } from "@/lib/enums";
 import { PostsFilters } from "./posts-filters-data-actions";
@@ -10,7 +9,7 @@ import { User } from "next-auth";
 type PostProps = {
   band_name: string;
   bandId?: string | null;
-  title?: string; 
+  title?: string;
   genreTags: string[];
   post_message?: string;
   yt_link?: string;
@@ -22,29 +21,20 @@ type PostProps = {
 export const addPost = async (post: PostProps) => {
   const session = await auth();
   const user = session?.user;
-
-  if (!user) {
+  
+  if (!user?.id) {
     throw new Error(
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
 
-  const shard =
-    user.shard && prisma[`userPosts${user.shard}` as keyof typeof prisma]
-      ? user.shard
-      : "0";
-  const model = prisma[
-    `userPosts${shard}` as keyof typeof prisma
-  ] as PrismaUserPostsModel;
-  console.log("create post data: ", post)
-
   try {
-    await model.create({
+    await prisma.userPostsActive.create({
       data: {
-        userId: user.id,
+        userId: user!.id!,
         bandId: post.bandId,
         bandName: post.band_name,
-        title: post.title, 
+        title: post.title,
         genreTags: post.genreTags,
         postContent: post.post_message,
         YTLink: post.yt_link,
@@ -69,17 +59,9 @@ export const deletePost = async (postId: string, user: User) => {
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
-  
-  const shard =
-    user.shard && prisma[`userPosts${user.shard}` as keyof typeof prisma]
-      ? user.shard
-      : "0";
-  const model = prisma[
-    `userPosts${shard}` as keyof typeof prisma
-  ] as PrismaUserPostsModel;
 
   try {
-    const deletePost = await model.delete({
+    const deletePost = await prisma.userPostsActive.delete({
       where: {
         id: postId,
       },
@@ -94,47 +76,33 @@ export const getPostsByFilters = async (filters: PostFilters) => {
   const session = await auth();
   const user = session?.user;
 
-  let allPosts = [];
-
-  for (
-    let shardSuffix = 0;
-    shardSuffix < MaxTableShards.UserPosts;
-    shardSuffix++
-  ) {
-    const model = prisma[
-      `userPosts${shardSuffix}` as keyof typeof prisma
-    ] as PrismaUserPostsModel;
-
-    const posts = await model.findMany({
-      select: {
-        id: true,
-        userId: true,
-        bandId: true,
-        bandName: true,
-        title: true,
-        genreTags: true,
-        postContent: true,
-        YTLink: true,
-        SpotifyLink: true,
-        BandCampLink: true,
-        previewUrl: true, 
-        postDateTime: true,
-        user: {
-          select: {
-            name: true,
-            userName: true,
-            image: true,
-            role: true,
-          },
+  const posts = await prisma.userPostsActive.findMany({
+    select: {
+      id: true,
+      userId: true,
+      bandId: true,
+      bandName: true,
+      title: true,
+      genreTags: true,
+      postContent: true,
+      YTLink: true,
+      SpotifyLink: true,
+      BandCampLink: true,
+      previewUrl: true,
+      postDateTime: true,
+      user: {
+        select: {
+          name: true,
+          userName: true,
+          image: true,
+          role: true,
         },
       },
-    });
-    if (posts.length > 0) {
-      allPosts.push(...posts);
-    }
-  }
+    },
+    orderBy: { postDateTime: "desc" },
+  });
 
-  return allPosts;
+  return posts;
 };
 
 export async function updateProfileFilters(filters: PostsFilters) {

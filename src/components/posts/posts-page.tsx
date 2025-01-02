@@ -24,8 +24,10 @@ export default function PostsPage({ user }: PostsPageProps) {
 
   useEffect(() => {
     const fetchUserFilters = async () => {
+      console.log("fetch user filters", user);
       if (user?.id) {
         let userFilters = await getUserPostsFilters(user.id!);
+        console.log("set user filters: ", userFilters);
         setFilters(userFilters);
       }
     };
@@ -35,14 +37,13 @@ export default function PostsPage({ user }: PostsPageProps) {
   useEffect(() => {
     const fetchPosts = async () => {
       const posts = await getPostsByFilters(filters);
-      posts.sort(
-        (b, a) => +new Date(a.postDateTime) - +new Date(b.postDateTime)
-      );
-      setPosts(posts);
+      setPosts(posts as Post[]);
     };
 
     fetchPosts();
   }, [filters]);
+
+  const handleFilterChange = () => {};
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">

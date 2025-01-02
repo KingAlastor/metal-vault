@@ -12,15 +12,15 @@ export const getUserPostsFilters = async (id: string) => {
     let filters; 
     const userFilters = await prisma.user.findUnique({
       select: {
-        releaseSettings: true,
+        postsSettings: true,
       },
       where: { id },
     });
     
-    if (userFilters?.releaseSettings) {
-      console.log("releasePage", userFilters.releaseSettings);
-      if (typeof userFilters.releaseSettings === 'string') {
-        filters = JSON.parse(userFilters.releaseSettings);
+    if (userFilters?.postsSettings) {
+      console.log("releasePage", userFilters.postsSettings);
+      if (typeof userFilters.postsSettings === 'string') {
+        filters = JSON.parse(userFilters.postsSettings);
       } 
     };
     return filters;   
@@ -29,7 +29,7 @@ export const getUserPostsFilters = async (id: string) => {
   }
 };
 
-export async function updateProfileFilters(filters: PostsFilters) {
+export async function updatePostsProfileFilters(filters: PostsFilters) {
   const session = await auth();
   const userId = session?.user?.id;
   const filtersJson = JSON.stringify(filters);
@@ -40,7 +40,7 @@ export async function updateProfileFilters(filters: PostsFilters) {
         id: userId,
       },
       data: {
-        releaseSettings: filtersJson,
+        postsSettings: filtersJson,
       },
     });
   } catch (error) {

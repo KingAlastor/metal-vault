@@ -16,7 +16,7 @@ import { formatDateAndTime } from "@/lib/general/date";
 
 type PostUser = {
   name: string;
-  userName: string;
+  userName: string | null;
   image: string;
   role: string;
 };
@@ -24,16 +24,16 @@ type PostUser = {
 export type Post = {
   id: string;
   userId: string;
-  bandId: string;
+  bandId: string | null;
   bandName: string;
-  title: string;
-  genre: string;
-  postContent: string;
+  title: string | null;
+  genreTags: string[];
+  postContent: string | null;
   YTLink: string | null;
   SpotifyLink: string | null;
   BandCampLink: string | null;
   postDateTime: Date;
-  previewUrl: string;
+  previewUrl: string | null;
   user: PostUser;
 };
 
