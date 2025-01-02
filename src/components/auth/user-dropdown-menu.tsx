@@ -19,12 +19,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "./theme-toggle-button";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UserButtonProps {
   user: User;
 }
 
 export function UserMenu({ user }: UserButtonProps) {
+
+  const queryClient = useQueryClient();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -67,7 +71,10 @@ export function UserMenu({ user }: UserButtonProps) {
         <ThemeToggle />
         <DropdownMenuItem asChild>
           <button
-            onClick={() => signOut({ callbackUrl: "/" })}
+            onClick={() => {
+              queryClient.clear();
+              signOut({ callbackUrl: "/" });
+            }}
             className="flex w-full items-center"
           >
             <LogOut className="mr-2 h-4 w-4" />{" "}
