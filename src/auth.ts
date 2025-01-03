@@ -19,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     createUser: async ({ user }) => {
       // Calculate the shard value here
       const userCount = await getUserCount();
-      const shard = userCount / 5000;
+      const shard = userCount / 10000;
 
       // Update the user with the shard value
       const where: SQLWhere = { id: user.id! };
