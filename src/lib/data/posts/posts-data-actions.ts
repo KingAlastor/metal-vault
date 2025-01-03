@@ -2,7 +2,6 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { MaxTableShards } from "@/lib/enums";
 import { PostsFilters } from "./posts-filters-data-actions";
 import { User } from "next-auth";
 
