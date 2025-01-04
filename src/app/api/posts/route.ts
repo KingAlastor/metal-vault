@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     console.log("user", user);
 
     if (!user) {
-      Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
     const filters = {}; 
     
