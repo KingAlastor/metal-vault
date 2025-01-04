@@ -25,7 +25,7 @@ export default function PostsPage({ user }: PostsPageProps) {
 
   const query = useQuery<Post[]>({
     queryKey: ["post-feed"],
-    queryFn: kyInstance.get("/api/posts").json<Post[]>,
+    queryFn: kyInstance.get("http://localhost:3000/api/posts").json<Post[]>,
   });
 
   const handleFilterChange = () => {};
