@@ -12,8 +12,11 @@ import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
 import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 import { PostsFiltersForm } from "./posts-filters-form";
 import { Post, Posts } from "./posts";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
+import { PostsPageData } from "@/app/api/posts/route";
+import { Button } from "../ui/button";
+import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 
 interface PostsPageProps {
   user?: User;
@@ -23,20 +26,38 @@ export default function PostsPage({ user }: PostsPageProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState({});
 
-  const query = useQuery<Post[]>({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+    error,
+  } = useInfiniteQuery({
     queryKey: ["post-feed"],
-    queryFn: kyInstance.get("http://localhost:3000/api/posts").json<Post[]>,
+    queryFn: ({ pageParam }) =>
+      kyInstance
+        .get(
+          "/api/posts",
+          pageParam ? { searchParams: { cursor: pageParam } } : {}
+        )
+        .json<PostsPageData>(),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
+
+  const posts = data?.pages.flatMap((page) => page.posts) || [];
 
   const handleFilterChange = () => {};
 
-  if (query.status === "pending")
+  if (status === "pending")
     return (
       <div className="flex justify-center items-center h-screen">
-        <Loader2 className="animate-spin" />
+        <Loader2 className="mx-auto animate-spin" />
       </div>
     );
-  if (query.status === "error") return <div>Error: {query.error.message}</div>;
+  if (status === "error") return <div>Error: {error.message}</div>;
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
@@ -62,7 +83,14 @@ export default function PostsPage({ user }: PostsPageProps) {
         </CollapsibleContent>
       </Collapsible>
 
-      <Posts posts={query.data} />
+      <InfiniteScrollContainer
+        onBottomReached={() => hasNextPage && !isFetching && fetchNextPage()}
+      >
+        <Posts posts={posts} />
+        {isFetchingNextPage && (
+          <Loader2 className="mx-auto my-3 animate-spin" />
+        )}
+      </InfiniteScrollContainer>
     </div>
   );
 }

@@ -17,10 +17,15 @@ type PostProps = {
   previewUrl?: string;
 };
 
+type QueryParamProps = {
+  cursor: string | undefined;
+  pageSize: number;
+};
+
 export const addPost = async (post: PostProps) => {
   const session = await auth();
   const user = session?.user;
-  
+
   if (!user?.id) {
     throw new Error(
       "User ID is undefined. User must be logged in to access favorites."
@@ -71,7 +76,10 @@ export const deletePost = async (postId: string, user: User) => {
   }
 };
 
-export const getPostsByFilters = async (filters: PostFilters) => {
+export const getPostsByFilters = async (
+  filters: any,
+  queryParams: QueryParamProps
+) => {
   const session = await auth();
   const user = session?.user;
 
@@ -99,6 +107,8 @@ export const getPostsByFilters = async (filters: PostFilters) => {
       },
     },
     orderBy: { postDateTime: "desc" },
+    take: queryParams.pageSize + 1,
+    cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
   });
 
   return posts;

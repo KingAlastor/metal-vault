@@ -17,8 +17,8 @@ import { formatDateAndTime } from "@/lib/general/date";
 type PostUser = {
   name: string;
   userName: string | null;
-  image: string;
-  role: string;
+  image: string | null;
+  role: string | null;
 };
 
 export type Post = {
