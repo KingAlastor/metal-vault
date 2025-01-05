@@ -17,6 +17,7 @@ import kyInstance from "@/lib/ky";
 import { PostsPageData } from "@/app/api/posts/route";
 import { Button } from "../ui/button";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
+import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 
 interface PostsPageProps {
   user?: User;
@@ -51,12 +52,10 @@ export default function PostsPage({ user }: PostsPageProps) {
 
   const handleFilterChange = () => {};
 
-  if (status === "pending")
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="mx-auto animate-spin" />
-      </div>
-    );
+  if (status === "pending") return <PostsLoadingSkeleton />;
+  if (status === "success" && !posts.length && !hasNextPage) {
+    return <p className="text-center text-muted-foreground">No posts found</p>;
+  }
   if (status === "error") return <div>Error: {error.message}</div>;
 
   return (
