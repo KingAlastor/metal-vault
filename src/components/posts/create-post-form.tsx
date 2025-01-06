@@ -141,9 +141,6 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
           setOpen(false);
         },
       });
-      if (pathname === "/") {
-        window.location.reload();
-      }
     } catch (error) {
       console.error("Error adding post:", error);
     }
