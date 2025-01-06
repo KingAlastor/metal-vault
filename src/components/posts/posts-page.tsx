@@ -1,21 +1,18 @@
 "use client";
 
 import { User } from "next-auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown, Loader2 } from "lucide-react";
-import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
-import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 import { PostsFiltersForm } from "./posts-filters-form";
-import { Post, Posts } from "./posts";
+import { Posts } from "./posts";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
 import { PostsPageData } from "@/app/api/posts/route";
-import { Button } from "../ui/button";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 

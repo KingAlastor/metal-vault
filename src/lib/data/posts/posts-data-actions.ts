@@ -33,7 +33,7 @@ export const addPost = async (post: PostProps) => {
   }
 
   try {
-    await prisma.userPostsActive.create({
+    const newPost = await prisma.userPostsActive.create({
       data: {
         userId: user!.id!,
         bandId: post.bandId,
@@ -46,7 +46,10 @@ export const addPost = async (post: PostProps) => {
         BandCampLink: post.bandcamp_link,
         previewUrl: post.previewUrl,
       },
+      include: { user: true },
     });
+
+    return newPost;
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;

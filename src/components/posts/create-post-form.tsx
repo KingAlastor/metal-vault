@@ -15,7 +15,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { usePathname } from "next/navigation";
-import { addPost } from "@/lib/data/posts/posts-data-actions";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 import {
@@ -28,6 +27,7 @@ import { Band } from "@/lib/data/bands/search-bands-data-actions";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { useQuery } from "@tanstack/react-query";
+import { useSubmitPostMutation } from "./hooks/use-submit-post-mutation";
 
 const initialFormState = {
   post_message: "",
@@ -93,6 +93,8 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   });
   const { reset, setValue, control, handleSubmit } = form;
 
+  const mutation = useSubmitPostMutation();
+
   const pathname = usePathname();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const bandIdRef = useRef<string | null>(null);
@@ -133,9 +135,12 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
         title: JSON.stringify(linkData?.title),
         bandId: bandIdRef.current,
       };
-      await addPost(formData);
-      reset(initialFormState);
-      setOpen(false);
+      mutation.mutate(formData, {
+        onSuccess: () => {
+          reset(initialFormState);
+          setOpen(false);
+        },
+      });
       if (pathname === "/") {
         window.location.reload();
       }
@@ -152,7 +157,7 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
   const handleBandSelect = (band: Band) => {
     setValue("band_name", band.namePretty);
     setValue("genreTags", band.genreTags);
-    bandIdRef.current = band.bandId; 
+    bandIdRef.current = band.bandId;
   };
 
   return (
