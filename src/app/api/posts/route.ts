@@ -18,10 +18,7 @@ export async function GET(req: NextRequest) {
     const session = await auth();
     const user = session?.user;
     console.log("user", user);
-
-    if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    
     const filters = {};
 
     const posts: Post[] = await getPostsByFilters(filters, queryParams);
