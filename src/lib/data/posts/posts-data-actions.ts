@@ -3,7 +3,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { PostsFilters } from "./posts-filters-data-actions";
-import { User } from "next-auth";
 
 type PostProps = {
   band_name: string;
@@ -60,7 +59,10 @@ type PostFilters = {
   genres?: string[];
 };
 
-export const deletePost = async (postId: string, user: User) => {
+export const deletePost = async (postId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
   if (!user) {
     throw new Error(
       "User ID is undefined. User must be logged in to access favorites."
@@ -68,11 +70,13 @@ export const deletePost = async (postId: string, user: User) => {
   }
 
   try {
-    const deletePost = await prisma.userPostsActive.delete({
+    const deletedPost = await prisma.userPostsActive.delete({
       where: {
         id: postId,
       },
     });
+
+    return deletedPost;
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;
