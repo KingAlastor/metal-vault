@@ -7,7 +7,7 @@ import { formatDateWithNamedMonth } from "@/lib/general/date";
 
 export const YTCard = (post: Post) => {
   const size = useWindowSize();
-  const { name } = JSON.parse(post.title);
+  const { name } = post.title ? JSON.parse(post.title) : {};
 
   const prefix = getImagePrefix(size.width);
   const videoID = extractYTID(post.YTLink!);
@@ -47,7 +47,7 @@ export const YTCard = (post: Post) => {
 };
 
 export const SpotifyCard = (post: Post) => {
-  const { name, artist, releaseDate, type, imageUrl } = JSON.parse(post.title);
+  const { name, artist, releaseDate, type, imageUrl } = post.title ? JSON.parse(post.title) : {};
   const size = useWindowSize();
 
   return (
@@ -174,7 +174,7 @@ export const SpotifyCard = (post: Post) => {
 };
 
 export const BandCampCard = (post: Post) => {
-  const { name, artist, releaseDate, type, imageUrl } = JSON.parse(post.title);
+  const { name, artist, releaseDate, type, imageUrl } = post.title ? JSON.parse(post.title) : {};
 
   return (
     <div>
