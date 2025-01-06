@@ -16,7 +16,9 @@ export function useSubmitPostMutation() {
   const mutation = useMutation({
     mutationFn: addPost,
     onSuccess: async (newPost) => {
-      const queryFilter: QueryFilters<InfiniteData<PostsPageData, string | null>> = { queryKey: ["post-feed"] };
+      const queryFilter: QueryFilters<
+        InfiniteData<PostsPageData, string | null>
+      > = { queryKey: ["post-feed"] };
 
       await queryClient.cancelQueries(queryFilter);
 
@@ -39,6 +41,14 @@ export function useSubmitPostMutation() {
           }
         }
       );
+
+      queryClient.invalidateQueries({
+        queryKey: queryFilter.queryKey,
+        predicate(query) {
+          return !query.state.data;
+        },
+      });
+
       toast({
         description: "Post created",
       });
