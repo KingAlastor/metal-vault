@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { Post } from "@/components/posts/posts";
 import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
+import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 import { NextRequest } from "next/server";
 
 export type PostsPageData = {
@@ -19,7 +20,10 @@ export async function GET(req: NextRequest) {
     const user = session?.user;
     console.log("user", user);
     
-    const filters = {};
+    let filters = {};
+    if (user?.id) {
+      filters = await getUserPostsFilters(user.id);
+    }
 
     const posts: Post[] = await getPostsByFilters(filters, queryParams);
 

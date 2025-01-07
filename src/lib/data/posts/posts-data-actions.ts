@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { PostsFilters } from "./posts-filters-data-actions";
+import { fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
 
 type PostProps = {
   band_name: string;
@@ -89,6 +90,29 @@ export const getPostsByFilters = async (
 ) => {
   const session = await auth();
   const user = session?.user;
+  let where = {};
+
+  if (filters.favorites_only) {
+    const favorites = await fetchUserFavoriteBands();
+    if (favorites.length > 0)
+      where = {
+        ...where,
+        bandId: {
+          in: favorites,
+        },
+      };
+  }
+
+  if (filters.favorite_genres_only && user?.genreTags) {
+    where = {
+      ...where,
+      genreTags: {
+        hasSome: user.genreTags,
+      },
+    };
+  }
+
+  console.log("where clause: ", where);
 
   const posts = await prisma.userPostsActive.findMany({
     select: {
@@ -113,6 +137,7 @@ export const getPostsByFilters = async (
         },
       },
     },
+    where: where,
     orderBy: { postDateTime: "desc" },
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,

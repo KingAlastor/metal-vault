@@ -16,6 +16,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { PostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 import { updateProfileFilters } from "@/lib/data/posts/posts-data-actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -37,7 +38,16 @@ export function PostsFiltersForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       favorites_only: filters?.favorites_only || false,
-      favorite_genres_only: filters?.favorite_genres_only || false, 
+      favorite_genres_only: filters?.favorite_genres_only || false,
+    },
+  });
+
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: updateProfileFilters,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-feed"] });
     },
   });
 
@@ -47,9 +57,9 @@ export function PostsFiltersForm({
         favorites_only: data.favorites_only ?? false,
         favorite_genres_only: data.favorite_genres_only ?? false,
       };
-      setFilters(filters);
       setIsOpen(false);
-      updateProfileFilters(data);
+      setFilters(filters)
+      mutation.mutate(filters);
     };
     updateFilters();
   }

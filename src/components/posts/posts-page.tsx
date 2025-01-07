@@ -47,8 +47,6 @@ export default function PostsPage({ user }: PostsPageProps) {
 
   const posts = data?.pages.flatMap((page) => page.posts) || [];
 
-  const handleFilterChange = () => {};
-
   if (status === "pending") return <PostsLoadingSkeleton />;
   if (status === "success" && !posts.length && !hasNextPage) {
     return <p className="text-center text-muted-foreground">No posts found</p>;

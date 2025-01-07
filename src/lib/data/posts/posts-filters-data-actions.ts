@@ -18,7 +18,7 @@ export const getUserPostsFilters = async (id: string) => {
     });
     
     if (userFilters?.postsSettings) {
-      console.log("releasePage", userFilters.postsSettings);
+      console.log("postSettings: ", userFilters.postsSettings);
       if (typeof userFilters.postsSettings === 'string') {
         filters = JSON.parse(userFilters.postsSettings);
       } 
