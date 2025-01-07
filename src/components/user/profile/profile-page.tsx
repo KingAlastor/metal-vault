@@ -209,7 +209,9 @@ export default function ProfilePage({ user }: SettingsPageProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Save</Button>
+            <div className="flex justify-end">
+              <Button type="submit">Save</Button>
+            </div>
           </form>
         </section>
       </main>
