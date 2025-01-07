@@ -42,6 +42,7 @@ export const YTCard = (post: Post) => {
         </div>
       )}
       {name && <p className="mt-1">{name}</p>}
+      {post.genreTags && <p className="s-font">{post.genreTags.join(", ")}</p>}
     </div>
   );
 };
@@ -82,7 +83,8 @@ export const SpotifyCard = (post: Post) => {
                       {formatDateWithNamedMonth(releaseDate)}
                     </p>
                   )}
-                  {type && <p className="m-font">{type}</p>}
+                  {type && <p className="s-font">{type}</p>}
+                  {post.genreTags && <p className="s-font">{post.genreTags.join(", ")}</p>}
                 </div>
               </a>
             </Link>
@@ -122,8 +124,9 @@ export const SpotifyCard = (post: Post) => {
                         {formatDateWithNamedMonth(releaseDate)}
                       </p>
                     )}
-                    {type && <p className="m-font">{type}</p>}
-                  </div>
+                    {type && <p className="s-font">{type}</p>}
+                    {post.genreTags && <p className="s-font">{post.genreTags.join(", ")}</p>}
+                    </div>
                 </a>
               </Link>
             </div>
@@ -162,7 +165,8 @@ export const SpotifyCard = (post: Post) => {
                       {formatDateWithNamedMonth(releaseDate)}
                     </p>
                   )}
-                  {type && <p className="m-font">{type}</p>}
+                  {type && <p className="s-font">{type}</p>}
+                  {post.genreTags && <p className="s-font">{post.genreTags.join(", ")}</p>}
                 </div>
               </a>
             </Link>
@@ -208,6 +212,7 @@ export const BandCampCard = (post: Post) => {
       <div>
         {name && <p className="font-bold">{name}</p>}
         {artist && <p>{artist}</p>}
+        {post.genreTags && <p className="s-font">{post.genreTags.join(", ")}</p>}
       </div>
     </div>
   );
