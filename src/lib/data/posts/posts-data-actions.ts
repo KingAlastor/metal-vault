@@ -56,10 +56,6 @@ export const addPost = async (post: PostProps) => {
   }
 };
 
-type PostFilters = {
-  genres?: string[];
-};
-
 export const deletePost = async (postId: string) => {
   const session = await auth();
   const user = session?.user;
@@ -84,8 +80,13 @@ export const deletePost = async (postId: string) => {
   }
 };
 
+type PostFilters = {
+  favorites_only?: boolean;
+  favorite_genres_only?: boolean;
+};
+
 export const getPostsByFilters = async (
-  filters: any,
+  filters: PostFilters,
   queryParams: QueryParamProps
 ) => {
   const session = await auth();
