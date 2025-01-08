@@ -118,6 +118,7 @@ export const getPostsByFilters = async (
   const posts = await prisma.userPostsActive.findMany({
     select: {
       id: true,
+      userId: true,
       bandId: true,
       bandName: true,
       title: true,
