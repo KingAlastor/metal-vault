@@ -397,14 +397,10 @@ export const checkBandExists = async (bandNamePretty: string) => {
   }
 
   try {
-    const band = await prisma.bands.findFirst({
+    const bands = await prisma.bands.findMany({
       select: {
         id: true,
       },
-      orderBy: {
-        namePretty: "asc",
-      },
-      take: 1,
       where: {
         namePretty: {
           equals: bandNamePretty,
@@ -413,7 +409,7 @@ export const checkBandExists = async (bandNamePretty: string) => {
       },
     });
 
-    return band?.id;
+    return bands;
   } catch (error) {
     console.error("Error checking if band exists:", error);
     throw new Error("Failed to check if band exists. Please try again later.");
