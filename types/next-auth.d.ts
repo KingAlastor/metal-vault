@@ -12,5 +12,8 @@ declare module "next-auth" {
     location: string,
     notifications: string,
     genreTags: string,
+    postsSettings: string,
+    releaseSettings: string,
+    notifications: string,
   }
 }

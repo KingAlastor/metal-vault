@@ -21,8 +21,9 @@ interface PostsPageProps {
 }
 
 export default function PostsPage({ user }: PostsPageProps) {
+  console.log("user", user);
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState(JSON.parse(user?.postsSettings || '{}'));
 
   const {
     data,
