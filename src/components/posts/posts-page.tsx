@@ -10,7 +10,7 @@ import {
 import { ChevronDown, Loader2 } from "lucide-react";
 import { PostsFiltersForm } from "./posts-filters-form";
 import { Posts } from "./posts";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
 import { PostsPageData } from "@/app/api/posts/route";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
