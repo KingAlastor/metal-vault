@@ -1,18 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { User } from "next-auth";
-import {
-  syncBandDataFromArchives,
-  syncLatestBandAdditionsFromArchives,
-} from "../../../lib/data/user/admin/band-data-actions";
 import { syncAlbumDataFromArchives } from "../../../lib/data/user/admin/album-data-actions";
 import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
 import { useState } from "react";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { syncGenresTableFromBands } from "@/lib/data/user/admin/genres-data-actions";
+import { syncBandDataFromArchives, syncLatestBandAdditionsFromArchives } from "./band-sync";
 
-export default function AdminPage() {
+export function AdminToolsTab() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
   const [isAlbumSyncLoading, setIsAlbumSyncLoading] = useState(false);
   const [isUpcomingReleasesLoading, setIsUpcomingReleasesLoading] =
@@ -72,9 +68,8 @@ export default function AdminPage() {
     response();
     setIsTestApiLoading(false);
   };
-
   return (
-    <div className="flex justify-center flex-col">
+    <div className="flex flex-col space-y-2">
       <Button onClick={handleBandSyncClick} disabled={isBandSyncLoading}>
         {isBandSyncLoading ? "Loading..." : "Sync Band Data"}
       </Button>
