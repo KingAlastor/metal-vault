@@ -68,8 +68,7 @@ function extractBandDetails(band: Array<any>) {
   const namePrettyMatch = link.match(/>([^<]+)<\/a>/);
   const namePretty = namePrettyMatch ? namePrettyMatch[1] : "";
 
-  const genre = genres.replace(/ Metal|\(early\)|\(later\)/g, "").trim();
-  const genreTags = genre.split(/\/|;|,/).map((tag: string) => tag.trim());
+  const genreTags = parseGenres(genres);
 
   const statusMatch = statusSpan.match(/>([^<]+)<\/span>/);
   const status = statusMatch ? statusMatch[1] : "";
@@ -138,8 +137,7 @@ const extractLatestBandAdditionDetails = (band: Array<any> ) => {
   const numericValueMatch = bandLink.match(/\/bands\/[^\/]+\/(\d+)/);
   const archivesLink = numericValueMatch ? numericValueMatch[1] : null;
 
-  const genre = genres.replace(/ Metal|\(early\)|\(later\)/g, "").trim();
-  const genreTags = genre.split(/\/|;|,/).map((tag: string) => tag.trim());
+  const genreTags = parseGenres(genres);
 
   const countryMatch = countryLink.match(/>([^<]+)</);
   const country = countryMatch ? countryMatch[1] : null;
@@ -155,6 +153,27 @@ const extractLatestBandAdditionDetails = (band: Array<any> ) => {
     archivesLink,
   };
 };
+
+const parseGenres = (genres: string) => {
+const genre = genres
+  .replace(/\(.*?\)/gi, "") // Remove text and symbols within parentheses
+  .replace(/-/g, " ") // Replace dashes with spaces
+  .replace(/\bmetal\b/gi, "") // Remove the word "Metal" (case insensitive) only if it's a standalone word
+  .replace(/\band\b/gi, "/") // Replace "and" with "/"
+  .replace(/\bwith\b/gi, "/") // Replace "with" with "/"
+  .replace(/\binfluences\b/gi, "") // Remove the word "influences" (case insensitive)
+  .replace(/\belements\b/gi, "") // Remove the word "elements" (case insensitive)
+  .replace(/\bgarde\b/gi, "Garde") // Capitalize "garde" to "Garde"
+  .replace(/\s+/g, " ") // Replace multiple spaces with a single space
+  .trim();
+
+const genreTags = genre
+  .split(/\/|;|,/)
+  .map((tag: string) => tag.trim())
+  .filter((tag: string) => tag.length > 0); // Remove empty strings 
+
+  return genreTags;
+}
 
 
 
