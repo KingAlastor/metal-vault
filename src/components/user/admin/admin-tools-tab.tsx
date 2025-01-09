@@ -7,6 +7,7 @@ import { useState } from "react";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { syncGenresTableFromBands } from "@/lib/data/user/admin/genres-data-actions";
 import { syncBandDataFromArchives, syncLatestBandAdditionsFromArchives } from "./band-sync";
+import { backupBands } from "@/lib/data/user/admin/band-data-actions";
 
 export function AdminToolsTab() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
@@ -19,6 +20,7 @@ export function AdminToolsTab() {
 
   const handleBandSyncClick = async () => {
     setIsBandSyncLoading(true);
+    await backupBands();
     await syncBandDataFromArchives();
     setIsBandSyncLoading(false);
   };
