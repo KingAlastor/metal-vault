@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 interface PromotionsBarProps {
   className?: string;
@@ -20,6 +21,9 @@ interface PromotionsBarProps {
 
 export default function PromotionsBar({ className }: PromotionsBarProps) {
   const [bandAds, setBandAds] = useState<string[]>([]);
+  const pathname = usePathname();
+  const promoBarRouter = ["/"];
+  const shouldRenderPromotionsBar = promoBarRouter.includes(pathname);
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -32,6 +36,10 @@ export default function PromotionsBar({ className }: PromotionsBarProps) {
 
     fetchAds();
   }, []);
+
+  if (!shouldRenderPromotionsBar) {
+    return null;
+  }
 
   return (
     <Carousel
