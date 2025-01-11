@@ -264,6 +264,7 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
       return {
         title: {
           name: videoData.title,
+          imageUrl: videoData.thumbnails.high.url,
         },
       };
     } else return null;

@@ -14,11 +14,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { DeletePostDialog } from "./delete-post-dialog";
 
-type PostDropdownMenuProps = {
-  post: Post;
-};
-
-const PostDropdownMenu = ({ post }: PostDropdownMenuProps) => {
+const PostDropdownMenu = ( post : Post) => {
   const { data, status } = useSession();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 

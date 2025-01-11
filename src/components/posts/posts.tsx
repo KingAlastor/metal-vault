@@ -11,7 +11,7 @@ import {
 import UserAvatar from "../auth/user-avatar";
 import PostDropdownMenu from "./post-dropdown-menu";
 import PostLinkIcons from "./post-link-icons";
-import { BandCampCard, SpotifyCard, YTCard } from "./post-cards";
+import { PostCard } from "./post-cards";
 import { formatDateAndTime } from "@/lib/general/date";
 
 type PostUser = {
@@ -60,7 +60,7 @@ const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
 ];
 
 export const Posts = ({ posts }: PostsProps) => {
-  console.log("posts: ", posts)
+  console.log("posts: ", posts);
   return (
     <div>
       {posts.map((post) => {
@@ -81,17 +81,11 @@ export const Posts = ({ posts }: PostsProps) => {
                     </div>
                   </div>
                 </div>
-                <PostDropdownMenu post={post} />
+                <PostDropdownMenu {...post} />
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
-              {post.YTLink ? (
-                <YTCard {...post} />
-              ) : post.SpotifyLink ? (
-                <SpotifyCard {...post} />
-              ) : post.BandCampLink ? (
-                <BandCampCard {...post} />
-              ) : null}
+              <PostCard {...post} />
             </CardContent>
             <CardFooter className="p-4 pt-1 pb-2">
               <div className="flex justify-between items-center w-full">
