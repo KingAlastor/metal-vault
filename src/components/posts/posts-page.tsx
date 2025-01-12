@@ -48,12 +48,6 @@ export default function PostsPage({ user }: PostsPageProps) {
 
   const posts = data?.pages.flatMap((page) => page.posts) || [];
 
-  if (status === "pending") return <PostsLoadingSkeleton />;
-  if (status === "success" && !posts.length && !hasNextPage) {
-    return <p className="text-center text-muted-foreground">No posts found</p>;
-  }
-  if (status === "error") return <div>Error: {error.message}</div>;
-
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       <Collapsible
@@ -78,14 +72,22 @@ export default function PostsPage({ user }: PostsPageProps) {
         </CollapsibleContent>
       </Collapsible>
 
-      <InfiniteScrollContainer
-        onBottomReached={() => hasNextPage && !isFetching && fetchNextPage()}
-      >
-        <Posts posts={posts} />
-        {isFetchingNextPage && (
-          <Loader2 className="mx-auto my-3 animate-spin" />
-        )}
-      </InfiniteScrollContainer>
+      {status === "pending" && <PostsLoadingSkeleton />}
+      {status === "success" && !posts.length && !hasNextPage && (
+        <p className="text-center text-muted-foreground">No posts found</p>
+      )}
+      {status === "error" && <div>Error: {error.message}</div>}
+
+      {status === "success" && posts.length > 0 && (
+        <InfiniteScrollContainer
+          onBottomReached={() => hasNextPage && !isFetching && fetchNextPage()}
+        >
+          <Posts posts={posts} />
+          {isFetchingNextPage && (
+            <Loader2 className="mx-auto my-3 animate-spin" />
+          )}
+        </InfiniteScrollContainer>
+      )}
     </div>
   );
 }

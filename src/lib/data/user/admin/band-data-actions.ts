@@ -23,17 +23,3 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
   }
 };
 
-export const backupBands = async () => {
-  try {
-    await prisma.bandsBackup.deleteMany({});
-    await prisma.bandsBackup.createMany({
-      data: await prisma.bands.findMany(),
-    });
-    await prisma.bands.deleteMany({});
-    console.log("Backup completed and bands table cleared");
-    return { success: true };
-  } catch (error) {
-    console.error("Error backing up bands data:", error);
-    return { success: false, error: (error as any).message };
-  }
-};

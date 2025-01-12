@@ -10,7 +10,6 @@ import {
   syncBandDataFromArchives,
   syncLatestBandAdditionsFromArchives,
 } from "./band-sync";
-import { backupBands } from "@/lib/data/user/admin/band-data-actions";
 
 export function AdminToolsTab() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
@@ -23,10 +22,7 @@ export function AdminToolsTab() {
 
   const handleBandSyncClick = async () => {
     setIsBandSyncLoading(true);
-    const result = await backupBands();
-    if (result.success) {
-      await syncBandDataFromArchives();
-    }
+    await syncBandDataFromArchives();
     setIsBandSyncLoading(false);
   };
 
