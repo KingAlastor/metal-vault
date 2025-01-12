@@ -162,23 +162,6 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
         <FormField
           control={control}
-          name="post_message"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Textarea
-                  placeholder="Add a comment..."
-                  className="resize-none"
-                  {...field}
-                  ref={textareaRef}
-                  onInput={adjustTextareaHeight}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
           name="band_name"
           render={({ field }) => (
             <FormItem className="flex-1">
@@ -209,6 +192,23 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
                 />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="post_message"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Textarea
+                  placeholder="Add a comment..."
+                  className="resize-none"
+                  {...field}
+                  ref={textareaRef}
+                  onInput={adjustTextareaHeight}
+                />
+              </FormControl>
             </FormItem>
           )}
         />
