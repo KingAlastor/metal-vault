@@ -38,6 +38,7 @@ model User {
   BandFollowers1    BandFollowers1[]
   UserPostsActive   UserPostsActive[]
   UserPostsArchived UserPostsArchived[]
+  Events            Events[]
 
   @@map("users")
 }
@@ -213,4 +214,18 @@ model GenreTags {
   genres String @id
 
   @@map("genre_tags")
+}
+
+model Events {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  eventName String   @map("event_name")
+  location  String
+  fromDate  DateTime
+  toDate    DateTime
+  bands     String[]
+  genreTags String[] @map("genre_tags")
+  website   String
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id])
 }
