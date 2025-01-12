@@ -31,16 +31,24 @@ export const PostCard = (post: Post) => {
             {imageUrl && (
               <Link href={audioUrl} passHref legacyBehavior>
                 <a target="_blank" rel="noopener noreferrer">
-                  <Image
-                    src={imageUrl}
-                    alt="Cropped image"
-                    width={158}
-                    height={158}
+                  <div
                     style={{
-                      objectFit: "cover",
-                      objectPosition: "center",
+                      position: "relative",
+                      width: "158px",
+                      height: "158px",
                     }}
-                  />
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt="Cropped image"
+                      fill
+                      sizes="158px"
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
                 </a>
               </Link>
             )}
@@ -79,16 +87,24 @@ export const PostCard = (post: Post) => {
               {imageUrl && (
                 <Link href={audioUrl} passHref legacyBehavior>
                   <a target="_blank" rel="noopener noreferrer">
-                    <Image
-                      src={imageUrl}
-                      alt="Cropped image"
-                      width={158}
-                      height={158}
+                    <div
                       style={{
-                        objectFit: "cover",
-                        objectPosition: "center",
+                        position: "relative",
+                        width: "158px",
+                        height: "158px",
                       }}
-                    />
+                    >
+                      <Image
+                        src={imageUrl}
+                        alt="Cropped image"
+                        fill
+                        sizes="158px"
+                        style={{
+                          objectFit: "cover",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </div>
                   </a>
                 </Link>
               )}
@@ -124,16 +140,24 @@ export const PostCard = (post: Post) => {
             {imageUrl && (
               <Link href={audioUrl} passHref legacyBehavior>
                 <a target="_blank" rel="noopener noreferrer">
-                  <Image
-                    src={imageUrl}
-                    alt="Cropped image"
-                    width={158}
-                    height={158}
+                  <div
                     style={{
-                      objectFit: "cover",
-                      objectPosition: "center",
+                      position: "relative",
+                      width: "158px",
+                      height: "158px",
                     }}
-                  />
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt="Cropped image"
+                      fill
+                      sizes="158px"
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
                 </a>
               </Link>
             )}
@@ -164,4 +188,3 @@ export const PostCard = (post: Post) => {
     </div>
   );
 };
-
