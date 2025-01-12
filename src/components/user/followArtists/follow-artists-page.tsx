@@ -149,17 +149,6 @@ const handleBandMapping = async (followedBands: Artist[]) => {
   let unresolvedBands: string[] = [];
   for (let i = 0; i < followedBands.length; i++) {
     const bands = await checkBandExists(followedBands[i].name);
-    if (
-      followedBands[i].name === "Necrophobic" ||
-      followedBands[i].name === "Stormlord"
-    ) {
-      console.log(
-        "band name: ",
-        followedBands[i].name,
-        "length: ",
-        bands.length
-      );
-    }
     if (bands.length === 1) {
       await saveUserFavoriteAndUpdateFollowerCount(bands[0].id);
     } else {

@@ -93,7 +93,7 @@ export const getPostsByFilters = async (
   const user = session?.user;
   let where = {};
 
-  if (filters.favorites_only) {
+  if (filters?.favorites_only) {
     const favorites = await fetchUserFavoriteBands();
     if (favorites.length > 0)
       where = {
@@ -104,7 +104,7 @@ export const getPostsByFilters = async (
       };
   }
 
-  if (filters.favorite_genres_only && user?.genreTags) {
+  if (filters?.favorite_genres_only && user?.genreTags) {
     where = {
       ...where,
       genreTags: {
