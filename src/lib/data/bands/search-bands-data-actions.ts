@@ -46,7 +46,7 @@ export const getBandsBySearchTerm = async (
   } else return [];
 };
 
-type WhereCondition = 'equals' | 'contains' | 'startsWith';
+type WhereCondition = "equals" | "contains" | "startsWith";
 
 const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
   return await prisma.bands.findMany({
@@ -63,3 +63,8 @@ const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
   });
 };
 
+export const getFullBandDataById = async (bandId: string) => {
+  return await prisma.bands.findUnique({
+    where: { id: bandId },
+  });
+};
