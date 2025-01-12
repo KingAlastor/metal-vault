@@ -5,11 +5,11 @@ import Google from "next-auth/providers/google";
 import {
   getUserCount,
   SQLWhere,
-  updateCreateUserData,
   CreateUserData,
   SignInUserData,
   updateSignInUserData,
   getUser,
+  updateCreatedUserData,
 } from "./lib/data/auth/auth-data-actions";
 
 const prisma = new PrismaClient();
@@ -19,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     createUser: async ({ user }) => {
       // Calculate the shard value here
       const userCount = await getUserCount();
-      const shard = userCount / 10000;
+      const shard = Math.floor(userCount / 10000);
 
       // Update the user with the shard value
       const where: SQLWhere = { id: user.id! };
@@ -30,17 +30,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         accountCreated: new Date(),
         lastLogin: new Date(),
       };
-      await updateCreateUserData(where, data);
+      console.log("extra data", data, "user data: ", user);
+      await updateCreatedUserData(where, data);
     },
   },
   callbacks: {
     async signIn({ user }) {
       const where: SQLWhere = { id: user.id! };
       const existingUser = await getUser(where);
+      console.log("existing user", existingUser);
       if (existingUser) {
         const data: SignInUserData = { lastLogin: new Date() };
         await updateSignInUserData(where, data);
+        console.log("login data", data);
       }
+
       return true;
     },
     session({ session, user }) {

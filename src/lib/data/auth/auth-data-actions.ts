@@ -21,17 +21,13 @@ export type SignInUserData = {
   lastLogin: Date;
 };
 
-export const updateCreateUserData = async (
+export const updateCreatedUserData = async (
   where: SQLWhere,
   data: CreateUserData
 ) => {
-  await prisma.user.upsert({
+  await prisma.user.update({
     where: where,
-    update: data,
-    create: {
-      id: where.id,
-      ...data,
-    },
+    data: data,
   });
 };
 
