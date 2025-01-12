@@ -2,7 +2,6 @@ import Image from "next/image";
 import { Post } from "./posts";
 import Link from "next/link";
 import useWindowSize from "@/lib/hooks/get-window-size";
-import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 import { formatDateWithNamedMonth } from "@/lib/general/date";
 
 export const PostCard = (post: Post) => {
