@@ -16,7 +16,7 @@ import { PostsPageData } from "@/app/api/posts/route";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 
-interface PostsPageProps {
+type PostsPageProps = {
   user?: User;
 }
 

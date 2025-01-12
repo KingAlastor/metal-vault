@@ -16,7 +16,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
   let bandIds: string[] | undefined;
 
   if (user) {
-    if (filters.favorite_bands) {
+    if (filters?.favorite_bands) {
       bandIds = await getBandIdsByUserId(user);
     }
     /*     if (filters.favorite_genres_only) {
@@ -37,7 +37,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
     },
     where: {
       ...(bandIds ? { bandId: { in: bandIds } } : {}),
-      ...(filters.genreTags && filters.genreTags.length > 0
+      ...(filters?.genreTags && filters?.genreTags.length > 0
         ? { genreTags: { hasSome: filters.genreTags } }
         : {}),
       releaseDate: {

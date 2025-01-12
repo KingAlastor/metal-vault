@@ -19,7 +19,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useState } from "react";
-import CreatePostForm from "@/components/posts/create-post-form";
+import { CreatePostForm } from "@/components/posts/create-post-form";
 
 interface MenuBarProps {
   className?: string;
@@ -79,7 +79,7 @@ export default function MenuBar({ className }: MenuBarProps) {
           <DialogTrigger asChild>
             <Button
               variant="ghost"
-              className="flex items-center justify-start gap-3 w-full" 
+              className="flex items-center justify-start gap-3 w-full"
               title="Create Post"
             >
               <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
@@ -99,7 +99,7 @@ export default function MenuBar({ className }: MenuBarProps) {
             <div>
               <Button
                 variant="ghost"
-                className="flex items-center justify-start gap-3 w-full" 
+                className="flex items-center justify-start gap-3 w-full"
                 title="Create Post"
               >
                 <Image

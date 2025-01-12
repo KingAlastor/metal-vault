@@ -14,7 +14,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { usePathname } from "next/navigation";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { extractYTID } from "@/lib/hooks/extract-image-base-url";
 import {
@@ -86,7 +85,7 @@ type CreatePostFormProps = {
   setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
+export function CreatePostForm({ setOpen }: CreatePostFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: initialFormState,
@@ -95,7 +94,6 @@ export default function CreatePostForm({ setOpen }: CreatePostFormProps) {
 
   const mutation = useSubmitPostMutation();
 
-  const pathname = usePathname();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const bandIdRef = useRef<string | null>(null);
   const MAX_HEIGHT = 200;
