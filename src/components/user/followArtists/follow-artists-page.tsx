@@ -41,7 +41,7 @@ export default function FollowArtistsPage() {
   const searchInputProps = {
     inputPlaceholder: "Search band from database...",
     clearInput: true,
-  }
+  };
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
@@ -96,11 +96,14 @@ export default function FollowArtistsPage() {
   return (
     <div>
       <div>
-        Add bands to favorites
-        <BandSearchBar searchInputProps={searchInputProps} onBandSelect={handleBandSelect} />
+        <div className="mb-2">Add bands to favorites</div>
+        <BandSearchBar
+          searchInputProps={searchInputProps}
+          onBandSelect={handleBandSelect}
+        />
       </div>
       <div className="rounded-lg border p-4 mt-4">
-        <h2 className="text-lg font-bold mb-4">My Favorites</h2>
+        <h2 className="text-lg font-bold">My Favorites</h2>
         <DataTable columns={columns} data={bands} />
       </div>
       <Button
@@ -146,8 +149,16 @@ const handleBandMapping = async (followedBands: Artist[]) => {
   let unresolvedBands: string[] = [];
   for (let i = 0; i < followedBands.length; i++) {
     const bands = await checkBandExists(followedBands[i].name);
-    if (followedBands[i].name === "Necrophobic" || followedBands[i].name === "Stormlord" ) {
-      console.log("band name: ", followedBands[i].name, "length: ", bands.length)
+    if (
+      followedBands[i].name === "Necrophobic" ||
+      followedBands[i].name === "Stormlord"
+    ) {
+      console.log(
+        "band name: ",
+        followedBands[i].name,
+        "length: ",
+        bands.length
+      );
     }
     if (bands.length === 1) {
       await saveUserFavoriteAndUpdateFollowerCount(bands[0].id);

@@ -19,7 +19,7 @@ export const columns: ColumnDef<Band>[] = [
     accessorKey: "namePretty",
     header: "Name",
     cell: ({ row }) => (
-      <a href={`/band/${row.original.namePretty}`} className="block">
+      <a href={`/band/${row.original.id}`} className="block">
         <div>{row.original.namePretty}</div>
         <div className="block xs:hidden text-sm text-gray-500 ml-2">
           {row.original.country}
