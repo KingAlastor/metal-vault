@@ -376,7 +376,7 @@ export const getRefreshTokenFromUserTokens = async (provider: string) => {
     });
 
     if (!userToken) {
-      throw new Error("Refresh token not found.");
+      return null;
     }
 
     return userToken.refreshToken;

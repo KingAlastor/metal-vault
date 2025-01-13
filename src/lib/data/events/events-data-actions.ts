@@ -1,3 +1,5 @@
+"use server";
+
 import { fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
 import { auth } from "@/auth";
 import {

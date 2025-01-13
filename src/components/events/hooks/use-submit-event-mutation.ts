@@ -1,8 +1,6 @@
 import { EventsPageData } from "@/app/api/events/route";
-import { PostsPageData } from "@/app/api/posts/route";
 import { useToast } from "@/components/ui/use-toast";
 import { addEvent } from "@/lib/data/events/events-data-actions";
-import { addPost } from "@/lib/data/posts/posts-data-actions";
 import {
   InfiniteData,
   QueryFilters,
@@ -17,7 +15,7 @@ export function useSubmitEventMutation() {
 
   const mutation = useMutation({
     mutationFn: addEvent,
-    onSuccess: async (newPost) => {
+    onSuccess: async (newEvent) => {
       const queryFilter: QueryFilters<
         InfiniteData<EventsPageData, string | null>
       > = { queryKey: ["events-feed"] };
@@ -34,7 +32,7 @@ export function useSubmitEventMutation() {
               pageParams: oldData.pageParams,
               pages: [
                 {
-                  events: [newPost, ...firstPage.events],
+                  events: [newEvent, ...firstPage.events],
                   nextCursor: firstPage.nextCursor,
                 },
                 ...oldData.pages.slice(1),

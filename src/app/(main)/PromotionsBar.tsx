@@ -22,7 +22,7 @@ interface PromotionsBarProps {
 export default function PromotionsBar({ className }: PromotionsBarProps) {
   const [bandAds, setBandAds] = useState<string[]>([]);
   const pathname = usePathname();
-  const promoBarRouter = ["/"];
+  const promoBarRouter = ["/", "/events"];
   const shouldRenderPromotionsBar = promoBarRouter.includes(pathname);
 
   useEffect(() => {
