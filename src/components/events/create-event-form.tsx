@@ -135,7 +135,7 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
 
   const handleBandSelect = (band: Band) => {
     setBands((prevBands) => [...prevBands, band.bandId]);
-    setValue("genreTags", band.genreTags);
+    setValue("genreTags", Array.from(new Set([...form.getValues("genreTags"), ...band.genreTags])));
   };
 
   return (
