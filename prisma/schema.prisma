@@ -220,10 +220,12 @@ model Events {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
   eventName String   @map("event_name")
-  location  String
+  country   String
+  city      String
   fromDate  DateTime
   toDate    DateTime
   bands     String[]
+  bandIds   String[]
   genreTags String[] @map("genre_tags")
   website   String
   createdAt DateTime @default(now()) @map("created_at")
