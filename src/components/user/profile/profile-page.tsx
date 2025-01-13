@@ -40,6 +40,7 @@ import {
   Option,
 } from "@/components/shared/multiselect-dropdown";
 import { useQuery } from "@tanstack/react-query";
+import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
 
 interface SettingsPageProps {
   user: User;
@@ -134,57 +135,11 @@ export default function ProfilePage({ user }: SettingsPageProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Country</FormLabel>
-                  <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-[200px] justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value
-                            ? countries.find(
-                                (country) => country.name.common === field.value
-                              )?.name.common
-                            : "Select location"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search country..." />
-                        <CommandList>
-                          <CommandEmpty>No country found.</CommandEmpty>
-                          <CommandGroup>
-                            {countries.map((country) => (
-                              <CommandItem
-                                value={country.name.common}
-                                key={country.cca2}
-                                onSelect={() => {
-                                  form.setValue("country", country.name.common);
-                                  setOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    country.name.common === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {country.name.common}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <CountrySelectDropdown
+                    control={form.control}
+                    name="country"
+                    countries={countries}
+                  />
                   <FormDescription>
                     Country is used to receive relevant events and band updates
                   </FormDescription>
