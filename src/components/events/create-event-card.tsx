@@ -24,7 +24,7 @@ export const CreateEventCard = () => {
               <span className="hidden lg:inline">Create Event</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[528px]">
             <DialogHeader>
               <DialogTitle> Create Event</DialogTitle>
             </DialogHeader>

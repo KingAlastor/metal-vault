@@ -38,7 +38,7 @@ export function CountrySelectDropdown({ control, name, countries, placeholder = 
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-[200px] justify-between",
+            "w-full min-w-fit max-w-[200px] justify-between",
             !field.value && "text-muted-foreground"
           )}
         >

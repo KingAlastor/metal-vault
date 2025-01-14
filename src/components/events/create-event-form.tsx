@@ -162,12 +162,12 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             </FormItem>
           )}
         />
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 w-full">
           <FormField
             control={control}
             name="country"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-1/2">
                 <FormControl>
                   <CountrySelectDropdown
                     control={form.control}
@@ -184,13 +184,9 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             name="city"
             disabled={isCityDisabled}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-1/2">
                 <FormControl>
-                  <CountrySelectDropdown
-                    control={form.control}
-                    name="city"
-                    countries={countries}
-                  />
+                  <Input placeholder="City..." {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
