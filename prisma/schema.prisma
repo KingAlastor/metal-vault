@@ -220,14 +220,15 @@ model Events {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
   eventName String   @map("event_name")
-  country   String
-  city      String
-  fromDate  DateTime
-  toDate    DateTime
-  bands     String[]
-  bandIds   String[]
+  country   String?
+  city      String?
+  fromDate  DateTime?
+  toDate    DateTime?
+  bands     String[] @default([])
+  bandIds   String[] @default([])
   genreTags String[] @map("genre_tags")
-  website   String
+  imageUrl  String?
+  website   String?
   createdAt DateTime @default(now()) @map("created_at")
   user      User     @relation(fields: [userId], references: [id])
 }
