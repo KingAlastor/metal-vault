@@ -21,7 +21,12 @@ import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { useQuery } from "@tanstack/react-query";
 import { useSubmitEventMutation } from "./hooks/use-submit-event-mutation";
-import { AddEventProps, CreateEventFormProps, Event, EventCountry } from "./event-types";
+import {
+  AddEventProps,
+  CreateEventFormProps,
+  Event,
+  EventCountry,
+} from "./event-types";
 import {
   Popover,
   PopoverContent,
@@ -78,6 +83,7 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
   const [countries, setCountries] = useState<EventCountry[]>([]);
   const [CountryOpen, setCountOpen] = useState(false);
   const [bands, setBands] = useState<string[]>([]);
+  const [isCityDisabled, setIsCityDisabled] = useState(true);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -135,7 +141,10 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
 
   const handleBandSelect = (band: Band) => {
     setBands((prevBands) => [...prevBands, band.bandId]);
-    setValue("genreTags", Array.from(new Set([...form.getValues("genreTags"), ...band.genreTags])));
+    setValue(
+      "genreTags",
+      Array.from(new Set([...form.getValues("genreTags"), ...band.genreTags]))
+    );
   };
 
   return (
@@ -153,22 +162,41 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={control}
-          name="country"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-              <CountrySelectDropdown
-                  control={form.control}
-                  name="country"
-                  countries={countries}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex space-x-4">
+          <FormField
+            control={control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <CountrySelectDropdown
+                    control={form.control}
+                    name="country"
+                    countries={countries}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="city"
+            disabled={isCityDisabled}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <CountrySelectDropdown
+                    control={form.control}
+                    name="city"
+                    countries={countries}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={control}
           name="bands"
