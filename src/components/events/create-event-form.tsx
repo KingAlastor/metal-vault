@@ -52,6 +52,7 @@ const initialFormState = {
   genreTags: [] as string[],
   fromDate: "",
   toDate: "",
+  imageUrl: "",
   website: "",
 };
 
@@ -67,6 +68,7 @@ const FormSchema = z.object({
   }),
   fromDate: z.string(),
   toDate: z.string(),
+  imageUrl: z.string(),
   website: z.string(),
 });
 
@@ -254,6 +256,18 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             )}
           />
         </div>
+        <FormField
+          control={control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Poster url..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name="website"

@@ -26,6 +26,7 @@ export type Event = {
   bands: string[];
   bandIds: string[];
   genreTags: string[];
+  imageUrl: string;
   website: string;
   createdAt: Date;
   user: EventUser;
@@ -40,6 +41,7 @@ export type AddEventProps = {
   bands: string[];
   bandIds?: string[];
   genreTags: string[];
+  imageUrl: string;
   website: string;
 };
 
