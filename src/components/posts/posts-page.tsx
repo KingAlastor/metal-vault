@@ -44,6 +44,8 @@ export default function PostsPage({ user }: PostsPageProps) {
         .json<PostsPageData>(),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,  
   });
 
   const posts = data?.pages.flatMap((page) => page.posts) || [];

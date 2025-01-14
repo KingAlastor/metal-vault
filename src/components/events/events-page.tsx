@@ -41,6 +41,8 @@ export function EventsPage({ user }: EventsPageProps) {
         .json<EventsPageData>(),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,  
   });
 
   const events: Event[] = data?.pages.flatMap((page) => page.events) || [];
