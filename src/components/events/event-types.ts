@@ -19,25 +19,24 @@ type EventUser = {
 export type Event = {
   id: string;
   eventName: string;
-  country: string;
-  city: string;
+  country?: string;
+  city?: string;
   fromDate: Date;
   toDate: Date;
   bands: string[];
   bandIds: string[];
   genreTags: string[];
-  imageUrl: string;
-  website: string;
+  imageUrl?: string;
+  website?: string;
   createdAt: Date;
   user: EventUser;
 };
 
 export type AddEventProps = {
   eventName: string;
-  country: string;
-  city: string;
-  fromDate: Date;
-  toDate: Date;
+  country?: string;
+  city?: string;
+  dateRange: { from: Date; to: Date };
   bands: string[];
   bandIds?: string[];
   genreTags: string[];

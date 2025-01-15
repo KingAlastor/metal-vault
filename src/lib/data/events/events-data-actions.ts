@@ -4,6 +4,7 @@ import { fetchUserFavoriteBands } from "../user/followArtists/follow-artists-dat
 import { auth } from "@/auth";
 import {
   AddEventProps,
+  Event,
   EventFilters,
   EventQueryParams,
 } from "@/components/events/event-types";
@@ -18,7 +19,7 @@ export const addEvent = async (event: AddEventProps) => {
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
-
+  console.log("event data: ", event)
   try {
     const newEvent = await prisma.events.create({
       data: {
@@ -26,17 +27,18 @@ export const addEvent = async (event: AddEventProps) => {
         eventName: event.eventName,
         country: event.country,
         city: event.city,
-        fromDate: event.fromDate,
-        toDate: event.toDate,
+        fromDate: event.dateRange.from,
+        toDate: event.dateRange.to,
         bands: event.bands,
         bandIds: event.bandIds,
         genreTags: event.genreTags,
+        imageUrl: event.imageUrl,
         website: event.website,
       },
       include: { user: true },
     });
 
-    return newEvent;
+    return newEvent as Event;
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;
@@ -74,19 +76,7 @@ export const getEventsByFilters = async (
   console.log("where clause: ", where);
 
   const events = await prisma.events.findMany({
-    select: {
-      id: true,
-      userId: true,
-      eventName: true,
-      country: true,
-      city: true,
-      fromDate: true,
-      toDate: true,
-      bands: true,
-      bandIds: true,
-      genreTags: true,
-      website: true,
-      createdAt: true,
+    include: {
       user: {
         select: {
           name: true,
@@ -100,7 +90,7 @@ export const getEventsByFilters = async (
     orderBy: { fromDate: "desc" },
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
-  });
+  })  as unknown as Event[];
 
   return events;
 };

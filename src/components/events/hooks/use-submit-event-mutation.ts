@@ -17,14 +17,14 @@ export function useSubmitEventMutation() {
     mutationFn: addEvent,
     onSuccess: async (newEvent) => {
       const queryFilter: QueryFilters<
-        InfiniteData<EventsPageData, string | null>
+        InfiniteData<EventsPageData>
       > = { queryKey: ["events-feed"] };
 
       await queryClient.cancelQueries(queryFilter);
 
-      queryClient.setQueriesData<InfiniteData<EventsPageData, string | null>>(
+      queryClient.setQueriesData<InfiniteData<EventsPageData>>(
         queryFilter,
-        (oldData) => {
+        (oldData): InfiniteData<EventsPageData> | undefined => {
           const firstPage = oldData?.pages[0];
 
           if (firstPage) {

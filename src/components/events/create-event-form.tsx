@@ -73,6 +73,7 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
 
   const [countries, setCountries] = useState<EventCountry[]>([]);
   const [CountryOpen, setCountOpen] = useState(false);
+  const [bandsIds, setBandIds] = useState<string[]>([]);
   const [bands, setBands] = useState<string[]>([]);
   const [isCityDisabled, setIsCityDisabled] = useState(true);
 
@@ -110,9 +111,8 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
     try {
       const formData: AddEventProps = {
         ...data,
-        fromDate: data.dateRange.from,
-        toDate: data.dateRange.to,
-        bandIds: bands,
+        bands: bands,
+        bandIds: bandsIds,
       };
       mutation.mutate(formData, {
         onSuccess: () => {
@@ -131,7 +131,8 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
   };
 
   const handleBandSelect = (band: Band) => {
-    setBands((prevBands) => [...prevBands, band.bandId]);
+    setBandIds((prevBands) => [...prevBands, band.bandId]);
+    setBands((prevBands) => [...prevBands, band.namePretty]);
     setValue(
       "genreTags",
       Array.from(new Set([...form.getValues("genreTags"), ...band.genreTags]))
@@ -173,7 +174,6 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
           <FormField
             control={control}
             name="city"
-            disabled={isCityDisabled}
             render={({ field }) => (
               <FormItem className="w-1/2">
                 <FormControl>
