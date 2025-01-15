@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { usePathname } from "next/navigation";
 
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
 import { Band } from "@/lib/data/bands/search-bands-data-actions";
@@ -24,25 +24,12 @@ import { useSubmitEventMutation } from "./hooks/use-submit-event-mutation";
 import {
   AddEventProps,
   CreateEventFormProps,
-  Event,
   EventCountry,
 } from "./event-types";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
 import { CountrySelectDropdown } from "../shared/select-country-dropdown";
+import { DateRangePicker } from "../shared/date-range-picker";
+import { DateRange } from "react-day-picker"
+
 
 const initialFormState = {
   eventName: "",
@@ -66,8 +53,10 @@ const FormSchema = z.object({
   genreTags: z.array(z.string(), {
     message: "Please select at least one genre",
   }),
-  fromDate: z.string(),
-  toDate: z.string(),
+  dateRange: z.object({
+    from: z.date(),
+    to: z.date(),
+  }),
   imageUrl: z.string(),
   website: z.string(),
 });
@@ -121,8 +110,8 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
     try {
       const formData: AddEventProps = {
         ...data,
-        fromDate: new Date(data.fromDate),
-        toDate: new Date(data.toDate),
+        fromDate: data.dateRange.from,
+        toDate: data.dateRange.to,
         bandIds: bands,
       };
       mutation.mutate(formData, {
@@ -230,27 +219,17 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             </FormItem>
           )}
         />
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 w-full">
           <FormField
             control={control}
-            name="fromDate"
+            name="dateRange"
             render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder="From date..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="toDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input placeholder="To date..." {...field} />
-                </FormControl>
+              <FormItem className="flex flex-col">
+                <FormLabel>Event Date Range</FormLabel>
+                <DateRangePicker
+                  date={field.value}
+                  onDateChange={(newDate) => field.onChange(newDate)}
+                />
                 <FormMessage />
               </FormItem>
             )}
