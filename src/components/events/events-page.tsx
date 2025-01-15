@@ -55,7 +55,7 @@ export function EventsPage({ user }: EventsPageProps) {
         onOpenChange={setIsOpen}
         className="w-full space-y-2 mb-4"
       >
-        <CollapsibleTrigger className="w-full rounded-lg border p-4 flex justify-between items-center bg-collapsible text-left">
+        <CollapsibleTrigger className="w-full rounded-lg border p-2 flex justify-between items-center bg-collapsible text-left">
           <span>Filters</span>
           <ChevronDown
             className={`h-4 w-4 transition-transform duration-200 ${

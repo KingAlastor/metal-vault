@@ -68,7 +68,7 @@ export function EventsFiltersForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
         <div>
-          <div className="space-y-4 rounded-lg border p-4">
+          <div className="space-y-1 rounded-lg border p-2">
             <FormField
               control={form.control}
               name="favorites_only"
@@ -108,7 +108,7 @@ export function EventsFiltersForm({
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit">Apply</Button>
+              <Button type="submit" className="h-8">Apply</Button>
             </div>
           </div>
         </div>
