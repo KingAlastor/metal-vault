@@ -29,6 +29,14 @@
     flex-direction: column;
   }
 
+  .xl-font {
+    font-size: 18px;
+  }
+
+  .l-font {
+    font-size: 16px;
+  }
+
   .m-font {
     font-size: 14px;
   }

@@ -1,7 +1,149 @@
 "use client";
-
+import Image from "next/image";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
+import { formatDateWithNamedMonth } from "@/lib/general/date";
+import React, { useState } from "react";
 import { Event } from "./event-types";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { VisuallyHidden } from "../ui/visually-hidden";
+import { ChevronDown } from "lucide-react";
+import useWindowSize from "@/lib/hooks/get-window-size";
 
 export const EventCard = (event: Event) => {
-  return <div>{event.eventName}</div>;
+  const [showFullImage, setShowFullImage] = useState(false);
+  const [isBandsOpen, setIsBandsOpen] = useState(false);
+  const [isGenressOpen, setIsGenresOpen] = useState(false);
+  const size = useWindowSize();
+
+  const content = (
+    <>
+      <div>
+        <div
+          style={{
+            position: "relative",
+            width: "158px",
+            height: "158px",
+            cursor: "pointer",
+          }}
+          onClick={() => setShowFullImage(true)}
+        >
+          <Image
+            src={event.imageUrl as string}
+            alt="Event image"
+            fill
+            sizes="158px"
+            style={{
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col justify-between ml-4">
+        <div>
+          <p>
+            {event.country}, {event.city}
+          </p>
+          <p>
+            {formatDateWithNamedMonth(event.fromDate)} -{" "}
+            {formatDateWithNamedMonth(event.toDate)}
+          </p>
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="event-card p-2">
+      <p className="font-bold xl-font w-full text-center mb-3">
+        {event.eventName}
+      </p>
+
+      {size.width <= 400 ? (
+        <div className="flex flex-col items-center">
+          {event.imageUrl && content}
+        </div>
+      ) : (
+        <div className="flex mt-2">{event.imageUrl && content}</div>
+      )}
+
+      {event.imageUrl && (
+        <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
+          <DialogContent className="max-w-3xl">
+            <VisuallyHidden>
+              <DialogTitle>Event Image for {event.eventName}</DialogTitle>
+            </VisuallyHidden>
+            <div className="relative w-full h-[80vh]">
+              <Image
+                src={event.imageUrl}
+                alt="Event image full size"
+                fill
+                style={{
+                  objectFit: "contain",
+                }}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      <Collapsible
+        open={isBandsOpen}
+        onOpenChange={setIsBandsOpen}
+        className="w-full"
+      >
+        <CollapsibleTrigger className="mt-2 flex items-center gap-2">
+          Bands
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-200 ${
+              isBandsOpen ? "rotate-180" : ""
+            }`}
+          />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="overflow-y-auto max-h-[300px] w-full rounded-md border mt-2">
+            <div className="p-2">
+              {event.bands.map((band, index) => (
+                <React.Fragment key={index}>
+                  <div className="s-text">{band}</div>
+                  {index < event.bands.length - 1 && (
+                    <Separator className="my-0" />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Collapsible
+        open={isGenressOpen}
+        onOpenChange={setIsGenresOpen}
+        className="w-full"
+      >
+        <CollapsibleTrigger className="mt-1 flex items-center gap-2">
+          Genres
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-200 ${
+              isGenressOpen ? "rotate-180" : ""
+            }`}
+          />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="overflow-y-auto max-h-[300px] w-full rounded-md border mt-2">
+            <div className="p-2">
+              {event.genreTags && <p>{event.genreTags.join(", ")}</p>}
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
 };

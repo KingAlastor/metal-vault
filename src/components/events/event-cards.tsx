@@ -5,8 +5,7 @@ import { EventCardsProps } from "./event-types";
 import { EventCard } from "./event-card";
 import { EventDropdownMenu } from "./event-dropdown-menu";
 
-
-export const EventCards = ({events}: EventCardsProps) => {
+export const EventCards = ({ events }: EventCardsProps) => {
   return (
     <div>
       {events.map((event) => {
@@ -20,7 +19,9 @@ export const EventCards = ({events}: EventCardsProps) => {
                   </div>
                   <div className="flex flex-col pl-2">
                     <div>
-                      {event.user.userName ? event.user.userName : event.user.name}
+                      {event.user.userName
+                        ? event.user.userName
+                        : event.user.name}
                     </div>
                     <div className="xs-font">
                       {formatDateAndTime(event.createdAt)}
@@ -35,8 +36,17 @@ export const EventCards = ({events}: EventCardsProps) => {
             </CardContent>
             <CardFooter className="p-4 pt-1 pb-2">
               {event.website && (
-                <a href={event.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                  Visit Website
+                <a
+                  href={
+                    event.website.startsWith("http")
+                      ? event.website
+                      : `https://${event.website}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {event.website}
                 </a>
               )}
             </CardFooter>
@@ -45,4 +55,4 @@ export const EventCards = ({events}: EventCardsProps) => {
       })}
     </div>
   );
-}
+};

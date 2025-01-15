@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       { hostname: 'f4.bcbits.com' },
       { hostname: 'yt3.ggpht.com' },
