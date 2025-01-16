@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Post } from "./posts";
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { DeletePostDialog } from "./delete-post-dialog";
 import { isUserPostOwner } from "@/lib/data/posts/posts-data-actions";
@@ -23,14 +22,13 @@ const PostDropdownMenu = ( post : Post) => {
       const checkOwnership = async () => {
         const result = await isUserPostOwner(post.id);
         setIsOwner(result.isOwner);
-        console.log("result owner", result.isOwner)
       };
   
       checkOwnership();
     }, [post.id]);
 
   const handleAddToFavoritesClick = () => {
-    console.log("clicked");
+    // Handle add click
   };
 
   return (

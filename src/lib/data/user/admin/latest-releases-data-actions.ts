@@ -13,7 +13,6 @@ export async function syncUpcomingReleaseDataFromArchives() {
 
   let iDisplayStart = 0;
   let hasMoreData = true;
-  console.log("function is executed");
 
   while (hasMoreData) {
     const url = `${baseUrl}${iDisplayStart}&iDisplayLength=${iDisplayLength}`;
@@ -33,12 +32,10 @@ export async function syncUpcomingReleaseDataFromArchives() {
 
       if (data.aaData.length === 0 || data.aaData.length < iDisplayLength) {
         hasMoreData = false;
-        console.log("total records: ", data.iTotalRecords);
       }
 
       iDisplayStart += iDisplayLength;
     } catch (error) {
-      console.error(`Error fetching data: `, error);
       hasMoreData = false;
     }
 
@@ -84,7 +81,6 @@ const extractBandDetails = async (band: Array<any>) => {
     await updateBandsTableData(bandsData);
     const bandDetails = await getBandByArchivesLink(bandArchivesLink);
     bandId = bandDetails?.id!;
-    console.log(bandsData);
   } else {
     bandName = bandDetails!.namePretty;
     genreTags = bandDetails!.genreTags;
@@ -127,7 +123,6 @@ const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
       data: releasesData,
       skipDuplicates: true,
     });
-    console.log("Table updated");
   } catch (error) {
     console.error("Error updating bands table data:", error);
   }

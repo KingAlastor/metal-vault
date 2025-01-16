@@ -45,7 +45,6 @@ export async function syncAlbumDataFromArchives() {
             }
             albumsData.push(albumData); 
             updateAlbumsTableData(albumsData);
-            console.log({ album, type, albumName, albumLink , releaseDate});
           }
         }
       }
@@ -113,7 +112,6 @@ async function updateAlbumsTableData(albumsData: AlbumData) {
       data: albumsData,
       skipDuplicates: true,
     });
-    console.log("Table updated");
   } catch (error) {
     console.error("Error updating bands table data:", error);
   }

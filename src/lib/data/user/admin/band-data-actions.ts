@@ -17,7 +17,6 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
       data: bandsData,
       skipDuplicates: true,
     });
-    console.log("Table updated");
   } catch (error) {
     console.error("Error updating bands table data:", error);
   }

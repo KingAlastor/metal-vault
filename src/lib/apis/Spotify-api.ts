@@ -4,7 +4,6 @@ import axios from "axios";
 
 export const fetchSpotifyData = async (spotifyLink: string) => {
   const accessToken = await getAccessToken();
-  console.log("access token: ", accessToken);
 
   const { id, type } = extractSpotifyIdAndType(spotifyLink);
 
@@ -48,14 +47,12 @@ const getAccessToken = async () => {
 
 export const fetchSpotifyBandTopTracks = async (id: string) => {
   const accessToken = await getAccessToken();
-  console.log("id", id, "accesstoken: ", accessToken);
   const url = `https://api.spotify.com/v1/artists/${id}/top-tracks`;
   const response = await axios.get(url, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  console.log("fetch top tracks: ", response.data);
   return response.data;
 };
 
@@ -106,7 +103,6 @@ export const getFollowedArtistsFromSpotify = async (token: string) => {
     }
     nextUrl = next;
   }
-  console.log("artists");
   return artists;
 };
 

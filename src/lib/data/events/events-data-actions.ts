@@ -20,7 +20,6 @@ export const addEvent = async (event: AddEventProps) => {
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
-  console.log("event data: ", event);
 
   try {
     const newEvent = await prisma.events.create({
@@ -40,7 +39,6 @@ export const addEvent = async (event: AddEventProps) => {
       include: { user: true },
     });
 
-    console.log("after inser event: ", newEvent);
     return newEvent;
   } catch (error) {
     console.error("Error updating bands table data:", error);
@@ -75,8 +73,6 @@ export const getEventsByFilters = async (
       },
     };
   }
-
-  console.log("where clause: ", where);
 
   const events = (await prisma.events.findMany({
     include: {
@@ -137,7 +133,6 @@ export const isUserEventOwner = async (eventId: string) => {
       },
     });
 
-    console.log("event");
     return {
       success: !!event,
       message: "Validation successful",

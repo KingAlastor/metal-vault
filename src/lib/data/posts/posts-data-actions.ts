@@ -113,8 +113,6 @@ export const getPostsByFilters = async (
     };
   }
 
-  console.log("where clause: ", where);
-
   const posts = await prisma.userPostsActive.findMany({
     select: {
       id: true,
@@ -176,7 +174,6 @@ export const isUserPostOwner = async (postId: string) => {
       },
     });
 
-    console.log("event");
     return {
       success: !!post,
       message: "Validation successful",

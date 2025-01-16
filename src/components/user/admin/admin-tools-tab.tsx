@@ -59,12 +59,9 @@ export function AdminToolsTab() {
       const match = regExp.exec(medialink);
       if (match && match[2]) {
         const videoId = match[2]; // Correctly extract the video ID
-        console.log(videoId);
         const videoData = await fetchYoutubeVideoData(videoId);
-        console.log("previewUrl:", videoData);
         return videoData;
       } else {
-        console.log("No match found for YT link");
         return null;
       }
     };

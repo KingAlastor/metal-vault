@@ -19,21 +19,6 @@ export async function syncBandDataFromArchives() {
         let bandsData: BandsData = [];
         const response = await axios.get(url);
         const data = response.data;
-
-        console.log(
-          "Letter: ",
-          letter,
-          "iDisplayStart: ",
-          iDisplayStart,
-          "Data length: ",
-          data.aaData.length,
-          "hasMoreData: ",
-          hasMoreData,
-          "content length:",
-          data.iTotalRecords,
-          "URL: ",
-          url
-        );
         for (const band of data.aaData) {
           const data = extractBandDetails(band);
           bandsData.push(data);
@@ -43,7 +28,6 @@ export async function syncBandDataFromArchives() {
 
         if (data.aaData.length === 0 || data.aaData.length < iDisplayLength) {
           hasMoreData = false;
-          console.log("total records: ", data.iTotalRecords);
         }
 
         if (iDisplayStart === 0) iDisplayStart++;
@@ -110,7 +94,6 @@ export async function syncLatestBandAdditionsFromArchives() {
 
       if (data.aaData.length === 0 || data.aaData.length < iDisplayLength) {
         hasMoreData = false;
-        console.log("total records: ", data.iTotalRecords);
       }
 
       if (iDisplayStart === 0) iDisplayStart++;

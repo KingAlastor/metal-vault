@@ -18,7 +18,6 @@ export async function GET(req: NextRequest) {
     
     const session = await auth();
     const user = session?.user;
-    console.log("user", user);
     
     let filters: PostsFilters = {};
     if (user?.id) {

@@ -59,7 +59,6 @@ const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
 ];
 
 export const Posts = ({ posts }: PostsProps) => {
-  console.log("posts: ", posts);
   return (
     <div>
       {posts.map((post) => {

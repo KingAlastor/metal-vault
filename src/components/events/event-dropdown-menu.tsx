@@ -22,14 +22,12 @@ export const EventDropdownMenu = (event: Event) => {
     const checkOwnership = async () => {
       const result = await isUserEventOwner(event.id);
       setIsOwner(result.isOwner);
-      console.log("result owner", result.isOwner)
     };
 
     checkOwnership();
   }, [event.id]);
 
   const handleAddToFavoritesClick = () => {
-    console.log("clicked");
   };
 
   return (

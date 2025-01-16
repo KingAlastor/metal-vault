@@ -260,7 +260,6 @@ export const saveUserFavoriteAndUpdateFollowerCount = async (
           },
         },
       });
-      console.log("follower count updated for id: ", bandId);
     } catch (error) {
       console.log(
         "Failed to increment follower count.",
@@ -322,7 +321,6 @@ export const incrementBandFollowersValue = async (id: string) => {
         },
       },
     });
-    console.log("follower count updated for id: ", id);
   } catch (error) {
     console.log("Failed to increment follower count.", (error as any).message);
   }
@@ -346,7 +344,6 @@ export const decrementBandFollowersValue = async (id: string) => {
         },
       },
     });
-    console.log("follower count decreased for id: ", id);
   } catch (error) {
     console.log("Failed to decrement follower count.", (error as any).message);
   }

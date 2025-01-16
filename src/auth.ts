@@ -30,7 +30,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         accountCreated: new Date(),
         lastLogin: new Date(),
       };
-      console.log("extra data", data, "user data: ", user);
       await updateCreatedUserData(where, data);
     },
   },
@@ -38,11 +37,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user }) {
       const where: SQLWhere = { id: user.id! };
       const existingUser = await getUser(where);
-      console.log("existing user", existingUser);
       if (existingUser) {
         const data: SignInUserData = { lastLogin: new Date() };
         await updateSignInUserData(where, data);
-        console.log("login data", data);
       }
 
       return true;
