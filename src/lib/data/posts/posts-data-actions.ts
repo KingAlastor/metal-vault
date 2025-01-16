@@ -118,7 +118,6 @@ export const getPostsByFilters = async (
   const posts = await prisma.userPostsActive.findMany({
     select: {
       id: true,
-      userId: true,
       bandId: true,
       bandName: true,
       title: true,
@@ -161,3 +160,33 @@ export async function updateProfileFilters(filters: PostsFilters) {
     },
   });
 }
+
+export const isUserPostOwner = async (postId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    return { success: false, message: "User ID undefined", isOwner: false };
+  }
+
+  try {
+    const post = await prisma.userPostsActive.findFirst({
+      where: {
+        AND: [{ id: postId }, { userId: user.id }],
+      },
+    });
+
+    console.log("event");
+    return {
+      success: !!post,
+      message: "Validation successful",
+      isOwner: !!post,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error checking ownership",
+      isOwner: false,
+    };
+  }
+};

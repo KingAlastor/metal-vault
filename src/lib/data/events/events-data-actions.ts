@@ -90,7 +90,7 @@ export const getEventsByFilters = async (
       },
     },
     where: where,
-    orderBy: { fromDate: "desc" },
+    orderBy: { fromDate: "asc" },
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
   })) as unknown as Event[];
@@ -119,5 +119,35 @@ export const deleteEvent = async (eventId: string) => {
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;
+  }
+};
+
+export const isUserEventOwner = async (eventId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    return { success: false, message: "User ID undefined", isOwner: false };
+  }
+
+  try {
+    const event = await prisma.events.findFirst({
+      where: {
+        AND: [{ id: eventId }, { userId: user.id }],
+      },
+    });
+
+    console.log("event");
+    return {
+      success: !!event,
+      message: "Validation successful",
+      isOwner: !!event,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error checking ownership",
+      isOwner: false,
+    };
   }
 };

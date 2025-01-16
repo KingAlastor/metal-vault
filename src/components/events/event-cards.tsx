@@ -4,8 +4,21 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { EventCardsProps } from "./event-types";
 import { EventCard } from "./event-card";
 import { EventDropdownMenu } from "./event-dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUserFavBandsFullData } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export const EventCards = ({ events }: EventCardsProps) => {
+  const {
+    data: favbands,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["favbands"],
+    queryFn: () => fetchUserFavBandsFullData(),
+  });
+
+  
   return (
     <div>
       {events.map((event) => {

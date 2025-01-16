@@ -11,12 +11,23 @@ import {
 } from "../ui/dropdown-menu";
 import { Post } from "./posts";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DeletePostDialog } from "./delete-post-dialog";
+import { isUserPostOwner } from "@/lib/data/posts/posts-data-actions";
 
 const PostDropdownMenu = ( post : Post) => {
-  const { data, status } = useSession();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
+  
+    useEffect(() => {
+      const checkOwnership = async () => {
+        const result = await isUserPostOwner(post.id);
+        setIsOwner(result.isOwner);
+        console.log("result owner", result.isOwner)
+      };
+  
+      checkOwnership();
+    }, [post.id]);
 
   const handleAddToFavoritesClick = () => {
     console.log("clicked");
@@ -38,7 +49,7 @@ const PostDropdownMenu = ( post : Post) => {
           <DropdownMenuItem onClick={handleAddToFavoritesClick}>
             <div className="dropdown-options">Report Post</div>
           </DropdownMenuItem>
-          {status === "authenticated" && post.userId === data.user.id && (
+          {isOwner && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>

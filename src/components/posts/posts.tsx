@@ -23,7 +23,6 @@ type PostUser = {
 
 export type Post = {
   id: string;
-  userId: string;
   bandId: string | null;
   bandName: string;
   title: string | null;

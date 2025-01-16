@@ -9,14 +9,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DeleteEventDialog } from "./delete-event-dialog";
 import { Event } from "./event-types";
+import { isUserEventOwner } from "@/lib/data/events/events-data-actions";
 
-export const EventDropdownMenu = ( event : Event) => {
-  const { data, status } = useSession();
+export const EventDropdownMenu = (event: Event) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    const checkOwnership = async () => {
+      const result = await isUserEventOwner(event.id);
+      setIsOwner(result.isOwner);
+      console.log("result owner", result.isOwner)
+    };
+
+    checkOwnership();
+  }, [event.id]);
 
   const handleAddToFavoritesClick = () => {
     console.log("clicked");
@@ -38,7 +48,7 @@ export const EventDropdownMenu = ( event : Event) => {
           <DropdownMenuItem onClick={handleAddToFavoritesClick}>
             <div className="dropdown-options">Report event</div>
           </DropdownMenuItem>
-          {status === "authenticated" && event.userId === data.user.id && (
+          {isOwner && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
