@@ -222,8 +222,8 @@ model Events {
   eventName String    @map("event_name")
   country   String
   city      String
-  fromDate  DateTime?
-  toDate    DateTime?
+  fromDate  DateTime
+  toDate    DateTime
   bands     String[]  @default([])
   bandIds   String[]  @default([])
   genreTags String[]  @map("genre_tags")

@@ -26,8 +26,8 @@ export type Event = {
   bands: string[];
   bandIds: string[];
   genreTags: string[];
-  imageUrl?: string;
-  website?: string;
+  imageUrl: string | null;
+  website: string | null;
   createdAt: Date;
   user: EventUser;
 };

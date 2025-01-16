@@ -20,43 +20,18 @@ export const EventCard = (event: Event) => {
   const [isGenressOpen, setIsGenresOpen] = useState(false);
   const size = useWindowSize();
 
-  const content = (
-    <>
+  const eventDetails = (
+    <div className="flex flex-col justify-between">
       <div>
-        <div
-          style={{
-            position: "relative",
-            width: "158px",
-            height: "158px",
-            cursor: "pointer",
-          }}
-          onClick={() => setShowFullImage(true)}
-        >
-          <Image
-            src={event.imageUrl as string}
-            alt="Event image"
-            fill
-            sizes="158px"
-            style={{
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
-          />
-        </div>
+        <p>
+          {event.country}, {event.city}
+        </p>
+        <p>
+          {formatDateWithNamedMonth(event.fromDate)} -{" "}
+          {formatDateWithNamedMonth(event.toDate)}
+        </p>
       </div>
-
-      <div className="flex flex-col justify-between ml-4">
-        <div>
-          <p>
-            {event.country}, {event.city}
-          </p>
-          <p>
-            {formatDateWithNamedMonth(event.fromDate)} -{" "}
-            {formatDateWithNamedMonth(event.toDate)}
-          </p>
-        </div>
-      </div>
-    </>
+    </div>
   );
 
   return (
@@ -66,11 +41,57 @@ export const EventCard = (event: Event) => {
       </p>
 
       {size.width <= 400 ? (
-        <div className="flex flex-col items-center">
-          {event.imageUrl && content}
+        <div className="flex flex-col items-center gap-4">
+          {event.imageUrl && (
+            <div
+              style={{
+                position: "relative",
+                width: "158px",
+                height: "158px",
+                cursor: "pointer",
+              }}
+              onClick={() => setShowFullImage(true)}
+            >
+              <Image
+                src={event.imageUrl}
+                alt="Event image"
+                fill
+                sizes="158px"
+                style={{
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+              />
+            </div>
+          )}
+          {eventDetails}
         </div>
       ) : (
-        <div className="flex mt-2">{event.imageUrl && content}</div>
+        <div className="flex mt-2 gap-4">
+          {event.imageUrl && (
+            <div
+              style={{
+                position: "relative",
+                width: "158px",
+                height: "158px",
+                cursor: "pointer",
+              }}
+              onClick={() => setShowFullImage(true)}
+            >
+              <Image
+                src={event.imageUrl}
+                alt="Event image"
+                fill
+                sizes="158px"
+                style={{
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+              />
+            </div>
+          )}
+          {eventDetails}
+        </div>
       )}
 
       {event.imageUrl && (

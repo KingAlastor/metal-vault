@@ -42,11 +42,11 @@ export function EventsPage({ user }: EventsPageProps) {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 60 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,  
+    gcTime: 60 * 60 * 1000,
   });
 
   const events: Event[] = data?.pages.flatMap((page) => page.events) || [];
-
+  console.log("events: ", events);
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       <CreateEventCard />
