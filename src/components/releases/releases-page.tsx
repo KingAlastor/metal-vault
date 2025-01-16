@@ -16,6 +16,7 @@ import {
   ReleasesFilters,
 } from "../../lib/data/releases/releases-filters-data-actions";
 import { User } from "next-auth";
+import Image from "next/image";
 
 interface ReleasesPageProps {
   user?: User;
@@ -54,8 +55,9 @@ export default function ReleasesPage({ user }: ReleasesPageProps) {
         onOpenChange={setIsOpen}
         className="w-full space-y-2 mb-4"
       >
-        <CollapsibleTrigger className="rounded-lg border p-4 w-full flex justify-between items-center">
-          Filters{" "}
+        <CollapsibleTrigger className="w-full rounded-lg border p-2 flex items-center bg-collapsible text-left">
+          <Image src="/Filters.svg" alt="New Event" width={24} height={24} />
+          <span className="flex-1 ml-3">Filters</span>
           <div className="h-4 w-4">
             <ChevronDown />
           </div>

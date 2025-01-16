@@ -15,6 +15,7 @@ import kyInstance from "@/lib/ky";
 import { EventsPageData } from "@/app/api/events/route";
 import { EventCards } from "./event-cards";
 import { CreateEventCard } from "./create-event-card";
+import Image from "next/image";
 
 export function EventsPage({ user }: EventsPageProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,8 +56,9 @@ export function EventsPage({ user }: EventsPageProps) {
         onOpenChange={setIsOpen}
         className="w-full space-y-2 mb-4"
       >
-        <CollapsibleTrigger className="w-full rounded-lg border p-2 flex justify-between items-center bg-collapsible text-left">
-          <span>Filters</span>
+        <CollapsibleTrigger className="w-full rounded-lg border p-2 flex items-center bg-collapsible text-left">
+          <Image src="/Filters.svg" alt="New Event" width={24} height={24} />
+          <span className="ml-3 flex-1">Filters</span>
           <ChevronDown
             className={`h-4 w-4 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""

@@ -11,17 +11,17 @@ export const CreateEventCard = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div>
+    <div className="w-full space-y-2 mb-4">
       {size.width > 640 ? (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button
               variant="ghost"
-              className="flex items-center justify-start gap-3 w-full"
+              className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
               title="Create Post"
             >
               <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
-              <span className="hidden lg:inline">Create Event</span>
+              <span className="hidden lg:inline ml-1">Create Event</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[528px]">
@@ -37,7 +37,7 @@ export const CreateEventCard = () => {
             <div>
               <Button
                 variant="ghost"
-                className="flex items-center justify-start gap-3 w-full"
+                className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
                 title="Create Post"
               >
                 <Image
@@ -46,7 +46,7 @@ export const CreateEventCard = () => {
                   width={24}
                   height={24}
                 />
-                <span className="hidden lg:inline">Create Event</span>
+                <span className="hidden lg:inline ml-1">Create Event</span>
               </Button>
             </div>
           </DrawerTrigger>
