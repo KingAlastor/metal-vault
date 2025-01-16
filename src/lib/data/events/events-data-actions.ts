@@ -10,6 +10,7 @@ import {
 } from "@/components/events/event-types";
 import { prisma } from "@/lib/prisma";
 
+// @ts-ignore
 export const addEvent = async (event: AddEventProps) => {
   const session = await auth();
   const user = session?.user;
@@ -19,7 +20,8 @@ export const addEvent = async (event: AddEventProps) => {
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
-  console.log("event data: ", event)
+  console.log("event data: ", event);
+
   try {
     const newEvent = await prisma.events.create({
       data: {
@@ -38,7 +40,8 @@ export const addEvent = async (event: AddEventProps) => {
       include: { user: true },
     });
 
-    return newEvent as Event;
+    console.log("after inser event: ", newEvent);
+    return newEvent;
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;
@@ -75,7 +78,7 @@ export const getEventsByFilters = async (
 
   console.log("where clause: ", where);
 
-  const events = await prisma.events.findMany({
+  const events = (await prisma.events.findMany({
     include: {
       user: {
         select: {
@@ -90,7 +93,7 @@ export const getEventsByFilters = async (
     orderBy: { fromDate: "desc" },
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
-  })  as unknown as Event[];
+  })) as unknown as Event[];
 
   return events;
 };

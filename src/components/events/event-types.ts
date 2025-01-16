@@ -19,8 +19,8 @@ type EventUser = {
 export type Event = {
   id: string;
   eventName: string;
-  country?: string;
-  city?: string;
+  country: string;
+  city: string;
   fromDate: Date;
   toDate: Date;
   bands: string[];
@@ -34,8 +34,8 @@ export type Event = {
 
 export type AddEventProps = {
   eventName: string;
-  country?: string;
-  city?: string;
+  country: string;
+  city: string;
   dateRange: { from: Date; to: Date };
   bands: string[];
   bandIds?: string[];
