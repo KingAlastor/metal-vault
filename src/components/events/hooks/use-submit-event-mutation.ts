@@ -1,9 +1,6 @@
-import { EventsPageData } from "@/app/api/events/route";
 import { useToast } from "@/components/ui/use-toast";
 import { addEvent } from "@/lib/data/events/events-data-actions";
 import {
-  InfiniteData,
-  QueryFilters,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";

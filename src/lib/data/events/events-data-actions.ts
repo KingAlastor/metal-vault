@@ -9,6 +9,7 @@ import {
   EventQueryParams,
 } from "@/components/events/event-types";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 // @ts-ignore
 export const addEvent = async (event: AddEventProps) => {
@@ -50,26 +51,33 @@ export const getEventsByFilters = async (
   filters: EventFilters,
   queryParams: EventQueryParams
 ) => {
+  console.log("[Server] Starting getEventsByFilters");
   const session = await auth();
   const user = session?.user;
-  let where = {};
+  const today = new Date(new Date().setHours(0, 0, 0, 0));
 
-  if (filters?.favorites_only) {
+  let where: Prisma.EventsWhereInput = {
+    toDate: {
+      gte: today,
+    },
+  };
+
+/*   if (filters?.favorites_only) {
     const favorites = await fetchUserFavoriteBands();
     if (favorites.length > 0)
       where = {
         ...where,
-        bandId: {
+        bandIs: {
           in: favorites,
         },
       };
-  }
+  } */
 
   if (filters?.favorite_genres_only && user?.genreTags) {
     where = {
       ...where,
       genreTags: {
-        hasSome: user.genreTags,
+        hasSome: Array.isArray(user.genreTags) ? user.genreTags : [user.genreTags],
       },
     };
   }
@@ -90,7 +98,8 @@ export const getEventsByFilters = async (
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
   })) as unknown as Event[];
-
+  
+  console.log("[Server] Events found:", events.length);
   return events;
 };
 
