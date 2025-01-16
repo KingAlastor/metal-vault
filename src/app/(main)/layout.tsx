@@ -12,7 +12,7 @@ export default async function Layout({
   const session = await getSession();
 
   return (
-    <SessionProvider session={session}>
+    <SessionProvider session={session} refetchOnWindowFocus={false}>
       <div className="flex min-h-screen flex-col">
         <NavBar />
         <div className="mx-auto flex w-full max-w-7xl grow gap-5 p-5">
