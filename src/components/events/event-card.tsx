@@ -41,7 +41,7 @@ export const EventCard = (event: Event) => {
       </p>
 
       {size.width <= 400 ? (
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center w-full">
           {event.imageUrl && (
             <div
               style={{
@@ -64,7 +64,9 @@ export const EventCard = (event: Event) => {
               />
             </div>
           )}
-          {eventDetails}
+          <div className="flex flex-col justify-between mt-4 w-full text-left">
+            {eventDetails}
+          </div>
         </div>
       ) : (
         <div className="flex mt-2 gap-4">
@@ -118,8 +120,8 @@ export const EventCard = (event: Event) => {
         onOpenChange={setIsBandsOpen}
         className="w-full"
       >
-        <CollapsibleTrigger className="mt-2 flex items-center gap-2">
-          Bands
+        <CollapsibleTrigger className="mt-3 flex items-center justify-between w-full px-4 py-2 rounded-md border">
+          <span>Bands</span>
           <ChevronDown
             className={`h-4 w-4 transition-transform duration-200 ${
               isBandsOpen ? "rotate-180" : ""
@@ -148,8 +150,8 @@ export const EventCard = (event: Event) => {
         onOpenChange={setIsGenresOpen}
         className="w-full"
       >
-        <CollapsibleTrigger className="mt-1 flex items-center gap-2">
-          Genres
+        <CollapsibleTrigger className="mt-1 flex items-center justify-between w-full px-4 py-2 rounded-md border">
+          <span>Genres</span>
           <ChevronDown
             className={`h-4 w-4 transition-transform duration-200 ${
               isGenressOpen ? "rotate-180" : ""
@@ -158,7 +160,7 @@ export const EventCard = (event: Event) => {
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <div className="overflow-y-auto max-h-[300px] w-full rounded-md border mt-2">
+          <div className="overflow-y-auto max-h-[300px] w-full rounded-md border mt-2 ">
             <div className="p-2">
               {event.genreTags && <p>{event.genreTags.join(", ")}</p>}
             </div>
