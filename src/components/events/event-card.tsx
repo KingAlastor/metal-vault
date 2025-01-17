@@ -21,7 +21,8 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
   const size = useWindowSize();
   const favoriteMatchingBands = favbands
     .filter((favband) => event.bandIds.includes(favband.id))
-    .map((band) => band.namePretty);
+    .map((band) => band.namePretty)
+    .sort((a, b) => a.localeCompare(b));
 
   const eventDetails = (
     <div className="flex flex-col justify-between">
