@@ -20,7 +20,6 @@ export const EventCards = ({ events }: EventCardsProps) => {
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading favorite bands</div>;
-  if (!favbands) return null;
   
   return (
     <div>
