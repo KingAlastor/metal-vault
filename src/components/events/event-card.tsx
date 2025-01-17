@@ -8,17 +8,20 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { formatDateWithNamedMonth } from "@/lib/general/date";
 import React, { useState } from "react";
-import { Event } from "./event-types";
+import { Event, EventCardProps } from "./event-types";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { VisuallyHidden } from "../ui/visually-hidden";
 import { ChevronDown } from "lucide-react";
 import useWindowSize from "@/lib/hooks/get-window-size";
 
-export const EventCard = (event: Event) => {
+export const EventCard = ({ event, favbands }: EventCardProps) => {
   const [showFullImage, setShowFullImage] = useState(false);
   const [isBandsOpen, setIsBandsOpen] = useState(false);
   const [isGenressOpen, setIsGenresOpen] = useState(false);
   const size = useWindowSize();
+  const favoriteMatchingBands = favbands
+    .filter((favband) => event.bandIds.includes(favband.id))
+    .map((band) => band.namePretty);
 
   const eventDetails = (
     <div className="flex flex-col justify-between">
@@ -96,6 +99,10 @@ export const EventCard = (event: Event) => {
         </div>
       )}
 
+      <p className="m-font mt-2">
+        My favorites: {favoriteMatchingBands.join(", ")}
+      </p>
+
       {event.imageUrl && (
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-3xl">
@@ -121,7 +128,7 @@ export const EventCard = (event: Event) => {
         className="w-full"
       >
         <CollapsibleTrigger className="mt-3 flex items-center justify-between w-full px-4 py-2 rounded-md border">
-          <span>Bands</span>
+          <span>All Bands</span>
           <ChevronDown
             className={`h-4 w-4 transition-transform duration-200 ${
               isBandsOpen ? "rotate-180" : ""

@@ -18,6 +18,9 @@ export const EventCards = ({ events }: EventCardsProps) => {
     queryFn: () => fetchUserFavBandsFullData(),
   });
 
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading favorite bands</div>;
+  if (!favbands) return null;
   
   return (
     <div>
@@ -45,7 +48,7 @@ export const EventCards = ({ events }: EventCardsProps) => {
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
-              <EventCard {...event} />
+              <EventCard event={event} favbands={favbands}/>
             </CardContent>
             <CardFooter className="p-4 pt-1 pb-2">
               {event.website && (

@@ -59,6 +59,20 @@ export type EventCardsProps = {
   events: Event[];
 };
 
+export type EventCardProps = {
+  event: Event;
+  favbands: FavBand[];
+}
+
+type FavBand = {
+  id: string, 
+  namePretty: string, 
+  country: string, 
+  genreTags: string[],
+  follower: number,
+  status: string,
+}
+
 export type EventCountry = {
   name: {
     common: string;
