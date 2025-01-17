@@ -8,7 +8,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { formatDateWithNamedMonth } from "@/lib/general/date";
 import React, { useState } from "react";
-import { Event, EventCardProps } from "./event-types";
+import { EventCardProps } from "./event-types";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { VisuallyHidden } from "../ui/visually-hidden";
 import { ChevronDown } from "lucide-react";
