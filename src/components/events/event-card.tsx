@@ -99,10 +99,11 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
           {eventDetails}
         </div>
       )}
-
-      <p className="m-font mt-2">
-        My favorites: {favoriteMatchingBands.join(", ")}
-      </p>
+      {favoriteMatchingBands.length > 0 && (
+        <p className="m-font mt-2">
+          My favorites: {favoriteMatchingBands.join(", ")}
+        </p>
+      )}
 
       {event.imageUrl && (
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
