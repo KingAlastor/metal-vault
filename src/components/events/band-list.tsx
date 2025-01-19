@@ -9,10 +9,10 @@ interface BandListProps {
 
 export function BandList({ bands, onRemove }: BandListProps) {
   return (
-    <div className="overflow-y-auto max-h-[100px] w-full rounded-md border p-2">
+    <div className="overflow-y-auto max-h-[100px] w-full rounded-md border p-1">
       {bands.map((band, index) => (
         <div key={index} className="flex justify-between items-center mb-1">
-          <span>{band}</span>
+          <span className='m-font ml-1'>{band}</span>
           <Button
             variant="ghost"
             size="sm"
