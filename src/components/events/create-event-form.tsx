@@ -28,8 +28,8 @@ import {
 } from "./event-types";
 import { CountrySelectDropdown } from "../shared/select-country-dropdown";
 import { DateRangePicker } from "../shared/date-range-picker";
-import { DateRange } from "react-day-picker"
-
+import { DateRange } from "react-day-picker";
+import { BandList } from "./band-list";
 
 const initialFormState = {
   eventName: "",
@@ -132,11 +132,21 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
 
   const handleBandSelect = (band: Band) => {
     setBandIds((prevBands) => [...prevBands, band.bandId]);
-    setBands((prevBands) => [...prevBands, band.namePretty]);
+    setBands((prevBands) =>
+      [...prevBands, band.namePretty].sort((a, b) => a.localeCompare(b))
+    );
     setValue(
       "genreTags",
       Array.from(new Set([...form.getValues("genreTags"), ...band.genreTags]))
     );
+  };
+
+  const handleBandRemove = (bandToRemove: string) => {
+    setBands((prevBands) => prevBands.filter((band) => band !== bandToRemove));
+    setBandIds((prevBandIds) => {
+      const index = bands.indexOf(bandToRemove);
+      return prevBandIds.filter((_, i) => i !== index);
+    });
   };
 
   return (
@@ -199,6 +209,11 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             </FormItem>
           )}
         />
+
+        {bands.length > 0 && (
+          <BandList bands={bands} onRemove={handleBandRemove} />
+        )}
+
         <FormField
           control={control}
           name="genreTags"
@@ -225,7 +240,6 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             name="dateRange"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Event Date Range</FormLabel>
                 <DateRangePicker
                   date={field.value}
                   onDateChange={(newDate) => field.onChange(newDate)}
@@ -241,7 +255,7 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Poster url..." {...field} />
+                <Input placeholder="Poster/image URL" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -253,14 +267,14 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Website..." {...field} />
+                <Input placeholder="Website URL" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Create Post</Button>
+          <Button type="submit">Create Event</Button>
         </div>
       </form>
     </Form>
