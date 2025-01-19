@@ -72,10 +72,8 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
   const mutation = useSubmitEventMutation();
 
   const [countries, setCountries] = useState<EventCountry[]>([]);
-  const [CountryOpen, setCountOpen] = useState(false);
   const [bandsIds, setBandIds] = useState<string[]>([]);
   const [bands, setBands] = useState<string[]>([]);
-  const [isCityDisabled, setIsCityDisabled] = useState(true);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -133,12 +131,20 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
   const handleBandSelect = (band: Band) => {
     setBandIds((prevBands) => [...prevBands, band.bandId]);
     setBands((prevBands) =>
-      [...prevBands, band.namePretty].sort((a, b) => a.localeCompare(b))
+      [
+        ...prevBands,
+        JSON.stringify({
+          namePretty: band.namePretty,
+          genreTags: band.genreTags,
+          country: band.country,
+        }),
+      ].sort((a, b) => a.localeCompare(b))
     );
     setValue(
       "genreTags",
       Array.from(new Set([...form.getValues("genreTags"), ...band.genreTags]))
     );
+    console.log("bands: ", bands);
   };
 
   const handleBandRemove = (bandToRemove: string) => {
@@ -147,6 +153,8 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
       const index = bands.indexOf(bandToRemove);
       return prevBandIds.filter((_, i) => i !== index);
     });
+    console.log("bandIds: ", bandsIds)
+    console.log("bands: ", bands)
   };
 
   return (
