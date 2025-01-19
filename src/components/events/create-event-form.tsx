@@ -144,7 +144,6 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
       "genreTags",
       Array.from(new Set([...form.getValues("genreTags"), ...band.genreTags]))
     );
-    console.log("bands: ", bands);
   };
 
   const handleBandRemove = (bandToRemove: string) => {
@@ -153,8 +152,6 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
       const index = bands.indexOf(bandToRemove);
       return prevBandIds.filter((_, i) => i !== index);
     });
-    console.log("bandIds: ", bandsIds)
-    console.log("bands: ", bands)
   };
 
   return (
