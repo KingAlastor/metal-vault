@@ -16,6 +16,7 @@ import { EventsPageData } from "@/app/api/events/route";
 import { EventCards } from "./event-cards";
 import { CreateEventCard } from "./create-event-card";
 import Image from "next/image";
+import { EventsLoadingSkeleton } from "./events-loading-skeleton";
 
 export function EventsPage({ user }: EventsPageProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,15 +74,22 @@ export function EventsPage({ user }: EventsPageProps) {
           />
         </CollapsibleContent>
       </Collapsible>
+      {status === "pending" && <EventsLoadingSkeleton />}
+      {status === "success" && !events.length && !hasNextPage && (
+        <p className="text-center text-muted-foreground">No posts found</p>
+      )}
+      {status === "error" && <div>Error: {error.message}</div>}
 
-      <InfiniteScrollContainer
-        onBottomReached={() => hasNextPage && !isFetching && fetchNextPage()}
-      >
-        <EventCards events={events} />
-        {isFetchingNextPage && (
-          <Loader2 className="mx-auto my-3 animate-spin" />
-        )}
-      </InfiniteScrollContainer>
+      {status === "success" && events.length > 0 && (
+        <InfiniteScrollContainer
+          onBottomReached={() => hasNextPage && !isFetching && fetchNextPage()}
+        >
+          <EventCards events={events} />
+          {isFetchingNextPage && (
+            <Loader2 className="mx-auto my-3 animate-spin" />
+          )}
+        </InfiniteScrollContainer>
+      )}
     </div>
   );
 }
