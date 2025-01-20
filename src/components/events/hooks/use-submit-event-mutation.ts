@@ -11,7 +11,7 @@ export function useSubmitEventMutation() {
 
   const mutation = useMutation({
     mutationFn: addEvent,
-    onSuccess: async (newEvent) => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["events-feed"],
       });

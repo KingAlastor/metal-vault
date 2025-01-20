@@ -106,7 +106,7 @@ export const getEventsByFilters = async (
 export const deleteEvent = async (eventId: string) => {
   const session = await auth();
   const user = session?.user;
-
+  
   if (!user) {
     throw new Error(
       "User ID is undefined. User must be logged in to access favorites."
