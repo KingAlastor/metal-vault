@@ -141,14 +141,34 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
         <CollapsibleContent>
           <div className="overflow-y-auto max-h-[300px] w-full rounded-md border mt-2">
             <div className="p-2">
-              {event.bands.map((band, index) => (
-                <React.Fragment key={index}>
-                  <div className="s-text">{band}</div>
-                  {index < event.bands.length - 1 && (
-                    <Separator className="my-0" />
-                  )}
-                </React.Fragment>
-              ))}
+              {event.bands.map((bandItem, index) => {
+                let band;
+                try {
+                  band =
+                    typeof bandItem === "string"
+                      ? JSON.parse(bandItem)
+                      : bandItem;
+                } catch (error) {
+                  // Handle plain string case
+                  band = { namePretty: bandItem, genreTags: [], country: "" };
+                }
+
+                const genreTags = band.genreTags || [];
+                const country = band.country || "";
+
+                return (
+                  <React.Fragment key={index}>
+                    <span className="m-font ml-1">
+                      {band.namePretty}
+                      {genreTags.length > 0 && ` (${genreTags.join(", ")})`}
+                      {country && ` (${country})`}
+                    </span>
+                    {index < event.bands.length - 1 && (
+                      <Separator className="my-0" />
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
         </CollapsibleContent>
