@@ -1,20 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ReleasesDataTable } from "./releases-data-table";
 import { BandAlbum, columns } from "./releases-table-columns";
-import { FiltersForm } from "./releases-filters-form";
+import { ReleasesFiltersForm } from "./releases-filters-form";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import {
-  getReleasesByFilters,
-  getUserReleaseFilters,
-  ReleasesFilters,
-} from "../../lib/data/releases/releases-filters-data-actions";
 import { User } from "next-auth";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
@@ -26,8 +21,8 @@ interface ReleasesPageProps {
 
 export default function ReleasesPage({ user }: ReleasesPageProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState<ReleasesFilters>(
-    {} as ReleasesFilters
+  const [filters, setFilters] = useState(
+    JSON.parse(user?.releaseSettings || "{}")
   );
 
   const {
@@ -55,7 +50,7 @@ export default function ReleasesPage({ user }: ReleasesPageProps) {
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <FiltersForm
+          <ReleasesFiltersForm
             setIsOpen={setIsOpen}
             filters={filters}
             setFilters={setFilters}
@@ -65,7 +60,7 @@ export default function ReleasesPage({ user }: ReleasesPageProps) {
 
       {isLoading &&  <p className="text-center text-muted-foreground">Loading</p>}
       {error && <div>Error: {error.message}</div>}
-      
+
       <ReleasesDataTable columns={columns} data={releases || []} />
     </div>
   );

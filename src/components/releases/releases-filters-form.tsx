@@ -53,7 +53,7 @@ interface FiltersFormProps {
   setFilters: Dispatch<SetStateAction<ReleasesFilters>>;
 }
 
-export function FiltersForm({
+export function ReleasesFiltersForm({
   setIsOpen,
   filters,
   setFilters,
