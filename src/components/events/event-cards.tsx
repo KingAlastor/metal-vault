@@ -49,22 +49,6 @@ export const EventCards = ({ events }: EventCardsProps) => {
             <CardContent className="p-4 pt-1 pb-1">
               <EventCard event={event} favbands={favbands}/>
             </CardContent>
-            <CardFooter className="p-4 pt-1 pb-2">
-              {event.website && (
-                <a
-                  href={
-                    event.website.startsWith("http")
-                      ? event.website
-                      : `https://${event.website}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  {event.website}
-                </a>
-              )}
-            </CardFooter>
           </Card>
         );
       })}

@@ -17,7 +17,6 @@ import useWindowSize from "@/lib/hooks/get-window-size";
 export const EventCard = ({ event, favbands }: EventCardProps) => {
   const [showFullImage, setShowFullImage] = useState(false);
   const [isBandsOpen, setIsBandsOpen] = useState(false);
-  const [isGenressOpen, setIsGenresOpen] = useState(false);
   const size = useWindowSize();
   const favoriteMatchingBands = favbands
     .filter((favband) => event.bandIds.includes(favband.id))
@@ -40,9 +39,26 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
 
   return (
     <div className="event-card p-2">
-      <p className="font-bold xl-font w-full text-center mb-3">
-        {event.eventName}
-      </p>
+      {event.website ? (
+        <a
+          href={
+            event.website.startsWith("http")
+              ? event.website
+              : `https://${event.website}`
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-1 no-underline-hover"
+          >
+          <p className="font-bold xxl-font w-full text-center mb-3 text-inherit">
+            {event.eventName}
+          </p>
+        </a>
+      ) : (
+        <p className="font-bold xxl-font w-full text-center mb-3">
+          {event.eventName}
+        </p>
+      )}
 
       {size.width <= 400 ? (
         <div className="flex flex-col items-center w-full">
@@ -169,29 +185,6 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
                   </React.Fragment>
                 );
               })}
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Collapsible
-        open={isGenressOpen}
-        onOpenChange={setIsGenresOpen}
-        className="w-full"
-      >
-        <CollapsibleTrigger className="mt-1 flex items-center justify-between w-full px-4 py-2 rounded-md border">
-          <span>Genres</span>
-          <ChevronDown
-            className={`h-4 w-4 transition-transform duration-200 ${
-              isGenressOpen ? "rotate-180" : ""
-            }`}
-          />
-        </CollapsibleTrigger>
-
-        <CollapsibleContent>
-          <div className="overflow-y-auto max-h-[300px] w-full rounded-md border mt-2 ">
-            <div className="p-2">
-              {event.genreTags && <p>{event.genreTags.join(", ")}</p>}
             </div>
           </div>
         </CollapsibleContent>
