@@ -7,7 +7,7 @@ import { PrismaBandFollowersModel } from "../../../../prisma/models";
 export type ReleasesFilters = {
   favorite_bands?: boolean;
   favorite_genres?: boolean;
-  genreTags: string[];
+  genreTags?: string[];
 };
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {

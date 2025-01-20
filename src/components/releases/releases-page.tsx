@@ -17,36 +17,28 @@ import {
 } from "../../lib/data/releases/releases-filters-data-actions";
 import { User } from "next-auth";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import kyInstance from "@/lib/ky";
 
 interface ReleasesPageProps {
   user?: User;
 }
 
 export default function ReleasesPage({ user }: ReleasesPageProps) {
-  const [releases, setReleases] = useState<BandAlbum[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<ReleasesFilters>(
     {} as ReleasesFilters
   );
 
-  useEffect(() => {
-    const fetchUserFilters = async () => {
-      if (user?.id) {
-        let userFilters = await getUserReleaseFilters(user.id!);
-        setFilters(userFilters);
-      }
-    };
-    fetchUserFilters();
-  }, [user]);
-
-  useEffect(() => {
-    const fetchReleases = async () => {
-      const releases = await getReleasesByFilters(filters);
-      setReleases(releases);
-    };
-
-    fetchReleases();
-  }, [filters]);
+  const {
+    data: releases,
+    isLoading,
+    status,
+    error,
+  } = useQuery({
+    queryKey: ["releases"],
+    queryFn: () => kyInstance.get("api/releases").json<BandAlbum[]>(),
+  });
 
   return (
     <div className="container mx-auto py-10">
@@ -71,7 +63,10 @@ export default function ReleasesPage({ user }: ReleasesPageProps) {
         </CollapsibleContent>
       </Collapsible>
 
-      <ReleasesDataTable columns={columns} data={releases} />
+      {isLoading &&  <p className="text-center text-muted-foreground">Loading</p>}
+      {error && <div>Error: {error.message}</div>}
+      
+      <ReleasesDataTable columns={columns} data={releases || []} />
     </div>
   );
 }
