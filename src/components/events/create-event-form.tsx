@@ -134,6 +134,7 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
       [
         ...prevBands,
         JSON.stringify({
+          id: band.bandId,
           namePretty: band.namePretty,
           genreTags: band.genreTags,
           country: band.country,
@@ -148,10 +149,10 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
 
   const handleBandRemove = (bandToRemove: string) => {
     setBands((prevBands) => prevBands.filter((band) => band !== bandToRemove));
-    setBandIds((prevBandIds) => {
-      const index = bands.indexOf(bandToRemove);
-      return prevBandIds.filter((_, i) => i !== index);
-    });
+    const bandData = JSON.parse(bandToRemove);
+    setBandIds((prevBandIds) => 
+      prevBandIds.filter(id => id !== bandData.bandId)
+    );
   };
 
   return (
