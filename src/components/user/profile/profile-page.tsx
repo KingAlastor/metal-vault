@@ -2,8 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
   FormDescription,
   FormField,
   FormItem,
@@ -16,29 +14,12 @@ import { User } from "next-auth";
 import { useSession } from "next-auth/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 import { updateProfile } from "@/lib/data/user/profile/profile-data-actions";
 import UserNameField from "./form-username-input";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
-import {
-  MultiSelectDropdown,
-  Option,
-} from "@/components/shared/multiselect-dropdown";
+import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { useQuery } from "@tanstack/react-query";
 import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
 
