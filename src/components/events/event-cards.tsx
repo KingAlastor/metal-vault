@@ -6,24 +6,42 @@ import { EventCard } from "./event-card";
 import { EventDropdownMenu } from "./event-dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
 import { fetchUserFavBandsFullData } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import { getUserOwnedEvents } from "@/lib/data/events/events-data-actions";
 
 export const EventCards = ({ events }: EventCardsProps) => {
   const {
     data: favbands,
-    isLoading,
-    isError,
-    error,
+    isLoading: isFavBandsLoading,
+    isError: isFavBandsError,
+    error: favBandsError,
   } = useQuery({
     queryKey: ["favbands"],
     queryFn: () => fetchUserFavBandsFullData(),
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading favorite bands</div>;
-  
+  const {
+    data: userEvents,
+    isLoading: isUserEventsLoading,
+    isError: isUserEventsError,
+    error: userEventsError,
+  } = useQuery({
+    queryKey: ["user-events"],
+    queryFn: () => getUserOwnedEvents(),
+  });
+  console.log("pre-reder events: ", userEvents)
+  if (isFavBandsLoading || isUserEventsLoading) return <div>Loading...</div>;
+  if (isFavBandsError || isUserEventsError)
+    return <div>Error loading events.</div>;
+
   return (
     <div>
       {events.map((event) => {
+        const isOwner = Array.isArray(userEvents) && userEvents.some(
+          (userEvent) => userEvent.id === event.id
+        );
+        console.log("event: ", event)
+        console.log("is owner", isOwner)
+        console.log("events: ", userEvents)
         return (
           <Card key={event.id} className="mb-4 w-full">
             <CardHeader className="p-4 pt-2 pb-1">
@@ -43,11 +61,11 @@ export const EventCards = ({ events }: EventCardsProps) => {
                     </div>
                   </div>
                 </div>
-                <EventDropdownMenu {...event} />
+                <EventDropdownMenu {...event} isOwner={isOwner} />
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
-              <EventCard event={event} favbands={favbands}/>
+              <EventCard event={event} favbands={favbands} />
             </CardContent>
           </Card>
         );

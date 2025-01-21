@@ -79,3 +79,7 @@ export type EventCountry = {
   };
   cca2: string;
 };
+
+export interface EventDropdownMenuProps extends Event {
+  isOwner: boolean;
+}

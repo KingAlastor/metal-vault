@@ -62,7 +62,7 @@ export const getEventsByFilters = async (
     },
   };
 
-/*   if (filters?.favorites_only) {
+  /*   if (filters?.favorites_only) {
     const favorites = await fetchUserFavoriteBands();
     if (favorites.length > 0)
       where = {
@@ -77,13 +77,26 @@ export const getEventsByFilters = async (
     where = {
       ...where,
       genreTags: {
-        hasSome: Array.isArray(user.genreTags) ? user.genreTags : [user.genreTags],
+        hasSome: Array.isArray(user.genreTags)
+          ? user.genreTags
+          : [user.genreTags],
       },
     };
   }
 
   const events = (await prisma.events.findMany({
-    include: {
+    select: {
+      id: true,
+      eventName: true,
+      country: true,
+      city: true,
+      fromDate: true,
+      toDate: true,
+      bands: true,
+      bandIds: true,
+      genreTags: true,
+      imageUrl: true,
+      website: true,
       user: {
         select: {
           name: true,
@@ -98,7 +111,7 @@ export const getEventsByFilters = async (
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
   })) as unknown as Event[];
-  
+
   console.log("[Server] Events found:", events.length);
   return events;
 };
@@ -106,7 +119,7 @@ export const getEventsByFilters = async (
 export const deleteEvent = async (eventId: string) => {
   const session = await auth();
   const user = session?.user;
-  
+
   if (!user) {
     throw new Error(
       "User ID is undefined. User must be logged in to access favorites."
@@ -127,7 +140,7 @@ export const deleteEvent = async (eventId: string) => {
   }
 };
 
-export const isUserEventOwner = async (eventId: string) => {
+export const getUserOwnedEvents = async () => {
   const session = await auth();
   const user = session?.user;
 
@@ -136,22 +149,13 @@ export const isUserEventOwner = async (eventId: string) => {
   }
 
   try {
-    const event = await prisma.events.findFirst({
+    const events = await prisma.events.findMany({
+      select: { id: true },
       where: {
-        AND: [{ id: eventId }, { userId: user.id }],
+        userId: user.id,
       },
     });
 
-    return {
-      success: !!event,
-      message: "Validation successful",
-      isOwner: !!event,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: "Error checking ownership",
-      isOwner: false,
-    };
-  }
+    return events;
+  } catch (error) {}
 };

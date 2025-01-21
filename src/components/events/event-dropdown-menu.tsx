@@ -9,23 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DeleteEventDialog } from "./delete-event-dialog";
-import { Event } from "./event-types";
-import { isUserEventOwner } from "@/lib/data/events/events-data-actions";
+import { Event, EventDropdownMenuProps } from "./event-types";
 
-export const EventDropdownMenu = (event: Event) => {
+export const EventDropdownMenu = ({ isOwner, ...event }: EventDropdownMenuProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isOwner, setIsOwner] = useState(false);
-
-  useEffect(() => {
-    const checkOwnership = async () => {
-      const result = await isUserEventOwner(event.id);
-      setIsOwner(result.isOwner);
-    };
-
-    checkOwnership();
-  }, [event.id]);
 
   const handleAddToFavoritesClick = () => {
   };
