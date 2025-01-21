@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import ReactQueryProvider from "./ReactQueryProvider";
+import ThemeWrapper from "./ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,14 +21,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ReactQueryProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+          <ThemeWrapper>{children}</ThemeWrapper>
         </ReactQueryProvider>
       </body>
     </html>
