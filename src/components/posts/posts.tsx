@@ -13,32 +13,7 @@ import PostDropdownMenu from "./post-dropdown-menu";
 import PostLinkIcons from "./post-link-icons";
 import { PostCard } from "./post-cards";
 import { formatDateAndTime } from "@/lib/general/date";
-
-type PostUser = {
-  name: string;
-  userName: string | null;
-  image: string | null;
-  role: string | null;
-};
-
-export type Post = {
-  id: string;
-  bandId: string | null;
-  bandName: string;
-  title: string | null;
-  genreTags: string[];
-  postContent: string | null;
-  YTLink: string | null;
-  SpotifyLink: string | null;
-  BandCampLink: string | null;
-  postDateTime: Date;
-  previewUrl: string | null;
-  user: PostUser;
-};
-
-export type PostsProps = {
-  posts: Post[];
-};
+import { Post, PostsProps } from "./post-types";
 
 const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
   {

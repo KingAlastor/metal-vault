@@ -11,9 +11,9 @@ import {
 } from "../ui/dropdown-menu";
 import { useState } from "react";
 import { DeleteEventDialog } from "./delete-event-dialog";
-import { Event, EventDropdownMenuProps } from "./event-types";
+import { Event } from "./event-types";
 
-export const EventDropdownMenu = ({ isOwner, ...event }: EventDropdownMenuProps) => {
+export const EventDropdownMenu = (event : Event) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleAddToFavoritesClick = () => {
@@ -35,7 +35,7 @@ export const EventDropdownMenu = ({ isOwner, ...event }: EventDropdownMenuProps)
           <DropdownMenuItem onClick={handleAddToFavoritesClick}>
             <div className="dropdown-options">Report event</div>
           </DropdownMenuItem>
-          {isOwner && (
+          {event.isUserOwner && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
@@ -45,7 +45,6 @@ export const EventDropdownMenu = ({ isOwner, ...event }: EventDropdownMenuProps)
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-
       <DeleteEventDialog
         event={event}
         open={isDialogOpen}

@@ -9,23 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Post } from "./posts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DeletePostDialog } from "./delete-post-dialog";
-import { isUserPostOwner } from "@/lib/data/posts/posts-data-actions";
+import { Post } from "./post-types";
 
 const PostDropdownMenu = ( post : Post) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isOwner, setIsOwner] = useState(false);
-  
-    useEffect(() => {
-      const checkOwnership = async () => {
-        const result = await isUserPostOwner(post.id);
-        setIsOwner(result.isOwner);
-      };
-  
-      checkOwnership();
-    }, [post.id]);
 
   const handleAddToFavoritesClick = () => {
     // Handle add click
@@ -47,7 +36,7 @@ const PostDropdownMenu = ( post : Post) => {
           <DropdownMenuItem onClick={handleAddToFavoritesClick}>
             <div className="dropdown-options">Report Post</div>
           </DropdownMenuItem>
-          {isOwner && (
+          {post.isUserOwner && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>

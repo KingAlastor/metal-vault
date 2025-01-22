@@ -18,9 +18,10 @@ type EventUser = {
 
 export type Event = {
   id: string;
+  userId: string, 
   eventName: string;
-  country: string;
-  city: string;
+  country?: string;
+  city?: string;
   fromDate: Date;
   toDate: Date;
   bands: string[];
@@ -30,6 +31,7 @@ export type Event = {
   website: string | null;
   createdAt: Date;
   user: EventUser;
+  isUserOwner: boolean;
 };
 
 export type AddEventProps = {
@@ -79,7 +81,3 @@ export type EventCountry = {
   };
   cca2: string;
 };
-
-export interface EventDropdownMenuProps extends Event {
-  isOwner: boolean;
-}

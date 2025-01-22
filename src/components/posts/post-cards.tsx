@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { Post } from "./posts";
 import Link from "next/link";
 import useWindowSize from "@/lib/hooks/get-window-size";
-import { formatDateWithNamedMonth } from "@/lib/general/date";
+import { formatDateWithNamedMonth } from "@/lib/general/date"; 
+import { Post } from "./post-types";
 
 export const PostCard = (post: Post) => {
   const { name, artist, releaseDate, type, imageUrl } = post.title

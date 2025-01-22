@@ -51,7 +51,7 @@ export const getEventsByFilters = async (
   filters: EventFilters,
   queryParams: EventQueryParams
 ) => {
-  console.log("[Server] Starting getEventsByFilters");
+
   const session = await auth();
   const user = session?.user;
   const today = new Date(new Date().setHours(0, 0, 0, 0));
@@ -87,6 +87,7 @@ export const getEventsByFilters = async (
   const events = (await prisma.events.findMany({
     select: {
       id: true,
+      userId: true,
       eventName: true,
       country: true,
       city: true,
@@ -110,10 +111,17 @@ export const getEventsByFilters = async (
     orderBy: { fromDate: "asc" },
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
-  })) as unknown as Event[];
+  }));
 
-  console.log("[Server] Events found:", events.length);
-  return events;
+  const eventsWithOwner = events.map((record) => {
+    const { userId, ...rest } = record;
+    return {
+      ...rest,
+      isUserOwner: user?.id ? userId === user.id : false,
+    };
+  });
+
+  return eventsWithOwner;
 };
 
 export const deleteEvent = async (eventId: string) => {
@@ -140,22 +148,3 @@ export const deleteEvent = async (eventId: string) => {
   }
 };
 
-export const getUserOwnedEvents = async () => {
-  const session = await auth();
-  const user = session?.user;
-
-  if (!user) {
-    return { success: false, message: "User ID undefined", isOwner: false };
-  }
-
-  try {
-    const events = await prisma.events.findMany({
-      select: { id: true },
-      where: {
-        userId: user.id,
-      },
-    });
-
-    return events;
-  } catch (error) {}
-};
