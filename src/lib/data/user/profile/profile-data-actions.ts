@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export type UserProfile = {
-  userName?: string,
-  country?: string,
-  genreTags?: string[],
-}
+  userName?: string;
+  country?: string;
+  genreTags?: string[];
+};
 
 export async function updateProfile(data: UserProfile) {
   const session = await auth();
@@ -25,9 +25,26 @@ export async function updateProfile(data: UserProfile) {
     data: {
       userName: data.userName,
       location: data.country,
-      genreTags: data.genreTags
+      genreTags: data.genreTags,
     },
   });
 
   revalidatePath("/");
+}
+
+export async function deleteUser() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    throw Error("Unauthorized");
+  }
+
+  try {
+    await prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    });
+  } catch (error) {}
 }

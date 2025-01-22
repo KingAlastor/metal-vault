@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Post } from "./posts";
+import { Post } from "./post-types";
 
 type DeletePostDialogProps = {
   post: Post;

@@ -11,11 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User } from "next-auth";
-import { Button } from "../ui/button";
-import Image from "next/image";
 import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "./theme-toggle-button";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";

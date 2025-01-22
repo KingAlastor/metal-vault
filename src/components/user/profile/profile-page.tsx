@@ -11,7 +11,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "next-auth";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -22,6 +22,7 @@ import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { useQuery } from "@tanstack/react-query";
 import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
+import { DeleteUserDialog } from "./delete-user-dialog";
 
 interface SettingsPageProps {
   user: User;
@@ -53,8 +54,9 @@ export default function ProfilePage({ user }: SettingsPageProps) {
   });
 
   const [countries, setCountries] = useState<Country[]>([]);
-  const [open, setOpen] = useState(false);
   const { data: session, update: updateSession } = useSession();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -99,6 +101,15 @@ export default function ProfilePage({ user }: SettingsPageProps) {
       });
     }
   }
+
+  const handleDeleteAccount = async () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    signOut({ callbackUrl: "/" });
+  };
 
   return (
     <FormProvider {...form}>
@@ -149,8 +160,22 @@ export default function ProfilePage({ user }: SettingsPageProps) {
               <Button type="submit">Save</Button>
             </div>
           </form>
+          <div className="mt-8 pt-4 border-t">
+            <h2 className="text-xl font-semibold text-destructive mb-2">Danger Zone</h2>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteAccount}
+              type="button"
+            >
+              Delete Account
+            </Button>
+          </div>
         </section>
       </main>
+      <DeleteUserDialog 
+        open={isDeleteDialogOpen} 
+        onClose={handleCloseDeleteDialog} 
+      />
     </FormProvider>
   );
 }
