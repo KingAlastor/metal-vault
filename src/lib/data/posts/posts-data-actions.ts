@@ -142,8 +142,6 @@ export const getPostsByFilters = async (
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
   });
 
-  console.log("posts", posts);
-
   const postsWithOwner = posts.map((record) => {
     const { userId, ...rest } = record;
     return {
@@ -152,7 +150,6 @@ export const getPostsByFilters = async (
     };
   });
 
-  console.log("new posts: ", postsWithOwner);
   return postsWithOwner;
 };
 
