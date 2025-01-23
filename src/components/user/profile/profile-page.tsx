@@ -29,7 +29,6 @@ export default function ProfilePage({ user }: ProfilePageProps) {
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("firstLogin");
-    console.log("Notice dismissed");
     setIsFirstTimeUser(false);
   };
 

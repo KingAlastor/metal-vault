@@ -53,12 +53,11 @@ export async function deleteUserPendingAction(action: string) {
   if (!userId) {
     throw Error("Unauthorized");
   }
-  console.log("delete: ", userId, action)
+  
   await prisma.$executeRaw`
   UPDATE "users"
   SET "pending_actions" = array_remove(pending_actions, ${action})
   WHERE id = ${userId}
 `;
-console.log("firstLogin deleted");
 }
 

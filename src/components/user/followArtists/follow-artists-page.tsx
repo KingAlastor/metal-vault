@@ -21,8 +21,18 @@ import {
 } from "@/lib/apis/Spotify-api";
 import { UnresolvedBands } from "./unresolved-bands";
 import { Band } from "@/lib/data/bands/search-bands-data-actions";
+import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
+import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
+import { useSession } from "next-auth/react";
 
 export default function FollowArtistsPage() {
+  const session = useSession();
+  const user = session.data?.user;
+
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(
+    user!.pendingActions.includes("syncFollowers")
+  );
+
   const queryClient = useQueryClient();
 
   const {
@@ -93,8 +103,20 @@ export default function FollowArtistsPage() {
     );
   if (isError) return <div>Error: {error.message}</div>;
 
+  const handleNoticeDismiss = async () => {
+    await deleteUserPendingAction("syncFollowers");
+    setIsFirstTimeUser(false);
+  };
+
   return (
     <div>
+      {isFirstTimeUser && (
+        <FirstTimeUserNotice
+          title="Welcome to Your favorite bands!"
+          description="Search for your favorite bands from the database or synchronize from other providers like Spotify."
+          onDismiss={handleNoticeDismiss}
+        />
+      )}
       <div>
         <div className="mb-2">Add bands to favorites</div>
         <BandSearchBar

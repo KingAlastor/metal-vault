@@ -22,7 +22,7 @@ export function FirstTimeUserNotice({ title, description, onDismiss }: FirstTime
   if (!isVisible) return null
 
   return (
-    <Alert className="relative">
+    <Alert className="relative mb-2">
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{description}</AlertDescription>
       <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={handleDismiss}>
