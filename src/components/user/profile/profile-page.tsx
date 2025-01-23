@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { Button } from "@/components/ui/button";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import ProfileSettingsForm from "./profile-settings-form";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
 import { User } from "next-auth";
@@ -15,6 +15,8 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ user }: ProfilePageProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const { update: updateSession } = useSession();
+  
 
   const handleDeleteAccount = async () => {
     setIsDeleteDialogOpen(true);
@@ -29,6 +31,7 @@ export default function ProfilePage({ user }: ProfilePageProps) {
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("firstLogin");
+    await updateSession();
     setIsFirstTimeUser(false);
   };
 
