@@ -38,8 +38,8 @@ export default function ProfilePage({ user }: ProfilePageProps) {
       <section>
         {isFirstTimeUser && (
           <FirstTimeUserNotice
-            title="Welcome to Your Dashboard!"
-            description="This is where you'll find all your important information. Take a moment to explore the features available to you."
+            title="Welcome to Your profile!"
+            description="Change your username, add your desired location and favorite genres which you can use for advanced filtering in your posts/events/releases etc feeds."
             onDismiss={handleNoticeDismiss}
           />
         )}
