@@ -26,12 +26,14 @@ import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice"
 import { useSession } from "next-auth/react";
 
 export default function FollowArtistsPage() {
-  const session = useSession();
-  const user = session.data?.user;
+  const { data: session, update: updateSession } = useSession();
+  const user = session!.user;
 
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(
     user!.pendingActions.includes("syncFollowers")
   );
+
+  console.log("user", user)
 
   const queryClient = useQueryClient();
 
@@ -105,6 +107,7 @@ export default function FollowArtistsPage() {
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("syncFollowers");
+    await updateSession();
     setIsFirstTimeUser(false);
   };
 
