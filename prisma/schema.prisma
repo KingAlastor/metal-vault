@@ -31,6 +31,7 @@ model User {
   lastLogin         DateTime?           @map("last_login")
   genreTags         String[]            @map("genre_tags")
   notifications     Json?
+  pendingActions    String[]            @default([]) @map("pending_actions")
   accounts          Account[]
   sessions          Session[]
   UserTokens        UserTokens[]
@@ -88,7 +89,7 @@ model Bands {
   id                String              @id @default(cuid())
   name              String
   namePretty        String              @map("name_pretty")
-  genreTags         String[]            @map("genre_tags")
+  genreTags         String[]            @default([]) @map("genre_tags")
   country           String?
   status            String?
   followers         Int?                @default(0)
@@ -109,7 +110,7 @@ model BandsBackup {
   id           String   @id
   name         String
   namePretty   String   @map("name_pretty")
-  genreTags    String[] @map("genre_tags")
+  genreTags    String[] @default([]) @map("genre_tags")
   country      String?
   status       String?
   followers    Int?     @default(0)
@@ -138,7 +139,7 @@ model UpcomingReleases {
   bandId            String    @map("band_id")
   bandName          String    @map("band_name")
   albumName         String    @map("album_name")
-  genreTags         String[]  @map("genre_tags")
+  genreTags         String[]  @default([]) @map("genre_tags")
   bandArchivesLink  BigInt?   @map("band_archives_link")
   albumArchivesLink BigInt?   @map("album_archives_link")
   type              String?
@@ -176,7 +177,7 @@ model UserPostsActive {
   bandId       String?  @map("band_id")
   bandName     String   @map("bandname")
   title        String?
-  genreTags    String[] @map("genre_tags")
+  genreTags    String[] @default([]) @map("genre_tags")
   postContent  String?  @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")
@@ -196,7 +197,7 @@ model UserPostsArchived {
   bandId       String?  @map("band_id")
   bandName     String   @map("bandname")
   title        String?
-  genreTags    String[] @map("genre_tags")
+  genreTags    String[] @default([]) @map("genre_tags")
   postContent  String?  @map("post_content")
   YTLink       String?  @map("yt_link")
   SpotifyLink  String?  @map("spotify_link")

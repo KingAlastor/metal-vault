@@ -4,13 +4,14 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export type UserProfile = {
+export type UpdateUser = {
   userName?: string;
   country?: string;
   genreTags?: string[];
+  notifications?: string;
 };
 
-export async function updateProfile(data: UserProfile) {
+export async function updateUserData(data: UpdateUser) {
   const session = await auth();
   const userId = session?.user?.id;
 
@@ -22,11 +23,7 @@ export async function updateProfile(data: UserProfile) {
     where: {
       id: userId,
     },
-    data: {
-      userName: data.userName,
-      location: data.country,
-      genreTags: data.genreTags,
-    },
+    data,
   });
 
   revalidatePath("/");
@@ -48,3 +45,20 @@ export async function deleteUser() {
     });
   } catch (error) {}
 }
+
+export async function deleteUserPendingAction(action: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    throw Error("Unauthorized");
+  }
+  console.log("delete: ", userId, action)
+  await prisma.$executeRaw`
+  UPDATE "users"
+  SET "pending_actions" = array_remove(pending_actions, ${action})
+  WHERE id = ${userId}
+`;
+console.log("firstLogin deleted");
+}
+

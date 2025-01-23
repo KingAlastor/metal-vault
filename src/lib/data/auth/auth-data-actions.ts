@@ -15,6 +15,8 @@ export type CreateUserData = {
   emailVerified: Date;
   accountCreated: Date;
   lastLogin: Date;
+  notifications?: string;
+  pendingActions?: string[];
 };
 
 export type SignInUserData = {

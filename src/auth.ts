@@ -29,7 +29,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         emailVerified: new Date(),
         accountCreated: new Date(),
         lastLogin: new Date(),
+        pendingActions: ["firstLogin", "syncFollowers"],
       };
+      console.log("user object: ", data)
       await updateCreatedUserData(where, data);
     },
   },
@@ -46,6 +48,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     session({ session, user }) {
       session.user.role = user.role;
+      session.user.postsSettings = user.postsSettings;
+      session.user.notifications = user.notifications;
+      session.user.releaseSettings = user.releaseSettings;
       return session;
     },
   },

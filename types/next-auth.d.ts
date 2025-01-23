@@ -15,5 +15,6 @@ declare module "next-auth" {
     postsSettings: string,
     releaseSettings: string,
     notifications: string,
+    pendingActions: string[],
   }
 }
