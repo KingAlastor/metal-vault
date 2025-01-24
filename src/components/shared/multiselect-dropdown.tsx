@@ -112,8 +112,8 @@ export function MultiSelectDropdown({
             const option = options.find((o) => o.value === optionValue)
             return (
               <div key={optionValue} className="flex justify-between items-center mb-1">
-                <span className="ml-1">{option?.label}</span>
-                <Button variant="ghost" size="sm" onClick={() => handleRemove(optionValue)} className="h-6 w-6 p-0">
+                <span className=" m-font ml-1">{option?.label}</span>
+                <Button variant="ghost" size="sm" onClick={() => handleRemove(optionValue)} className="h-5 w-6 p-0">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
