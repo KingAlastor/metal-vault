@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,91 +52,75 @@ export function MultiSelectDropdown({
     onChange(newSelectedValues);
   };
 
+  const handleRemove = (optionValue: string) => {
+    onChange(value.filter((v) => v !== optionValue))
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 justify-start">
-          {triggerText}
-          {value.length > 0 && (
-            <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge
-                variant="secondary"
-                className="rounded-sm px-1 font-normal lg:hidden"
-              >
-                {value.length}
-              </Badge>
-              <div className="hidden space-x-1 lg:flex">
-                {value.length > 2 ? (
-                  <Badge
-                    variant="secondary"
-                    className="rounded-sm px-1 font-normal"
-                  >
-                    {value.length} selected
-                  </Badge>
-                ) : (
-                  options
-                    .filter((option) => value.includes(option.value))
-                    .map((option) => (
-                      <Badge
-                        variant="secondary"
-                        key={option.value}
-                        className="rounded-sm px-1 font-normal"
-                      >
-                        {option.label}
-                      </Badge>
-                    ))
-                )}
-              </div>
-            </>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder={placeholder} />
-          <CommandList>
-            <CommandEmpty>{emptyMessage}</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = value.includes(option.value);
-                return (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => handleSelect(option.value)}
-                    className="cursor-pointer"
-                  >
-                    <div
-                      className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible"
-                      )}
-                    >
-                      <Check className={cn("h-4 w-4")} />
-                    </div>
-                    <span>{option.label}</span>
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-          </CommandList>
-          {value.length > 0 && (
-            <>
-              <CommandSeparator />
+    <div className="flex flex-col space-y-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" size="sm" className="h-8 justify-start" aria-expanded={open}>
+            {triggerText}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0" align="start">
+          <Command>
+            <CommandInput placeholder={placeholder} />
+            <CommandList>
+              <CommandEmpty>{emptyMessage}</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  onSelect={() => onChange([])}
-                  className="justify-center text-center"
-                >
-                  Clear filters
-                </CommandItem>
+                {options.map((option) => {
+                  const isSelected = value.includes(option.value)
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      onSelect={() => handleSelect(option.value)}
+                      className="cursor-pointer"
+                    >
+                      <div
+                        className={cn(
+                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                          isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible",
+                        )}
+                      >
+                        <Check className={cn("h-4 w-4")} />
+                      </div>
+                      <span>{option.label}</span>
+                    </CommandItem>
+                  )
+                })}
               </CommandGroup>
-            </>
-          )}
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
+            </CommandList>
+            {value.length > 0 && (
+              <>
+                <CommandSeparator />
+                <CommandGroup>
+                  <CommandItem onSelect={() => onChange([])} className="justify-center text-center">
+                    Clear filters
+                  </CommandItem>
+                </CommandGroup>
+              </>
+            )}
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {value.length > 0 && (
+        <div className="overflow-y-auto max-h-[100px] w-full rounded-md border p-1">
+          {value.map((optionValue) => {
+            const option = options.find((o) => o.value === optionValue)
+            return (
+              <div key={optionValue} className="flex justify-between items-center mb-1">
+                <span className="ml-1">{option?.label}</span>
+                <Button variant="ghost" size="sm" onClick={() => handleRemove(optionValue)} className="h-6 w-6 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
 }
