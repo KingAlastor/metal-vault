@@ -23,7 +23,6 @@ export default function NavBar() {
         ) : (
           <SignIn />
         )}
-{/*         <UserButton className="sm:ms-auto" /> */}
       </div>
     </header>
   );

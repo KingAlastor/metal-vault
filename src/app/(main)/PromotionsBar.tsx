@@ -23,7 +23,10 @@ export default function PromotionsBar({ className }: PromotionsBarProps) {
   const [bandAds, setBandAds] = useState<string[]>([]);
   const pathname = usePathname();
   const promoBarRouter = ["/", "/events"];
-  const shouldRenderPromotionsBar = promoBarRouter.includes(pathname);
+  const dynamicPaths = [/^\/band\/.+$/];
+  const shouldRenderPromotionsBar =
+    promoBarRouter.includes(pathname) ||
+    dynamicPaths.some((regex) => regex.test(pathname));
 
   useEffect(() => {
     const fetchAds = async () => {
