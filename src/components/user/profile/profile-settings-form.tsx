@@ -35,8 +35,8 @@ interface Country {
 
 export const FormSchema = z.object({
   userName: z.string().trim().min(1, "Cannot be empty"),
-  country: z.string(),
-  genreTags: z.array(z.string()),
+  location: z.string().optional(),
+  genreTags: z.array(z.string()).optional(),
 });
 
 export default function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
@@ -46,7 +46,7 @@ export default function ProfileSettingsForm({ user }: ProfileSettingsFormProps) 
     resolver: zodResolver(FormSchema),
     defaultValues: {
       userName: user.userName || user.name!,
-      country: user.location || "",
+      location: user.location || "",
       genreTags: Array.isArray(user.genreTags) ? user.genreTags : [],
     },
   });
@@ -86,6 +86,7 @@ export default function ProfileSettingsForm({ user }: ProfileSettingsFormProps) 
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
+      console.log("data", data)
       await updateUserData(data);
       toast({ description: "Profile updated." });
       // Currently not working
@@ -107,13 +108,13 @@ export default function ProfileSettingsForm({ user }: ProfileSettingsFormProps) 
         <UserNameField />
         <FormField
           control={form.control}
-          name="country"
+          name="location"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Country</FormLabel>
               <CountrySelectDropdown
                 control={form.control}
-                name="country"
+                name="location"
                 countries={countries}
               />
               <FormDescription>

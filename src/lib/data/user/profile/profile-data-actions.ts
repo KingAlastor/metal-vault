@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 export type UpdateUser = {
   userName?: string;
-  country?: string;
+  location?: string;
   genreTags?: string[];
   notifications?: string;
 };
@@ -53,7 +53,7 @@ export async function deleteUserPendingAction(action: string) {
   if (!userId) {
     throw Error("Unauthorized");
   }
-  
+
   await prisma.$executeRaw`
   UPDATE "users"
   SET "pending_actions" = array_remove(pending_actions, ${action})
