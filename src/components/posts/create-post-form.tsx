@@ -27,6 +27,7 @@ import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { useQuery } from "@tanstack/react-query";
 import { useSubmitPostMutation } from "./hooks/use-submit-post-mutation";
+import { Post } from "./post-types";
 
 const initialFormState = {
   post_message: "",
@@ -83,19 +84,28 @@ const FormSchema = z
 
 type CreatePostFormProps = {
   setOpen: Dispatch<SetStateAction<boolean>>;
+  post?: Post;
 };
 
-export function CreatePostForm({ setOpen }: CreatePostFormProps) {
+export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: initialFormState,
-  });
+    defaultValues: post
+      ? {
+          post_message: post.postContent ?? undefined,
+          band_name: post.bandName ?? "",
+          genreTags: post.genreTags ?? [],
+          yt_link: post.YTLink ?? undefined,
+          spotify_link: post.SpotifyLink ?? undefined,
+          bandcamp_link: post.BandCampLink ?? undefined,
+        }
+      : initialFormState,  });
   const { reset, setValue, control, handleSubmit } = form;
 
   const mutation = useSubmitPostMutation();
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const bandIdRef = useRef<string | null>(null);
+  const bandIdRef = useRef<string | null | undefined>(post?.bandId ?? null);
   const MAX_HEIGHT = 200;
 
   const adjustTextareaHeight = () => {
@@ -130,10 +140,12 @@ export function CreatePostForm({ setOpen }: CreatePostFormProps) {
       const linkData = await getLinkData(data);
       const formData = {
         ...data,
+        id: post?.id ?? "",
         previewUrl: linkData?.previewUrl,
         title: JSON.stringify(linkData?.title),
         bandId: bandIdRef.current,
       };
+      console.log("onSubmit: ", formData)
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
@@ -168,6 +180,7 @@ export function CreatePostForm({ setOpen }: CreatePostFormProps) {
                 <BandSearchBar
                   searchInputProps={searchInputProps}
                   onBandSelect={handleBandSelect}
+                  value={field.value}
                 />
               </FormControl>
               <FormMessage />
@@ -248,7 +261,7 @@ export function CreatePostForm({ setOpen }: CreatePostFormProps) {
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Create Post</Button>
+          <Button type="submit">Save Post</Button>
         </div>
       </form>
     </Form>

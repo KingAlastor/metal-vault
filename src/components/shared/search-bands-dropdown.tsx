@@ -22,17 +22,23 @@ type searchInputProps = {
 type BandSearchBarProps = {
   searchInputProps: searchInputProps;
   onBandSelect: (band: Band) => void;
+  value?: string;
 };
 
 export function BandSearchBar({
   searchInputProps,
   onBandSelect,
+  value,
 }: BandSearchBarProps) {
   const [bands, setBands] = useState<Band[]>([]);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(value);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setInputValue(value); 
+  }, [value]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;

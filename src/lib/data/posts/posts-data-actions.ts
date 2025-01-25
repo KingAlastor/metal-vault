@@ -6,6 +6,7 @@ import { PostsFilters } from "./posts-filters-data-actions";
 import { fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
 
 type PostProps = {
+  id?: string;
   band_name: string;
   bandId?: string | null;
   title?: string;
@@ -22,36 +23,64 @@ type QueryParamProps = {
   pageSize: number;
 };
 
-export const addPost = async (post: PostProps) => {
+export const addOrUpdatePost = async (post: PostProps) => {
   const session = await auth();
   const user = session?.user;
 
   if (!user?.id) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
   try {
-    const newPost = await prisma.userPostsActive.create({
-      data: {
-        userId: user!.id!,
-        bandId: post.bandId,
-        bandName: post.band_name,
-        title: post.title,
-        genreTags: post.genreTags,
-        postContent: post.post_message,
-        YTLink: post.yt_link,
-        SpotifyLink: post.spotify_link,
-        BandCampLink: post.bandcamp_link,
-        previewUrl: post.previewUrl,
-      },
-      include: { user: true },
-    });
+    let updatedPost;
 
-    return newPost;
+    if (post.id) {
+      updatedPost = await prisma.userPostsActive.update({
+        where: { id: post.id },
+        data: {
+          bandId: post.bandId,
+          bandName: post.band_name,
+          title: post.title,
+          genreTags: post.genreTags,
+          postContent: post.post_message,
+          YTLink: post.yt_link,
+          SpotifyLink: post.spotify_link,
+          BandCampLink: post.bandcamp_link,
+          previewUrl: post.previewUrl,
+        },
+        include: { user: true },
+      });
+    } else {
+      updatedPost = await prisma.userPostsActive.create({
+        data: {
+          userId: user.id,
+          bandId: post.bandId,
+          bandName: post.band_name,
+          title: post.title,
+          genreTags: post.genreTags,
+          postContent: post.post_message,
+          YTLink: post.yt_link,
+          SpotifyLink: post.spotify_link,
+          BandCampLink: post.bandcamp_link,
+          previewUrl: post.previewUrl,
+        },
+        include: { user: true },
+      });
+    }
+
+      
+  const { userId, ...postWithoutUserId } = updatedPost;
+
+  const postWithOwner = {
+    ...postWithoutUserId,
+    isUserOwner: userId === userId,
+  };
+
+    return postWithOwner;
   } catch (error) {
-    console.error("Error updating bands table data:", error);
+    console.error("Error updating or creating post:", error);
     throw error;
   }
 };
