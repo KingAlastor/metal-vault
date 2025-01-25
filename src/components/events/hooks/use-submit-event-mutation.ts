@@ -13,7 +13,7 @@ export function useSubmitEventMutation() {
     mutationFn: addEvent,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [["events-feed"], ["user-events"]],
+        queryKey: ["events-feed"],
       });
 
       toast({

@@ -11,7 +11,7 @@ export function useDeleteEventMutation() {
     mutationFn: deleteEvent,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [["events-feed"], ["user-events"]],
+        queryKey: ["events-feed"],
       });
     },
     onError(error) {
