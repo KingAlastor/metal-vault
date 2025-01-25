@@ -28,7 +28,7 @@ type BandSearchBarProps = {
 export function BandSearchBar({
   searchInputProps,
   onBandSelect,
-  value,
+  value = "",
 }: BandSearchBarProps) {
   const [bands, setBands] = useState<Band[]>([]);
   const [inputValue, setInputValue] = useState(value);
