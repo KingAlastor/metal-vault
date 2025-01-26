@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/collapsible";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { PostsFiltersForm } from "./posts-filters-form";
-import { Posts } from "./posts";
+import { Posts } from "./post-cards";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
 import { PostsPageData } from "@/app/api/posts/route";

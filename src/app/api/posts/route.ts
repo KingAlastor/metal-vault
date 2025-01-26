@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { Post } from "@/components/posts/posts";
+import { Post } from "@/components/posts/post-types";
 import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
 import { getUserPostsFilters, PostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
 import { NextRequest } from "next/server";

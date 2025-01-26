@@ -1,189 +1,85 @@
-import Image from "next/image";
-import Link from "next/link";
-import useWindowSize from "@/lib/hooks/get-window-size";
-import { formatDateWithNamedMonth } from "@/lib/general/date"; 
-import { Post } from "./post-types";
+"use client";
 
-export const PostCard = (post: Post) => {
-  const { name, artist, releaseDate, type, imageUrl } = post.title
-    ? JSON.parse(post.title)
-    : {};
-  const size = useWindowSize();
+import * as React from "react";
 
-  let audioUrl;
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import UserAvatar from "../auth/user-avatar";
+import PostDropdownMenu from "./post-dropdown-menu";
+import PostLinkIcons from "./post-link-icons";
+import { PostCard } from "./post-card";
+import { formatDateAndTime } from "@/lib/general/date";
+import { Post, PostsProps } from "./post-types";
 
-  if (post.YTLink) {
-    audioUrl = post.YTLink;
-  } else if (post.SpotifyLink) {
-    audioUrl = post.SpotifyLink;
-  } else if (post.BandCampLink) {
-    audioUrl = post.BandCampLink;
-  } else {
-    audioUrl = null;
-  }
+const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
+  {
+    source: "YTLink",
+    logo: "/YTLogo.svg",
+    alt: "YouTube Logo",
+  },
+  {
+    source: "SpotifyLink",
+    logo: "/SpotifyLogo.svg",
+    alt: "Spotify Logo",
+  },
+  {
+    source: "BandCampLink",
+    logo: "/BandCampLogo.png",
+    alt: "BandCamp Logo",
+  },
+];
 
+export const Posts = ({ posts }: PostsProps) => {
   return (
-    <div className="spotify-card p-2">
-      {audioUrl ? (
-        size.width > 640 ? (
-          <div className="flex">
-            {imageUrl && (
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "158px",
-                      height: "158px",
-                    }}
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt="Cropped image"
-                      fill
-                      sizes="158px"
-                      style={{
-                        objectFit: "cover",
-                        objectPosition: "center",
-                      }}
-                    />
+    <div>
+      {posts.map((post) => {
+        return (
+          <Card key={post.id} className="mb-4 w-full">
+            <CardHeader className="p-4 pt-2 pb-1">
+              <div className="flex justify-between items-center">
+                <div className="flex">
+                  <div className="flex justify-center items-center">
+                    <UserAvatar avatarUrl={post.user.image} size={30} />
                   </div>
-                </a>
-              </Link>
-            )}
-            <div
-              className="flex flex-col justify-between ml-4"
-              style={{ height: "158px" }}
-            >
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
-                  <div>
-                    {name && <p className="font-bold">{name}</p>}
-                    {artist && <p>{artist}</p>}
-                    {releaseDate && (
-                      <p className="s-font">
-                        {formatDateWithNamedMonth(releaseDate)}
-                      </p>
-                    )}
-                    {type && <p className="s-font">{type}</p>}
-                    {post.genreTags && (
-                      <p className="s-font">{post.genreTags.join(", ")}</p>
-                    )}
-                  </div>
-                </a>
-              </Link>
-              {post.previewUrl && (
-                <audio controls className="mt-2">
-                  <source src={post.previewUrl} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-              )}
-            </div>
-          </div>
-        ) : size.width <= 640 && size.width > 400 ? (
-          <div className="flex flex-col">
-            <div className="flex">
-              {imageUrl && (
-                <Link href={audioUrl} passHref legacyBehavior>
-                  <a target="_blank" rel="noopener noreferrer">
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "158px",
-                        height: "158px",
-                      }}
-                    >
-                      <Image
-                        src={imageUrl}
-                        alt="Cropped image"
-                        fill
-                        sizes="158px"
-                        style={{
-                          objectFit: "cover",
-                          objectPosition: "center",
-                        }}
-                      />
-                    </div>
-                  </a>
-                </Link>
-              )}
-              <div className="flex flex-col justify-between ml-4">
-                <Link href={audioUrl} passHref legacyBehavior>
-                  <a target="_blank" rel="noopener noreferrer">
+                  <div className="flex flex-col pl-2">
                     <div>
-                      {name && <p className="font-bold">{name}</p>}
-                      {artist && <p>{artist}</p>}
-                      {releaseDate && (
-                        <p className="s-font">
-                          {formatDateWithNamedMonth(releaseDate)}
-                        </p>
-                      )}
-                      {type && <p className="s-font">{type}</p>}
-                      {post.genreTags && (
-                        <p className="s-font">{post.genreTags.join(", ")}</p>
-                      )}
+                      {post.user.userName ? post.user.userName : post.user.name}
                     </div>
-                  </a>
-                </Link>
+                    <div className="xs-font">
+                      {formatDateAndTime(post.postDateTime)}
+                    </div>
+                  </div>
+                </div>
+                <PostDropdownMenu {...post} />
               </div>
-            </div>
-            {post.previewUrl && (
-              <audio controls className="mt-2">
-                <source src={post.previewUrl} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
-            )}
-          </div>
-        ) : size.width <= 400 ? (
-          <div className="flex flex-col items-center">
-            {imageUrl && (
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "158px",
-                      height: "158px",
-                    }}
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt="Cropped image"
-                      fill
-                      sizes="158px"
-                      style={{
-                        objectFit: "cover",
-                        objectPosition: "center",
-                      }}
-                    />
-                  </div>
-                </a>
-              </Link>
-            )}
-            <div className="flex flex-col justify-between mt-4 w-full text-left">
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
-                  <div>
-                    {name && <p className="font-bold">{name}</p>}
-                    {artist && <p>{artist}</p>}
-                    {releaseDate && (
-                      <p className="s-font">
-                        {formatDateWithNamedMonth(releaseDate)}
-                      </p>
-                    )}
-                    {type && <p className="s-font">{type}</p>}
-                    {post.genreTags && (
-                      <p className="s-font">{post.genreTags.join(", ")}</p>
-                    )}
-                  </div>
-                </a>
-              </Link>
-            </div>
-          </div>
-        ) : null
-      ) : (
-        <div>No audio available</div>
-      )}
+            </CardHeader>
+            <CardContent className="p-4 pt-1 pb-1">
+              <PostCard {...post} />
+            </CardContent>
+            <CardFooter className="p-4 pt-1 pb-2">
+              <div className="flex justify-between items-center w-full">
+                <div className="flex space-x-4">
+                  {audioLinks.map(
+                    (link) =>
+                      post[link.source] && (
+                        <PostLinkIcons
+                          key={link.source}
+                          link={post[link.source] as string}
+                          src={link.logo}
+                          alt={link.alt}
+                        />
+                      )
+                  )}
+                </div>
+              </div>
+            </CardFooter>
+          </Card>
+        );
+      })}
     </div>
   );
 };
