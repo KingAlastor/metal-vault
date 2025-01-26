@@ -11,8 +11,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-// @ts-ignore
-export const addEvent = async (event: AddEventProps) => {
+export const addOrUpdateEvent = async (event: AddEventProps) => {
   const session = await auth();
   const user = session?.user;
 
@@ -23,24 +22,45 @@ export const addEvent = async (event: AddEventProps) => {
   }
 
   try {
-    const newEvent = await prisma.events.create({
-      data: {
-        userId: user.id,
-        eventName: event.eventName,
-        country: event.country,
-        city: event.city,
-        fromDate: event.dateRange.from,
-        toDate: event.dateRange.to,
-        bands: event.bands,
-        bandIds: event.bandIds,
-        genreTags: event.genreTags,
-        imageUrl: event.imageUrl,
-        website: event.website,
-      },
-      include: { user: true },
-    });
+    let updatedEvent;
 
-    return newEvent;
+    if (event.id) {
+      console.log("updating event")
+      updatedEvent = await prisma.events.update({
+        where: { id: event.id },
+        data: {
+          eventName: event.eventName,
+          country: event.country,
+          city: event.city,
+          fromDate: event.dateRange.from,
+          toDate: event.dateRange.to,
+          bands: event.bands,
+          bandIds: event.bandIds,
+          genreTags: event.genreTags,
+          imageUrl: event.imageUrl,
+          website: event.website,
+        },
+      });
+    } else {
+      updatedEvent = await prisma.events.create({
+        data: {
+          userId: user.id,
+          eventName: event.eventName,
+          country: event.country,
+          city: event.city,
+          fromDate: event.dateRange.from,
+          toDate: event.dateRange.to,
+          bands: event.bands,
+          bandIds: event.bandIds,
+          genreTags: event.genreTags,
+          imageUrl: event.imageUrl,
+          website: event.website,
+        },
+        include: { user: true },
+      });
+    }
+ 
+    return updatedEvent;
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;
@@ -51,7 +71,6 @@ export const getEventsByFilters = async (
   filters: EventFilters,
   queryParams: EventQueryParams
 ) => {
-
   const session = await auth();
   const user = session?.user;
   const today = new Date(new Date().setHours(0, 0, 0, 0));
@@ -84,7 +103,7 @@ export const getEventsByFilters = async (
     };
   }
 
-  const events = (await prisma.events.findMany({
+  const events = await prisma.events.findMany({
     select: {
       id: true,
       userId: true,
@@ -112,7 +131,7 @@ export const getEventsByFilters = async (
     orderBy: { fromDate: "asc" },
     take: queryParams.pageSize + 1,
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
-  }));
+  });
 
   const eventsWithOwner = events.map((record) => {
     const { userId, ...rest } = record;
@@ -148,4 +167,3 @@ export const deleteEvent = async (eventId: string) => {
     throw error;
   }
 };
-

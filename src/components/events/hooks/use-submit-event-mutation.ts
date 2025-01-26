@@ -1,5 +1,5 @@
 import { useToast } from "@/components/ui/use-toast";
-import { addEvent } from "@/lib/data/events/events-data-actions";
+import { addOrUpdateEvent } from "@/lib/data/events/events-data-actions";
 import {
   useMutation,
   useQueryClient,
@@ -10,7 +10,7 @@ export function useSubmitEventMutation() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: addEvent,
+    mutationFn: addOrUpdateEvent,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["events-feed"],

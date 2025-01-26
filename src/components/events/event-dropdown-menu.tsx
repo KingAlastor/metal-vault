@@ -12,12 +12,19 @@ import {
 import { useState } from "react";
 import { DeleteEventDialog } from "./delete-event-dialog";
 import { Event } from "./event-types";
+import useWindowSize from "@/lib/hooks/get-window-size";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
+import { CreateEventForm } from "./create-event-form";
 
-export const EventDropdownMenu = (event : Event) => {
+
+
+export const EventDropdownMenu = (event: Event) => {
+  const size = useWindowSize();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditEventOpen, setIsEditEventFormgOpen] = useState(false);
 
-  const handleAddToFavoritesClick = () => {
-  };
+  const handleAddToFavoritesClick = () => {};
 
   return (
     <>
@@ -38,6 +45,9 @@ export const EventDropdownMenu = (event : Event) => {
           {event.isUserOwner && (
             <>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setIsEditEventFormgOpen(true)}>
+                <div className="dropdown-options">Edit Event</div>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
                 <div className="dropdown-options">Delete event</div>
               </DropdownMenuItem>
@@ -50,6 +60,25 @@ export const EventDropdownMenu = (event : Event) => {
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
       />
+      {size.width > 640 ? (
+        <Dialog open={isEditEventOpen} onOpenChange={setIsEditEventFormgOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle> Edit Post</DialogTitle>
+            </DialogHeader>
+            <CreateEventForm setOpen={setIsEditEventFormgOpen} event={event} />
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Drawer open={isEditEventOpen} onOpenChange={setIsEditEventFormgOpen}>
+          <DrawerContent>
+            <DrawerHeader className="text-left">
+              <DrawerTitle>Edit Post</DrawerTitle>
+            </DrawerHeader>
+            <CreateEventForm setOpen={setIsEditEventFormgOpen} event={event} />
+          </DrawerContent>
+        </Drawer>
+      )}
     </>
   );
 };

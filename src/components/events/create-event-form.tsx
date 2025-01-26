@@ -61,10 +61,23 @@ const FormSchema = z.object({
   website: z.string(),
 });
 
-export function CreateEventForm({ setOpen }: CreateEventFormProps) {
+export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: initialFormState,
+    defaultValues: event
+      ? {
+          eventName: event.eventName,
+          country: event.country,
+          city: event.city,
+          bands: event.bands,
+          genreTags: event.genreTags,
+          dateRange: event?.fromDate && event?.toDate
+            ? { from: new Date(event.fromDate), to: new Date(event.toDate) }
+            : { from: new Date(), to: new Date() },
+          imageUrl: event.imageUrl ?? "",
+          website: event.website ?? "",
+        }
+      : initialFormState,
   });
 
   const { reset, setValue, control, handleSubmit } = form;
@@ -72,8 +85,8 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
   const mutation = useSubmitEventMutation();
 
   const [countries, setCountries] = useState<EventCountry[]>([]);
-  const [bandsIds, setBandIds] = useState<string[]>([]);
-  const [bands, setBands] = useState<string[]>([]);
+  const [bandsIds, setBandIds] = useState<string[]>(event?.bandIds ?? []);
+  const [bands, setBands] = useState<string[]>(event?.bands ?? []);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -106,12 +119,15 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    console.log("Form validation passed, raw data:", data);
     try {
       const formData: AddEventProps = {
         ...data,
+        id: event?.id ?? "",
         bands: bands,
         bandIds: bandsIds,
       };
+      console.log("form data: ", formData);
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
@@ -150,14 +166,21 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
   const handleBandRemove = (bandToRemove: string) => {
     setBands((prevBands) => prevBands.filter((band) => band !== bandToRemove));
     const bandData = JSON.parse(bandToRemove);
-    setBandIds((prevBandIds) => 
-      prevBandIds.filter(id => id !== bandData.bandId)
+    setBandIds((prevBandIds) =>
+      prevBandIds.filter((id) => id !== bandData.bandId)
     );
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          console.log("Form validation failed:", errors);
+          console.log("Current form values:", form.getValues());
+        })}
+        className="w-full space-y-6"
+      >
+        {" "}
         <FormField
           control={control}
           name="eventName"
@@ -215,11 +238,9 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
             </FormItem>
           )}
         />
-
         {bands.length > 0 && (
           <BandList bands={bands} onRemove={handleBandRemove} />
         )}
-
         <FormField
           control={control}
           name="genreTags"
@@ -280,7 +301,7 @@ export function CreateEventForm({ setOpen }: CreateEventFormProps) {
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Create Event</Button>
+          <Button type="submit">Save Event</Button>
         </div>
       </form>
     </Form>

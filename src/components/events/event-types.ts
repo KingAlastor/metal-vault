@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 
 export type CreateEventFormProps = {
   setOpen: Dispatch<SetStateAction<boolean>>;
+  event?: Event;
 };
 
 export type EventsPageProps = {
@@ -35,6 +36,7 @@ export type Event = {
 };
 
 export type AddEventProps = {
+  id: string,
   eventName: string;
   country: string;
   city: string;
