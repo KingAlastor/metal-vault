@@ -58,7 +58,7 @@ export function EventsFiltersForm({
         favorite_genres_only: data.favorite_genres_only ?? false,
       };
       setIsOpen(false);
-      setFilters(filters)
+      setFilters(filters);
       mutation.mutate(filters);
     };
     updateFilters();
@@ -66,7 +66,13 @@ export function EventsFiltersForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log("Form validation failed:", errors);
+          console.log("Current form values:", form.getValues());
+        })}
+        className="w-full space-y-6"
+      >
         <div>
           <div className="space-y-1 rounded-lg border p-2">
             <FormField
@@ -108,7 +114,9 @@ export function EventsFiltersForm({
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit" className="h-8">Apply</Button>
+              <Button type="submit" className="h-8">
+                Apply
+              </Button>
             </div>
           </div>
         </div>

@@ -39,7 +39,9 @@ export const FormSchema = z.object({
   genreTags: z.array(z.string()).optional(),
 });
 
-export default function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
+export default function ProfileSettingsForm({
+  user,
+}: ProfileSettingsFormProps) {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -86,7 +88,7 @@ export default function ProfileSettingsForm({ user }: ProfileSettingsFormProps) 
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      console.log("data", data)
+      console.log("data", data);
       await updateUserData(data);
       toast({ description: "Profile updated." });
       // Currently not working
@@ -102,7 +104,10 @@ export default function ProfileSettingsForm({ user }: ProfileSettingsFormProps) 
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log("Form validation failed:", errors);
+          console.log("Current form values:", form.getValues());
+        })}
         className="max-w-sm space-y-2.5"
       >
         <UserNameField />

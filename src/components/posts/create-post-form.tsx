@@ -99,7 +99,8 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
           spotify_link: post.SpotifyLink ?? undefined,
           bandcamp_link: post.BandCampLink ?? undefined,
         }
-      : initialFormState,  });
+      : initialFormState,
+  });
   const { reset, setValue, control, handleSubmit } = form;
 
   const mutation = useSubmitPostMutation();
@@ -132,7 +133,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
       }));
     },
     staleTime: 24 * 60 * 60 * 1000,
-    gcTime: 24 * 60 * 60 * 1000,  
+    gcTime: 24 * 60 * 60 * 1000,
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -145,7 +146,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
         title: JSON.stringify(linkData?.title),
         bandId: bandIdRef.current,
       };
-      console.log("onSubmit: ", formData)
+      console.log("onSubmit: ", formData);
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
@@ -170,7 +171,13 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
+      <form
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          console.log("Form validation failed:", errors);
+          console.log("Current form values:", form.getValues());
+        })}
+        className="w-full space-y-6"
+      >
         <FormField
           control={control}
           name="band_name"

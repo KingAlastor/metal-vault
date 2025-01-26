@@ -44,7 +44,6 @@ const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
   favorite_genres: z.boolean().default(false).optional(),
   genreTags: z.array(z.string()),
-
 });
 
 interface FiltersFormProps {
@@ -96,7 +95,13 @@ export function ReleasesFiltersForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log("Form validation failed:", errors);
+          console.log("Current form values:", form.getValues());
+        })}
+        className="w-full space-y-6"
+      >
         <div>
           <div className="space-y-4 rounded-lg border p-4">
             <FormField
@@ -106,7 +111,7 @@ export function ReleasesFiltersForm({
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
-                      Show my favorite artists 
+                      Show my favorite artists
                     </FormLabel>
                   </div>
                   <FormControl>

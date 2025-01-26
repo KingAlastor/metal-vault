@@ -71,9 +71,10 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
           city: event.city,
           bands: event.bands,
           genreTags: event.genreTags,
-          dateRange: event?.fromDate && event?.toDate
-            ? { from: new Date(event.fromDate), to: new Date(event.toDate) }
-            : { from: new Date(), to: new Date() },
+          dateRange:
+            event?.fromDate && event?.toDate
+              ? { from: new Date(event.fromDate), to: new Date(event.toDate) }
+              : { from: new Date(), to: new Date() },
           imageUrl: event.imageUrl ?? "",
           website: event.website ?? "",
         }
@@ -180,7 +181,6 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         })}
         className="w-full space-y-6"
       >
-        {" "}
         <FormField
           control={control}
           name="eventName"
