@@ -98,6 +98,7 @@ export const getEventsByFilters = async (
       genreTags: true,
       imageUrl: true,
       website: true,
+      createdAt: true,
       user: {
         select: {
           name: true,
