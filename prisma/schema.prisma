@@ -40,6 +40,8 @@ model User {
   UserPostsActive   UserPostsActive[]
   UserPostsArchived UserPostsArchived[]
   Events            Events[]
+  BandUnFollowers0  BandUnFollowers0[]
+  BandUnFollowers1  BandUnFollowers1[]
 
   @@map("users")
 }
@@ -100,6 +102,8 @@ model Bands {
   BandFollowers1    BandFollowers1[]
   UserPostsActive   UserPostsActive[]
   UserPostsArchived UserPostsArchived[]
+  BandUnFollowers0  BandUnFollowers0[]
+  BandUnFollowers1  BandUnFollowers1[]
 
   @@unique([archivesLink])
   @@index([genreTags], type: Gin)
@@ -169,6 +173,28 @@ model BandFollowers1 {
   @@unique([userId, bandId], name: "userId_bandId")
   @@index([bandId, userId])
   @@map("band_followers_1")
+}
+
+model BandUnFollowers0 {
+  bandId String @map("band_id")
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  band   Bands  @relation(fields: [bandId], references: [id])
+
+  @@unique([userId, bandId], name: "userId_bandId")
+  @@index([bandId, userId])
+  @@map("band_unfollowers_0")
+}
+
+model BandUnFollowers1 {
+  bandId String @map("band_id")
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  band   Bands  @relation(fields: [bandId], references: [id])
+
+  @@unique([userId, bandId], name: "userId_bandId")
+  @@index([bandId, userId])
+  @@map("band_unfollowers_1")
 }
 
 model UserPostsActive {

@@ -16,14 +16,25 @@ import { CreatePostForm } from "./create-post-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
+import { useHideArtistPostMutation } from "./hooks/use-hide-artist-post-mutation";
+import { useSession } from "next-auth/react";
 
 const PostDropdownMenu = (post: Post) => {
+  const { data: session } = useSession();
+  const loggedIn = session?.user.id ? true : false;
   const size = useWindowSize();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditPostOpen, setIsEditPostFormgOpen] = useState(false);
+  const mutation = useHideArtistPostMutation();
 
   const handleAddToFavoritesClick = () => {
     // Handle add click
+  };
+
+  const handleHideArtistClick = () => {
+    if (post.bandId) {
+      mutation.mutate(post.bandId);
+    }
   };
 
   return (
@@ -36,9 +47,22 @@ const PostDropdownMenu = (post: Post) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleAddToFavoritesClick}>
-            <div className="dropdown-options">Save post</div>
-          </DropdownMenuItem>
+          {loggedIn && (
+            <>
+              <DropdownMenuItem
+                onClick={handleHideArtistClick}
+                disabled={mutation.isPending}
+              >
+                <div className="dropdown-options">
+                  {mutation.isPending ? "Hiding..." : "Hide artist"}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAddToFavoritesClick}>
+                <div className="dropdown-options">Save post</div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <DropdownMenuItem onClick={handleAddToFavoritesClick}>
             <div className="dropdown-options">Report Post</div>
           </DropdownMenuItem>
@@ -66,7 +90,7 @@ const PostDropdownMenu = (post: Post) => {
             <DialogHeader>
               <DialogTitle> Edit Post</DialogTitle>
             </DialogHeader>
-            <CreatePostForm setOpen={setIsEditPostFormgOpen} post={post}/>
+            <CreatePostForm setOpen={setIsEditPostFormgOpen} post={post} />
           </DialogContent>
         </Dialog>
       ) : (
@@ -75,7 +99,7 @@ const PostDropdownMenu = (post: Post) => {
             <DrawerHeader className="text-left">
               <DrawerTitle>Edit Post</DrawerTitle>
             </DrawerHeader>
-            <CreatePostForm setOpen={setIsEditPostFormgOpen} post={post}/>
+            <CreatePostForm setOpen={setIsEditPostFormgOpen} post={post} />
           </DrawerContent>
         </Drawer>
       )}

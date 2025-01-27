@@ -4,6 +4,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { PostsFilters } from "./posts-filters-data-actions";
 import { fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
+import { Prisma } from "@prisma/client";
+import { fetchUserUnfollowedBands } from "../user/followArtists/unfollow-artists-data-actions";
 
 type PostProps = {
   id?: string;
@@ -28,9 +30,7 @@ export const addOrUpdatePost = async (post: PostProps) => {
   const user = session?.user;
 
   if (!user?.id) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -70,13 +70,12 @@ export const addOrUpdatePost = async (post: PostProps) => {
       });
     }
 
-      
-  const { userId, ...postWithoutUserId } = updatedPost;
+    const { userId, ...postWithoutUserId } = updatedPost;
 
-  const postWithOwner = {
-    ...postWithoutUserId,
-    isUserOwner: userId === userId,
-  };
+    const postWithOwner = {
+      ...postWithoutUserId,
+      isUserOwner: userId === userId,
+    };
 
     return postWithOwner;
   } catch (error) {
@@ -142,6 +141,20 @@ export const getPostsByFilters = async (
     };
   }
 
+  if (user) {
+    const unfollowedBands = await fetchUserUnfollowedBands();
+    if (unfollowedBands.length > 0) {
+      where = {
+        ...where,
+        bandId: {
+          notIn: unfollowedBands,
+        },
+      };
+    }
+  }
+
+  console.log("where: ", where);
+
   const posts = await prisma.userPostsActive.findMany({
     select: {
       id: true,
@@ -180,6 +193,48 @@ export const getPostsByFilters = async (
   });
 
   return postsWithOwner;
+};
+
+export const hideArtistForUserById = async (bandId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user?.id || user?.shard === undefined || user?.shard === null) {
+    throw new Error("User must be logged in to hide artists");
+  }
+
+  const shard = user.shard;
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`INSERT INTO band_unfollowers_${Prisma.raw(
+        shard.toString()
+      )} (user_id, band_id) VALUES (${user.id}, ${bandId})`;
+
+      const favBand =
+        await tx.$queryRaw`SELECT band_id FROM band_followers_${Prisma.raw(
+          shard.toString()
+        )} WHERE user_id = ${user.id} AND band_id = ${bandId}`;
+      if (
+        Array.isArray(favBand) &&
+        favBand.length > 0 &&
+        favBand[0].band_id === bandId
+      ) {
+        await tx.$executeRaw`DELETE FROM band_followers_${Prisma.raw(
+          shard.toString()
+        )} WHERE user_id = ${user.id} AND band_id = ${bandId}`;
+
+        await tx.$executeRaw`UPDATE bands SET followers = followers - 1 WHERE id = ${bandId}`;
+      }
+    });
+    return { bandId };
+  } catch (error) {
+    console.error("Error hiding artist:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma error code:", error.code);
+    }
+    throw error;
+  }
 };
 
 export async function updateProfileFilters(filters: PostsFilters) {
