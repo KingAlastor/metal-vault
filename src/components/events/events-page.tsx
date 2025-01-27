@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { EventsPageProps, Event } from "./event-types";
+import { Event } from "./event-types";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,11 +17,13 @@ import { EventCards } from "./event-cards";
 import { CreateEventCard } from "./create-event-card";
 import Image from "next/image";
 import { EventsLoadingSkeleton } from "./events-loading-skeleton";
+import { useSession } from "next-auth/react";
 
-export function EventsPage({ user }: EventsPageProps) {
+export function EventsPage() {
+  const {data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState(
-    JSON.parse(user?.postsSettings || "{}")
+    JSON.parse(session?.user?.postsSettings || "{}")
   );
 
   const {

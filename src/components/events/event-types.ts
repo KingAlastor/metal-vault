@@ -6,10 +6,6 @@ export type CreateEventFormProps = {
   event?: Event;
 };
 
-export type EventsPageProps = {
-  user?: User;
-};
-
 type EventUser = {
   name: string;
   userName: string | null;

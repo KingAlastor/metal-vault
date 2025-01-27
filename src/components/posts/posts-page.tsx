@@ -16,15 +16,13 @@ import { PostsPageData } from "@/app/api/posts/route";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
-type PostsPageProps = {
-  user?: User;
-};
-
-export default function PostsPage({ user }: PostsPageProps) {
+export default function PostsPage() {
+  const {data: session} = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState(
-    JSON.parse(user?.postsSettings || "{}")
+    JSON.parse(session?.user?.postsSettings || "{}")
   );
 
   const {

@@ -14,15 +14,13 @@ import { User } from "next-auth";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
+import { useSession } from "next-auth/react";
 
-interface ReleasesPageProps {
-  user?: User;
-}
-
-export default function ReleasesPage({ user }: ReleasesPageProps) {
+export default function ReleasesPage() {
+  const {data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState(
-    JSON.parse(user?.releaseSettings || "{}")
+    JSON.parse(session?.user?.releaseSettings || "{}")
   );
 
   const {
