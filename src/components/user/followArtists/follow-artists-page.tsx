@@ -34,8 +34,6 @@ export default function FollowArtistsPage() {
     user!.pendingActions.includes("syncFollowers")
   );
 
-  console.log("user", user)
-
   const queryClient = useQueryClient();
 
   const {
@@ -111,9 +109,6 @@ export default function FollowArtistsPage() {
     await updateSession();
     setIsFirstTimeUser(false);
   };
-
-
-
 
   return (
     <Tabs defaultValue="favorites">

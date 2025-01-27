@@ -31,7 +31,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         lastLogin: new Date(),
         pendingActions: ["firstLogin", "syncFollowers"],
       };
-      console.log("user object: ", data)
       await updateCreatedUserData(where, data);
     },
   },

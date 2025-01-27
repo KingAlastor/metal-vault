@@ -146,7 +146,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
         title: JSON.stringify(linkData?.title),
         bandId: bandIdRef.current,
       };
-      console.log("onSubmit: ", formData);
+      
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);

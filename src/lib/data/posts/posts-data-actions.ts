@@ -153,8 +153,6 @@ export const getPostsByFilters = async (
     }
   }
 
-  console.log("where: ", where);
-
   const posts = await prisma.userPostsActive.findMany({
     select: {
       id: true,

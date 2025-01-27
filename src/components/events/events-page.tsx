@@ -50,7 +50,7 @@ export function EventsPage() {
   });
 
   const events: Event[] = data?.pages.flatMap((page) => page.events) || [];
-  console.log("events: ", events);
+  
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       <CreateEventCard />

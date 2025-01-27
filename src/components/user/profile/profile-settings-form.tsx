@@ -88,10 +88,8 @@ export default function ProfileSettingsForm({
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      console.log("data", data);
       await updateUserData(data);
       toast({ description: "Profile updated." });
-      // Currently not working
       await updateSession();
     } catch (error) {
       toast({

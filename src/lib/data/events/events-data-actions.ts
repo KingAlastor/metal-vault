@@ -25,7 +25,6 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
     let updatedEvent;
 
     if (event.id) {
-      console.log("updating event")
       updatedEvent = await prisma.events.update({
         where: { id: event.id },
         data: {
