@@ -24,6 +24,7 @@ import { Band } from "@/lib/data/bands/search-bands-data-actions";
 import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
 import { useSession } from "next-auth/react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function FollowArtistsPage() {
   const { data: session, update: updateSession } = useSession();
@@ -111,7 +112,16 @@ export default function FollowArtistsPage() {
     setIsFirstTimeUser(false);
   };
 
+
+
+
   return (
+    <Tabs defaultValue="favorites">
+    <TabsList className="grid w-full grid-cols-2">
+      <TabsTrigger value="favorites">Favorite Bands</TabsTrigger>
+      <TabsTrigger value="unfollowed">Unfollowed Bands</TabsTrigger>
+    </TabsList>
+    <TabsContent value="favorites">
     <div>
       {isFirstTimeUser && (
         <FirstTimeUserNotice
@@ -149,6 +159,11 @@ export default function FollowArtistsPage() {
         onClose={handleDialogClose}
       />
     </div>
+    </TabsContent>
+  <TabsContent value="unfollowed">
+    <div>Other content goes here</div>
+  </TabsContent>
+</Tabs>
   );
 }
 
