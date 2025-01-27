@@ -166,7 +166,11 @@ const handleSpotifyTokenRevalidation = async () => {
     const authUrl = `${BASE_URL}?response_type=code&client_id=${spotifyId}&scope=${encodeURIComponent(
       scope
     )}&redirect_uri=${encodeURIComponent(redirectUrl)}`;
-    window.open(authUrl, "Auth", "width=500,height=600");
+    const popupWindow = window.open(authUrl, "Auth", "width=500,height=600");
+    console.log("popup window: ", popupWindow)
+    if (!popupWindow || popupWindow.closed || typeof popupWindow.closed == 'undefined') {
+      alert("Popup blocked. Please allow popups for this website.");
+    }
   }
 };
 

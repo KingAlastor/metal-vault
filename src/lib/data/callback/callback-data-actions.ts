@@ -1,10 +1,10 @@
 "use server";
 
-import getSession from "@/lib/auth/getSession";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 export const saveRefreshTokenToUserTokens = async (provider: string, token: string) => {
-  const session = await getSession();
+  const session = await auth();
   const user = session?.user;
 
   if (!user?.id) {

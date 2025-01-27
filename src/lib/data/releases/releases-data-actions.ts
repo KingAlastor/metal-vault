@@ -1,11 +1,11 @@
 "use server";
 
-import getSession from "@/lib/auth/getSession";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { PrismaBandFollowersModel } from "../../../../prisma/models";
 
 export const followArtistByBandId = async (bandId: string) => {
-  const session = await getSession();
+  const session = await auth();
   const user = session?.user;
 
   if (!user) {

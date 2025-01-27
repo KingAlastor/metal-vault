@@ -1,4 +1,4 @@
-import getSession from "@/lib/auth/getSession";
+import { auth } from "@/auth";
 
 import { Metadata } from "next";
 import ReleasesPage from "../../../components/releases/releases-page";
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const session = await getSession();
+  const session = await auth();
   const user = session?.user;
   return <ReleasesPage user={user}/>;
 }

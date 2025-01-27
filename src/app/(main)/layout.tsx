@@ -1,5 +1,5 @@
 import NavBar from "@/app/(main)/NavBar";
-import getSession from "@/lib/auth/getSession";
+import { auth } from "@/auth";
 import MenuBar from "./MenuBar";
 import { SessionProvider } from "next-auth/react";
 import PromotionsBar from "./PromotionsBar";
@@ -10,7 +10,7 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const session = await auth();
 
   return (
     <SessionProvider session={session} refetchOnWindowFocus={false}>
