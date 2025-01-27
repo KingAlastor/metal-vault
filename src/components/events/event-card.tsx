@@ -10,7 +10,6 @@ import { formatDateWithNamedMonth } from "@/lib/general/date";
 import React, { useState } from "react";
 import { EventCardProps } from "./event-types";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
-import { VisuallyHidden } from "../ui/visually-hidden";
 import { ChevronDown } from "lucide-react";
 import useWindowSize from "@/lib/hooks/get-window-size";
 
@@ -124,9 +123,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
       {event.imageUrl && (
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-3xl">
-            <VisuallyHidden>
-              <DialogTitle>Event Image for {event.eventName}</DialogTitle>
-            </VisuallyHidden>
+              <DialogTitle className="sr-only">Event Image for {event.eventName}</DialogTitle>
             <div className="relative w-full h-[80vh]">
               <Image
                 src={event.imageUrl}
