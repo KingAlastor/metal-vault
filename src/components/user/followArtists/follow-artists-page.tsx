@@ -1,7 +1,7 @@
 "use client";
 
 import { DataTable } from "./bands-data-table";
-import { columns } from "./bands-table-columns";
+import { getColumns } from "./bands-table-columns";
 import {
   checkBandExists,
   fetchUserFavBandsFullData,
@@ -146,7 +146,7 @@ export default function FollowArtistsPage() {
 
           <div className="rounded-lg border p-4 mt-4">
             <h2 className="text-lg font-bold">My Favorites</h2>
-            <DataTable columns={columns} data={followedBands || []} />
+            <DataTable columns={getColumns('followed')}  data={followedBands || []} />
           </div>
           <Button
             variant="outline"
@@ -179,7 +179,7 @@ export default function FollowArtistsPage() {
 
         <div className="rounded-lg border p-4 mt-4">
           <h2 className="text-lg font-bold">My Favorites</h2>
-          <DataTable columns={columns} data={unfollowedBands || []} />
+          <DataTable columns={getColumns('unfollowed')} data={unfollowedBands || []} />
         </div>
       </TabsContent>
     </Tabs>

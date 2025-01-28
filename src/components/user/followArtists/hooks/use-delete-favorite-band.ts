@@ -19,6 +19,9 @@ export const useDeleteFavorite = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favbands"] });
     },
+    onError: (error) => {
+      console.error("Mutation error:", error);
+    },
   });
 
   const handleDeleteFavoritesClick = (bandId: string) => {

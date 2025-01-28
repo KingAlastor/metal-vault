@@ -9,14 +9,36 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDeleteFavorite } from "./hooks/delete-favorite-band";
+import { useDeleteFavorite } from "./hooks/use-delete-favorite-band";
+import { useDeleteUnfollowedBand } from "./hooks/use-delete-unfollow-band";
 
 interface ActionsCellProps {
   bandId: string;
+  listType: 'followed' | 'unfollowed';
 }
 
-const ActionsCell: React.FC<ActionsCellProps> = ({ bandId }) => {
+const ActionsCell: React.FC<ActionsCellProps> = ({ bandId, listType }) => {
   const { handleDeleteFavoritesClick } = useDeleteFavorite();
+  const { handleDeleteUnFollowBandClick } = useDeleteUnfollowedBand();
+
+  const actionConfig = {
+    followed: {
+      label: 'Unfollow Artist',
+      action: () => {
+        console.log('Unfollowing artist with bandId:', bandId);
+        handleDeleteFavoritesClick(bandId);
+      }
+    },
+    unfollowed: {
+      label: 'Remove Unfollow',
+      action: () => {
+        console.log('Removing unfollow for bandId:', bandId);
+        handleDeleteUnFollowBandClick(bandId);
+      }
+    }
+  };
+
+  const { label, action } = actionConfig[listType];
 
   return (
     <DropdownMenu>
@@ -28,8 +50,8 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ bandId }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => handleDeleteFavoritesClick(bandId)}>
-          <div className="dropdown-options">Unfollow Artist</div>
+        <DropdownMenuItem onClick={action}>
+          <div className="dropdown-options">{label}</div>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

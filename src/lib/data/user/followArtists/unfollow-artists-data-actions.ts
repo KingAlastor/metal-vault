@@ -1,3 +1,5 @@
+"use server";
+
 import { auth } from "@/auth";
 import { PrismaBandUnFollowersModel } from "../../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
@@ -32,7 +34,7 @@ export const fetchUserUnfollowedBands = async () => {
 export const fetchUserUnfollowedBandsFullData = async () => {
   const session = await auth();
   const user = session?.user;
-  console.log("unfollow")
+
   if (!user) {
     return [];
   }
@@ -65,3 +67,35 @@ export const fetchUserUnfollowedBandsFullData = async () => {
   return unfollowedBands.map((bands: any) => bands.band);
 
 };
+
+export const deleteUnfollowBand = async (bandId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    return [];
+  }
+  const shard = user.shard.toString();
+  const modelName = `bandUnFollowers${shard}` as const;
+
+  if (!(modelName in prisma)) {
+    throw new Error(`Model ${modelName} does not exist in Prisma client.`);
+  }
+
+  const model = prisma[modelName as keyof typeof prisma] as PrismaBandUnFollowersModel;
+  
+  try {
+    await model.delete({
+      where: {
+        userId_bandId: {
+          userId: user.id,
+          bandId: bandId,
+        },
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting favorite artist:", error);
+    return { success: false, error: (error as any).message };
+  }
+}

@@ -11,7 +11,7 @@ export type PrismaBandFollowersModel = {
 };
 
 type PrismaBandUnFollowersModel = {
-  findMany: PrismaClient["bandUnFollowers0"]["findMany"];
-  delete: PrismaClient["bandUnFollowers0"]["delete"];
-  create: PrismaClient["bandUnFollowers0"]["create"];
+  findMany: (args: any) => Promise<any>;
+  delete: (args: any) => Promise<any>;
+  create: (args: any) => Promise<any>;
 };
