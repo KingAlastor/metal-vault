@@ -4,17 +4,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ActionsCell from "./actions-cell";
+import { DataTableBand } from "./follow-artists-types";
 
-export interface Band {
-  id: string;
-  namePretty: string;
-  genreTags: string[];
-  country: string | null;
-  status: string | null;
-  followers: number | null;
-}
-
-export const columns: ColumnDef<Band>[] = [
+export const columns: ColumnDef<DataTableBand>[] = [
   {
     accessorKey: "namePretty",
     header: "Name",

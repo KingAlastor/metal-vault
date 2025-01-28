@@ -25,6 +25,8 @@ import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-ac
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
 import { useSession } from "next-auth/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import kyInstance from "@/lib/ky";
+import { DataTableBand } from "./follow-artists-types";
 
 export default function FollowArtistsPage() {
   const { data: session, update: updateSession } = useSession();
@@ -37,13 +39,21 @@ export default function FollowArtistsPage() {
   const queryClient = useQueryClient();
 
   const {
-    data: bands,
-    isLoading,
-    isError,
-    error,
+    data: followedBands,
+    status: favBandsStatus,
+    error: favBandsError,
   } = useQuery({
     queryKey: ["favbands"],
-    queryFn: () => fetchUserFavBandsFullData(),
+    queryFn: () => kyInstance.get("/api/user/artists/followed").json<DataTableBand[]>(),
+  });
+
+  const {
+    data: unfollowedBands,
+    status: unfollowedBandsStatus,
+    error: unfollowedBandsError,
+  } = useQuery({
+    queryKey: ["unfollowed-bands"],
+    queryFn: () => kyInstance.get("/api/user/artists/unfollowed").json<DataTableBand[]>(),
   });
 
   const [unresolvedBands, setUnresolvedBands] = useState<string[]>([]);
@@ -96,14 +106,6 @@ export default function FollowArtistsPage() {
     queryClient.invalidateQueries({ queryKey: ["favbands"] });
   };
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="animate-spin" />
-      </div>
-    );
-  if (isError) return <div>Error: {error.message}</div>;
-
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("syncFollowers");
     await updateSession();
@@ -112,53 +114,75 @@ export default function FollowArtistsPage() {
 
   return (
     <Tabs defaultValue="favorites">
-    <TabsList className="grid w-full grid-cols-2">
-      <TabsTrigger value="favorites">Favorite Bands</TabsTrigger>
-      <TabsTrigger value="unfollowed">Unfollowed Bands</TabsTrigger>
-    </TabsList>
-    <TabsContent value="favorites">
-    <div>
-      {isFirstTimeUser && (
-        <FirstTimeUserNotice
-          title="Welcome to Your favorite bands!"
-          description="Search for your favorite bands from the database or synchronize from other providers like Spotify."
-          onDismiss={handleNoticeDismiss}
-        />
-      )}
-      <div>
-        <div className="mb-2">Add bands to favorites</div>
-        <BandSearchBar
-          searchInputProps={searchInputProps}
-          onBandSelect={handleBandSelect}
-        />
-      </div>
-      <div className="rounded-lg border p-4 mt-4">
-        <h2 className="text-lg font-bold">My Favorites</h2>
-        <DataTable columns={columns} data={bands} />
-      </div>
-      <Button
-        variant="outline"
-        className="mt-4 mb-4 flex items-center justify-center"
-        onClick={handleSpotifyRedirect}
-        disabled={isSyncing}
-      >
-        {isSyncing ? (
-          <Loader2 className="animate-spin h-5 w-5" />
-        ) : (
-          <p>Sync from Spotify</p>
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="favorites">Favorite Bands</TabsTrigger>
+        <TabsTrigger value="unfollowed">Unfollowed Bands</TabsTrigger>
+      </TabsList>
+      <TabsContent value="favorites">
+        <div>
+          {isFirstTimeUser && (
+            <FirstTimeUserNotice
+              title="Welcome to Your favorite bands!"
+              description="Search for your favorite bands from the database or synchronize from other providers like Spotify."
+              onDismiss={handleNoticeDismiss}
+            />
+          )}
+          <div>
+            <div className="mb-2">Add bands to favorites</div>
+            <BandSearchBar
+              searchInputProps={searchInputProps}
+              onBandSelect={handleBandSelect}
+            />
+          </div>
+
+          {favBandsStatus === "pending" && (
+            <div className="flex justify-center items-center h-screen">
+              <Loader2 className="animate-spin" />
+            </div>
+          )}
+          {favBandsStatus === "error" && (
+            <div> Error: {favBandsError?.message}</div>
+          )}
+
+          <div className="rounded-lg border p-4 mt-4">
+            <h2 className="text-lg font-bold">My Favorites</h2>
+            <DataTable columns={columns} data={followedBands || []} />
+          </div>
+          <Button
+            variant="outline"
+            className="mt-4 mb-4 flex items-center justify-center"
+            onClick={handleSpotifyRedirect}
+            disabled={isSyncing}
+          >
+            {isSyncing ? (
+              <Loader2 className="animate-spin h-5 w-5" />
+            ) : (
+              <p>Sync from Spotify</p>
+            )}
+          </Button>
+          <UnresolvedBands
+            unresolvedBands={unresolvedBands}
+            isOpen={isBandsDialogOpen}
+            onClose={handleDialogClose}
+          />
+        </div>
+      </TabsContent>
+      <TabsContent value="unfollowed">
+        {unfollowedBandsStatus === "pending" && (
+          <div className="flex justify-center items-center h-screen">
+            <Loader2 className="animate-spin" />
+          </div>
         )}
-      </Button>
-      <UnresolvedBands
-        unresolvedBands={unresolvedBands}
-        isOpen={isBandsDialogOpen}
-        onClose={handleDialogClose}
-      />
-    </div>
-    </TabsContent>
-  <TabsContent value="unfollowed">
-    <div>Other content goes here</div>
-  </TabsContent>
-</Tabs>
+        {unfollowedBandsStatus === "error" && (
+          <div> Error: {unfollowedBandsError?.message}</div>
+        )}
+
+        <div className="rounded-lg border p-4 mt-4">
+          <h2 className="text-lg font-bold">My Favorites</h2>
+          <DataTable columns={columns} data={unfollowedBands || []} />
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
 
@@ -177,8 +201,12 @@ const handleSpotifyTokenRevalidation = async () => {
       scope
     )}&redirect_uri=${encodeURIComponent(redirectUrl)}`;
     const popupWindow = window.open(authUrl, "Auth", "width=500,height=600");
-    console.log("popup window: ", popupWindow)
-    if (!popupWindow || popupWindow.closed || typeof popupWindow.closed == 'undefined') {
+    console.log("popup window: ", popupWindow);
+    if (
+      !popupWindow ||
+      popupWindow.closed ||
+      typeof popupWindow.closed == "undefined"
+    ) {
       alert("Popup blocked. Please allow popups for this website.");
     }
   }

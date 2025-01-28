@@ -28,3 +28,40 @@ export const fetchUserUnfollowedBands = async () => {
     throw error;
   }
 };
+
+export const fetchUserUnfollowedBandsFullData = async () => {
+  const session = await auth();
+  const user = session?.user;
+  console.log("unfollow")
+  if (!user) {
+    return [];
+  }
+
+  const shard = user.shard.toString();
+  const modelName = `bandUnFollowers${shard}` as const;
+
+  if (!(modelName in prisma)) {
+    throw new Error(`Model ${modelName} does not exist in Prisma client.`);
+  }
+
+  const model = prisma[modelName as keyof typeof prisma] as PrismaBandUnFollowersModel;
+
+  const unfollowedBands = await model.findMany({
+    where: { userId: user.id },
+    select: {
+      band: {
+        select: {
+          id: true,
+          namePretty: true,
+          country: true,
+          genreTags: true,
+          followers: true,
+          status: true,
+        },
+      },
+    },
+  });
+
+  return unfollowedBands.map((bands: any) => bands.band);
+
+};
