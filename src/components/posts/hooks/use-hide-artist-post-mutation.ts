@@ -17,6 +17,11 @@ export function useHideArtistPostMutation() {
 
       await queryClient.cancelQueries(queryFilter);
 
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["favbands"] }),
+        queryClient.invalidateQueries({ queryKey: ["unfollowed-bands"] }),
+      ]);
+
       queryClient.setQueriesData<InfiniteData<PostsPageData>>(
         queryFilter,
         (oldData) => {
