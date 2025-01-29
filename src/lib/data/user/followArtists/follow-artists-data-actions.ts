@@ -410,3 +410,41 @@ export const checkBandExists = async (bandNamePretty: string) => {
     throw new Error("Failed to check if band exists. Please try again later.");
   }
 };
+
+export const checkFavoriteExists = async (bandId: string | null | undefined) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  if (!bandId) return false; 
+
+  const shard =
+    user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
+      ? user.shard
+      : "0";
+  const model = prisma[
+    `bandFollowers${shard}` as keyof typeof prisma
+  ] as PrismaBandFollowersModel;
+
+  try {
+    const favorite = await model.findUnique({
+      where: {
+        userId_bandId: {
+          userId: user.id,
+          bandId: bandId,
+        },
+      },
+    });
+
+    return favorite !== null;
+
+  } catch (error) {
+    console.error("Error checking favorite:", error);
+    throw error;
+  }
+};

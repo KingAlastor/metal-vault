@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { PostsFilters } from "./posts-filters-data-actions";
-import { fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
+import { checkFavoriteExists, fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
 import { Prisma } from "@prisma/client";
 import { fetchUserUnfollowedBands } from "../user/followArtists/unfollow-artists-data-actions";
 
@@ -72,9 +72,12 @@ export const addOrUpdatePost = async (post: PostProps) => {
 
     const { userId, ...postWithoutUserId } = updatedPost;
 
+    const isFav = await checkFavoriteExists(post.bandId)
+    
     const postWithOwner = {
       ...postWithoutUserId,
       isUserOwner: userId === userId,
+      isFavorite: isFav,
     };
 
     return postWithOwner;
@@ -120,9 +123,9 @@ export const getPostsByFilters = async (
   const session = await auth();
   const user = session?.user;
   let where = {};
+  const favorites = await fetchUserFavoriteBands();
 
   if (filters?.favorites_only) {
-    const favorites = await fetchUserFavoriteBands();
     if (favorites.length > 0)
       where = {
         ...where,
@@ -182,15 +185,19 @@ export const getPostsByFilters = async (
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
   });
 
-  const postsWithOwner = posts.map((record) => {
+  const postsData = posts.map((record) => {
     const { userId, ...rest } = record;
     return {
       ...rest,
       isUserOwner: user?.id ? userId === user.id : false,
+      isFavorite:
+        Array.isArray(favorites) && record.bandId
+          ? favorites.some((favBand) => favBand === record.bandId)
+          : false,
     };
   });
 
-  return postsWithOwner;
+  return postsData;
 };
 
 export const hideArtistForUserById = async (bandId: string) => {

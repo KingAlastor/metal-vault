@@ -18,6 +18,8 @@ import useWindowSize from "@/lib/hooks/get-window-size";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
 import { useHideArtistPostMutation } from "./hooks/use-hide-artist-post-mutation";
 import { useSession } from "next-auth/react";
+import { useFollowArtistPostMutation } from "./hooks/use-follow-artist-mutation";
+import { useUnFollowArtistPostMutation } from "./hooks/use-unfollow-artist-mutation";
 
 const PostDropdownMenu = (post: Post) => {
   const { data: session } = useSession();
@@ -25,16 +27,13 @@ const PostDropdownMenu = (post: Post) => {
   const size = useWindowSize();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditPostOpen, setIsEditPostFormgOpen] = useState(false);
-  const mutation = useHideArtistPostMutation();
+
+  const hideMutation = useHideArtistPostMutation();
+  const followMutation = useFollowArtistPostMutation();
+  const unfollowMutation = useUnFollowArtistPostMutation();
 
   const handleAddToFavoritesClick = () => {
     // Handle add click
-  };
-
-  const handleHideArtistClick = () => {
-    if (post.bandId) {
-      mutation.mutate(post.bandId);
-    }
   };
 
   return (
@@ -50,12 +49,35 @@ const PostDropdownMenu = (post: Post) => {
           {loggedIn && (
             <>
               <DropdownMenuItem
-                onClick={handleHideArtistClick}
-                disabled={mutation.isPending}
+                onClick={() =>
+                  post.isFavorite
+                    ? post.bandId && unfollowMutation.mutate(post.bandId)
+                    : post.bandId && followMutation.mutate(post.bandId)
+                }
+                disabled={
+                  followMutation.isPending || unfollowMutation.isPending
+                }
               >
                 <div className="dropdown-options">
-                  {mutation.isPending ? "Hiding..." : "Hide artist"}
+                  {post.isFavorite
+                    ? unfollowMutation.isPending
+                      ? "Unfollowing..."
+                      : "Unfollow artist"
+                    : followMutation.isPending
+                    ? "Following..."
+                    : "Follow artist"}
                 </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => post.bandId && hideMutation.mutate(post.bandId)}
+                disabled={hideMutation.isPending}
+              >
+                <div className="dropdown-options">
+                  {hideMutation.isPending ? "Hiding..." : "Hide artist"}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleAddToFavoritesClick}>
+                <div className="dropdown-options">Hide user</div>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleAddToFavoritesClick}>
                 <div className="dropdown-options">Save post</div>
