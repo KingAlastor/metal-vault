@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { followArtistByBandId } from "../../lib/data/releases/releases-data-actions";
+import { incrementBandFollowersValue } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export type BandAlbum = {
   bandId: string;
@@ -70,6 +71,7 @@ export const columns: ColumnDef<BandAlbum>[] = [
 
       const handleAddToFavoritesClick = async () => {
         await followArtistByBandId(bandAlbum.bandId);
+        await incrementBandFollowersValue(bandAlbum.bandId)
       };
 
       return (

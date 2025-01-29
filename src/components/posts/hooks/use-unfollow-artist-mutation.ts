@@ -1,8 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { decrementBandFollowersValue, deleteFavoriteArtist } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+  decrementBandFollowersValue,
+  deleteFavoriteArtist,
+} from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export function useUnFollowArtistPostMutation() {
   const queryClient = useQueryClient();
@@ -13,7 +13,8 @@ export function useUnFollowArtistPostMutation() {
       if (result.success) {
         await decrementBandFollowersValue(bandId);
       }
-    },    onSuccess: async () => {
+    },
+    onSuccess: async () => {
       const queryFilter = { queryKey: ["post-feed"] };
 
       await queryClient.cancelQueries(queryFilter);
