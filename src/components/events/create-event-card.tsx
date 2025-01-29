@@ -36,7 +36,7 @@ export const CreateEventCard = () => {
       ) : (
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerTrigger asChild>
-            <div>
+            <>
               <Button
                 variant="ghost"
                 className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
@@ -50,7 +50,7 @@ export const CreateEventCard = () => {
                 />
                 <span className="hidden lg:inline ml-1">Create Event</span>
               </Button>
-            </div>
+            </>
           </DrawerTrigger>
           <DrawerContent>
             <DrawerHeader className="text-left">

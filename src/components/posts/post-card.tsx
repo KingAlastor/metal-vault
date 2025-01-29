@@ -57,7 +57,7 @@ export const PostCard = (post: Post) => {
             >
               <Link href={audioUrl} passHref legacyBehavior>
                 <a target="_blank" rel="noopener noreferrer">
-                  <div>
+                  <>
                     {name && <p className="font-bold">{name}</p>}
                     {artist && <p>{artist}</p>}
                     {releaseDate && (
@@ -69,7 +69,7 @@ export const PostCard = (post: Post) => {
                     {post.genreTags && (
                       <p className="s-font">{post.genreTags.join(", ")}</p>
                     )}
-                  </div>
+                  </>
                 </a>
               </Link>
               {post.previewUrl && (
@@ -110,7 +110,7 @@ export const PostCard = (post: Post) => {
               <div className="flex flex-col justify-between ml-4">
                 <Link href={audioUrl} passHref legacyBehavior>
                   <a target="_blank" rel="noopener noreferrer">
-                    <div>
+                    <>
                       {name && <p className="font-bold">{name}</p>}
                       {artist && <p>{artist}</p>}
                       {releaseDate && (
@@ -122,7 +122,7 @@ export const PostCard = (post: Post) => {
                       {post.genreTags && (
                         <p className="s-font">{post.genreTags.join(", ")}</p>
                       )}
-                    </div>
+                    </>
                   </a>
                 </Link>
               </div>
@@ -163,7 +163,7 @@ export const PostCard = (post: Post) => {
             <div className="flex flex-col justify-between mt-4 w-full text-left">
               <Link href={audioUrl} passHref legacyBehavior>
                 <a target="_blank" rel="noopener noreferrer">
-                  <div>
+                  <>
                     {name && <p className="font-bold">{name}</p>}
                     {artist && <p>{artist}</p>}
                     {releaseDate && (
@@ -175,14 +175,14 @@ export const PostCard = (post: Post) => {
                     {post.genreTags && (
                       <p className="s-font">{post.genreTags.join(", ")}</p>
                     )}
-                  </div>
+                  </>
                 </a>
               </Link>
             </div>
           </div>
         ) : null
       ) : (
-        <div>No audio available</div>
+        <>No audio available</>
       )}
     </div>
   );

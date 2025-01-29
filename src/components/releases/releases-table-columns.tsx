@@ -28,10 +28,8 @@ export const columns: ColumnDef<BandAlbum>[] = [
     accessorKey: "bandName",
     header: "Band",
     cell: ({ row }) => (
-      <div>
-        <div className="hidden xs:block">
-          {row.original.bandName}
-        </div>
+      <>
+        <div className="hidden xs:block">{row.original.bandName}</div>
         <div className="block xs:hidden text-sm ml-2">
           {row.original.bandName}
           <div className="text-gray-500 ml-2">
@@ -40,8 +38,8 @@ export const columns: ColumnDef<BandAlbum>[] = [
             {getShortDate(row.original.releaseDate!)}
           </div>
         </div>
-      </div>
-    )
+      </>
+    ),
   },
   {
     accessorKey: "albumName",
@@ -61,7 +59,7 @@ export const columns: ColumnDef<BandAlbum>[] = [
     cell: ({ row }) => {
       const dateFull: Date = row.getValue("releaseDate");
       const dateFormatted: string = getFullDate(dateFull);
-      return <div>{dateFormatted}</div>;
+      return <>{dateFormatted}</>;
     },
   },
   {
@@ -71,7 +69,7 @@ export const columns: ColumnDef<BandAlbum>[] = [
 
       const handleAddToFavoritesClick = async () => {
         await followArtistByBandId(bandAlbum.bandId);
-        await incrementBandFollowersValue(bandAlbum.bandId)
+        await incrementBandFollowersValue(bandAlbum.bandId);
       };
 
       return (
@@ -97,12 +95,12 @@ export const columns: ColumnDef<BandAlbum>[] = [
 const getFullDate = (date: Date) => {
   const d = formatDate(date);
   return `${d.month} ${d.day} ${d.year}`;
-}
+};
 
 const getShortDate = (date: Date) => {
   const d = formatDate(date);
   return `${d.month} ${d.day}`;
-}
+};
 
 const formatDate = (date: Date) => {
   const d = new Date(date);
@@ -125,5 +123,5 @@ const formatDate = (date: Date) => {
     day: d.getDate(),
     month: months[d.getMonth()],
     year: d.getFullYear(),
-  }
+  };
 };

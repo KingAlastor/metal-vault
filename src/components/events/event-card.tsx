@@ -24,7 +24,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
 
   const eventDetails = (
     <div className="flex flex-col justify-between">
-      <div>
+      <>
         <p>
           {event.country}, {event.city}
         </p>
@@ -32,7 +32,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
           {formatDateWithNamedMonth(event.fromDate)} -{" "}
           {formatDateWithNamedMonth(event.toDate)}
         </p>
-      </div>
+      </>
     </div>
   );
 

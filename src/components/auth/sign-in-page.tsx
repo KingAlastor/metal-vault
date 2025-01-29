@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 
 export default function SignInPage() {
   return (
-    <div>
+    <>
       Sign in with:
       <Button
         className="button"
@@ -13,6 +13,6 @@ export default function SignInPage() {
       >
         Google
       </Button>
-    </div>
+    </>
   );
 }

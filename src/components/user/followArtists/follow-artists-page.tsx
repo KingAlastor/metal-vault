@@ -119,7 +119,7 @@ export default function FollowArtistsPage() {
         <TabsTrigger value="unfollowed">Unfollowed Bands</TabsTrigger>
       </TabsList>
       <TabsContent value="favorites">
-        <div>
+        <>
           {isFirstTimeUser && (
             <FirstTimeUserNotice
               title="Welcome to Your favorite bands!"
@@ -127,13 +127,13 @@ export default function FollowArtistsPage() {
               onDismiss={handleNoticeDismiss}
             />
           )}
-          <div>
+          <>
             <div className="mb-2">Add bands to favorites</div>
             <BandSearchBar
               searchInputProps={searchInputProps}
               onBandSelect={handleBandSelect}
             />
-          </div>
+          </>
 
           {favBandsStatus === "pending" && (
             <div className="flex justify-center items-center h-screen">
@@ -141,7 +141,7 @@ export default function FollowArtistsPage() {
             </div>
           )}
           {favBandsStatus === "error" && (
-            <div> Error: {favBandsError?.message}</div>
+            <> Error: {favBandsError?.message}</>
           )}
 
           <div className="rounded-lg border p-4 mt-4">
@@ -165,7 +165,7 @@ export default function FollowArtistsPage() {
             isOpen={isBandsDialogOpen}
             onClose={handleDialogClose}
           />
-        </div>
+        </>
       </TabsContent>
       <TabsContent value="unfollowed">
         {unfollowedBandsStatus === "pending" && (
@@ -174,7 +174,7 @@ export default function FollowArtistsPage() {
           </div>
         )}
         {unfollowedBandsStatus === "error" && (
-          <div> Error: {unfollowedBandsError?.message}</div>
+          <> Error: {unfollowedBandsError?.message}</>
         )}
 
         <div className="rounded-lg border p-4 mt-4">

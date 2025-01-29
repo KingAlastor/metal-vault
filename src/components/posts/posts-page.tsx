@@ -80,7 +80,7 @@ export default function PostsPage() {
       {status === "success" && !posts.length && !hasNextPage && (
         <p className="text-center text-muted-foreground">No posts found</p>
       )}
-      {status === "error" && <div>Error: {error.message}</div>}
+      {status === "error" && <>Error: {error.message}</>}
 
       {status === "success" && posts.length > 0 && (
         <InfiniteScrollContainer

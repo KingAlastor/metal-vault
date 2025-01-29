@@ -25,10 +25,10 @@ export const BandCard = () => {
   });
 
   if (isError) {
-    return <div>Error: {error.message}</div>;
+    return <>Error: {error.message}</>;
   }
   if (!band) {
-    return <div>Loading...</div>;
+    return <>Loading...</>;
   }
   return (
     <>

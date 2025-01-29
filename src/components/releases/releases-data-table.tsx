@@ -60,7 +60,7 @@ export function ReleasesDataTable<TData, TValue>({
   }, [size.width]);
 
   return (
-    <div>
+    <>
       <div className="flex items-center py-4">
         <Input
           placeholder="Search for a band..."
@@ -139,7 +139,7 @@ export function ReleasesDataTable<TData, TValue>({
           Next
         </Button>
       </div>
-    </div>
+    </>
   );
 }
 

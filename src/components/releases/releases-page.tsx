@@ -57,7 +57,7 @@ export default function ReleasesPage() {
       </Collapsible>
 
       {isLoading &&  <p className="text-center text-muted-foreground">Loading</p>}
-      {error && <div>Error: {error.message}</div>}
+      {error && <>Error: {error.message}</>}
 
       <ReleasesDataTable columns={columns} data={releases || []} />
     </div>

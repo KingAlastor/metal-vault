@@ -10,8 +10,8 @@ export default function Page() {
   //TODO: add const user = session?.user;and redirect to main page
 
   return (
-    <div>
+    <>
         Sign In
-    </div>
+    </>
   )
 }

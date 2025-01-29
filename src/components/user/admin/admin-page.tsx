@@ -14,7 +14,7 @@ export default function AdminPage() {
         <AdminToolsTab />
       </TabsContent>
       <TabsContent value="other">
-        <div>Other content goes here</div>
+        <>Other content goes here</>
       </TabsContent>
     </Tabs>
   );

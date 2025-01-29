@@ -35,7 +35,7 @@ const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
 
 export const Posts = ({ posts }: PostsProps) => {
   return (
-    <div>
+    <>
       {posts.map((post) => {
         return (
           <Card key={post.id} className="mb-4 w-full">
@@ -46,9 +46,9 @@ export const Posts = ({ posts }: PostsProps) => {
                     <UserAvatar avatarUrl={post.user.image} size={30} />
                   </div>
                   <div className="flex flex-col pl-2">
-                    <div>
+                    <>
                       {post.user.userName ? post.user.userName : post.user.name}
-                    </div>
+                    </>
                     <div className="xs-font">
                       {formatDateAndTime(post.postDateTime)}
                     </div>
@@ -80,6 +80,6 @@ export const Posts = ({ posts }: PostsProps) => {
           </Card>
         );
       })}
-    </div>
+    </>
   );
 };

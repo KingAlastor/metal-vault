@@ -73,7 +73,7 @@ export function EventsFiltersForm({
         })}
         className="w-full space-y-6"
       >
-        <div>
+        <>
           <div className="space-y-1 rounded-lg border p-2">
             <FormField
               control={form.control}
@@ -119,7 +119,7 @@ export function EventsFiltersForm({
               </Button>
             </div>
           </div>
-        </div>
+        </>
       </form>
     </Form>
   );
