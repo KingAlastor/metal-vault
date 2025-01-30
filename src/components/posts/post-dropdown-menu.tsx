@@ -37,7 +37,7 @@ const PostDropdownMenu = (post: Post) => {
   const handleAddToFavoritesClick = () => {
     // Handle add click
   };
-  console.log("post id: ", post.userId, "user id: ", session?.user.id);
+  
   return (
     <>
       <DropdownMenu>

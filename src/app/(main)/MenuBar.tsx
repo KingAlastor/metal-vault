@@ -96,21 +96,14 @@ export default function MenuBar({ className }: MenuBarProps) {
       ) : (
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerTrigger asChild>
-            <>
-              <Button
-                variant="ghost"
-                className="flex items-center justify-start gap-3 w-full"
-                title="Create Post"
-              >
-                <Image
-                  src="/newPost.svg"
-                  alt="New Post"
-                  width={24}
-                  height={24}
-                />
-                <span className="hidden lg:inline">Create Post</span>
-              </Button>
-            </>
+            <Button
+              variant="ghost"
+              className="flex items-center justify-start gap-3 w-full"
+              title="Create Post"
+            >
+              <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
+              <span className="hidden lg:inline">Create Post</span>
+            </Button>
           </DrawerTrigger>
           <DrawerContent>
             <DrawerHeader className="text-left">

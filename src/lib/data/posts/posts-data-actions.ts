@@ -161,7 +161,7 @@ export const getPostsByFilters = async (
         },
       };
     }
-    console.log("unffolowed users: ", unfollowedUsers)
+
     if (unfollowedUsers.length > 0) {
       where = {
         ...where,
@@ -172,7 +172,6 @@ export const getPostsByFilters = async (
     }
   }
 
-  console.log("where: ", where);
   const posts = await prisma.userPostsActive.findMany({
     select: {
       id: true,
