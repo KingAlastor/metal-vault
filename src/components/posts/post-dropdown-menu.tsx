@@ -78,6 +78,8 @@ const PostDropdownMenu = (post: Post) => {
                   {hideMutation.isPending ? "Hiding..." : "Hide artist"}
                 </div>
               </DropdownMenuItem>
+              {post.userId != session?.user.id && (
+                <>
               <DropdownMenuItem
                 onClick={() => unfollowUserMutation.mutate(post.userId)}
               >
@@ -86,6 +88,8 @@ const PostDropdownMenu = (post: Post) => {
               <DropdownMenuItem onClick={handleAddToFavoritesClick}>
                 <div className="dropdown-options">Save post</div>
               </DropdownMenuItem>
+              </>
+              )}
               {post.userId === session?.user.id && (
                 <>
                   <DropdownMenuSeparator />
