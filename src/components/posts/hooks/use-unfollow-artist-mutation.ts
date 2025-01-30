@@ -13,15 +13,39 @@ export function useUnFollowArtistPostMutation() {
       if (result.success) {
         await decrementBandFollowersValue(bandId);
       }
+      return bandId; // Return the bandId for use in onMutate and onSuccess
     },
-    onSuccess: async () => {
-      const queryFilter = { queryKey: ["post-feed"] };
+    onMutate: async (bandId) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["post-feed"] });
 
-      await queryClient.cancelQueries(queryFilter);
-      queryClient.invalidateQueries({ queryKey: ["favbands"] });
+      // Snapshot the previous value
+      const previousPosts = queryClient.getQueryData(["post-feed"]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(["post-feed"], (old: any) => {
+        return {
+          ...old,
+          pages: old.pages.map((page: any) => ({
+            ...page,
+            posts: page.posts.map((post: any) =>
+              post.bandId === bandId ? { ...post, isFavorite: false } : post
+            ),
+          })),
+        };
+      });
+      // Return a context object with the snapshotted value
+      return { previousPosts };
     },
-    onError(error) {
-      console.error("Error hiding artist:", error);
+    onError: (err, newTodo, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      queryClient.setQueryData(["post-feed"], context?.previousPosts);
+    },
+    onSuccess: async (bandId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["favbands"] }),
+        queryClient.invalidateQueries({ queryKey: ["unfollowed-bands"] }),
+      ]);
     },
   });
 }
