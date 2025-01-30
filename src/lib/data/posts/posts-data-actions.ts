@@ -3,9 +3,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { PostsFilters } from "./posts-filters-data-actions";
-import { checkFavoriteExists, fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
+import {
+  checkFavoriteExists,
+  fetchUserFavoriteBands,
+} from "../user/followArtists/follow-artists-data-actions";
 import { Prisma } from "@prisma/client";
 import { fetchUserUnfollowedBands } from "../user/followArtists/unfollow-artists-data-actions";
+import { PrismaUserUnFollowersModel } from "../../../../prisma/models";
+import { fetchUnfollowedUsers } from "../user/user-data-actions";
 
 type PostProps = {
   id?: string;
@@ -70,17 +75,14 @@ export const addOrUpdatePost = async (post: PostProps) => {
       });
     }
 
-    const { userId, ...postWithoutUserId } = updatedPost;
+    const isFav = await checkFavoriteExists(post.bandId);
 
-    const isFav = await checkFavoriteExists(post.bandId)
-    
-    const postWithOwner = {
-      ...postWithoutUserId,
-      isUserOwner: userId === userId,
+    const postWithFavourite = {
+      ...updatedPost,
       isFavorite: isFav,
     };
 
-    return postWithOwner;
+    return postWithFavourite;
   } catch (error) {
     console.error("Error updating or creating post:", error);
     throw error;
@@ -123,7 +125,10 @@ export const getPostsByFilters = async (
   const session = await auth();
   const user = session?.user;
   let where = {};
-  const favorites = await fetchUserFavoriteBands();
+  let favorites: string[] = [];
+  if (user) {
+    favorites = await fetchUserFavoriteBands();
+  }
 
   if (filters?.favorites_only) {
     if (favorites.length > 0)
@@ -146,6 +151,8 @@ export const getPostsByFilters = async (
 
   if (user) {
     const unfollowedBands = await fetchUserUnfollowedBands();
+    const unfollowedUsers = await fetchUnfollowedUsers();
+
     if (unfollowedBands.length > 0) {
       where = {
         ...where,
@@ -154,8 +161,18 @@ export const getPostsByFilters = async (
         },
       };
     }
+    console.log("unffolowed users: ", unfollowedUsers)
+    if (unfollowedUsers.length > 0) {
+      where = {
+        ...where,
+        userId: {
+          notIn: unfollowedUsers,
+        },
+      };
+    }
   }
 
+  console.log("where: ", where);
   const posts = await prisma.userPostsActive.findMany({
     select: {
       id: true,
@@ -185,18 +202,14 @@ export const getPostsByFilters = async (
     cursor: queryParams.cursor ? { id: queryParams.cursor } : undefined,
   });
 
-  const postsData = posts.map((record) => {
-    const { userId, ...rest } = record;
-    return {
-      ...rest,
-      isUserOwner: user?.id ? userId === user.id : false,
-      isFavorite:
-        Array.isArray(favorites) && record.bandId
-          ? favorites.some((favBand) => favBand === record.bandId)
-          : false,
-    };
-  });
-
+  const postsData = posts.map((record) => ({
+    ...record,
+    isFavorite:
+      Array.isArray(favorites) && record.bandId
+        ? favorites.includes(record.bandId)
+        : false,
+  }));
+  
   return postsData;
 };
 
@@ -238,6 +251,40 @@ export const hideArtistForUserById = async (bandId: string) => {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       console.error("Prisma error code:", error.code);
     }
+    throw error;
+  }
+};
+
+export const hideUserPostsForUserById = async (unfollowedUserId: string) => {
+  const session = await auth();
+  const user = session?.user;
+
+  if (!user?.id || user?.shard === undefined) {
+    throw new Error("User must be logged in to access unfollowed bands.");
+  }
+
+  const shard = user.shard.toString();
+  const modelName = `userUnFollowers${shard}` as const;
+
+  if (!(modelName in prisma)) {
+    throw new Error(`Model ${modelName} does not exist in Prisma client.`);
+  }
+
+  const model = prisma[
+    modelName as keyof typeof prisma
+  ] as PrismaUserUnFollowersModel;
+
+  try {
+    await model.create({
+      data: {
+        userId: user.id,
+        unfollowedUserId,
+      },
+    });
+
+    return unfollowedUserId;
+  } catch (error) {
+    console.error("Error fetching unfollowed bands:", error);
     throw error;
   }
 };

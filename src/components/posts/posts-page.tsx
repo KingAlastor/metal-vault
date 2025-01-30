@@ -49,7 +49,6 @@ export default function PostsPage() {
   });
 
   const posts = data?.pages.flatMap((page) => page.posts) || [];
-  console.log("posts", posts)
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">

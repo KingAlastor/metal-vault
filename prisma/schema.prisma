@@ -42,6 +42,8 @@ model User {
   Events            Events[]
   BandUnFollowers0  BandUnFollowers0[]
   BandUnFollowers1  BandUnFollowers1[]
+  UserUnFollowers0  UserUnFollowers0[]
+  UserUnFollowers1  UserUnFollowers1[]
 
   @@map("users")
 }
@@ -195,6 +197,24 @@ model BandUnFollowers1 {
   @@unique([userId, bandId], name: "userId_bandId")
   @@index([bandId, userId])
   @@map("band_unfollowers_1")
+}
+
+model UserUnFollowers0 {
+  userId           String @map("user_id")
+  unfollowedUserId String @map("unfollowed_user_id")
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, unfollowedUserId], name: "userId_unfollowedUserId")
+  @@map("user_unfollowers_0")
+}
+
+model UserUnFollowers1 {
+  userId           String @map("user_id")
+  unfollowedUserId String @map("unfollowed_user_id")
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, unfollowedUserId], name: "userId_unfollowedUserId")
+  @@map("user_unfollowers_1")
 }
 
 model UserPostsActive {

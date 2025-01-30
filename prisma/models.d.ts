@@ -15,3 +15,8 @@ type PrismaBandUnFollowersModel = {
   delete: (args: any) => Promise<any>;
   create: (args: any) => Promise<any>;
 };
+
+type PrismaUserUnFollowersModel = {
+  create: (args: any) => Promise<any>;
+  findMany: (args: any) => Promise<any>;
+}
