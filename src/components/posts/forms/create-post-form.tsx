@@ -26,8 +26,8 @@ import { Band } from "@/lib/data/bands/search-bands-data-actions";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { useQuery } from "@tanstack/react-query";
-import { useSubmitPostMutation } from "./hooks/use-submit-post-mutation";
-import { Post } from "./post-types";
+import { useSubmitPostMutation } from "../hooks/use-submit-post-mutation";
+import { Post } from "../post-types";
 
 const initialFormState = {
   post_message: "",

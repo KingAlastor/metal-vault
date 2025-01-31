@@ -282,3 +282,15 @@ model Events {
   @@index([country, fromDate, toDate, bandIds, genreTags])
   @@map("events")
 }
+
+model ReportedPosts {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+  field     String
+  value     String?
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("reported_posts")
+}

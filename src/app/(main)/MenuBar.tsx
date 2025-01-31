@@ -19,7 +19,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useState } from "react";
-import { CreatePostForm } from "@/components/posts/create-post-form";
+import { CreatePostForm } from "@/components/posts/forms/create-post-form";
 
 interface MenuBarProps {
   className?: string;

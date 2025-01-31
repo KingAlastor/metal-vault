@@ -11,6 +11,7 @@ import { Prisma } from "@prisma/client";
 import { fetchUserUnfollowedBands } from "../user/followArtists/unfollow-artists-data-actions";
 import { PrismaUserUnFollowersModel } from "../../../../prisma/models";
 import { fetchUnfollowedUsers } from "../user/user-data-actions";
+import { ReportedPostData } from "@/components/posts/forms/post-form-types";
 
 type PostProps = {
   id?: string;
@@ -287,6 +288,26 @@ export const hideUserPostsForUserById = async (unfollowedUserId: string) => {
     throw error;
   }
 };
+
+export async function savePostReport(data: ReportedPostData) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  
+  if (!userId) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  const reportData = {
+    userId: userId,
+    ...data,
+  }
+
+  await prisma.reportedPosts.create({
+    data: reportData
+  })
+}
 
 export async function updateProfileFilters(filters: PostsFilters) {
   const session = await auth();

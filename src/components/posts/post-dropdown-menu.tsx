@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import { DeletePostDialog } from "./delete-post-dialog";
 import { Post } from "./post-types";
-import { CreatePostForm } from "./create-post-form";
+import { CreatePostForm } from "./forms/create-post-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
@@ -21,13 +21,14 @@ import { useSession } from "next-auth/react";
 import { useFollowArtistPostMutation } from "./hooks/use-follow-artist-mutation";
 import { useUnFollowArtistPostMutation } from "./hooks/use-unfollow-artist-mutation";
 import { useUnFollowUserPostMutation } from "./hooks/use-unfollow-user-posts-mutation";
+import { ReportPostForm } from "./forms/report-post-form";
 
 const PostDropdownMenu = (post: Post) => {
   const { data: session } = useSession();
-  const loggedIn = session?.user.id ? true : false;
   const size = useWindowSize();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isEditPostOpen, setIsEditPostFormgOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditPostOpen, setIsEditPostFormOpen] = useState(false);
+  const [isReportPostOpen, setIsReportPostOpen] = useState(false);
 
   const hideMutation = useHideArtistPostMutation();
   const followMutation = useFollowArtistPostMutation();
@@ -37,7 +38,7 @@ const PostDropdownMenu = (post: Post) => {
   const handleAddToFavoritesClick = () => {
     // Handle add click
   };
-  
+
   return (
     <>
       <DropdownMenu>
@@ -48,38 +49,34 @@ const PostDropdownMenu = (post: Post) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {loggedIn && (
+          <DropdownMenuItem
+            onClick={() =>
+              post.isFavorite
+                ? post.bandId && unfollowMutation.mutate(post.bandId)
+                : post.bandId && followMutation.mutate(post.bandId)
+            }
+            disabled={followMutation.isPending || unfollowMutation.isPending}
+          >
+            <div className="dropdown-options">
+              {post.isFavorite
+                ? unfollowMutation.isPending
+                  ? "Unfollowing..."
+                  : "Unfollow artist"
+                : followMutation.isPending
+                ? "Following..."
+                : "Follow artist"}
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => post.bandId && hideMutation.mutate(post.bandId)}
+            disabled={hideMutation.isPending}
+          >
+            <div className="dropdown-options">
+              {hideMutation.isPending ? "Hiding..." : "Hide artist"}
+            </div>
+          </DropdownMenuItem>
+          {post.userId != session?.user.id && (
             <>
-              <DropdownMenuItem
-                onClick={() =>
-                  post.isFavorite
-                    ? post.bandId && unfollowMutation.mutate(post.bandId)
-                    : post.bandId && followMutation.mutate(post.bandId)
-                }
-                disabled={
-                  followMutation.isPending || unfollowMutation.isPending
-                }
-              >
-                <div className="dropdown-options">
-                  {post.isFavorite
-                    ? unfollowMutation.isPending
-                      ? "Unfollowing..."
-                      : "Unfollow artist"
-                    : followMutation.isPending
-                    ? "Following..."
-                    : "Follow artist"}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => post.bandId && hideMutation.mutate(post.bandId)}
-                disabled={hideMutation.isPending}
-              >
-                <div className="dropdown-options">
-                  {hideMutation.isPending ? "Hiding..." : "Hide artist"}
-                </div>
-              </DropdownMenuItem>
-              {post.userId != session?.user.id && (
-                <>
               <DropdownMenuItem
                 onClick={() => unfollowUserMutation.mutate(post.userId)}
               >
@@ -88,52 +85,80 @@ const PostDropdownMenu = (post: Post) => {
               <DropdownMenuItem onClick={handleAddToFavoritesClick}>
                 <div className="dropdown-options">Save post</div>
               </DropdownMenuItem>
-              </>
-              )}
-              {post.userId === session?.user.id && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => setIsEditPostFormgOpen(true)}
-                  >
-                    <div className="dropdown-options">Edit Post</div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
-                    <div className="dropdown-options">Delete Post</div>
-                  </DropdownMenuItem>
-                </>
-              )}
-              <DropdownMenuSeparator />
             </>
           )}
-          <DropdownMenuItem onClick={handleAddToFavoritesClick}>
-            <div className="dropdown-options">Report Post</div>
-          </DropdownMenuItem>
+          {post.userId === session?.user.id && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setIsEditPostFormOpen(true)}>
+                <div className="dropdown-options">Edit Post</div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)}>
+                <div className="dropdown-options">Delete Post</div>
+              </DropdownMenuItem>
+            </>
+          )}
+          {post.userId != session?.user.id && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setIsReportPostOpen(true)}>
+                <div className="dropdown-options">Report Post</div>
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       <DeletePostDialog
         post={post}
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
       />
       {size.width > 640 ? (
-        <Dialog open={isEditPostOpen} onOpenChange={setIsEditPostFormgOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle> Edit Post</DialogTitle>
-            </DialogHeader>
-            <CreatePostForm setOpen={setIsEditPostFormgOpen} post={post} />
-          </DialogContent>
-        </Dialog>
+        <>
+          <Dialog open={isEditPostOpen} onOpenChange={setIsEditPostFormOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle> Edit Post</DialogTitle>
+              </DialogHeader>
+              <CreatePostForm setOpen={setIsEditPostFormOpen} post={post} />
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isReportPostOpen} onOpenChange={setIsReportPostOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle> Report Post</DialogTitle>
+              </DialogHeader>
+              <ReportPostForm
+                setIsOpen={setIsReportPostOpen}
+                postId={post.id}
+              />
+            </DialogContent>
+          </Dialog>
+        </>
       ) : (
-        <Drawer open={isEditPostOpen} onOpenChange={setIsEditPostFormgOpen}>
-          <DrawerContent>
-            <DrawerHeader className="text-left">
-              <DrawerTitle>Edit Post</DrawerTitle>
-            </DrawerHeader>
-            <CreatePostForm setOpen={setIsEditPostFormgOpen} post={post} />
-          </DrawerContent>
-        </Drawer>
+        <>
+          <Drawer open={isEditPostOpen} onOpenChange={setIsEditPostFormOpen}>
+            <DrawerContent>
+              <DrawerHeader className="text-left">
+                <DrawerTitle>Edit Post</DrawerTitle>
+              </DrawerHeader>
+              <CreatePostForm setOpen={setIsEditPostFormOpen} post={post} />
+            </DrawerContent>
+          </Drawer>
+
+          <Drawer open={isReportPostOpen} onOpenChange={setIsEditPostFormOpen}>
+            <DrawerContent>
+              <DrawerHeader className="text-left">
+                <DrawerTitle>Report Post</DrawerTitle>
+              </DrawerHeader>
+              <ReportPostForm
+                setIsOpen={setIsReportPostOpen}
+                postId={post.id}
+              />
+            </DrawerContent>
+          </Drawer>
+        </>
       )}
     </>
   );

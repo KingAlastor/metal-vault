@@ -14,6 +14,7 @@ import PostLinkIcons from "./post-link-icons";
 import { PostCard } from "./post-card";
 import { formatDateAndTime } from "@/lib/general/date";
 import { Post, PostsProps } from "./post-types";
+import { useSession } from "next-auth/react";
 
 const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
   {
@@ -34,6 +35,8 @@ const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
 ];
 
 export const Posts = ({ posts }: PostsProps) => {
+  const { data: session } = useSession();
+  const loggedIn = session?.user.id ? true : false;
   return (
     <>
       {posts.map((post) => {
@@ -54,7 +57,7 @@ export const Posts = ({ posts }: PostsProps) => {
                     </div>
                   </div>
                 </div>
-                <PostDropdownMenu {...post} />
+                {loggedIn && <PostDropdownMenu {...post} />}
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
