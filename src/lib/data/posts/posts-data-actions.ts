@@ -81,6 +81,7 @@ export const addOrUpdatePost = async (post: PostProps) => {
     const postWithFavourite = {
       ...updatedPost,
       isFavorite: isFav,
+      isSaved: false,
     };
 
     return postWithFavourite;
@@ -127,8 +128,11 @@ export const getPostsByFilters = async (
   const user = session?.user;
   let where = {};
   let favorites: string[] = [];
+  let savedPosts: string[] = [];
+
   if (user) {
     favorites = await fetchUserFavoriteBands();
+    savedPosts = await fetchUserSavedPosts();
   }
 
   if (filters?.favorites_only) {
@@ -208,8 +212,10 @@ export const getPostsByFilters = async (
       Array.isArray(favorites) && record.bandId
         ? favorites.includes(record.bandId)
         : false,
+    isSaved: Array.isArray(savedPosts) && savedPosts.includes(record.id),
   }));
-  
+  console.log("saved posts: ", savedPosts);
+  console.log("posts: ", postsData);
   return postsData;
 };
 
@@ -292,7 +298,7 @@ export const hideUserPostsForUserById = async (unfollowedUserId: string) => {
 export async function savePostReport(data: ReportedPostData) {
   const session = await auth();
   const userId = session?.user?.id;
-  
+
   if (!userId) {
     throw new Error(
       "User ID is undefined. User must be logged in to access favorites."
@@ -302,11 +308,96 @@ export async function savePostReport(data: ReportedPostData) {
   const reportData = {
     userId: userId,
     ...data,
-  }
+  };
 
   await prisma.reportedPosts.create({
-    data: reportData
-  })
+    data: reportData,
+  });
+}
+
+export async function addPostToSavedPosts(postId: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+  console.log("postID: ", postId, "userID: ", userId)
+  try {
+    await prisma.userPostsSaved.create({
+      data: {
+        userId,
+        postId,
+      },
+    });
+
+    return postId;
+  } catch (error) {
+    console.error("Failed to save post: ", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma error code:", error.code);
+    }
+    throw error;
+  }
+}
+
+export async function removePostFromSavedPosts(postId: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  try {
+    await prisma.userPostsSaved.delete({
+      where: {
+        userId_postId: {
+          userId,
+          postId,
+        },
+      },
+    });
+
+    return postId;
+  } catch (error) {
+    console.error("Failed to unsave post: ", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma error code:", error.code);
+    }
+    throw error;
+  }
+}
+
+export async function fetchUserSavedPosts() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    throw new Error(
+      "User ID is undefined. User must be logged in to access favorites."
+    );
+  }
+
+  try {
+    const savedPosts = await prisma.userPostsSaved.findMany({
+      select: { postId: true },
+      where: { userId },
+    });
+
+    const postIds = savedPosts.map((row: any) => row.postId);
+    return postIds;
+  } catch (error) {
+    console.error("Failed to fetch posts: ", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma error code:", error.code);
+    }
+    throw error;
+  }
 }
 
 export async function updateProfileFilters(filters: PostsFilters) {

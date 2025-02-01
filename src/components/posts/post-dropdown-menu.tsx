@@ -22,6 +22,8 @@ import { useFollowArtistPostMutation } from "./hooks/use-follow-artist-mutation"
 import { useUnFollowArtistPostMutation } from "./hooks/use-unfollow-artist-mutation";
 import { useUnFollowUserPostMutation } from "./hooks/use-unfollow-user-posts-mutation";
 import { ReportPostForm } from "./forms/report-post-form";
+import { useSavePostMutation } from "./hooks/use-save-post-mutation";
+import { useUnSavePostMutation } from "./hooks/use-unsave-post-mutation";
 
 const PostDropdownMenu = (post: Post) => {
   const { data: session } = useSession();
@@ -34,10 +36,8 @@ const PostDropdownMenu = (post: Post) => {
   const followMutation = useFollowArtistPostMutation();
   const unfollowMutation = useUnFollowArtistPostMutation();
   const unfollowUserMutation = useUnFollowUserPostMutation();
-
-  const handleAddToFavoritesClick = () => {
-    // Handle add click
-  };
+  const savePostMutation = useSavePostMutation();
+  const unsavePostMutation = useUnSavePostMutation();
 
   return (
     <>
@@ -82,8 +82,25 @@ const PostDropdownMenu = (post: Post) => {
               >
                 <div className="dropdown-options">Hide user</div>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleAddToFavoritesClick}>
-                <div className="dropdown-options">Save post</div>
+              <DropdownMenuItem
+                onClick={() =>
+                  post.isSaved
+                    ? unsavePostMutation.mutate(post.id)
+                    : savePostMutation.mutate(post.id)
+                }
+                disabled={
+                  savePostMutation.isPending || unsavePostMutation.isPending
+                }
+              >
+                <div className="dropdown-options">
+                  {post.isSaved
+                    ? unsavePostMutation.isPending
+                      ? "Unsaving..."
+                      : "Unsave Post"
+                    : savePostMutation.isPending
+                    ? "Saving..."
+                    : "Save Post"}
+                </div>
               </DropdownMenuItem>
             </>
           )}

@@ -19,6 +19,7 @@ export type Post = {
   postDateTime: Date;
   previewUrl: string | null;
   isFavorite: boolean;
+  isSaved: boolean;
   user: PostUser;
 };
 
