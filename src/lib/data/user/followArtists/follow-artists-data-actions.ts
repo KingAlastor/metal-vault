@@ -228,7 +228,7 @@ export const saveUserFavoriteAndUpdateFollowerCount = async (
     `bandFollowers${shard}` as keyof typeof prisma
   ] as PrismaBandFollowersModel;
 
-  const existingRecord = await prisma.bandFollowers0.findUnique({
+  const existingRecord = await model.findUnique({
     where: {
       userId_bandId: {
         userId: user.id,
