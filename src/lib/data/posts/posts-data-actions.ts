@@ -214,8 +214,7 @@ export const getPostsByFilters = async (
         : false,
     isSaved: Array.isArray(savedPosts) && savedPosts.includes(record.id),
   }));
-  console.log("saved posts: ", savedPosts);
-  console.log("posts: ", postsData);
+
   return postsData;
 };
 
@@ -324,7 +323,7 @@ export async function addPostToSavedPosts(postId: string) {
       "User ID is undefined. User must be logged in to access favorites."
     );
   }
-  console.log("postID: ", postId, "userID: ", userId)
+
   try {
     await prisma.userPostsSaved.create({
       data: {
