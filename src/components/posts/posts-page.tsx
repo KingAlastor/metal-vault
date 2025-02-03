@@ -1,6 +1,5 @@
 "use client";
 
-import { User } from "next-auth";
 import { useState } from "react";
 import {
   Collapsible,
@@ -16,7 +15,7 @@ import { PostsPageData } from "@/app/api/posts/route";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth/auth-client";
 
 export default function PostsPage() {
   const {data: session} = useSession();

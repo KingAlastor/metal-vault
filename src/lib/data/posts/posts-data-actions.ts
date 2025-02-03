@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { PostsFilters } from "./posts-filters-data-actions";
 import {
@@ -12,6 +12,7 @@ import { fetchUserUnfollowedBands } from "../user/followArtists/unfollow-artists
 import { PrismaUserUnFollowersModel } from "../../../../prisma/models";
 import { fetchUnfollowedUsers } from "../user/user-data-actions";
 import { ReportedPostData } from "@/components/posts/forms/post-form-types";
+import { headers } from "next/headers";
 
 type PostProps = {
   id?: string;
@@ -32,8 +33,8 @@ type QueryParamProps = {
 };
 
 export const addOrUpdatePost = async (post: PostProps) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id) {
     throw new Error("User ID is undefined.");
@@ -92,12 +93,12 @@ export const addOrUpdatePost = async (post: PostProps) => {
 };
 
 export const deletePost = async (postId: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -124,8 +125,8 @@ export const getPostsByFilters = async (
   filters: PostFilters,
   queryParams: QueryParamProps
 ) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
   let where = {};
   let favorites: string[] = [];
   let savedPosts: string[] = [];
@@ -219,8 +220,8 @@ export const getPostsByFilters = async (
 };
 
 export const hideArtistForUserById = async (bandId: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id || user?.shard === undefined || user?.shard === null) {
     throw new Error("User must be logged in to hide artists");
@@ -261,8 +262,8 @@ export const hideArtistForUserById = async (bandId: string) => {
 };
 
 export const hideUserPostsForUserById = async (unfollowedUserId: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id || user?.shard === undefined) {
     throw new Error("User must be logged in to access unfollowed bands.");
@@ -295,17 +296,17 @@ export const hideUserPostsForUserById = async (unfollowedUserId: string) => {
 };
 
 export async function savePostReport(data: ReportedPostData) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
-  if (!userId) {
+  if (!user?.id) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
   const reportData = {
-    userId: userId,
+    userId: user.id,
     ...data,
   };
 
@@ -315,19 +316,19 @@ export async function savePostReport(data: ReportedPostData) {
 }
 
 export async function addPostToSavedPosts(postId: string) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
-  if (!userId) {
+  if (!user?.id) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
   try {
     await prisma.userPostsSaved.create({
       data: {
-        userId,
+        userId: user.id,
         postId,
       },
     });
@@ -343,12 +344,12 @@ export async function addPostToSavedPosts(postId: string) {
 }
 
 export async function removePostFromSavedPosts(postId: string) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
-  if (!userId) {
+  if (!user?.id) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -356,7 +357,7 @@ export async function removePostFromSavedPosts(postId: string) {
     await prisma.userPostsSaved.delete({
       where: {
         userId_postId: {
-          userId,
+          userId: user.id,
           postId,
         },
       },
@@ -373,19 +374,19 @@ export async function removePostFromSavedPosts(postId: string) {
 }
 
 export async function fetchUserSavedPosts() {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
-  if (!userId) {
+  if (!user?.id) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
   try {
     const savedPosts = await prisma.userPostsSaved.findMany({
       select: { postId: true },
-      where: { userId },
+      where: { userId: user.id },
     });
 
     const postIds = savedPosts.map((row: any) => row.postId);
@@ -400,13 +401,20 @@ export async function fetchUserSavedPosts() {
 }
 
 export async function updateProfileFilters(filters: PostsFilters) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+
   const filtersJson = JSON.stringify(filters);
+
+  if (!user?.id) {
+    throw new Error(
+      "User ID is undefined."
+    );
+  }
 
   await prisma.user.update({
     where: {
-      id: userId,
+      id: user.id,
     },
     data: {
       postsSettings: filtersJson,

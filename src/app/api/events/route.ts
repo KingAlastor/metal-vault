@@ -1,7 +1,8 @@
-import { auth } from "@/auth";
 import { Event, EventFilters } from "@/components/events/event-types";
+import { auth } from "@/lib/auth/auth";
 import { getEventsByFilters } from "@/lib/data/events/events-data-actions";
 import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
+import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 
 export type EventsPageData = {
@@ -15,10 +16,10 @@ export async function GET(req: NextRequest) {
       cursor: req.nextUrl.searchParams.get("cursor") || undefined,
       pageSize: 3,
     };
-    
-    const session = await auth();
-    const user = session?.user;
-    
+
+    const { user } =
+      (await auth.api.getSession({ headers: await headers() })) ?? {};
+
     let filters: EventFilters = {};
     if (user?.id) {
       filters = await getUserPostsFilters(user.id);
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
     const events: Event[] = await getEventsByFilters(filters, queryParams);
 
     const nextCursor =
-    events.length > queryParams.pageSize
+      events.length > queryParams.pageSize
         ? events[queryParams.pageSize].id
         : null;
 

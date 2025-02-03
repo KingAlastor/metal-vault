@@ -17,7 +17,7 @@ import { EventCards } from "./event-cards";
 import { CreateEventCard } from "./create-event-card";
 import Image from "next/image";
 import { EventsLoadingSkeleton } from "./events-loading-skeleton";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth/auth-client";
 
 export function EventsPage() {
   const {data: session } = useSession();

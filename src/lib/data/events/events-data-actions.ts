@@ -1,7 +1,6 @@
 "use server";
 
-import { fetchUserFavoriteBands } from "../user/followArtists/follow-artists-data-actions";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import {
   AddEventProps,
   Event,
@@ -10,14 +9,15 @@ import {
 } from "@/components/events/event-types";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { headers } from "next/headers";
 
 export const addOrUpdateEvent = async (event: AddEventProps) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -58,7 +58,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
         include: { user: true },
       });
     }
- 
+
     return updatedEvent;
   } catch (error) {
     console.error("Error updating bands table data:", error);
@@ -70,8 +70,8 @@ export const getEventsByFilters = async (
   filters: EventFilters,
   queryParams: EventQueryParams
 ) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
   const today = new Date(new Date().setHours(0, 0, 0, 0));
 
   let where: Prisma.EventsWhereInput = {
@@ -144,12 +144,12 @@ export const getEventsByFilters = async (
 };
 
 export const deleteEvent = async (eventId: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 

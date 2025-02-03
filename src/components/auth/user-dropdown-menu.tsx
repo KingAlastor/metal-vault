@@ -1,6 +1,5 @@
 "use client";
 
-import { signOut } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,19 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "next-auth";
 import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle-button";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
 import { useQueryClient } from "@tanstack/react-query";
+import { signOut, useSession } from "@/lib/auth/auth-client";
 
-interface UserButtonProps {
-  user: User;
-}
-
-export function UserMenu({ user }: UserButtonProps) {
+export function UserMenu() {
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const queryClient = useQueryClient();
 
@@ -30,11 +27,11 @@ export function UserMenu({ user }: UserButtonProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className={cn("flex-none rounded-full sm:ms-auto")}>
-          <UserAvatar avatarUrl={user.image} size={40} />
+          <UserAvatar avatarUrl={user?.image} size={40} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>{user.name || "User"}</DropdownMenuLabel>
+        <DropdownMenuLabel>{user?.name || "User"}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
@@ -55,7 +52,7 @@ export function UserMenu({ user }: UserButtonProps) {
               <span className="dropdown-options">Profile</span>
             </Link>
           </DropdownMenuItem>
-          {user.role === "admin" && (
+          {user?.role === "admin" && (
             <DropdownMenuItem asChild>
               <Link href="/user/admin">
                 <Lock className="mr-2 h-4 w-4" />
@@ -70,7 +67,7 @@ export function UserMenu({ user }: UserButtonProps) {
           <button
             onClick={() => {
               queryClient.clear();
-              signOut({ callbackUrl: "/" });
+              signOut();
             }}
             className="flex w-full items-center"
           >

@@ -14,7 +14,7 @@ import PostLinkIcons from "./post-link-icons";
 import { PostCard } from "./post-card";
 import { formatDateAndTime } from "@/lib/general/date";
 import { Post, PostsProps } from "./post-types";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth/auth-client";
 
 const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
   {

@@ -1,7 +1,11 @@
-import { auth } from "@/auth";
 import { Post } from "@/components/posts/post-types";
+import { auth } from "@/lib/auth/auth";
 import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
-import { getUserPostsFilters, PostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
+import {
+  getUserPostsFilters,
+  PostsFilters,
+} from "@/lib/data/posts/posts-filters-data-actions";
+import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 
 export type PostsPageData = {
@@ -10,15 +14,14 @@ export type PostsPageData = {
 };
 
 export async function GET(req: NextRequest) {
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
   try {
     const queryParams = {
       cursor: req.nextUrl.searchParams.get("cursor") || undefined,
       pageSize: 3,
     };
-    
-    const session = await auth();
-    const user = session?.user;
-    
+
     let filters: PostsFilters = {};
     if (user?.id) {
       filters = await getUserPostsFilters(user.id);

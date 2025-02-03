@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { User } from "next-auth";
 import {
   Form,
   FormControl,
@@ -22,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useSession } from "@/lib/auth/auth-client";
 
 const FormSchema = z.object({
   preferred_email: z.string(),
@@ -30,18 +30,17 @@ const FormSchema = z.object({
   favorite_genres: z.boolean().default(true).optional(),
 });
 
-interface EmailUpdatesPageProps {
-  user: User;
-}
 
-export default function EmailUpdatesPage({ user }: EmailUpdatesPageProps) {
+export default function EmailUpdatesPage() {
+  const { data: session } = useSession();
+  const user = session?.user;
   const [filters, setFilters] = useState<EmailSettings>();
   const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      preferred_email: filters?.preferred_email || user.email!,
+      preferred_email: filters?.preferred_email || user?.email!,
       favorite_bands: filters?.favorite_bands || false,
       email_frequency: filters?.email_frequency || "W",
       favorite_genres: filters?.favorite_genres || false,
@@ -65,7 +64,7 @@ export default function EmailUpdatesPage({ user }: EmailUpdatesPageProps) {
       }
     };
     fetchUserFilters();
-  }, [user.id, user.email, form]);
+  }, [user?.id, user?.email, form]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const updateFilters = async () => {

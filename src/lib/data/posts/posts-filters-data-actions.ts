@@ -1,7 +1,8 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 
 export type PostsFilters = {
   favorites_only?: boolean;
@@ -10,6 +11,15 @@ export type PostsFilters = {
 
 
 export const getUserPostsFilters = async (id: string) => {
+  const { user } =
+  (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
+  if (!user?.id) {
+    throw new Error(
+      "User ID is undefined."
+    );
+  }
+
   try {
     let filters; 
     const userFilters = await prisma.user.findUnique({
@@ -31,14 +41,21 @@ export const getUserPostsFilters = async (id: string) => {
 };
 
 export async function updatePostsProfileFilters(filters: PostsFilters) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
+    if (!user?.id) {
+      throw new Error(
+        "User ID is undefined."
+      );
+    }
+
   const filtersJson = JSON.stringify(filters);
 
   try {
     await prisma.user.update({
       where: {
-        id: userId,
+        id: user.id,
       },
       data: {
         postsSettings: filtersJson,

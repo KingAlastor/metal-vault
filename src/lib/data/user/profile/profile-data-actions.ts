@@ -1,8 +1,9 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 export type UpdateUser = {
   userName?: string;
@@ -12,16 +13,19 @@ export type UpdateUser = {
 };
 
 export async function updateUserData(data: UpdateUser) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
-  if (!userId) {
-    throw Error("Unauthorized");
+  if (!user) {
+    throw new Error(
+      "User ID is undefined."
+    );
   }
 
   await prisma.user.update({
     where: {
-      id: userId,
+      id: user.id,
     },
     data,
   });
@@ -30,34 +34,40 @@ export async function updateUserData(data: UpdateUser) {
 }
 
 export async function deleteUser() {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
-  if (!userId) {
-    throw Error("Unauthorized");
+  if (!user) {
+    throw new Error(
+      "User ID is undefined."
+    );
   }
 
   try {
     await prisma.user.delete({
       where: {
-        id: userId,
+        id: user.id,
       },
     });
   } catch (error) {}
 }
 
 export async function deleteUserPendingAction(action: string) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
-  if (!userId) {
-    throw Error("Unauthorized");
+  if (!user) {
+    throw new Error(
+      "User ID is undefined."
+    );
   }
 
   await prisma.$executeRaw`
   UPDATE "users"
   SET "pending_actions" = array_remove(pending_actions, ${action})
-  WHERE id = ${userId}
+  WHERE id = ${user.id}
 `;
 }
 

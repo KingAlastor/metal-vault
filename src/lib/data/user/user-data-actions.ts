@@ -1,10 +1,12 @@
 import { PrismaUserUnFollowersModel } from "../../../../prisma/models";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 
 export const fetchUnfollowedUsers = async (): Promise<string[]> => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+
 
   if (!user?.id || user?.shard === undefined) {
     return [];

@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 
 export type EmailSettings = {
   preferred_email: string;
@@ -14,6 +15,16 @@ export type EmailSettings = {
 };
 
 export const getUserEmailSettings = async (id: string) => {
+    const { user } =
+      (await auth.api.getSession({ headers: await headers() })) ?? {};
+    
+  
+    if (!user) {
+      throw new Error(
+        "User ID is undefined. User must be logged in to access favorites."
+      );
+    }
+
   try {
     let settings;
     const user = await prisma.user.findUnique({
@@ -37,13 +48,21 @@ export const getUserEmailSettings = async (id: string) => {
 
 
 export async function updateProfileFilters(filters: EmailSettings) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined."
+    );
+  }
+
   const filtersJson = JSON.stringify(filters);
 
   await prisma.user.update({
     where: {
-      id: userId,
+      id: user.id,
     },
     data: {
       emailSettings: filtersJson,

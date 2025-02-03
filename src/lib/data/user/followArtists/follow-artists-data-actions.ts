@@ -2,8 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { PrismaBandFollowersModel } from "../../../../../prisma/models";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { Prisma } from "@prisma/client";
+import { headers } from "next/headers";
 
 export type Bands = {
   id: string;
@@ -19,12 +20,12 @@ export type Bands = {
  */
 
 export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -113,12 +114,13 @@ export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
 };
 
 export const fetchUserFavoriteBands = async () => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -137,9 +139,9 @@ export const fetchUserFavoriteBands = async () => {
 };
 
 export const fetchUserFavBandsFullData = async () => {
-  const session = await auth();
-  const user = session?.user;
-
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
   if (!user) {
     return [];
   }
@@ -172,12 +174,13 @@ export const fetchUserFavBandsFullData = async () => {
 };
 
 export const saveUserFavorites = async (favorites: string[]) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -211,12 +214,13 @@ export const saveUserFavorites = async (favorites: string[]) => {
 export const saveUserFavoriteAndUpdateFollowerCount = async (
   bandId: string
 ) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
-  if (!user?.id) {
+  if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -268,12 +272,13 @@ export const saveUserFavoriteAndUpdateFollowerCount = async (
 };
 
 export const deleteFavoriteArtist = async (bandId: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -302,14 +307,16 @@ export const deleteFavoriteArtist = async (bandId: string) => {
 };
 
 export const incrementBandFollowersValue = async (id: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
+
   try {
     await prisma.bands.update({
       where: { id },
@@ -325,14 +332,16 @@ export const incrementBandFollowersValue = async (id: string) => {
 };
 
 export const decrementBandFollowersValue = async (id: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
+
   try {
     await prisma.bands.update({
       where: { id },
@@ -348,12 +357,13 @@ export const decrementBandFollowersValue = async (id: string) => {
 };
 
 export const getRefreshTokenFromUserTokens = async (provider: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
-  if (!user?.id) {
+  if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -382,12 +392,13 @@ export const getRefreshTokenFromUserTokens = async (provider: string) => {
 };
 
 export const checkBandExists = async (bandNamePretty: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
-  if (!user?.id) {
+  if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -412,12 +423,13 @@ export const checkBandExists = async (bandNamePretty: string) => {
 };
 
 export const checkFavoriteExists = async (bandId: string | null | undefined) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 

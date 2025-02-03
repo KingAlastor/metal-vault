@@ -3,20 +3,15 @@
 import { useState } from "react";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { Button } from "@/components/ui/button";
-import { signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "@/lib/auth/auth-client";
 import ProfileSettingsForm from "./profile-settings-form";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { User } from "next-auth";
 import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
 
-interface ProfilePageProps {
-  user: User;
-}
-
-export default function ProfilePage({ user }: ProfilePageProps) {
+export default function ProfilePage() {
+  const { data: session } = useSession();
+  const user = session?.user;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const { update: updateSession } = useSession();
-  
 
   const handleDeleteAccount = async () => {
     setIsDeleteDialogOpen(true);
@@ -24,14 +19,16 @@ export default function ProfilePage({ user }: ProfilePageProps) {
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
-    signOut({ callbackUrl: "/" });
+    signOut();
   };
 
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(user.pendingActions.includes("firstLogin"));
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(
+    user?.pendingActions?.includes("firstLogin") ?? false
+  );
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("firstLogin");
-    await updateSession();
+    // await updateSession();
     setIsFirstTimeUser(false);
   };
 
@@ -46,7 +43,7 @@ export default function ProfilePage({ user }: ProfilePageProps) {
           />
         )}
         <h1 className="text-3xl font-bold">Profile</h1>
-        <ProfileSettingsForm user={user} />
+        <ProfileSettingsForm />
         <div className="mt-8 pt-4 border-t">
           <h2 className="text-xl font-semibold text-destructive mb-2">
             Danger Zone

@@ -14,7 +14,7 @@ import { User } from "next-auth";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth/auth-client";
 
 export default function ReleasesPage() {
   const {data: session } = useSession();

@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
 import { useHideArtistPostMutation } from "./hooks/use-hide-artist-posts-mutation";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth/auth-client";
 import { useFollowArtistPostMutation } from "./hooks/use-follow-artist-mutation";
 import { useUnFollowArtistPostMutation } from "./hooks/use-unfollow-artist-mutation";
 import { useUnFollowUserPostMutation } from "./hooks/use-unfollow-user-posts-mutation";
@@ -26,7 +26,7 @@ import { useSavePostMutation } from "./hooks/use-save-post-mutation";
 import { useUnSavePostMutation } from "./hooks/use-unsave-post-mutation";
 
 const PostDropdownMenu = (post: Post) => {
-  const { data: session } = useSession();
+  const { data: user } = useSession();
   const size = useWindowSize();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditPostOpen, setIsEditPostFormOpen] = useState(false);
@@ -75,7 +75,7 @@ const PostDropdownMenu = (post: Post) => {
               {hideMutation.isPending ? "Hiding..." : "Hide artist"}
             </div>
           </DropdownMenuItem>
-          {post.userId != session?.user.id && (
+          {post.userId != user?.user.id && (
             <>
               <DropdownMenuItem
                 onClick={() => unfollowUserMutation.mutate(post.userId)}
@@ -104,7 +104,7 @@ const PostDropdownMenu = (post: Post) => {
               </DropdownMenuItem>
             </>
           )}
-          {post.userId === session?.user.id && (
+          {post.userId === user?.user.id && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsEditPostFormOpen(true)}>
@@ -115,7 +115,7 @@ const PostDropdownMenu = (post: Post) => {
               </DropdownMenuItem>
             </>
           )}
-          {post.userId != session?.user.id && (
+          {post.userId != user?.user.id && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsReportPostOpen(true)}>

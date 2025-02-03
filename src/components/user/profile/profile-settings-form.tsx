@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User } from "next-auth";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth/auth-client";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
@@ -21,10 +20,6 @@ import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { useQuery } from "@tanstack/react-query";
 import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
-
-interface ProfileSettingsFormProps {
-  user: User;
-}
 
 interface Country {
   name: {
@@ -39,22 +34,22 @@ export const FormSchema = z.object({
   genreTags: z.array(z.string()).optional(),
 });
 
-export default function ProfileSettingsForm({
-  user,
-}: ProfileSettingsFormProps) {
+export default function ProfileSettingsForm() {
   const { toast } = useToast();
+  const { data: session} = useSession();
+  const user = session?.user;
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      userName: user.userName || user.name!,
-      location: user.location || "",
-      genreTags: Array.isArray(user.genreTags) ? user.genreTags : [],
+      userName: user?.userName || user?.name!,
+      location: user?.location || "",
+      genreTags: Array.isArray(user?.genreTags) ? user.genreTags : [],
     },
   });
 
   const [countries, setCountries] = useState<Country[]>([]);
-  const { data: session, update: updateSession } = useSession();
+
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -90,7 +85,8 @@ export default function ProfileSettingsForm({
     try {
       await updateUserData(data);
       toast({ description: "Profile updated." });
-      await updateSession();
+      // Add user update 
+      // await updateSession();
     } catch (error) {
       toast({
         variant: "destructive",

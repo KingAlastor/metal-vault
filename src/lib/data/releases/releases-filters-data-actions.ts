@@ -1,8 +1,9 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { PrismaBandFollowersModel } from "../../../../prisma/models";
+import { headers } from "next/headers";
 
 export type ReleasesFilters = {
   favorite_bands?: boolean;
@@ -11,8 +12,16 @@ export type ReleasesFilters = {
 };
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined."
+    );
+  }
+
   let bandIds: string[] | undefined;
 
   if (user) {
@@ -53,6 +62,12 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
 }
 
 const getBandIdsByUserId = async (user: any) => {
+    if (!user) {
+      throw new Error(
+        "User ID is undefined."
+      );
+    }
+
   const shard =
     user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
       ? user.shard
@@ -95,13 +110,20 @@ export const getUserReleaseFilters = async (id: string) => {
 };
 
 export async function updateProfileFilters(filters: ReleasesFilters) {
-  const session = await auth();
-  const userId = session?.user?.id;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined."
+    );
+  }
   const filtersJson = JSON.stringify(filters);
 
   await prisma.user.update({
     where: {
-      id: userId,
+      id: user.id,
     },
     data: {
       releaseSettings: filtersJson,

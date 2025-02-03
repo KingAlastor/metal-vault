@@ -1,4 +1,3 @@
-import { User } from "next-auth";
 import { Dispatch, SetStateAction } from "react";
 
 export type CreateEventFormProps = {

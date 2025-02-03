@@ -1,15 +1,19 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
-export const saveRefreshTokenToUserTokens = async (provider: string, token: string) => {
-  const session = await auth();
-  const user = session?.user;
+export const saveRefreshTokenToUserTokens = async (
+  provider: string,
+  token: string
+) => {
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 
@@ -17,8 +21,8 @@ export const saveRefreshTokenToUserTokens = async (provider: string, token: stri
     where: {
       userId_provider: {
         userId: user.id,
-        provider: provider
-      }
+        provider: provider,
+      },
     },
     create: {
       userId: user.id,
@@ -27,6 +31,6 @@ export const saveRefreshTokenToUserTokens = async (provider: string, token: stri
     },
     update: {
       refreshToken: token,
-    }
+    },
   });
-}
+};

@@ -1,15 +1,16 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { getGenres } from "@/lib/data/genres/genre-data-actions";
+import { headers } from "next/headers";
 
 export async function GET() {
   try {
-    const session = await auth();
-    const user = session?.user;
+    const { user } =
+      (await auth.api.getSession({ headers: await headers() })) ?? {};
 
     if (!user) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     const genreTags = await getGenres();
 
     return Response.json(genreTags);

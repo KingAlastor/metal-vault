@@ -1,16 +1,18 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { PrismaBandFollowersModel } from "../../../../prisma/models";
+import { headers } from "next/headers";
 
 export const followArtistByBandId = async (bandId: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
 
   if (!user) {
     throw new Error(
-      "User ID is undefined. User must be logged in to access favorites."
+      "User ID is undefined."
     );
   }
 

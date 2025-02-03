@@ -1,12 +1,13 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth/auth";
 import { PrismaBandUnFollowersModel } from "../../../../../prisma/models";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 
 export const fetchUserUnfollowedBands = async () => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id || user?.shard === undefined) {
     throw new Error("User must be logged in to access unfollowed bands.");
@@ -32,8 +33,8 @@ export const fetchUserUnfollowedBands = async () => {
 };
 
 export const fetchUserUnfollowedBandsFullData = async () => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user) {
     return [];
@@ -69,8 +70,8 @@ export const fetchUserUnfollowedBandsFullData = async () => {
 };
 
 export const deleteUnfollowBand = async (bandId: string) => {
-  const session = await auth();
-  const user = session?.user;
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user) {
     return [];

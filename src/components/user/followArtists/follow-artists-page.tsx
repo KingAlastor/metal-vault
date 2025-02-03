@@ -23,17 +23,17 @@ import { UnresolvedBands } from "./unresolved-bands";
 import { Band } from "@/lib/data/bands/search-bands-data-actions";
 import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth/auth-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kyInstance from "@/lib/ky";
 import { DataTableBand } from "./follow-artists-types";
 
 export default function FollowArtistsPage() {
-  const { data: session, update: updateSession } = useSession();
-  const user = session!.user;
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(
-    user!.pendingActions.includes("syncFollowers")
+    user?.pendingActions?.includes("syncFollowers") ?? false
   );
 
   const queryClient = useQueryClient();
@@ -108,7 +108,8 @@ export default function FollowArtistsPage() {
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("syncFollowers");
-    await updateSession();
+    // Add updateSession
+    // await updateSession();
     setIsFirstTimeUser(false);
   };
 
