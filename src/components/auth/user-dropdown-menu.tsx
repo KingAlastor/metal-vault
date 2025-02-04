@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
 import Link from "next/link";
-import { ThemeToggle } from "./theme-toggle-button";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
 import { useQueryClient } from "@tanstack/react-query";
@@ -62,7 +61,6 @@ export function UserMenu() {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <ThemeToggle />
         <DropdownMenuItem asChild>
           <button
             onClick={() => {
