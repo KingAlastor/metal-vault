@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Lock, LogOut, Settings, Music, Mail } from "lucide-react";
+import { Lock, LogOut, Settings, Music, Mail, Pencil } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
@@ -63,7 +63,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
             <Link href="/user/feedback">
-              <Settings className="mr-2 h-4 w-4" />
+              <Pencil className="mr-2 h-4 w-4" />
               <span className="dropdown-options">Give Feedback</span>
             </Link>
           </DropdownMenuItem>
