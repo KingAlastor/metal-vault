@@ -15,8 +15,7 @@ export type UpdateUser = {
 export async function updateUserData(data: UpdateUser) {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
-
+    
   if (!user) {
     throw new Error(
       "User ID is undefined."

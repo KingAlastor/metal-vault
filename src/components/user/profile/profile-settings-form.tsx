@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSession } from "@/lib/auth/auth-client";
+import { authClient, useSession } from "@/lib/auth/auth-client";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
@@ -36,7 +36,7 @@ export const FormSchema = z.object({
 
 export default function ProfileSettingsForm() {
   const { toast } = useToast();
-  const { data: session} = useSession();
+  const { data: session } = useSession();
   const user = session?.user;
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -49,7 +49,6 @@ export default function ProfileSettingsForm() {
   });
 
   const [countries, setCountries] = useState<Country[]>([]);
-
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -84,9 +83,12 @@ export default function ProfileSettingsForm() {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       await updateUserData(data);
+      await authClient.updateUser({
+        userName: data.userName,
+        location: data.location,
+        genreTags: data.genreTags
+      });
       toast({ description: "Profile updated." });
-      // Add user update 
-      // await updateSession();
     } catch (error) {
       toast({
         variant: "destructive",

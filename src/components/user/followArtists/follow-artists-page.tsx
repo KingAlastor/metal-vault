@@ -23,7 +23,7 @@ import { UnresolvedBands } from "./unresolved-bands";
 import { Band } from "@/lib/data/bands/search-bands-data-actions";
 import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { useSession } from "@/lib/auth/auth-client";
+import { authClient, useSession } from "@/lib/auth/auth-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kyInstance from "@/lib/ky";
 import { DataTableBand } from "./follow-artists-types";
@@ -44,7 +44,8 @@ export default function FollowArtistsPage() {
     error: favBandsError,
   } = useQuery({
     queryKey: ["favbands"],
-    queryFn: () => kyInstance.get("/api/user/artists/followed").json<DataTableBand[]>(),
+    queryFn: () =>
+      kyInstance.get("/api/user/artists/followed").json<DataTableBand[]>(),
   });
 
   const {
@@ -53,7 +54,8 @@ export default function FollowArtistsPage() {
     error: unfollowedBandsError,
   } = useQuery({
     queryKey: ["unfollowed-bands"],
-    queryFn: () => kyInstance.get("/api/user/artists/unfollowed").json<DataTableBand[]>(),
+    queryFn: () =>
+      kyInstance.get("/api/user/artists/unfollowed").json<DataTableBand[]>(),
   });
 
   const [unresolvedBands, setUnresolvedBands] = useState<string[]>([]);
@@ -108,8 +110,10 @@ export default function FollowArtistsPage() {
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("syncFollowers");
-    // Add updateSession
-    // await updateSession();
+    const pendingActions = user?.pendingActions?.filter(
+      (action) => action !== "syncFollowers"
+    );
+    await authClient.updateUser({ pendingActions });
     setIsFirstTimeUser(false);
   };
 
@@ -141,13 +145,14 @@ export default function FollowArtistsPage() {
               <Loader2 className="animate-spin" />
             </div>
           )}
-          {favBandsStatus === "error" && (
-            <> Error: {favBandsError?.message}</>
-          )}
+          {favBandsStatus === "error" && <> Error: {favBandsError?.message}</>}
 
           <div className="rounded-lg border p-4 mt-4">
             <h2 className="text-lg font-bold">My Favorites</h2>
-            <DataTable columns={getColumns('followed')}  data={followedBands || []} />
+            <DataTable
+              columns={getColumns("followed")}
+              data={followedBands || []}
+            />
           </div>
           <Button
             variant="outline"
@@ -180,7 +185,10 @@ export default function FollowArtistsPage() {
 
         <div className="rounded-lg border p-4 mt-4">
           <h2 className="text-lg font-bold">My Favorites</h2>
-          <DataTable columns={getColumns('unfollowed')} data={unfollowedBands || []} />
+          <DataTable
+            columns={getColumns("unfollowed")}
+            data={unfollowedBands || []}
+          />
         </div>
       </TabsContent>
     </Tabs>

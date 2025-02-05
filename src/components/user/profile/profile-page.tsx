@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { Button } from "@/components/ui/button";
-import { signOut, useSession } from "@/lib/auth/auth-client";
+import { authClient, signOut, useSession } from "@/lib/auth/auth-client";
 import ProfileSettingsForm from "./profile-settings-form";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
 import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
@@ -28,7 +28,12 @@ export default function ProfilePage() {
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("firstLogin");
-    // await updateSession();
+    const pendingActions = user?.pendingActions?.filter(
+      (action) => action !== "firstLogin"
+    );
+    await authClient.updateUser({
+      pendingActions,
+    });
     setIsFirstTimeUser(false);
   };
 
