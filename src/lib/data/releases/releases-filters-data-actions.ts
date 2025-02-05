@@ -13,14 +13,7 @@ export type ReleasesFilters = {
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
   const { user } =
-    (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
-
-  if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
-  }
+    (await auth.api.getSession({ headers: await headers() })) ?? {}; 
 
   let bandIds: string[] | undefined;
 
@@ -89,6 +82,16 @@ const getBandIdsByUserId = async (user: any) => {
 };
 
 export const getUserReleaseFilters = async (id: string) => {
+  const { user } =
+  (await auth.api.getSession({ headers: await headers() })) ?? {};
+
+
+if (!user) {
+  throw new Error(
+    "User ID is undefined."
+  );
+}
+
   try {
     let filters;
     const userFilters = await prisma.user.findUnique({
