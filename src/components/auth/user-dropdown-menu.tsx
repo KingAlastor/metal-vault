@@ -62,6 +62,12 @@ export function UserMenu() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
+            <Link href="/user/feedback">
+              <Settings className="mr-2 h-4 w-4" />
+              <span className="dropdown-options">Give Feedback</span>
+            </Link>
+          </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <button
             onClick={() => {
               queryClient.clear();

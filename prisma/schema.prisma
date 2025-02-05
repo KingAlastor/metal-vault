@@ -49,6 +49,7 @@ model User {
   ReportedPosts     ReportedPosts[]
   UserPostsSaved    UserPostsSaved[]
   UserEventsSaved   UserEventsSaved[]
+  UserFeedback      UserFeedback[]
 
   @@map("users")
 }
@@ -343,4 +344,14 @@ model ReportedPosts {
   post      UserPostsActive @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@map("reported_posts")
+}
+
+model UserFeedback {
+  id      String @id @default(cuid())
+  userId  String @map("user_id")
+  title   String
+  comment String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_feedback")
 }
