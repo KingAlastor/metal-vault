@@ -14,7 +14,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
 import { useQueryClient } from "@tanstack/react-query";
-import { signOut, useSession } from "@/lib/auth/auth-client";
+import { authClient, signOut, useSession } from "@/lib/auth/auth-client";
 
 export function UserMenu() {
   const { data: session } = useSession();
@@ -66,6 +66,9 @@ export function UserMenu() {
             onClick={() => {
               queryClient.clear();
               signOut();
+              if (session?.session?.token) {
+                authClient.revokeSession({ token: session.session.token });
+              }
             }}
             className="flex w-full items-center"
           >
