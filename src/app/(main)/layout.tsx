@@ -1,6 +1,4 @@
 import NavBar from "@/app/(main)/NavBar";
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
 import MenuBar from "./MenuBar";
 import PromotionsBar from "./PromotionsBar";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,9 +8,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
   return (
     <div className="flex min-h-screen flex-col">
       <NavBar />

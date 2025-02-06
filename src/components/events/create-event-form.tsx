@@ -116,7 +116,8 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         label: genre.genres,
       }));
     },
-    staleTime: 24 * 60 * 60 * 1000,
+    staleTime: 24 * 60 * 60 * 1000, 
+    gcTime: 24 * 60 * 60 * 1000, 
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
