@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     const favBands = await fetchUserFavBandsFullData();
-    console.log("favbands", favBands);
+    
     return Response.json(favBands);
   } catch (error) {
     console.error(error);
