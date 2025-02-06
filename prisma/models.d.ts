@@ -8,6 +8,7 @@ export type PrismaBandFollowersModel = {
   deleteMany: (args: any) => Promise<any>;
   delete: (args: any) => Promise<any>;
   create: (args: any) => Promise<any>;
+  update: (args: any) => Promise<any>;
 };
 
 type PrismaBandUnFollowersModel = {

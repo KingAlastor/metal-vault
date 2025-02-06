@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchEnvironmentVariables } from "@/lib/general/env-variables";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Artist,
   getFollowedArtistsFromSpotify,
@@ -27,6 +27,7 @@ import { authClient, useSession } from "@/lib/auth/auth-client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kyInstance from "@/lib/ky";
 import { DataTableBand } from "./follow-artists-types";
+import { useChangeBandRating } from "./hooks/use-change-band-rating";
 
 export default function FollowArtistsPage() {
   const { data: session } = useSession();
@@ -37,6 +38,7 @@ export default function FollowArtistsPage() {
   );
 
   const queryClient = useQueryClient();
+  const { mutate: changeRating } = useChangeBandRating();
 
   const {
     data: followedBands,
@@ -57,6 +59,16 @@ export default function FollowArtistsPage() {
     queryFn: () =>
       kyInstance.get("/api/user/artists/unfollowed").json<DataTableBand[]>(),
   });
+
+  const followedColumns = useMemo(
+    () => getColumns("followed", changeRating),
+    [changeRating]
+  );
+
+  const unfollowedColumns = useMemo(
+    () => getColumns("unfollowed", () => {}),
+    []
+  );
 
   const [unresolvedBands, setUnresolvedBands] = useState<string[]>([]);
   const [isBandsDialogOpen, setIsBandsDialogOpen] = useState(false);
@@ -128,7 +140,7 @@ export default function FollowArtistsPage() {
           {isFirstTimeUser && (
             <FirstTimeUserNotice
               title="Welcome to Your favorite bands!"
-              description="Search for your favorite bands from the database or synchronize from other providers like Spotify."
+              description="Find and rate your favorite bands, sync from Spotify, and use ratings to personalize playlists and filters."
               onDismiss={handleNoticeDismiss}
             />
           )}
@@ -150,7 +162,7 @@ export default function FollowArtistsPage() {
           <div className="rounded-lg border p-4 mt-4">
             <h2 className="text-lg font-bold">My Favorites</h2>
             <DataTable
-              columns={getColumns("followed")}
+              columns={followedColumns}
               data={followedBands || []}
             />
           </div>
@@ -186,7 +198,7 @@ export default function FollowArtistsPage() {
         <div className="rounded-lg border p-4 mt-4">
           <h2 className="text-lg font-bold">My Favorites</h2>
           <DataTable
-            columns={getColumns("unfollowed")}
+            columns={unfollowedColumns}
             data={unfollowedBands || []}
           />
         </div>

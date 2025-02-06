@@ -157,6 +157,7 @@ export const fetchUserFavBandsFullData = async () => {
   const favorites = await model.findMany({
     where: { userId: user.id },
     select: {
+      rating: true,
       band: {
         select: {
           id: true,
@@ -170,7 +171,10 @@ export const fetchUserFavBandsFullData = async () => {
     },
   });
 
-  return favorites.map((bands: any) => bands.band);
+return favorites.map((bands: any) => ({
+  ...bands.band,
+  rating: bands.rating,
+}));
 };
 
 export const saveUserFavorites = async (favorites: string[]) => {
@@ -460,3 +464,41 @@ export const checkFavoriteExists = async (bandId: string | null | undefined) => 
     throw error;
   }
 };
+
+export const updateBandRating = async (bandId: string, rating: number) => {
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+  
+
+  if (!user) {
+    throw new Error(
+      "User ID is undefined."
+    );
+  }
+
+  if (!bandId) return false; 
+
+  const shard =
+    user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
+      ? user.shard
+      : "0";
+  const model = prisma[
+    `bandFollowers${shard}` as keyof typeof prisma
+  ] as PrismaBandFollowersModel;
+
+  try {
+    await model.update({
+      data: {
+        rating,
+      },
+      where: {
+        userId_bandId: {
+          userId: user.id,
+          bandId: bandId,
+        },
+      },
+    })
+  } catch (error) {
+    console.error("Failed to update rating:", error);    
+  }
+}

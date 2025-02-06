@@ -49,7 +49,6 @@ const ActionsCell: React.FC<ActionsCellProps> = ({ bandId, listType }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem onClick={action}>
           <div className="dropdown-options">{label}</div>
         </DropdownMenuItem>

@@ -5,4 +5,5 @@ export type DataTableBand = {
   country: string | null;
   status: string | null;
   followers: number | null;
+  rating?: number;
 }

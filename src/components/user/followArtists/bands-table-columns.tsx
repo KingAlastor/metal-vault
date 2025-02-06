@@ -1,13 +1,17 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ActionsCell from "./actions-cell";
-import { DataTableBand } from "./follow-artists-types";
+import type { DataTableBand } from "./follow-artists-types";
+import { StarRating } from "./bands-table-rating";
 
-export function getColumns(listType: 'followed' | 'unfollowed'): ColumnDef<DataTableBand>[] {
-  return [
+export function getColumns(
+  listType: "followed" | "unfollowed",
+  changeRating: ({ bandId, rating }: { bandId: string; rating: number }) => void
+): ColumnDef<DataTableBand>[] {
+  const baseColumns: ColumnDef<DataTableBand>[] = [
     {
       accessorKey: "namePretty",
       header: "Name",
@@ -55,4 +59,22 @@ export function getColumns(listType: 'followed' | 'unfollowed'): ColumnDef<DataT
       ),
     },
   ];
+
+  if (listType === "followed") {
+    baseColumns.splice(5, 0, {
+      accessorKey: "rating",
+      header: "Rating",
+      cell: ({ row }) => (
+        <StarRating
+          bandId={row.original.id}
+          initialRating={row.original.rating || 0}
+          onRatingChange={(newRating: number) => {
+            changeRating({ bandId: row.original.id, rating: newRating });
+          }}
+        />
+      ),
+    });
+  }
+
+  return baseColumns;
 }

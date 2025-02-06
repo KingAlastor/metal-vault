@@ -180,6 +180,7 @@ model UpcomingReleases {
 model BandFollowers0 {
   bandId String @map("band_id")
   userId String @map("user_id")
+  rating Int    @default(5)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   band   Bands  @relation(fields: [bandId], references: [id])
 
@@ -191,6 +192,7 @@ model BandFollowers0 {
 model BandFollowers1 {
   bandId String @map("band_id")
   userId String @map("user_id")
+  rating Int    @default(5)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   band   Bands  @relation(fields: [bandId], references: [id])
 
