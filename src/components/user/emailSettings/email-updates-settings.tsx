@@ -21,7 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useSession } from "@/lib/auth/auth-client";
+import { authClient, useSession } from "@/lib/auth/auth-client";
+import { toast } from "@/components/ui/use-toast";
 
 const FormSchema = z.object({
   preferred_email: z.string(),
@@ -29,7 +30,6 @@ const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
   favorite_genres: z.boolean().default(true).optional(),
 });
-
 
 export default function EmailUpdatesPage() {
   const { data: session } = useSession();
@@ -75,7 +75,15 @@ export default function EmailUpdatesPage() {
         favorite_genres: data.favorite_genres ?? false,
       };
       setFilters(filters);
-      updateProfileFilters(data);
+      try {
+        await updateProfileFilters(data);
+        await authClient.updateUser({
+          emailSettings: JSON.stringify(filters),
+        });
+        toast({ description: "Email settings updated." });
+      } catch (error) {
+        toast({ description: "Failed to update email settings." });
+      }
     };
     updateFilters();
   }
