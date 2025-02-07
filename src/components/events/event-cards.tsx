@@ -1,4 +1,4 @@
-import { formatDateAndTime } from "@/lib/general/date";
+import { formatDateAndTime } from "@/lib/general/dateTime";
 import UserAvatar from "../auth/user-avatar";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { EventCardsProps } from "./event-types";

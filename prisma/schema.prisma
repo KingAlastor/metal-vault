@@ -159,7 +159,7 @@ model BandAlbums {
   archivesLink BigInt?   @map("archives_link")
   type         String?
   releaseDate  DateTime? @map("release_date")
-  spotifyId    String    @map("spotify_id")
+  spotifyId    String?    @map("spotify_id")
   updatedAt    DateTime?
 
   band        Bands         @relation(fields: [bandId], references: [id], onDelete: Cascade)
@@ -175,8 +175,8 @@ model AlbumTracks {
   albumId    String    @map("album_id")
   namePretty String    @map("name_pretty")
   title      String
-  length     Int
-  spotifyId  String    @map("spotify_id")
+  length     Int?
+  spotifyId  String?    @map("spotify_id")
   updatedAt  DateTime?
 
   band  Bands      @relation(fields: [bandId], references: [id], onDelete: Cascade)

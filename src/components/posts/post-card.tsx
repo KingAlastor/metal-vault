@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import useWindowSize from "@/lib/hooks/get-window-size";
-import { formatDateWithNamedMonth } from "@/lib/general/date"; 
+import { formatDateWithNamedMonth } from "@/lib/general/dateTime"; 
 import { Post } from "./post-types";
 
 export const PostCard = (post: Post) => {

@@ -6,7 +6,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
-import { formatDateWithNamedMonth } from "@/lib/general/date";
+import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
 import React, { useState } from "react";
 import { EventCardProps } from "./event-types";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";

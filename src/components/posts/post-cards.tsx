@@ -12,7 +12,7 @@ import UserAvatar from "../auth/user-avatar";
 import PostDropdownMenu from "./post-dropdown-menu";
 import PostLinkIcons from "./post-link-icons";
 import { PostCard } from "./post-card";
-import { formatDateAndTime } from "@/lib/general/date";
+import { formatDateAndTime } from "@/lib/general/dateTime";
 import { Post, PostsProps } from "./post-types";
 import { useSession } from "@/lib/auth/auth-client";
 
