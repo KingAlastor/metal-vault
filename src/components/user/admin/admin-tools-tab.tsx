@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { syncAlbumDataFromArchives } from "../../../lib/data/user/admin/album-data-actions";
 import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
 import { useState } from "react";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
@@ -10,6 +9,7 @@ import {
   syncBandDataFromArchives,
   syncLatestBandAdditionsFromArchives,
 } from "./band-sync";
+import { syncAlbumDataFromArchives } from "./album-sync";
 
 export function AdminToolsTab() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
