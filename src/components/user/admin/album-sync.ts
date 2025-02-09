@@ -1,25 +1,42 @@
 "use server";
 
-import { updateAlbumsTableData } from "@/lib/data/user/admin/album-data-actions";
+import {
+  getAlbumId,
+  updateAlbumsTableData,
+  updateAlbumTracksDataTable,
+} from "@/lib/data/user/admin/album-data-actions";
 import axios from "axios";
 import * as cheerio from "cheerio";
-import { AlbumData } from "./admin-releases-types";
+import {
+  formatTimeToSeconds,
+  parseMetalArchivesDate,
+} from "@/lib/general/dateTime";
+import { AlbumTracks, Prisma } from "@prisma/client";
 
 export async function syncAlbumDataFromArchives() {
   //  const archivesLinks = await getBandLinks();
   //  const archivesLinks = "2845,3540441516".split(",");
   const archivesLinks = [
-    { id: "clxx8c9x021nh3se7w9aug98l", name: "Keep_of_Kalessin", archivesLink: "2845" },
-    { id: "clxx8f4ym2f2p3se7s3dd0659", name: "Mordant_Rapture", archivesLink: "3540441516" },
+    {
+      id: "cm5tybqcw1y5yt7f0fmovfm9b",
+      name: "Keep_of_Kalessin",
+      archivesLink: "2845",
+    },
+    {
+      id: "cm5tyg4k02bzgt7f0fii00bio",
+      name: "Mordant_Rapture",
+      archivesLink: "3540441516",
+    },
   ];
   const baseUrl = "https://www.metal-archives.com/band/discography/id/";
 
   if (archivesLinks) {
     for (const { id, name, archivesLink } of archivesLinks) {
       const url = `${baseUrl}${archivesLink}/tab/all`;
+      console.log(`Fetching URL: ${url}`);
       const response = await axios.get(url);
       const html = response.data;
-      let albumsData: AlbumData[] = [];
+
       const $ = cheerio.load(html);
 
       const rows = $("tr").toArray(); // Convert cheerio object to an array
@@ -32,20 +49,39 @@ export async function syncAlbumDataFromArchives() {
           const albumLink = parts.pop();
 
           const album = $(elem).find("td").first().text().trim();
-          const type = $(elem).find("td").eq(1).text().trim();         
+          const type = $(elem).find("td").eq(1).text().trim();
           if (name && albumName && albumLink) {
             const albumUrl = `https://www.metal-archives.com/albums/${name}/${albumName}/${albumLink}`;
-            const releaseDate = await getReleaseDate(albumUrl);
-            const albumData = {
-              bandId: id,
-              name: albumName,
-              namePretty: album,
-              archivesLink: parseInt(albumLink, 10),
-              type: type,
-              releaseDate: new Date(releaseDate),
+            console.log(`Fetching album URL: ${albumUrl}`);
+            const releaseData = await getReleaseData(albumUrl);
+            console.log("release data: ", releaseData);
+            if (releaseData) {
+              const albumData: Prisma.BandAlbumsCreateInput = {
+                band: { connect: { id } },
+                name: albumName,
+                namePretty: album,
+                archivesLink: BigInt(albumLink),
+                type: type,
+                releaseDate: releaseData.releaseDateFormatted,
+              };
+              await updateAlbumsTableData(albumData);
+              const albumId = await getAlbumId(id, parseInt(albumLink, 10));
+              let tracks: Prisma.AlbumTracksCreateManyInput[] = [];
+              if (albumId && releaseData.tracklist) {
+                for (const track of releaseData.tracklist) {
+                  const trackData = {
+                    bandId: id,
+                    albumId: albumId.id,
+                    title: track.title,
+                    trackNumber: parseInt(track.trackNumber, 10),
+                    duration: formatTimeToSeconds(track.duration),
+                  };
+                  tracks.push(trackData);
+                }
+                await updateAlbumTracksDataTable(tracks);
+              }
             }
-            albumsData.push(albumData); 
-            updateAlbumsTableData(albumsData);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
           }
         }
       }
@@ -54,30 +90,73 @@ export async function syncAlbumDataFromArchives() {
   }
 }
 
-async function getReleaseDate(albumUrl: string) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  const response = await axios.get(albumUrl);
-  const html = response.data;
+async function getReleaseData(url: string) {
+  try {
+    console.log(`Fetching release data from URL: ${url}`);
+    const response = await axios.get(url);
+    const html = response.data;
+    const $ = cheerio.load(html);
 
-  const $ = cheerio.load(html);
-  const releaseDateString = $("dt")
-    .filter(function () {
-      return $(this).text().trim() === "Release date:";
-    })
-    .next("dd")
-    .text();
+    // Extract release date
+    let releaseDateText: string | null = null;
+    const releaseDateDt = $("#album_info dl dt")
+      .filter((i, el) => $(el).text().trim() === "Release date:")
+      .first(); // Get the first matching element
 
-  const formattedDate = convertDateToISO(releaseDateString);
-  return formattedDate;
-}
+    if (releaseDateDt.length > 0) {
+      releaseDateText = releaseDateDt.next("dd").text().trim();
+    }
 
-function convertDateToISO(dateString: string) {
-  const cleanedDateString = dateString.replace(/(\d+)(st|nd|rd|th)/, "$1");
-  const date = new Date(cleanedDateString);
+    const releaseDate = releaseDateText ? releaseDateText.trim() : null;
+    console.log("release date; ", releaseDate);
 
-  const year = date.getFullYear();
-  const month = `0${date.getMonth() + 1}`.slice(-2); 
-  const day = `0${date.getDate()}`.slice(-2);
+    let releaseDateFormatted: Date | null = null;
 
-  return `${year}-${month}-${day}`;
+    if (releaseDate) {
+      releaseDateFormatted = parseMetalArchivesDate(releaseDate);
+    }
+
+    // Extract tracklist
+    const tracklist: {
+      title: string;
+      duration: string;
+      trackNumber: string;
+    }[] = [];
+    $("#album_tabs_tracklist table.table_lyrics tbody tr") // Refined selector
+      .filter((i, el) => $(el).find('td').length === 4 && !$(el).hasClass('sideRow')) // Filter out side rows and rows with incorrect number of columns
+      .each((i, el) => {
+        const $row = $(el);
+        const trackNumber = $row.find("td:nth-child(1)").text().trim();
+        const title = $row.find("td.wrapWords").text().trim();
+        const duration = $row.find('td[align="right"]').text().trim();
+
+        // Check if it's a bonus track
+        const bonusTrack = $row.find("td.wrapWords.bonus").text().trim();
+
+        if (title) { // Filter out empty rows
+          tracklist.push({
+            title: bonusTrack || title,
+            trackNumber,
+            duration: duration,
+          });
+        }
+      });
+
+    console.log(
+      `Extracted release data: ${JSON.stringify({
+        releaseDateFormatted,
+        tracklist,
+      })}`
+    );
+    return {
+      releaseDateFormatted,
+      tracklist,
+    };
+  } catch (error) {
+    console.error("Error fetching release data:", error);
+    return {
+      releaseDate: null,
+      tracklist: [],
+    };
+  }
 }
