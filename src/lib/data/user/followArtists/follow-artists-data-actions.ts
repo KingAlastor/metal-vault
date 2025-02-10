@@ -24,9 +24,7 @@ export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
     (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   let whereCondition: Prisma.BandsWhereInput;
@@ -116,12 +114,9 @@ export const fetchBandsByFilters = async (search: string): Promise<Bands[]> => {
 export const fetchUserFavoriteBands = async () => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   const shard =
@@ -133,15 +128,14 @@ export const fetchUserFavoriteBands = async () => {
   ] as PrismaBandFollowersModel;
 
   const favorites = await model.findMany({ where: { userId: user.id } });
-  const bandIds = favorites.map((row: any) => row.bandId);
 
-  return bandIds;
+  return favorites.map((band: { bandId: string }) => band.bandId);
 };
 
 export const fetchUserFavBandsFullData = async () => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
+
   if (!user) {
     return [];
   }
@@ -171,21 +165,18 @@ export const fetchUserFavBandsFullData = async () => {
     },
   });
 
-return favorites.map((bands: any) => ({
-  ...bands.band,
-  rating: bands.rating,
-}));
+  return favorites.map((bands: any) => ({
+    ...bands.band,
+    rating: bands.rating,
+  }));
 };
 
 export const saveUserFavorites = async (favorites: string[]) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   const shard =
@@ -220,12 +211,9 @@ export const saveUserFavoriteAndUpdateFollowerCount = async (
 ) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   const shard =
@@ -278,12 +266,9 @@ export const saveUserFavoriteAndUpdateFollowerCount = async (
 export const deleteFavoriteArtist = async (bandId: string) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   const shard =
@@ -313,12 +298,9 @@ export const deleteFavoriteArtist = async (bandId: string) => {
 export const incrementBandFollowersValue = async (id: string) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -338,12 +320,9 @@ export const incrementBandFollowersValue = async (id: string) => {
 export const decrementBandFollowersValue = async (id: string) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -363,12 +342,9 @@ export const decrementBandFollowersValue = async (id: string) => {
 export const getRefreshTokenFromUserTokens = async (provider: string) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -398,12 +374,9 @@ export const getRefreshTokenFromUserTokens = async (provider: string) => {
 export const checkBandExists = async (bandNamePretty: string) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -426,18 +399,17 @@ export const checkBandExists = async (bandNamePretty: string) => {
   }
 };
 
-export const checkFavoriteExists = async (bandId: string | null | undefined) => {
+export const checkFavoriteExists = async (
+  bandId: string | null | undefined
+) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
-  if (!bandId) return false; 
+  if (!bandId) return false;
 
   const shard =
     user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
@@ -458,7 +430,6 @@ export const checkFavoriteExists = async (bandId: string | null | undefined) => 
     });
 
     return favorite !== null;
-
   } catch (error) {
     console.error("Error checking favorite:", error);
     throw error;
@@ -468,15 +439,12 @@ export const checkFavoriteExists = async (bandId: string | null | undefined) => 
 export const updateBandRating = async (bandId: string, rating: number) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
-  if (!bandId) return false; 
+  if (!bandId) return false;
 
   const shard =
     user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
@@ -497,8 +465,8 @@ export const updateBandRating = async (bandId: string, rating: number) => {
           bandId: bandId,
         },
       },
-    })
+    });
   } catch (error) {
-    console.error("Failed to update rating:", error);    
+    console.error("Failed to update rating:", error);
   }
-}
+};

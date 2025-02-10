@@ -38,6 +38,11 @@ export default function EmailUpdatesPage() {
   const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(
     !!filters.email_updates_enabled
   );
+  console.log("updates enabled", emailUpdatesEnabled)
+
+  useEffect(() => {
+    setEmailUpdatesEnabled(!!filters.email_updates_enabled);
+  }, [filters]);
 
   const toggleEmailUpdatesEnabled = async (checked: boolean) => {
     const updateFilters = {
@@ -65,7 +70,7 @@ export default function EmailUpdatesPage() {
     console.log("email: ", email);
     if (email) {
       const response = await sendMail(
-        "taavileppik@gmail.com",
+        data.preferred_email,
         "Newsletter",
         email.text,
         email.html

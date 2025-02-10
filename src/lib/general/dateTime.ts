@@ -93,3 +93,26 @@ function getMonthIndex(month: string): number {
   ];
   return months.findIndex(m => m.toLowerCase() === month.toLowerCase());
 }
+
+export function getFromAndToDates(period: string): { from: string, to: string } {
+  const today = new Date();
+  const toDate = today.toISOString().split('T')[0];
+
+  if (period === 'W') {
+    const fromDate = new Date(today);
+    fromDate.setDate(today.getDate() - 7);
+    return {
+      from: fromDate.toISOString().split('T')[0],
+      to: toDate
+    };
+  } else if (period === 'M') {
+    const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const lastDateOfPreviousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    return {
+      from: fromDate.toISOString().split('T')[0],
+      to: lastDateOfPreviousMonth.toISOString().split('T')[0]
+    };
+  }
+
+  throw new Error('Invalid period specified');
+}
