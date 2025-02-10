@@ -18,7 +18,7 @@ import { useSession } from "@/lib/auth/auth-client";
 export default function ReleasesPage() {
   const {data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const filters = JSON.parse(session?.user?.releaseSettings || "{}");
+  const filters = session?.user.releaseSettings ? JSON.parse(session?.user.releaseSettings) : {};
 
   const {
     data: releases,
@@ -26,7 +26,7 @@ export default function ReleasesPage() {
     status,
     error,
   } = useQuery({
-    queryKey: ["releases", filters],
+    queryKey: ["releases"],
     queryFn: () => kyInstance.get("api/releases").json<BandAlbum[]>(),
   });
 
