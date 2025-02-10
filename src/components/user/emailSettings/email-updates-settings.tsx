@@ -13,18 +13,15 @@ import {
 } from "@/components/ui/form";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import {
-  EmailSettings,
-  getUserEmailSettings,
-  updateProfileFilters,
-} from "@/lib/data/user/emailUpdates/email-settings-data-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { toast } from "@/components/ui/use-toast";
+import { createEmail } from "./create-email";
+import { sendMail } from "@/lib/email/send-email";
 
-const FormSchema = z.object({
+export const EmailFormSchema = z.object({
   preferred_email: z.string(),
   email_frequency: z.string().default("W"),
   favorite_bands: z.boolean().default(false).optional(),
@@ -34,11 +31,27 @@ const FormSchema = z.object({
 export default function EmailUpdatesPage() {
   const { data: session } = useSession();
   const user = session?.user;
-  const [filters, setFilters] = useState<EmailSettings>();
-  const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(false);
+  const filters = session?.user.emailSettings
+    ? JSON.parse(session?.user.emailSettings)
+    : {};
+  console.log("email settings: ", filters);
+  const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(
+    !!filters.email_updates_enabled
+  );
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const toggleEmailUpdatesEnabled = async (checked: boolean) => {
+    const updateFilters = {
+      ...filters,
+      email_updates_enabled: checked,
+    };
+    await authClient.updateUser({
+      emailSettings: JSON.stringify(updateFilters),
+    });
+    setEmailUpdatesEnabled(checked);
+  };
+
+  const form = useForm<z.infer<typeof EmailFormSchema>>({
+    resolver: zodResolver(EmailFormSchema),
     defaultValues: {
       preferred_email: filters?.preferred_email || user?.email!,
       favorite_bands: filters?.favorite_bands || false,
@@ -47,45 +60,44 @@ export default function EmailUpdatesPage() {
     },
   });
 
-  useEffect(() => {
-    const fetchUserFilters = async () => {
-      if (user?.id) {
-        let userFilters = await getUserEmailSettings(user.id!);
-        setFilters(userFilters);
-        if (userFilters) {
-          setEmailUpdatesEnabled(true);
-          form.reset({
-            preferred_email: userFilters.preferred_email || user.email!,
-            favorite_bands: userFilters.favorite_bands || false,
-            email_frequency: userFilters.email_frequency || "W",
-            favorite_genres: userFilters.favorite_genres || false,
-          });
-        }
-      }
-    };
-    fetchUserFilters();
-  }, [user?.id, user?.email, form]);
+  async function sendTestEmail(data: z.infer<typeof EmailFormSchema>) {
+    const email = await createEmail(data);
+    console.log("email: ", email);
+    if (email) {
+      const response = await sendMail(
+        "taavileppik@gmail.com",
+        "Newsletter",
+        email.text,
+        email.html
+      );
+    }
+    console.log("Sending test email with data:", data);
+    toast({ description: "Sending test email..." });
+    try {
+      // Replace this with your actual email sending function
+      // await sendEmail(data);
+      toast({ description: "Test email sent successfully!" });
+    } catch (error) {
+      console.error("Error sending test email:", error);
+      toast({ description: "Failed to send test email." });
+    }
+  }
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    const updateFilters = async () => {
-      let filters: EmailSettings = {
-        preferred_email: data.preferred_email,
-        email_frequency: data.email_frequency,
-        favorite_bands: data.favorite_bands ?? false,
-        favorite_genres: data.favorite_genres ?? false,
-      };
-      setFilters(filters);
-      try {
-        await updateProfileFilters(data);
-        await authClient.updateUser({
-          emailSettings: JSON.stringify(filters),
-        });
-        toast({ description: "Email settings updated." });
-      } catch (error) {
-        toast({ description: "Failed to update email settings." });
-      }
+  async function onSubmit(data: z.infer<typeof EmailFormSchema>) {
+    let filters = {
+      preferred_email: data.preferred_email,
+      email_frequency: data.email_frequency,
+      favorite_bands: data.favorite_bands ?? false,
+      favorite_genres: data.favorite_genres ?? false,
     };
-    updateFilters();
+    try {
+      await authClient.updateUser({
+        emailSettings: JSON.stringify(filters),
+      });
+      toast({ description: "Email settings updated." });
+    } catch (error) {
+      toast({ description: "Failed to update email settings." });
+    }
   }
 
   return (
@@ -105,7 +117,7 @@ export default function EmailUpdatesPage() {
               <FormControl>
                 <Switch
                   checked={emailUpdatesEnabled}
-                  onCheckedChange={setEmailUpdatesEnabled}
+                  onCheckedChange={toggleEmailUpdatesEnabled}
                 />
               </FormControl>
             </div>
@@ -218,9 +230,16 @@ export default function EmailUpdatesPage() {
                 />
               </>
             )}
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                onClick={form.handleSubmit(sendTestEmail)}
+                disabled={form.formState.isSubmitting}
+              >
+                Send Email
+              </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                Submit
+                Save Settings
               </Button>
             </div>
           </div>
