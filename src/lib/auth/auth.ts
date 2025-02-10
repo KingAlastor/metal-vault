@@ -17,16 +17,16 @@ export const auth = betterAuth({
   },
   session: {
     expiresIn: 60 * 60 * 24 * 30,
-    updateAge: 60 * 60 *24,
+    updateAge: 60 * 60 * 24,
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 60 * 24, 
+      maxAge: 60 * 60 * 24,
     },
   },
   user: {
     additionalFields: {
       userName: {
-        type: "string", 
+        type: "string",
         required: false,
       },
       role: {
@@ -46,6 +46,10 @@ export const auth = betterAuth({
         required: false,
       },
       postsSettings: {
+        type: "string",
+        required: false,
+      },
+      releaseSettings: {
         type: "string",
         required: false,
       },
@@ -83,5 +87,4 @@ export const auth = betterAuth({
   },
 });
 
-type Session = typeof auth.$Infer.Session
-
+type Session = typeof auth.$Infer.Session;

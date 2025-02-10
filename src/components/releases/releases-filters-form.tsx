@@ -3,42 +3,24 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command";
+
 import { Switch } from "@/components/ui/switch";
-import {
-  ReleasesFilters,
-  updateProfileFilters,
-} from "../../lib/data/releases/releases-filters-data-actions";
-import { Genre, getGenres } from "@/lib/data/genres/genre-data-actions";
-import { Check, CheckIcon, ChevronsUpDown } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { getGenres } from "@/lib/data/genres/genre-data-actions";
+import { authClient, useSession } from "@/lib/auth/auth-client";
+import { useQuery } from "@tanstack/react-query";
+import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutatuin";
+import { MultiSelectDropdown } from "../shared/multiselect-dropdown";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
@@ -47,16 +29,12 @@ const FormSchema = z.object({
 });
 
 interface FiltersFormProps {
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
-  filters: any;
-  setFilters: Dispatch<SetStateAction<ReleasesFilters>>;
+  onClose: () => void;
 }
 
-export function ReleasesFiltersForm({
-  setIsOpen,
-  filters,
-  setFilters,
-}: FiltersFormProps) {
+export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
+  const { data: session } = useSession();
+  const filters = session?.user.releaseSettings ? JSON.parse(session?.user.releaseSettings) : {};
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -66,31 +44,45 @@ export function ReleasesFiltersForm({
     },
   });
 
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [selectedValues, setSelectedValues] = useState<Set<string>>(
-    new Set(filters.genreTags)
-  );
+  const { setValue, control } = form;
 
-  useEffect(() => {
-    const fetchGenres = async () => {
-      const genres = await getGenres();
-      setGenres(genres);
-    };
-    fetchGenres();
-  }, []);
+  const mutation = useApplyReleaseFiltersMutation();
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    const updateFilters = async () => {
-      let filters: ReleasesFilters = {
-        favorite_bands: data.favorite_bands ?? false,
-        favorite_genres: data.favorite_genres ?? false,
-        genreTags: Array.from(selectedValues),
-      };
-      setFilters(filters);
-      setIsOpen(false);
-      updateProfileFilters(filters);
+  const { data: genres } = useQuery({
+    queryKey: ["genreTags"],
+    queryFn: async () => {
+      const genresData = await getGenres();
+      return genresData.map((genre) => ({
+        value: genre.genres,
+        label: genre.genres,
+      }));
+    },
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+  });
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    let filters: {
+      favorite_bands: boolean;
+      favorite_genres: boolean;
+      genreTags?: string[];
+    } = {
+      favorite_bands: data.favorite_bands ?? false,
+      favorite_genres: data.favorite_genres ?? false,
     };
-    updateFilters();
+    await authClient.updateUser({
+      releaseSettings: JSON.stringify(filters),
+    });
+    filters = {
+      ...filters,
+      genreTags: data.genreTags,
+    };
+
+    mutation.mutate(filters, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
   }
 
   return (
@@ -143,115 +135,21 @@ export function ReleasesFiltersForm({
               )}
             />
             <FormField
-              control={form.control}
+              control={control}
               name="genreTags"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Genres</FormLabel>
-                  <FormDescription>Add additional genres</FormDescription>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button variant="outline" size="sm" className="h-8">
-                          Genres
-                          {selectedValues?.size > 0 && (
-                            <>
-                              <Separator
-                                orientation="vertical"
-                                className="mx-2 h-4"
-                              />
-                              <Badge
-                                variant="secondary"
-                                className="rounded-sm px-1 font-normal lg:hidden"
-                              >
-                                {selectedValues.size}
-                              </Badge>
-                              <div className="hidden space-x-1 lg:flex">
-                                {selectedValues.size > 2 ? (
-                                  <Badge
-                                    variant="secondary"
-                                    className="rounded-sm px-1 font-normal"
-                                  >
-                                    {selectedValues.size} selected
-                                  </Badge>
-                                ) : (
-                                  genres
-                                    .filter((genre: Genre) =>
-                                      selectedValues.has(genre.genres)
-                                    )
-                                    .map((genre: Genre) => (
-                                      <Badge
-                                        variant="secondary"
-                                        key={genre.genres}
-                                        className="rounded-sm px-1 font-normal"
-                                      >
-                                        {genre.genres}
-                                      </Badge>
-                                    ))
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search genre..." />
-                        <CommandList>
-                          <CommandEmpty>Genre not found.</CommandEmpty>
-                          <CommandGroup>
-                            {genres.map((genre) => {
-                              const isSelected = selectedValues.has(
-                                genre.genres
-                              );
-                              return (
-                                <CommandItem
-                                  key={genre.genres}
-                                  onSelect={() => {
-                                    const newSelectedValues = new Set(
-                                      selectedValues
-                                    );
-                                    if (isSelected) {
-                                      newSelectedValues.delete(genre.genres);
-                                    } else {
-                                      newSelectedValues.add(genre.genres);
-                                    }
-                                    setSelectedValues(newSelectedValues);
-                                  }}
-                                >
-                                  <div
-                                    className={cn(
-                                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                      isSelected
-                                        ? "bg-primary text-primary-foreground"
-                                        : "opacity-50 [&_svg]:invisible"
-                                    )}
-                                  >
-                                    <CheckIcon className={cn("h-4 w-4")} />
-                                  </div>
-                                  <span>{genre.genres}</span>
-                                </CommandItem>
-                              );
-                            })}
-                          </CommandGroup>
-                        </CommandList>
-                        {selectedValues.size > 0 && (
-                          <>
-                            <CommandSeparator />
-                            <CommandGroup>
-                              <CommandItem
-                                onSelect={() => setSelectedValues(new Set())}
-                                className="justify-center text-center"
-                              >
-                                Clear filters
-                              </CommandItem>
-                            </CommandGroup>
-                          </>
-                        )}
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                  <FormControl>
+                    <MultiSelectDropdown
+                      options={genres || []}
+                      onChange={(newValue) => {
+                        field.onChange(newValue);
+                        setValue("genreTags", newValue);
+                      }}
+                      value={field.value}
+                      triggerText="Select genres"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

@@ -10,7 +10,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import { User } from "next-auth";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
@@ -19,9 +18,7 @@ import { useSession } from "@/lib/auth/auth-client";
 export default function ReleasesPage() {
   const {data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState(
-    JSON.parse(session?.user?.releaseSettings || "{}")
-  );
+  const filters = JSON.parse(session?.user?.releaseSettings || "{}");
 
   const {
     data: releases,
@@ -29,9 +26,13 @@ export default function ReleasesPage() {
     status,
     error,
   } = useQuery({
-    queryKey: ["releases"],
+    queryKey: ["releases", filters],
     queryFn: () => kyInstance.get("api/releases").json<BandAlbum[]>(),
   });
+
+  const handleFormSubmit = () => {
+    setIsOpen(false);
+  };
 
   return (
     <div className="container mx-auto py-10">
@@ -49,9 +50,7 @@ export default function ReleasesPage() {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <ReleasesFiltersForm
-            setIsOpen={setIsOpen}
-            filters={filters}
-            setFilters={setFilters}
+             onClose={handleFormSubmit}
           />
         </CollapsibleContent>
       </Collapsible>

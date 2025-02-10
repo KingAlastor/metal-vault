@@ -12,20 +12,19 @@ export type ReleasesFilters = {
 };
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
+  console.log("filters: ", filters);
   const { user } =
-    (await auth.api.getSession({ headers: await headers() })) ?? {}; 
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+
+  console.log("user: ", user);
 
   let bandIds: string[] | undefined;
 
-  if (user) {
-    if (filters?.favorite_bands) {
-      bandIds = await getBandIdsByUserId(user);
-    }
-    /*     if (filters.favorite_genres_only) {
-      genres
-    } */
+  if (user && filters?.favorite_bands) {
+    bandIds = await getBandIdsByUserId(user);
   }
 
+  console.log("band IDs: ", bandIds);
   const today = new Date(new Date().setHours(0, 0, 0, 0));
 
   const releases = await prisma.upcomingReleases.findMany({
@@ -50,16 +49,14 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
       releaseDate: "asc",
     },
   });
-
+  console.log("releases: ", releases);
   return releases;
 }
 
 const getBandIdsByUserId = async (user: any) => {
-    if (!user) {
-      throw new Error(
-        "User ID is undefined."
-      );
-    }
+  if (!user) {
+    throw new Error("User ID is undefined.");
+  }
 
   const shard =
     user.shard && prisma[`bandFollowers${user.shard}` as keyof typeof prisma]
@@ -83,14 +80,11 @@ const getBandIdsByUserId = async (user: any) => {
 
 export const getUserReleaseFilters = async (id: string) => {
   const { user } =
-  (await auth.api.getSession({ headers: await headers() })) ?? {};
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
 
-
-if (!user) {
-  throw new Error(
-    "User ID is undefined."
-  );
-}
+  if (!user) {
+    throw new Error("User ID is undefined.");
+  }
 
   try {
     let filters;
@@ -115,12 +109,9 @@ if (!user) {
 export async function updateProfileFilters(filters: ReleasesFilters) {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
   const filtersJson = JSON.stringify(filters);
 
