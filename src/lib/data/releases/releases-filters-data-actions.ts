@@ -12,11 +12,8 @@ export type ReleasesFilters = {
 };
 
 export async function getReleasesByFilters(filters: ReleasesFilters) {
-  console.log("filters: ", filters);
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-
-  console.log("user: ", user);
 
   let bandIds: string[] | undefined;
 
@@ -24,7 +21,6 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
     bandIds = await getBandIdsByUserId(user);
   }
 
-  console.log("band IDs: ", bandIds);
   const today = new Date(new Date().setHours(0, 0, 0, 0));
 
   const releases = await prisma.upcomingReleases.findMany({
@@ -49,7 +45,7 @@ export async function getReleasesByFilters(filters: ReleasesFilters) {
       releaseDate: "asc",
     },
   });
-  console.log("releases: ", releases);
+
   return releases;
 }
 
