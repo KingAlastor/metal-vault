@@ -94,23 +94,26 @@ function getMonthIndex(month: string): number {
   return months.findIndex(m => m.toLowerCase() === month.toLowerCase());
 }
 
-export function getFromAndToDates(period: string): { from: string, to: string } {
+export function getFromAndToDates(period: string): { from: Date, to: Date } {
   const today = new Date();
-  const toDate = today.toISOString().split('T')[0];
+  const utcYear = today.getUTCFullYear();
+  const utcMonth = today.getUTCMonth();
+  const utcDate = today.getUTCDate();
+
+  const toDate = new Date(Date.UTC(utcYear, utcMonth, utcDate, 0, 0, 0, 0));
 
   if (period === 'W') {
-    const fromDate = new Date(today);
-    fromDate.setDate(today.getDate() - 7);
+    const fromDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 7, 0, 0, 0, 0));
     return {
-      from: fromDate.toISOString().split('T')[0],
+      from: fromDate,
       to: toDate
     };
   } else if (period === 'M') {
-    const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-    const lastDateOfPreviousMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    const fromDate = new Date(Date.UTC(utcYear, utcMonth - 1, 1, 0, 0, 0, 0));
+    const lastDateOfPreviousMonth = new Date(Date.UTC(utcYear, utcMonth, 0, 0, 0, 0));
     return {
-      from: fromDate.toISOString().split('T')[0],
-      to: lastDateOfPreviousMonth.toISOString().split('T')[0]
+      from: fromDate,
+      to: lastDateOfPreviousMonth
     };
   }
 
