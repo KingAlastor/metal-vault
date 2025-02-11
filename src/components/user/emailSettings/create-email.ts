@@ -17,7 +17,7 @@ export const createEmail = async (data: z.infer<typeof EmailFormSchema>) => {
   if (releases.length > 0) {
     let text = "Here are the latest releases from your favorite bands:\n";
     let html =
-      "<h1>Here are the latest releases from your favorite bands:</h1><ul>";
+      "<h3>Latest releases based on your filters:</h3><ul>";
 
     for (const band of releases) {
       console.log("band row: ", band)
