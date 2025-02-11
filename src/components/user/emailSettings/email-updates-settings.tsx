@@ -11,7 +11,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,18 +42,21 @@ export default function EmailUpdatesPage() {
 
   useEffect(() => {
     setEmailUpdatesEnabled(!!filters.email_updates_enabled);
-  }, [filters]);
+  }, [filters.email_updates_enabled]);
 
-  const toggleEmailUpdatesEnabled = async (checked: boolean) => {
-    const updateFilters = {
-      ...filters,
-      email_updates_enabled: checked,
-    };
-    await authClient.updateUser({
-      emailSettings: JSON.stringify(updateFilters),
-    });
-    setEmailUpdatesEnabled(checked);
-  };
+  const toggleEmailUpdatesEnabled = useCallback(
+    async (checked: boolean) => {
+      const updateFilters = {
+        ...filters,
+        email_updates_enabled: checked,
+      };
+      await authClient.updateUser({
+        emailSettings: JSON.stringify(updateFilters),
+      });
+      setEmailUpdatesEnabled(checked);
+    },
+    [filters, authClient]
+  );
 
   const form = useForm<z.infer<typeof EmailFormSchema>>({
     resolver: zodResolver(EmailFormSchema),
@@ -65,45 +68,52 @@ export default function EmailUpdatesPage() {
     },
   });
 
-  async function sendTestEmail(data: z.infer<typeof EmailFormSchema>) {
-    const email = await createEmail(data);
-    console.log("email: ", email);
-    if (email) {
-      const response = await sendMail(
-        data.preferred_email,
-        "Newsletter",
-        email.text,
-        email.html
-      );
-    }
-    console.log("Sending test email with data:", data);
-    toast({ description: "Sending test email..." });
-    try {
-      // Replace this with your actual email sending function
-      // await sendEmail(data);
-      toast({ description: "Test email sent successfully!" });
-    } catch (error) {
-      console.error("Error sending test email:", error);
-      toast({ description: "Failed to send test email." });
-    }
-  }
+  const sendTestEmail = useCallback(
+    async (data: z.infer<typeof EmailFormSchema>) => {
+      const email = await createEmail(data);
+      console.log("email: ", email);
+      if (email) {
+        const response = await sendMail(
+          data.preferred_email,
+          "Newsletter",
+          email.text,
+          email.html
+        );
+      }
+      console.log("Sending test email with data:", data);
+      toast({ description: "Sending test email..." });
+      try {
+        // Replace this with your actual email sending function
+        // await sendEmail(data);
+        toast({ description: "Test email sent successfully!" });
+      } catch (error) {
+        console.error("Error sending test email:", error);
+        toast({ description: "Failed to send test email." });
+      }
+    },
+    [createEmail, sendMail, toast]
+  );
 
-  async function onSubmit(data: z.infer<typeof EmailFormSchema>) {
-    let filters = {
-      preferred_email: data.preferred_email,
-      email_frequency: data.email_frequency,
-      favorite_bands: data.favorite_bands ?? false,
-      favorite_genres: data.favorite_genres ?? false,
-    };
-    try {
-      await authClient.updateUser({
-        emailSettings: JSON.stringify(filters),
-      });
-      toast({ description: "Email settings updated." });
-    } catch (error) {
-      toast({ description: "Failed to update email settings." });
-    }
-  }
+  const onSubmit = useCallback(
+    async (data: z.infer<typeof EmailFormSchema>) => {
+      let filters = {
+        preferred_email: data.preferred_email,
+        email_frequency: data.email_frequency,
+        favorite_bands: data.favorite_bands ?? false,
+        favorite_genres: data.favorite_genres ?? false,
+        email_updates_enabled: emailUpdatesEnabled,
+      };
+      try {
+        await authClient.updateUser({
+          emailSettings: JSON.stringify(filters),
+        });
+        toast({ description: "Email settings updated." });
+      } catch (error) {
+        toast({ description: "Failed to update email settings." });
+      }
+    },
+    [authClient, toast]
+  );
 
   return (
     <Form {...form}>
