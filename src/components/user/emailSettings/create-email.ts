@@ -3,34 +3,59 @@
 import { z } from "zod";
 import { EmailFormSchema } from "./email-updates-settings";
 import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
-import { getReleasesForEmail } from "@/lib/data/user/emailUpdates/email-settings-data-actions";
+import {
+  getFavoriteBandReleasesForEmail,
+  getFavoriteGenreReleasesForEmail,
+} from "@/lib/data/user/emailUpdates/email-settings-data-actions";
+import { Prisma } from "@prisma/client";
 
 export const createEmail = async (data: z.infer<typeof EmailFormSchema>) => {
-  const filters = {
-    favorite_bands: data.favorite_bands,
-    favorite_genres: data.favorite_genres,
-    email_frequency: data.email_frequency,
-    genreTags: [],
-  };
-  const releases = await getReleasesForEmail(filters);
-  console.log("releases: ", releases);
-  if (releases.length > 0) {
-    let text = "Here are the latest releases from your favorite bands:\n";
-    let html =
-      "<h3>Latest releases based on your filters:</h3><ul>";
+  let favBandRleases: Prisma.UpcomingReleasesGetPayload<{}>[] = [];
+  let favGenreReleases: Prisma.UpcomingReleasesGetPayload<{}>[] = [];
 
-    for (const band of releases) {
-      console.log("band row: ", band)
+  if (data.favorite_bands) {
+    favBandRleases = await getFavoriteBandReleasesForEmail(
+      data.email_frequency
+    );
+  }
+
+  if (data.favorite_genres) {
+    favGenreReleases = await getFavoriteGenreReleasesForEmail(
+      data.email_frequency
+    );
+  }
+
+  console.log("releases: ", favBandRleases);
+
+  let text = "";
+  let html = "";
+
+  if (favBandRleases.length > 0) {
+    text += "Latest releases from your favorite bands:\n";
+    html += "<h3>Latest releases from your favorite artists:</h3><ul>";
+
+    for (const band of favBandRleases) {
+      console.log("band row: ", band);
       const date = formatDateWithNamedMonth(band.releaseDate!);
       text += `\n- ${date} - ${band.bandName} - ${band.albumName} `;
       html += `<li>${date} - ${band.bandName} - ${band.albumName}</li>`;
     }
+  }
+  if (favGenreReleases.length > 0) {
+    text += "Latest releases of your favorite genres:\n";
+    html += "<h3>Latest releases of your favorite genres:</h3><ul>";
+
+    for (const band of favGenreReleases) {
+      console.log("band row: ", band);
+      const date = formatDateWithNamedMonth(band.releaseDate!);
+      text += `\n- ${date} - ${band.bandName} - ${band.albumName} `;
+      html += `<li>${date} - ${band.bandName} - ${band.albumName} - ${band.genreTags}</li>`;
+    }
 
     html += "</ul>";
-
-    return {
-      text,
-      html,
-    };
   }
+  return {
+    text,
+    html,
+  };
 };

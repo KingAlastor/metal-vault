@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { fetchUserFavoriteBands } from "../followArtists/follow-artists-data-actions";
 import { getFromAndToDates } from "@/lib/general/dateTime";
+import { Prisma } from "@prisma/client";
 
 export type ReleasesFilters = {
   favorite_bands?: boolean;
@@ -13,7 +14,9 @@ export type ReleasesFilters = {
   email_frequency: string;
 };
 
-export async function getReleasesForEmail(filters: ReleasesFilters) {
+export async function getFavoriteBandReleasesForEmail(
+  frequency: string
+): Promise<Prisma.UpcomingReleasesGetPayload<{}>[]> {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
 
@@ -21,31 +24,46 @@ export async function getReleasesForEmail(filters: ReleasesFilters) {
     throw new Error("User ID is undefined.");
   }
 
-  let bandIds: string[] | undefined;
+  const bandIds = await fetchUserFavoriteBands();
+  const date = getFromAndToDates(frequency);
 
-  if (filters.favorite_bands) {
-    bandIds = await fetchUserFavoriteBands();
-  }
-
-  if (filters.favorite_genres) {
-  }
-  const date = getFromAndToDates(filters.email_frequency);
-  const today = new Date(new Date().setHours(0, 0, 0, 0));
+  console.log("genretags: ", user.genreTags);
 
   const releases = await prisma.upcomingReleases.findMany({
-    select: {
-      bandId: true,
-      bandName: true,
-      albumName: true,
-      type: true,
-      releaseDate: true,
-      genreTags: true,
-    },
     where: {
       ...(bandIds ? { bandId: { in: bandIds } } : {}),
-      ...(filters.favorite_genres && user?.genreTags
-        ? { genreTags: { hasSome: user.genreTags } }
-        : {}),
+      releaseDate: {
+        gte: date.from,
+        lte: date.to,
+      },
+    },
+    orderBy: {
+      releaseDate: "asc",
+    },
+  });
+  console.log("releases: ", releases);
+  return releases;
+}
+
+export async function getFavoriteGenreReleasesForEmail(
+  frequency: string
+): Promise<Prisma.UpcomingReleasesGetPayload<{}>[]> {
+  const { user } =
+    (await auth.api.getSession({ headers: await headers() })) ?? {};
+
+  if (!user) {
+    throw new Error("User ID is undefined.");
+  }
+
+  const bandIds = await fetchUserFavoriteBands();
+  const date = getFromAndToDates(frequency);
+
+  console.log("genretags: ", user.genreTags);
+
+  const releases = await prisma.upcomingReleases.findMany({
+    where: {
+      ...(bandIds ? { bandId: { notIn: bandIds } } : {}),
+      ...(user?.genreTags ? { genreTags: { hasSome: user.genreTags } } : {}),
       releaseDate: {
         gte: date.from,
         lte: date.to,
