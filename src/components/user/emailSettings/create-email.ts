@@ -40,7 +40,9 @@ export const createEmail = async (data: z.infer<typeof EmailFormSchema>) => {
       text += `\n- ${date} - ${band.bandName} - ${band.albumName} `;
       html += `<li>${date} - ${band.bandName} - ${band.albumName}</li>`;
     }
+    html += "</ul>";
   }
+  
   if (favGenreReleases.length > 0) {
     text += "Latest releases of your favorite genres:\n";
     html += "<h3>Latest releases of your favorite genres:</h3><ul>";
