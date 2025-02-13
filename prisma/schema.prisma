@@ -121,7 +121,7 @@ model Bands {
   followers    Int?      @default(0)
   archivesLink BigInt    @map("archives_link")
   spotifyId    String?   @map("spotify_id")
-  updatedAt    DateTime?
+  lastSync     DateTime? @map("last_sync")
 
   albums            BandAlbums[]
   BandFollowers0    BandFollowers0[]

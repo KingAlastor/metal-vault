@@ -2,16 +2,18 @@
 import { prisma } from "@/lib/prisma";
 import { AlbumTracks, Prisma } from "@prisma/client";
 
-export async function updateAlbumsTableData(albumsData: Prisma.BandAlbumsCreateInput) {
+export async function updateAlbumsTableData(
+  albumsData: Prisma.BandAlbumsCreateInput
+) {
   try {
     await prisma.bandAlbums.create({
       data: albumsData,
     });
   } catch (error) {
-  //  console.error("Error creating band album:", error);
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        console.error("Prisma error code:", error.code);
-      }
+    //  console.error("Error creating band album:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma error code:", error.code);
+    }
     if (error instanceof Error) {
       console.error("Error message:", error.message);
       console.error("Error stack:", error.stack);
@@ -20,21 +22,26 @@ export async function updateAlbumsTableData(albumsData: Prisma.BandAlbumsCreateI
   }
 }
 
-export async function updateAlbumTracksDataTable(tracks: Prisma.AlbumTracksCreateManyInput[]) {
+export async function updateAlbumTracksDataTable(
+  tracks: Prisma.AlbumTracksCreateManyInput[]
+) {
   try {
     await prisma.albumTracks.createMany({
       data: tracks,
     });
   } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error stack:", error.stack);
-      } else {
-        console.error("Unknown error:", error);
-      }
+    if (error instanceof Error) {
+      console.error("Error stack:", error.stack);
+    } else {
+      console.error("Unknown error:", error);
     }
+  }
 }
 
 export async function getBandLinks() {
+  const twoMonthsAgo = new Date();
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+  
   try {
     const archivesLinks = await prisma.bands.findMany({
       select: {
@@ -42,6 +49,10 @@ export async function getBandLinks() {
         name: true,
         archivesLink: true,
       },
+      where: {
+        OR: [{ lastSync: null }, { lastSync: { lt: twoMonthsAgo } }],
+      },
+      take: 10,
     });
 
     return archivesLinks;
@@ -62,6 +73,19 @@ export async function getAlbumId(bandId: string, archivesLink: number) {
       },
     });
     return albumId;
+  } catch (error) {
+    console.log("Unable to fetch album ID.");
+  }
+}
+
+export async function updateBandsLastSync(id: string) {
+  try {
+    await prisma.bands.update({
+      data: {
+        lastSync: new Date(),
+      },
+      where: { id },
+    });
   } catch (error) {
     console.log("Unable to fetch album ID.");
   }

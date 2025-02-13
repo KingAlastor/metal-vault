@@ -2,8 +2,10 @@
 
 import {
   getAlbumId,
+  getBandLinks,
   updateAlbumsTableData,
   updateAlbumTracksDataTable,
+  updateBandsLastSync,
 } from "@/lib/data/user/admin/album-data-actions";
 import axios from "axios";
 import * as cheerio from "cheerio";
@@ -11,23 +13,11 @@ import {
   formatTimeToSeconds,
   parseMetalArchivesDate,
 } from "@/lib/general/dateTime";
-import { AlbumTracks, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export async function syncAlbumDataFromArchives() {
-  //  const archivesLinks = await getBandLinks();
-  //  const archivesLinks = "2845,3540441516".split(",");
-  const archivesLinks = [
-    {
-      id: "cm5tybqcw1y5yt7f0fmovfm9b",
-      name: "Keep_of_Kalessin",
-      archivesLink: "2845",
-    },
-    {
-      id: "cm5tyg4k02bzgt7f0fii00bio",
-      name: "Mordant_Rapture",
-      archivesLink: "3540441516",
-    },
-  ];
+  const archivesLinks = await getBandLinks();
+
   const baseUrl = "https://www.metal-archives.com/band/discography/id/";
 
   if (archivesLinks) {
@@ -85,6 +75,7 @@ export async function syncAlbumDataFromArchives() {
           }
         }
       }
+      await updateBandsLastSync(id);
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
