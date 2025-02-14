@@ -64,7 +64,36 @@ const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
 };
 
 export const getFullBandDataById = async (bandId: string) => {
-  return await prisma.bands.findUnique({
-    where: { id: bandId },
+  const bandData = await prisma.bands.findUnique({
+    where: {
+      id: bandId,
+    },
+    select: {
+      id: true,
+      name: true,
+      namePretty: true, 
+      genreTags: true,
+      status: true, 
+      followers: true,
+      country: true, 
+      spotifyId: true,
+      albums: {
+        select: {
+          id: true,
+          name: true,
+          namePretty: true,
+          releaseDate: true,
+          AlbumTracks: {
+            select: {
+              id: true,
+              title: true,
+              trackNumber: true,
+              duration: true,
+            },
+          },
+        },
+      },
+    },
   });
+  return bandData;
 };

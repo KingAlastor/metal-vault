@@ -4,6 +4,7 @@ import { getFullBandDataById } from "@/lib/data/bands/search-bands-data-actions"
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { Card } from "../ui/card";
+import { AlbumList } from "./albums-collapsible";
 
 export const BandCard = () => {
   const pathname = usePathname();
@@ -24,24 +25,25 @@ export const BandCard = () => {
     enabled: !!bandId,
   });
 
+  console.log("band data: ", band);
   if (isError) {
     return <>Error: {error.message}</>;
   }
   if (!band) {
     return <>Loading...</>;
   }
+
   return (
-    <>
-      <Card>
-        <div className="p-3">
-          <h2 className="text-center font-bold xxl-font">{band.namePretty}</h2>
-          <p>Country: {band.country}</p>
-          <p>Genre: {band.genreTags.join(", ")}</p>
-          <p>Status: {band.status}</p>
-          <p>Followers: {band.followers}</p>
-          <p>Spotify: {band.spotifyId}</p>
-        </div>
-      </Card>
-    </>
+    <Card>
+      <div className="p-6 space-y-4">
+        <h2 className="text-center font-bold text-2xl">{band.namePretty}</h2>
+        <p>Country: {band.country}</p>
+        <p>Genres: {band.genreTags.join(", ")}</p>
+        <p>Status: {band.status}</p>
+        <p>Followers: {band.followers}</p>
+        <p>Spotify: {band.spotifyId || "N/A"}</p>
+        <AlbumList albums={band.albums} />
+      </div>
+    </Card>
   );
 };
