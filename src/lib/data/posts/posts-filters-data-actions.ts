@@ -1,14 +1,9 @@
 "use server";
 
+import { PostsDataFilters } from "@/components/posts/post-types";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
-
-export type PostsFilters = {
-  favorites_only?: boolean;
-  favorite_genres_only?: boolean;
-};
-
 
 export const getUserPostsFilters = async (id: string) => {
   const { user } =
@@ -40,7 +35,7 @@ export const getUserPostsFilters = async (id: string) => {
   }
 };
 
-export async function updatePostsProfileFilters(filters: PostsFilters) {
+export async function updatePostsProfileFilters(filters: PostsDataFilters) {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
   
