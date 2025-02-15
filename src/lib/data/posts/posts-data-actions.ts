@@ -2,7 +2,6 @@
 
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
-import { PostsFilters } from "./posts-filters-data-actions";
 import {
   checkFavoriteExists,
   fetchUserFavoriteBands,
@@ -398,26 +397,4 @@ export async function fetchUserSavedPosts() {
     }
     throw error;
   }
-}
-
-export async function updateProfileFilters(filters: PostsFilters) {
-  const { user } =
-    (await auth.api.getSession({ headers: await headers() })) ?? {};
-
-  const filtersJson = JSON.stringify(filters);
-
-  if (!user?.id) {
-    throw new Error(
-      "User ID is undefined."
-    );
-  }
-
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      postsSettings: filtersJson,
-    },
-  });
 }

@@ -15,9 +15,9 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { updateProfileFilters } from "@/lib/data/posts/posts-data-actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PostsDataFilters } from "../post-types";
+import { authClient } from "@/lib/auth/auth-client";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -47,25 +47,18 @@ export function PostsFiltersForm({
 
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: updateProfileFilters,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["post-feed"] });
-    },
-  });
-
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    const updateFilters = async () => {
-      let filters: PostsDataFilters = {
-        favorites_only: data.favorites_only ?? false,
-        favorite_genres_only: data.favorite_genres_only ?? false,
-        unique_bands: data.unique_bands ?? false,
-      };
-      setIsOpen(false);
-      setFilters(filters);
-      mutation.mutate(filters);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    let filters: PostsDataFilters = {
+      favorites_only: data.favorites_only ?? false,
+      favorite_genres_only: data.favorite_genres_only ?? false,
+      unique_bands: data.unique_bands ?? false,
     };
-    updateFilters();
+    setIsOpen(false);
+    setFilters(filters);
+    await authClient.updateUser({
+      postsSettings: JSON.stringify(filters),
+    });
+    queryClient.invalidateQueries({ queryKey: ["post-feed"] });
   }
 
   return (
