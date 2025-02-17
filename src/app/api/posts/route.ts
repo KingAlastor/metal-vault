@@ -1,10 +1,6 @@
 import { Post } from "@/components/posts/post-types";
 import { auth } from "@/lib/auth/auth";
 import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
-import {
-  getUserPostsFilters,
-  PostsFilters,
-} from "@/lib/data/posts/posts-filters-data-actions";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 
@@ -22,10 +18,7 @@ export async function GET(req: NextRequest) {
       pageSize: 3,
     };
 
-    let filters: PostsFilters = {};
-    if (user?.id) {
-      filters = await getUserPostsFilters(user.id);
-    }
+    const filters = user?.postsSettings ?? {};
 
     const posts: Post[] = await getPostsByFilters(filters, queryParams);
 
