@@ -97,9 +97,7 @@ export const deletePost = async (postId: string) => {
     (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -122,7 +120,7 @@ export const getPostsByFilters = async (
 ) => {
   const { user } =
     (await auth.api.getSession({ headers: await headers() })) ?? {};
-  let where = {};
+  let where: Prisma.UserPostsActiveWhereInput = {};
   let favorites: string[] = [];
   let savedPosts: string[] = [];
 
@@ -131,45 +129,34 @@ export const getPostsByFilters = async (
     savedPosts = await fetchUserSavedPosts();
   }
 
-  if (filters?.favorites_only) {
-    if (favorites.length > 0)
-      where = {
-        ...where,
-        bandId: {
-          in: favorites,
-        },
-      };
+  if (filters?.favorites_only && favorites.length > 0) {
+    where.bandId = { in: favorites };
   }
 
   if (filters?.favorite_genres_only && user?.genreTags) {
-    where = {
-      ...where,
-      genreTags: {
-        hasSome: user.genreTags,
-      },
-    };
+    where.genreTags = { hasSome: user.genreTags };
   }
 
   if (user) {
     const unfollowedBands = await fetchUserUnfollowedBands();
     const unfollowedUsers = await fetchUnfollowedUsers();
 
+    let andConditions = [];
+
+    if (where.bandId) {
+      andConditions.push({ bandId: where.bandId });
+    }
+
     if (unfollowedBands.length > 0) {
-      where = {
-        ...where,
-        bandId: {
-          notIn: unfollowedBands,
-        },
-      };
+      andConditions.push({ bandId: { notIn: unfollowedBands } });
     }
 
     if (unfollowedUsers.length > 0) {
-      where = {
-        ...where,
-        userId: {
-          notIn: unfollowedUsers,
-        },
-      };
+      andConditions.push({ userId: { notIn: unfollowedUsers } });
+    }
+
+    if (andConditions.length > 0) {
+      where = { AND: andConditions };
     }
   }
 
@@ -295,9 +282,7 @@ export async function savePostReport(data: ReportedPostData) {
     (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   const reportData = {
@@ -315,9 +300,7 @@ export async function addPostToSavedPosts(postId: string) {
     (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -343,9 +326,7 @@ export async function removePostFromSavedPosts(postId: string) {
     (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {
@@ -373,9 +354,7 @@ export async function fetchUserSavedPosts() {
     (await auth.api.getSession({ headers: await headers() })) ?? {};
 
   if (!user?.id) {
-    throw new Error(
-      "User ID is undefined."
-    );
+    throw new Error("User ID is undefined.");
   }
 
   try {

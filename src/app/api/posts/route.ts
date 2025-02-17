@@ -18,8 +18,10 @@ export async function GET(req: NextRequest) {
       pageSize: 3,
     };
 
-    const filters = user?.postsSettings ?? {};
-
+    const filters =
+      user?.postsSettings && typeof user.postsSettings === "string"
+        ? JSON.parse(user.postsSettings)
+        : {};
     const posts: Post[] = await getPostsByFilters(filters, queryParams);
 
     const nextCursor =
