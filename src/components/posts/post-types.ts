@@ -30,5 +30,4 @@ export type PostsProps = {
 export type PostsDataFilters = {
   favorites_only?: boolean;
   favorite_genres_only?: boolean;
-  unique_bands: boolean;
 };

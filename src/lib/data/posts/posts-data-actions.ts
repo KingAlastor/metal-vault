@@ -12,6 +12,7 @@ import { PrismaUserUnFollowersModel } from "../../../../prisma/models";
 import { fetchUnfollowedUsers } from "../user/user-data-actions";
 import { ReportedPostData } from "@/components/posts/forms/post-form-types";
 import { headers } from "next/headers";
+import { PostsDataFilters } from "@/components/posts/post-types";
 
 type PostProps = {
   id?: string;
@@ -115,13 +116,8 @@ export const deletePost = async (postId: string) => {
   }
 };
 
-type PostFilters = {
-  favorites_only?: boolean;
-  favorite_genres_only?: boolean;
-};
-
 export const getPostsByFilters = async (
-  filters: PostFilters,
+  filters: PostsDataFilters,
   queryParams: QueryParamProps
 ) => {
   const { user } =

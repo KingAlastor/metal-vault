@@ -15,14 +15,9 @@ import { PostsPageData } from "@/app/api/posts/route";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 import Image from "next/image";
-import { useSession } from "@/lib/auth/auth-client";
 
 export default function PostsPage() {
-  const {data: session} = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState(
-    JSON.parse(session?.user?.postsSettings || "{}")
-  );
 
   const {
     data,
@@ -66,11 +61,7 @@ export default function PostsPage() {
           />
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-2">
-          <PostsFiltersForm
-            setIsOpen={setIsOpen}
-            filters={filters}
-            setFilters={setFilters}
-          />
+          <PostsFiltersForm setIsOpen={setIsOpen} />
         </CollapsibleContent>
       </Collapsible>
 

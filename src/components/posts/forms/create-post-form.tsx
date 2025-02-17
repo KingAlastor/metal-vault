@@ -293,7 +293,8 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
       case "track":
         return {
           title: {
-            name: linkData.data.album.name,
+            name: linkData.data.name,
+            albumName: linkData.data.album.name,
             artist: linkData.data.artists[0].name,
             releaseDate: linkData.data.album.release_date,
             imageUrl: linkData.data.album.images[1].url,
