@@ -10,6 +10,7 @@ import {
   syncLatestBandAdditionsFromArchives,
 } from "./band-sync";
 import { syncAlbumDataFromArchives } from "./album-sync";
+import { testSqlQuery } from "@/lib/data/user/admin/admin-data-actions";
 
 export function AdminToolsTab() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);
@@ -19,6 +20,7 @@ export function AdminToolsTab() {
   const [isLatestBandsLoading, setIsLatestBandsLoading] = useState(false);
   const [isTestApiLoading, setIsTestApiLoading] = useState(false);
   const [isGenresSyncLoading, setIsGenresSyncLoading] = useState(false);
+  const [isTestSql, setIsTestSql] = useState(false);
 
   const handleBandSyncClick = async () => {
     setIsBandSyncLoading(true);
@@ -50,10 +52,18 @@ export function AdminToolsTab() {
     setIsGenresSyncLoading(false);
   };
 
+  const handleTestSql = async () => {
+    setIsTestSql(true);
+    const user = await testSqlQuery("WJZu5Uj4BhWFOZXbvEdl5AqIniNYg4SF");
+    console.log("user client: ", user);
+    setIsTestSql(false);
+  };
+
   const handleYoutubeApi = async () => {
     setIsTestApiLoading(true);
     const response = async () => {
-      const medialink = "https://www.youtube.com/watch?v=8UhhoJ5-k24&pp=ygUKaGF0ZSBydWdpYQ%3D%3D";
+      const medialink =
+        "https://www.youtube.com/watch?v=8UhhoJ5-k24&pp=ygUKaGF0ZSBydWdpYQ%3D%3D";
       const regExp =
         /(?:https?:\/\/)?(?:www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
       const match = regExp.exec(medialink);
@@ -93,6 +103,9 @@ export function AdminToolsTab() {
       </Button>
       <Button onClick={handleYoutubeApi} disabled={isTestApiLoading}>
         {isLatestBandsLoading ? "Loading..." : "Test API"}
+      </Button>
+      <Button onClick={handleTestSql} disabled={isTestSql}>
+        {isTestSql ? "Loading..." : "Test SQL"}
       </Button>
     </div>
   );
