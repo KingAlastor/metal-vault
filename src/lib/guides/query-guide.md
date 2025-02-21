@@ -74,3 +74,54 @@ if (!await isValidUserId(userId)) {
   return { success: false, error: "Invalid user ID" };
 }
 ```
+
+## Complex filtering example
+## sql.identifier is crucial for preventing SQL injection when using dynamic identifiers (like column names for sorting). It properly escapes the identifier.
+## LIKE operator: Be very careful when using the LIKE operator with user-provided input. Always escape the input to prevent SQL injection. In this example, we're using template literals to embed the search term, which postgres.js will escape. However, consider using a full-text search index for more complex search requirements.
+
+```typescript 
+// src/lib/posts.ts
+import sql from "@/lib/db";
+import { Post } from "@/lib/db_types"; // Assuming you have a Post interface
+
+interface PostFilters {
+  userId?: string;
+  bandId?: string;
+  genre?: string;
+  searchTerm?: string;
+  sortBy?: "date" | "rating";
+  sortOrder?: "asc" | "desc";
+}
+
+export const getPostsWithFilters = async (filters: PostFilters): Promise<Post[]> => {
+  let query = sql<Post>`SELECT * FROM posts WHERE 1=1`; // Start with a base query
+
+  if (filters.userId) {
+    query = sql<Post>`${query} AND user_id = ${filters.userId}`;
+  }
+  if (filters.bandId) {
+    query = sql<Post>`${query} AND band_id = ${filters.bandId}`;
+  }
+  if (filters.genre) {
+    query = sql<Post>`${query} AND genre = ${filters.genre}`;
+  }
+  if (filters.searchTerm) {
+    query = sql<Post>`${query} AND (title LIKE ${`%${filters.searchTerm}%`} OR content LIKE ${`%${filters.searchTerm}%`})`; // Careful with LIKE
+  }
+
+  let orderBy = "date";
+  if (filters.sortBy === "rating") {
+    orderBy = "rating";
+  }
+
+  let sortOrder = "desc";
+  if (filters.sortOrder === "asc") {
+    sortOrder = "asc";
+  }
+
+  query = sql<Post>`${query} ORDER BY ${sql.identifier([orderBy])} ${sortOrder === "asc" ? sql`ASC` : sql`DESC`}`;
+
+  const posts = await query;
+  return posts;
+};
+```
