@@ -3,14 +3,13 @@
 import { Input } from "@/components/ui/input";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import { useEffect, useRef, useState } from "react";
 import {
-  Band,
+  SearchTermBand,
   getBandsBySearchTerm,
 } from "@/lib/data/bands/search-bands-data-actions";
 
@@ -21,7 +20,7 @@ type searchInputProps = {
 
 type BandSearchBarProps = {
   searchInputProps: searchInputProps;
-  onBandSelect: (band: Band) => void;
+  onBandSelect: (band: SearchTermBand) => void;
   value?: string;
 };
 
@@ -30,7 +29,7 @@ export function BandSearchBar({
   onBandSelect,
   value = "",
 }: BandSearchBarProps) {
-  const [bands, setBands] = useState<Band[]>([]);
+  const [bands, setBands] = useState<SearchTermBand[]>([]);
   const [inputValue, setInputValue] = useState(value);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -66,7 +65,7 @@ export function BandSearchBar({
     }
   };
 
-  const handleSelect = (band: Band) => {
+  const handleSelect = (band: SearchTermBand) => {
     onBandSelect(band);
     if (searchInputProps.clearInput) {
       setInputValue("");
