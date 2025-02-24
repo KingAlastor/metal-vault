@@ -1,6 +1,5 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import sql from "@/lib/db";
 import { AlbumTrack, Band, BandAlbum } from "@/lib/database-schema-types";
 
