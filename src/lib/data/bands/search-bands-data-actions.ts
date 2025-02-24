@@ -35,10 +35,10 @@ export const getBandsBySearchTerm = async (
   if (bands) {
     const bandsWithFormattedNames = bands.map((band) => ({
       bandId: band.id,
-      namePretty: band.namePretty,
+      namePretty: band.name_pretty,
       country: band.country || null,
-      genreTags: band.genreTags || [],
-      bandName: `${band.namePretty} (${band.country}) {${band.genreTags.join(
+      genreTags: band.genre_tags || [],
+      bandName: `${band.name_pretty} (${band.country}) {${band.genre_tags.join(
         ", "
       )}}`,
       followers: band.followers ?? 0,
@@ -51,18 +51,23 @@ export const getBandsBySearchTerm = async (
 type WhereCondition = "equals" | "contains" | "startsWith";
 
 const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
-  return await prisma.bands.findMany({
-    where: {
-      namePretty: { [condition]: searchTerm, mode: "insensitive" },
-    },
-    select: {
-      id: true,
-      namePretty: true,
-      country: true,
-      genreTags: true,
-      followers: true,
-    },
-  });
+  const query = {
+    equals: sql`name_pretty ILIKE ${searchTerm}`,
+    contains: sql`name_pretty ILIKE ${'%' + searchTerm + '%'}`,
+    startsWith: sql`name_pretty ILIKE ${searchTerm + '%'}`
+  };
+
+  return await sql`
+    SELECT 
+      id,
+      name_pretty,
+      country,
+      genre_tags,
+      followers
+    FROM bands 
+    WHERE ${query[condition]}
+    ORDER BY name_pretty
+  `;
 };
 
 export const getFullBandDataById = async (bandId: string): Promise<Band>  => {
