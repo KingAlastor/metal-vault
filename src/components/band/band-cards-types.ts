@@ -21,14 +21,14 @@ export type Band = {
 export type Album = {
   id: string;
   name: string;
-  namePretty: string;
-  AlbumTracks: {
+  name_pretty: string;
+  album_tracks: {
     id: string;
     title: string;
-    trackNumber: number | null;
+    track_number: number | null;
     duration: number | null;
   }[];
-  releaseDate: Date | null;
+  release_date: Date | null;
 }
 
 export type AlbumListProps = {
@@ -42,6 +42,6 @@ export type TrackListProps = {
 export type Track = {
   id: string;
   title: string;
-  trackNumber: number | null;
+  track_number: number | null;
   duration: number | null;
 }

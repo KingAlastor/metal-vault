@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { Card } from "../ui/card";
 import { AlbumList } from "./albums-collapsible";
+import { Band } from "@/lib/database-schema-types";
 
 export const BandCard = () => {
   const pathname = usePathname();
@@ -14,7 +15,7 @@ export const BandCard = () => {
     data: band,
     isError,
     error,
-  } = useQuery({
+  } = useQuery<Band, Error>({
     queryKey: ["band", bandId],
     queryFn: () => {
       if (typeof bandId !== "string" || !bandId) {
@@ -36,13 +37,13 @@ export const BandCard = () => {
   return (
     <Card>
       <div className="p-6 space-y-4">
-        <h2 className="text-center font-bold text-2xl">{band.namePretty}</h2>
+        <h2 className="text-center font-bold text-2xl">{band.name_pretty}</h2>
         <p>Country: {band.country}</p>
-        <p>Genres: {band.genreTags.join(", ")}</p>
+        <p>Genres: {band.genre_tags.join(", ")}</p>
         <p>Status: {band.status}</p>
         <p>Followers: {band.followers}</p>
-        <p>Spotify: {band.spotifyId || "N/A"}</p>
-        <AlbumList albums={band.albums} />
+        <p>Spotify: {band.spotify_id || "N/A"}</p>
+        <AlbumList albums={band.albums || []} />
       </div>
     </Card>
   );

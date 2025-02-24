@@ -6,7 +6,7 @@ export function TrackList({ tracks }: TrackListProps) {
       {tracks.map((track) => (
         <div key={track.id} className="flex justify-between text-sm">
           <span>
-            {track.trackNumber}. {track.title}
+            {track.track_number}. {track.title}
           </span>
           <span>
             {track.duration !== null

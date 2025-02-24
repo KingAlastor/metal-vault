@@ -22,16 +22,16 @@ export function AlbumList({ albums }: AlbumListProps) {
           <Collapsible key={album.id}>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" className="w-full justify-between">
-                {album.namePretty} (
-                {album.releaseDate
-                  ? new Date(album.releaseDate).getFullYear()
+                {album.name_pretty} (
+                {album.release_date
+                  ? new Date(album.release_date).getFullYear()
                   : "Unknown"}
                 )
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="pl-4">
-              <TrackList tracks={album.AlbumTracks} />
+              <TrackList tracks={album.album_tracks} />
             </CollapsibleContent>
           </Collapsible>
         ))}
