@@ -20,7 +20,7 @@ import {
   refreshSpotifyAccessToken,
 } from "@/lib/apis/Spotify-api";
 import { UnresolvedBands } from "./unresolved-bands";
-import { Band } from "@/lib/data/bands/search-bands-data-actions";
+import { SearchTermBand } from "@/lib/data/bands/search-bands-data-actions";
 import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
 import { authClient, useSession } from "@/lib/auth/auth-client";
@@ -115,7 +115,7 @@ export default function FollowArtistsPage() {
     setIsBandsDialogOpen(false);
   };
 
-  const handleBandSelect = async (band: Band) => {
+  const handleBandSelect = async (band: SearchTermBand) => {
     await saveUserFavoriteAndUpdateFollowerCount(band.bandId);
     queryClient.invalidateQueries({ queryKey: ["favbands"] });
   };
