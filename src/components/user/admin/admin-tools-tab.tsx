@@ -1,16 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/user/admin/latest-releases-data-actions";
+import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/admin/latest-releases-data-actions";
 import { useState } from "react";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
-import { syncGenresTableFromBands } from "@/lib/data/user/admin/genres-data-actions";
+import { syncGenresTableFromBands } from "@/lib/data/admin/genres-data-actions";
 import {
   syncBandDataFromArchives,
   syncLatestBandAdditionsFromArchives,
 } from "./band-sync";
 import { syncAlbumDataFromArchives } from "./album-sync";
-import { testSqlQuery } from "@/lib/data/user/admin/admin-data-actions";
+import { testSqlQuery } from "@/lib/data/admin/admin-data-actions";
 
 export function AdminToolsTab() {
   const [isBandSyncLoading, setIsBandSyncLoading] = useState(false);

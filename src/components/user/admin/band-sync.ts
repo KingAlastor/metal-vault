@@ -1,6 +1,6 @@
 "use server";
 
-import { BandsData, updateBandsTableData } from "@/lib/data/user/admin/band-data-actions";
+import { BandsData, updateBandsTableData } from "@/lib/data/admin/band-data-actions";
 import axios from "axios";
 
 export async function syncBandDataFromArchives() {

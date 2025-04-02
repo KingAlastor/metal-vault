@@ -16,11 +16,11 @@ import {
 } from "@/components/ui/form";
 
 import { Switch } from "@/components/ui/switch";
-import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { useQuery } from "@tanstack/react-query";
 import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutatuin";
 import { MultiSelectDropdown } from "../shared/multiselect-dropdown";
+import { getGenres } from "@/lib/data/genres-data";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),

@@ -1,23 +1,21 @@
-import { BandAlbum } from "@/components/releases/releases-table-columns";
-import { auth } from "@/lib/auth/auth";
-import { getReleasesByFilters } from "@/lib/data/releases/releases-filters-data-actions";
-import { headers } from "next/headers";
-import { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/session/actions";
+import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
+import { getReleasesByFilters } from "@/lib/data/release-filters-data";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const { user } =
-      (await auth.api.getSession({ headers: await headers() })) ?? {};
-
-    const filters = user?.releaseSettings
-      ? JSON.parse(user.releaseSettings)
-      : {};
-
-    const releases: BandAlbum[] = await getReleasesByFilters(filters);
-
-    return Response.json(releases);
+    const releases = await getReleasesByFilters({});
+    return NextResponse.json(releases);
   } catch (error) {
-    console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error fetching releases:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

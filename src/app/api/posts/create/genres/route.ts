@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth/auth";
-import { getGenres } from "@/lib/data/genres/genre-data-actions";
+import { getGenres } from "@/lib/data/genres-data";
 import { headers } from "next/headers";
 
 export async function GET() {

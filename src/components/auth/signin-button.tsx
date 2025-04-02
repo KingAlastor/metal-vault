@@ -1,11 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { signIn } from "@/lib/auth/auth-client";
+import { useRouter } from "next/navigation";
 
 export function SignIn() {
+  const router = useRouter();
+
   return (
-    <Button className="button" onClick={() => signIn.social({ provider: "google", callbackURL: "/" })}>
+    <Button className="button" onClick={() => router.push('/signin')}>
       Sign In
     </Button>
   )

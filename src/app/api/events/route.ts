@@ -1,9 +1,9 @@
 import { Event, EventFilters } from "@/components/events/event-types";
-import { auth } from "@/lib/auth/auth";
-import { getEventsByFilters } from "@/lib/data/events/events-data-actions";
-import { getUserPostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
-import { headers } from "next/headers";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/lib/session/actions";
+import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
+import { getEventsByFilters } from "@/lib/data/events-data";
+import { getFullUserData } from "@/lib/data/user-data";
 
 export type EventsPageData = {
   events: Event[];
@@ -11,21 +11,28 @@ export type EventsPageData = {
 };
 
 export async function GET(req: NextRequest) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const queryParams = {
       cursor: req.nextUrl.searchParams.get("cursor") || undefined,
       pageSize: 3,
     };
 
-    const { user } =
-      (await auth.api.getSession({ headers: await headers() })) ?? {};
-
     let filters: EventFilters = {};
-    if (user?.id) {
-      filters = await getUserPostsFilters(user.id);
+    if (session.userId) {
+      const userData = await getFullUserData(session.userId);
+      if (userData?.postsSettings) {
+        filters = JSON.parse(userData.postsSettings);
+      }
     }
 
-    const events: Event[] = await getEventsByFilters(filters, queryParams);
+    const events = await getEventsByFilters(filters, queryParams) as Event[];
 
     const nextCursor =
       events.length > queryParams.pageSize
@@ -37,9 +44,9 @@ export async function GET(req: NextRequest) {
       nextCursor,
     };
 
-    return Response.json(data);
+    return NextResponse.json(data);
   } catch (error) {
-    console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error fetching events:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

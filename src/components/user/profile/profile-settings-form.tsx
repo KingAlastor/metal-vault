@@ -16,10 +16,10 @@ import { z } from "zod";
 import { useEffect, useState } from "react";
 import { updateUserData } from "@/lib/data/user/profile/profile-data-actions";
 import UserNameField from "./form-username-input";
-import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { useQuery } from "@tanstack/react-query";
 import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
+import { getGenres } from "@/lib/data/genres-data";
 
 interface Country {
   name: {

@@ -6,7 +6,7 @@ import {
   updateAlbumsTableData,
   updateAlbumTracksDataTable,
   updateBandsLastSync,
-} from "@/lib/data/user/admin/album-data-actions";
+} from "@/lib/data/admin/album-data-actions";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import {

@@ -1,18 +1,14 @@
-"use client";
+'use client';
+import { GoogleLogin } from "@/components/auth/google-login";
+import { SpotifyLogin } from "@/components/auth/spotify-login";
 
-import { Button } from "@/components/ui/button";
-import { signIn } from "next-auth/react";
+export default function CustomOAuthSignIn() {
 
-export default function SignInPage() {
   return (
-    <>
-      Sign in with:
-      <Button
-        className="button"
-        onClick={() => signIn("google", { redirectTo: "/" })}
-      >
-        Google
-      </Button>
-    </>
+    <div>
+      <h1>My Custom Sign In page</h1>
+      <GoogleLogin />
+      <SpotifyLogin />
+    </div>
   );
 }

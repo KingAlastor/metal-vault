@@ -22,12 +22,12 @@ import {
 } from "@/lib/apis/Spotify-api";
 import { fetchBandcampData } from "@/lib/apis/Bandcamp-api";
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
-import { Band } from "@/lib/data/bands/search-bands-data-actions";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
-import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { useQuery } from "@tanstack/react-query";
 import { useSubmitPostMutation } from "../hooks/use-submit-post-mutation";
 import { Post } from "../post-types";
+import { getGenres } from "@/lib/data/genres-data";
+import { SearchTermBand } from "@/lib/data/bands-data";
 
 const initialFormState = {
   post_message: "",
@@ -163,7 +163,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
     clearInput: false,
   };
 
-  const handleBandSelect = (band: Band) => {
+  const handleBandSelect = (band: SearchTermBand) => {
     setValue("band_name", band.namePretty);
     setValue("genreTags", band.genreTags);
     bandIdRef.current = band.bandId;

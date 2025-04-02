@@ -3,8 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { handleSpotifyFollowersCallback } from "./callback";
-import { saveRefreshTokenToUserTokens } from "@/lib/data/callback/callback-data-actions";
 import { Loader2 } from "lucide-react";
+import { saveRefreshTokenToUserTokens } from "@/lib/data/callback-data";
 
 export default function Callback() {
   const searchParams = useSearchParams();

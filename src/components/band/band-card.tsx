@@ -1,11 +1,11 @@
 "use client";
 
-import { getFullBandDataById } from "@/lib/data/bands/search-bands-data-actions";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { Card } from "../ui/card";
 import { AlbumList } from "./albums-collapsible";
 import { Band } from "@/lib/database-schema-types";
+import { getFullBandDataById } from "@/lib/data/bands-data";
 
 export const BandCard = () => {
   const pathname = usePathname();

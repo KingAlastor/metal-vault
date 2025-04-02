@@ -20,7 +20,6 @@ import {
   refreshSpotifyAccessToken,
 } from "@/lib/apis/Spotify-api";
 import { UnresolvedBands } from "./unresolved-bands";
-import { SearchTermBand } from "@/lib/data/bands/search-bands-data-actions";
 import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
 import { authClient, useSession } from "@/lib/auth/auth-client";
@@ -28,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kyInstance from "@/lib/ky";
 import { DataTableBand } from "./follow-artists-types";
 import { useChangeBandRating } from "./hooks/use-change-band-rating";
+import { SearchTermBand } from "@/lib/data/bands-data";
 
 export default function FollowArtistsPage() {
   const { data: session } = useSession();

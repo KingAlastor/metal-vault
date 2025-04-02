@@ -3,23 +3,23 @@
 export type User = {
   id: string;
   name: string;
-  userName?: string;
+  user_name?: string;
   email?: string;
-  emailVerified: boolean;
+  email_verified: boolean;
   location?: string;
   image?: string;
   role?: string;
   shard?: number;
-  emailSettings?: Record<string, unknown>;
-  bandsSettings?: Record<string, unknown>;
-  releaseSettings?: Record<string, unknown>;
-  postsSettings?: Record<string, unknown>;
-  lastLogin?: Date;
-  genreTags: string[];
+  email_settings?: Record<string, unknown>;
+  bands_settings?: Record<string, unknown>;
+  release_settings?: Record<string, unknown>;
+  posts_settings?: Record<string, unknown>;
+  last_login?: Date;
+  genre_tags: string[];
   notifications?: Record<string, unknown>;
-  pendingActions: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  pending_actions: string[];
+  created_at: Date;
+  updated_at: Date;
 };
 
 export type Account = {
@@ -60,9 +60,9 @@ export type Verification = {
 
 export type UserTokens = {
   id: number;
-  userId: string;
+  user_id: string;
   provider: string;
-  refreshToken: string;
+  refresh_token: string;
 };
 
 export type Band = {
@@ -82,115 +82,123 @@ export type Band = {
 export type BandsBackup = {
   id: string;
   name: string;
-  namePretty: string;
-  genreTags: string[];
+  name_pretty: string;
+  genre_tags: string[];
   country?: string;
   status?: string;
   followers?: number;
-  archivesLink?: bigint;
-  spotifyId?: string;
+  archives_link?: bigint;
+  spotify_id?: string;
 };
 
 export type BandAlbum = {
   id: string;
+  band_id: string;
   name: string;
   name_pretty: string;
-  release_date: Date;
-  album_tracks: AlbumTrack[];
+  archives_link?: bigint;
+  type?: string;
+  release_date?: Date;
+  spotify_id?: string;
+  updated_at?: Date;
+  album_tracks?: AlbumTrack[];
 }
 
 export type AlbumTrack = {
   id: string;
+  band_id: string;
   album_id: string;
   title: string;
-  track_number: number;
-  duration: number;
+  track_number?: number;
+  duration?: number;
+  spotify_id?: string;
+  updated_at?: Date;
 }
 
 export type UpcomingReleases = {
   id: string;
-  bandId: string;
-  bandName: string;
-  albumName: string;
-  genreTags: string[];
-  bandArchivesLink?: bigint;
-  albumArchivesLink?: bigint;
+  band_id: string;
+  band_name: string;
+  album_name: string;
+  genre_tags: string[];
+  band_archives_link?: bigint;
+  album_archives_link?: bigint;
   type?: string;
-  releaseDate?: Date;
+  release_date?: Date;
 };
 
 export type BandFollowers0 = {
-  bandId: string;
-  userId: string;
+  band_id: string;
+  user_id: string;
   rating: number;
 };
 
 export type BandFollowers1 = {
-  bandId: string;
-  userId: string;
+  band_id: string;
+  user_id: string;
   rating: number;
 };
 
 export type BandUnFollowers0 = {
-  bandId: string;
-  userId: string;
+  band_id: string;
+  user_id: string;
 };
 
 export type BandUnFollowers1 = {
-  bandId: string;
-  userId: string;
+  band_id: string;
+  user_id: string;
 };
 
 export type UserUnFollowers0 = {
-  userId: string;
-  unfollowedUserId: string;
+  user_id: string;
+  unfollowed_user_id: string;
 };
 
 export type UserUnFollowers1 = {
-  userId: string;
-  unfollowedUserId: string;
+  user_id: string;
+  unfollowed_user_id: string;
 };
 
 export type UserPostsActive = {
   id: string;
-  userId: string;
-  bandId?: string;
-  bandName: string;
+  user_id: string;
+  band_id?: string;
+  band_name: string;
   title?: string;
-  genreTags: string[];
-  postContent?: string;
-  YTLink?: string;
-  SpotifyLink?: string;
-  BandCampLink?: string;
-  previewUrl?: string;
-  postDateTime: Date;
+  genre_tags: string[];
+  post_content?: string;
+  yt_link?: string;
+  spotify_link?: string;
+  band_camp_link?: string;
+  preview_url?: string;
+  post_date_time: Date;
 };
 
 export type UserPostsArchived = {
   id: string;
-  userId: string;
-  bandId?: string;
-  bandName: string;
+  user_id: string;
+  band_id?: string;
+  band_name: string;
   title?: string;
-  genreTags: string[];
-  postContent?: string;
-  YTLink?: string;
-  SpotifyLink?: string;
-  BandCampLink?: string;
-  previewUrl?: string;
-  postDateTime: Date;
+  genre_tags: string[];
+  post_content?: string;
+  yt_link?: string;
+  spotify_link?: string;
+  band_camp_link?: string;
+  preview_url?: string;
+  post_date_time: Date;
 };
 
 export type UserPostsSaved = {
-  userId: string;
-  postId: string;
-  createdAt: Date;
+  user_id: string;
+  post_id: string;
+  created_at: Date;
 };
 
 export type UserEventsSaved = {
-  userId: string;
-  eventId: string;
-  createdAt: Date;
+  user_id: string;
+  event_id: string;
+  created_at: Date;
 };
 
 export type GenreTags = {
@@ -199,33 +207,33 @@ export type GenreTags = {
 
 export type Events = {
   id: string;
-  userId: string;
-  eventName: string;
+  user_id: string;
+  event_name: string;
   country: string;
   city: string;
-  fromDate: Date;
-  toDate: Date;
+  from_date: Date;
+  to_date: Date;
   bands: string[];
-  bandIds: string[];
-  genreTags: string[];
-  imageUrl?: string;
+  band_ids: string[];
+  genre_tags: string[];
+  image_url?: string;
   website?: string;
-  createdAt: Date;
+  created_at: Date;
 };
 
 export type ReportedPosts = {
   id: string;
-  userId: string;
-  postId: string;
+  user_id: string;
+  post_id: string;
   field: string;
   value?: string;
   comment?: string;
-  createdAt: Date;
+  created_at: Date;
 };
 
 export type UserFeedback = {
   id: string;
-  userId: string;
+  user_id: string;
   title: string;
   comment: string;
 };

@@ -8,10 +8,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useEffect, useRef, useState } from "react";
-import {
-  SearchTermBand,
-  getBandsBySearchTerm,
-} from "@/lib/data/bands/search-bands-data-actions";
+import { getBandsBySearchTerm, SearchTermBand } from "@/lib/data/bands-data";
 
 type searchInputProps = {
   inputPlaceholder: string;

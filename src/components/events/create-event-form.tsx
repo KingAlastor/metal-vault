@@ -16,9 +16,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
-import { Band } from "@/lib/data/bands/search-bands-data-actions";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
-import { getGenres } from "@/lib/data/genres/genre-data-actions";
 import { useQuery } from "@tanstack/react-query";
 import { useSubmitEventMutation } from "./hooks/use-submit-event-mutation";
 import {
@@ -28,8 +26,9 @@ import {
 } from "./event-types";
 import { CountrySelectDropdown } from "../shared/select-country-dropdown";
 import { DateRangePicker } from "../shared/date-range-picker";
-import { DateRange } from "react-day-picker";
 import { BandList } from "./band-list";
+import { getGenres } from "@/lib/data/genres-data";
+import { SearchTermBand } from "@/lib/data/bands-data";
 
 const initialFormState = {
   eventName: "",
@@ -146,7 +145,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
     clearInput: true,
   };
 
-  const handleBandSelect = (band: Band) => {
+  const handleBandSelect = (band: SearchTermBand) => {
     setBandIds((prevBands) => [...prevBands, band.bandId]);
     setBands((prevBands) =>
       [
