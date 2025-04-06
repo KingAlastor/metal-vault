@@ -11,6 +11,8 @@ export type UpdateUser = {
   genreTags?: string[];
   notifications?: string[];
   postsSettings?: string;
+  pending_actions?: string[];
+  release_settings?: string;
 };
 
 export async function updateUserData(data: UpdateUser) {

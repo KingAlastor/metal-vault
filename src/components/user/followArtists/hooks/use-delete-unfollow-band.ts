@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteUnfollowBand } from "@/lib/data/user/followArtists/unfollow-artists-data-actions";
+import { deleteUnfollowBand } from "@/lib/data/unfollow-artists-data";
 
 export const useDeleteUnfollowedBand = () => {
   const queryClient = useQueryClient();

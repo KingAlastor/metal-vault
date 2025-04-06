@@ -4,7 +4,7 @@ import Link from "next/link";
 import { SignIn } from "../../components/auth/signin-button";
 import { UserMenu } from "../../components/auth/user-dropdown-menu";
 import Image from "next/image";
-import { useSession } from "@/lib/session/use-session";
+import { useSession } from "@/lib/session/client-hooks";
 
 export default function NavBar() {
   const { data: session } = useSession();

@@ -1,6 +1,6 @@
 import { useToast } from "@/components/ui/use-toast";
-import { getReleasesByFilters, ReleasesFilters } from "@/lib/data/releases/releases-filters-data-actions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getReleasesByFilters, ReleasesFilters } from "@/lib/data/release-filters-data";
 
 export function useApplyReleaseFiltersMutation() {
   const { toast } = useToast();

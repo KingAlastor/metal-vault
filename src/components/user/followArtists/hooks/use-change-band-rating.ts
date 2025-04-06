@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateBandRating } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import { updateBandRating } from "@/lib/data/follow-artists-data";
 
 export function useChangeBandRating() {
   const queryClient = useQueryClient();

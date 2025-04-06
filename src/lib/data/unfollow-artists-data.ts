@@ -26,7 +26,7 @@ export async function fetchUserUnfollowedBands(): Promise<string[]> {
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_unfollowers${shard}`;
+  const tableName = `band_unfollowers_${shard}`;
 
   try {
     const unfollowedBands = await sql`

@@ -3,8 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState } from "react";
-
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,11 +15,12 @@ import {
 } from "@/components/ui/form";
 
 import { Switch } from "@/components/ui/switch";
-import { authClient, useSession } from "@/lib/auth/auth-client";
 import { useQuery } from "@tanstack/react-query";
-import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutatuin";
+import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutation";
 import { MultiSelectDropdown } from "../shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
+import { useSession, useUser } from "@/lib/session/client-hooks";
+import { updateUserData } from "@/lib/data/profile-data";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
@@ -34,7 +34,9 @@ interface FiltersFormProps {
 
 export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
   const { data: session } = useSession();
-  const filters = session?.user.releaseSettings ? JSON.parse(session?.user.releaseSettings) : {};
+  const { data: user } = useUser(session?.userId);
+  const queryClient = useQueryClient();
+  const filters = user?.release_settings ? JSON.parse(user?.release_settings) : {};
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -70,9 +72,10 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
       favorite_bands: data.favorite_bands ?? false,
       favorite_genres: data.favorite_genres ?? false,
     };
-    await authClient.updateUser({
-      releaseSettings: JSON.stringify(filters),
+    await updateUserData({
+      release_settings: JSON.stringify(filters),
     });
+    queryClient.invalidateQueries({ queryKey: ['user', session?.userId] });
     filters = {
       ...filters,
       genreTags: data.genreTags,

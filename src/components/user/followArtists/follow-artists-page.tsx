@@ -4,10 +4,8 @@ import { DataTable } from "./bands-data-table";
 import { getColumns } from "./bands-table-columns";
 import {
   checkBandExists,
-  fetchUserFavBandsFullData,
-  getRefreshTokenFromUserTokens,
   saveUserFavoriteAndUpdateFollowerCount,
-} from "@/lib/data/user/followArtists/follow-artists-data-actions";
+} from "@/lib/data/follow-artists-data";
 import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -20,21 +18,22 @@ import {
   refreshSpotifyAccessToken,
 } from "@/lib/apis/Spotify-api";
 import { UnresolvedBands } from "./unresolved-bands";
-import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
+import { deleteUserPendingAction, updateUserData } from "@/lib/data/profile-data";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { authClient, useSession } from "@/lib/auth/auth-client";
+import { useSession, useUser } from "@/lib/session/client-hooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kyInstance from "@/lib/ky";
 import { DataTableBand } from "./follow-artists-types";
 import { useChangeBandRating } from "./hooks/use-change-band-rating";
 import { SearchTermBand } from "@/lib/data/bands-data";
+import { getRefreshTokenFromUserTokens } from "@/lib/data/user-data";
 
 export default function FollowArtistsPage() {
   const { data: session } = useSession();
-  const user = session?.user;
+  const user = useUser(session?.userId);
 
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(
-    user?.pendingActions?.includes("syncFollowers") ?? false
+    user?.data?.pending_actions?.includes("syncFollowers") ?? false
   );
 
   const queryClient = useQueryClient();
@@ -122,10 +121,11 @@ export default function FollowArtistsPage() {
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("syncFollowers");
-    const pendingActions = user?.pendingActions?.filter(
-      (action) => action !== "syncFollowers"
+    const pending_actions = user?.data?.pending_actions?.filter(
+      (action: string) => action !== "syncFollowers"
     );
-    await authClient.updateUser({ pendingActions });
+    await updateUserData({ pending_actions });
+    queryClient.invalidateQueries({ queryKey: ['user', session?.userId] });
     setIsFirstTimeUser(false);
   };
 
@@ -161,10 +161,7 @@ export default function FollowArtistsPage() {
 
           <div className="rounded-lg border p-4 mt-4">
             <h2 className="text-lg font-bold">My Favorites</h2>
-            <DataTable
-              columns={followedColumns}
-              data={followedBands || []}
-            />
+            <DataTable columns={followedColumns} data={followedBands || []} />
           </div>
           <Button
             variant="outline"
@@ -197,10 +194,7 @@ export default function FollowArtistsPage() {
 
         <div className="rounded-lg border p-4 mt-4">
           <h2 className="text-lg font-bold">My Favorites</h2>
-          <DataTable
-            columns={unfollowedColumns}
-            data={unfollowedBands || []}
-          />
+          <DataTable columns={unfollowedColumns} data={unfollowedBands || []} />
         </div>
       </TabsContent>
     </Tabs>

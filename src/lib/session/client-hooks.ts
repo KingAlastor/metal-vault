@@ -2,6 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { SessionData } from './config';
+import kyInstance from '../ky';
+import { FullUser } from '../data/user-data';
 
 /**
  * Client-side hook to get the current session
@@ -11,9 +13,7 @@ export function useSession() {
   return useQuery({
     queryKey: ['session'],
     queryFn: async () => {
-      const res = await fetch('/api/auth/session');
-      if (!res.ok) throw new Error('Failed to fetch session');
-      const data = await res.json();
+      const data = await kyInstance.get('/api/auth/session').json<SessionData>();
       return {
         isLoggedIn: data.isLoggedIn,
         userId: data.userId,
@@ -35,9 +35,7 @@ export function useUser(userId: string | undefined) {
     queryKey: ['user', userId],
     queryFn: async () => {
       if (!userId) throw new Error('No user ID');
-      const res = await fetch(`/api/users/${userId}`);
-      if (!res.ok) throw new Error('Failed to fetch user');
-      return res.json();
+      return kyInstance.get(`/api/users/${userId}`).json<FullUser>();
     },
     enabled: !!userId,
   });

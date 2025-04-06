@@ -12,23 +12,23 @@ const USERS_PER_SHARD = 5000;
 export type FullUser = {
   id: string;
   name: string;
-  userName?: string;
+  user_name?: string;
   email?: string;
-  emailVerified: boolean;
+  email_verified: boolean;
   location?: string;
   image?: string;
   role?: string;
   shard?: number;
-  emailSettings?: string;
-  bandsSettings?: string;
-  releaseSettings?: string;
-  postsSettings?: string;
-  lastLogin?: string;
-  genreTags: string[];
+  email_settings?: string;
+  bands_settings?: string;
+  release_settings?: string;
+  posts_settings?: string;
+  last_login?: string;
+  genre_tags: string[];
   notifications?: string[];
-  pendingActions: string[];
-  createdAt: string;
-  updatedAt: string;
+  pending_actions: string[];
+  created_at: string;
+  updated_at: string;
 };
 
 export type OAuthUserInfo = {
@@ -198,5 +198,27 @@ export async function fetchUserSavedPosts() {
   } catch (error) {
     console.error("Failed to fetch saved posts:", error);
     return [];
+  }
+}
+
+export async function getRefreshTokenFromUserTokens(provider: string) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    return null;
+  }
+
+  try {
+    const token = await sql`
+      SELECT refresh_token
+      FROM user_tokens
+      WHERE user_id = ${session.userId} AND provider = ${provider}
+    `;
+
+    return token[0]?.refresh_token || null;
+  } catch (error) {
+    console.error("Failed to fetch refresh token:", error);
+    return null;
   }
 }

@@ -108,7 +108,7 @@ export async function fetchUserFavoriteBands(): Promise<string[]> {
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   const favorites = await sql`
     SELECT band_id as "bandId"

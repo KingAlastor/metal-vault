@@ -13,12 +13,13 @@ import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
-import { useSession } from "@/lib/auth/auth-client";
+import { useSession, useUser } from "@/lib/session/client-hooks";
 
 export default function ReleasesPage() {
   const {data: session } = useSession();
+  const { data: user } = useUser(session?.userId);
   const [isOpen, setIsOpen] = useState(false);
-  const filters = session?.user.releaseSettings ? JSON.parse(session?.user.releaseSettings) : {};
+  const filters = user?.release_settings ? JSON.parse(user?.release_settings) : {};
 
   const {
     data: releases,

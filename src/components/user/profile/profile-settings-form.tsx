@@ -10,16 +10,16 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authClient, useSession } from "@/lib/auth/auth-client";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useState } from "react";
-import { updateUserData } from "@/lib/data/user/profile/profile-data-actions";
+import { updateUserData } from "@/lib/data/profile-data";
 import UserNameField from "./form-username-input";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
+import { useSession, useUser } from "@/lib/session/client-hooks";
 
 interface Country {
   name: {
@@ -29,23 +29,24 @@ interface Country {
 }
 
 export const FormSchema = z.object({
-  userName: z.string().trim().min(1, "Cannot be empty"),
+  user_name: z.string().trim().min(1, "Cannot be empty"),
   location: z.string().optional(),
-  genreTags: z.array(z.string()).optional(),
+  genre_tags: z.array(z.string()).optional(),
 });
 
 export default function ProfileSettingsForm() {
   const { toast } = useToast();
   const { data: session } = useSession();
-  const user = session?.user;
+  const user = useUser(session?.userId);
+  const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      userName: user?.userName || user?.name!,
-      location: user?.location || "",
-      genreTags: Array.isArray(user?.genreTags) ? user.genreTags : [],
-    },
+      user_name: user?.data?.user_name || user?.data?.name!,
+      location: user?.data?.location || "",
+      genre_tags: Array.isArray(user?.data?.genre_tags) ? user?.data?.genre_tags : [],
+    },  
   });
 
   const [countries, setCountries] = useState<Country[]>([]);
@@ -84,11 +85,7 @@ export default function ProfileSettingsForm() {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       await updateUserData(data);
-      await authClient.updateUser({
-        userName: data.userName,
-        location: data.location,
-        genreTags: data.genreTags
-      });
+      queryClient.invalidateQueries({ queryKey: ['user', session?.userId] });
       toast({ description: "Profile updated." });
     } catch (error) {
       toast({
@@ -128,7 +125,7 @@ export default function ProfileSettingsForm() {
         />
         <FormField
           control={form.control}
-          name="genreTags"
+          name="genre_tags"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Genres</FormLabel>

@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { Button } from "@/components/ui/button";
-import { authClient, signOut, useSession } from "@/lib/auth/auth-client";
 import ProfileSettingsForm from "./profile-settings-form";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { deleteUserPendingAction } from "@/lib/data/user/profile/profile-data-actions";
+import { deleteUserPendingAction, updateUserData } from "@/lib/data/profile-data";
+import { useSession, useUser } from "@/lib/session/client-hooks";
+import { logout } from "@/lib/session/server-actions";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
-  const user = session?.user;
+  const { data: user } = useUser(session?.userId);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDeleteAccount = async () => {
@@ -19,21 +20,19 @@ export default function ProfilePage() {
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
-    signOut();
+    logout();
   };
 
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(
-    user?.pendingActions?.includes("firstLogin") ?? false
+    user?.pending_actions?.includes("firstLogin") ?? false
   );
 
   const handleNoticeDismiss = async () => {
     await deleteUserPendingAction("firstLogin");
-    const pendingActions = user?.pendingActions?.filter(
+    const pendingActions = user?.pending_actions?.filter(
       (action) => action !== "firstLogin"
     );
-    await authClient.updateUser({
-      pendingActions,
-    });
+    await updateUserData({ pending_actions: pendingActions });
     setIsFirstTimeUser(false);
   };
 
