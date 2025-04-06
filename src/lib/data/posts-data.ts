@@ -1,7 +1,7 @@
 "use server";
 
 import sql from "../db";
-import { getSession } from "../session/actions";
+import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import { checkFavoriteExists } from "./follow-artists-data";
 import { fetchUserFavoriteBands } from "./follow-artists-data";
@@ -73,7 +73,7 @@ export async function addOrUpdatePost(post: PostProps) {
           (
             SELECT json_build_object(
               'name', u.name,
-              'userName', u.user_name,
+              'user_name', u.user_name,
               'image', u.image,
               'role', u.role
             )
@@ -124,7 +124,7 @@ export async function addOrUpdatePost(post: PostProps) {
           (
             SELECT json_build_object(
               'name', u.name,
-              'userName', u.user_name,
+              'user_name', u.user_name,
               'image', u.image,
               'role', u.role
             )
@@ -240,7 +240,7 @@ export async function getPostsByFilters(
       (
         SELECT json_build_object(
           'name', u.name,
-          'userName', u.user_name,
+          'user_name', u.user_name,
           'image', u.image,
           'role', u.role
         )
@@ -265,7 +265,7 @@ export async function getPostsByFilters(
     // @ts-ignore - post is correctly typed as UserPostsActive from the generic parameter above
     return posts.map((post: UserPostsActive) => ({
       ...post,
-      isFavorite: favorites.includes(post.bandId || ''),
+      isFavorite: favorites.includes(post.band_id || ''),
       isSaved: savedPosts.includes(post.id)
     }));
   } catch (error) {

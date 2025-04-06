@@ -2,13 +2,15 @@ import { SessionOptions } from 'iron-session'
 
 export interface SessionData {
   userId?: string;
+  userShard?: string;
   isLoggedIn: boolean;
   refreshToken?: string;
+  // Add any other session data you need
 }
 
 export const sessionOptions: SessionOptions = {
-  password: process.env.SESSION_SECRET as string,
-  cookieName: 'iron-session',
+  cookieName: "metal-vault-session",
+  password: process.env.SESSION_SECRET!,
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,

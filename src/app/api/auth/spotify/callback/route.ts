@@ -1,6 +1,6 @@
 import { getSpotifyTokens, getSpotifyUserInfo } from "@/lib/auth/spotify-auth";
-import { getSession } from "@/lib/session/actions";
-import sql from "@/lib/db";
+import { getSession } from "@/lib/session/server-actions";
+import { findOrCreateUser } from "@/lib/data/user-data";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -19,37 +19,20 @@ export async function GET(request: Request) {
     const userInfo = await getSpotifyUserInfo(tokens.access_token);
     console.log("spotify user info: ", userInfo);
 
-    // Find or create user in your database
-    let user;
-    try {
-      user = await sql`
-      SELECT * FROM users WHERE email = ${userInfo.email}
-      `;
-    } catch (error) {
-      console.error("Error querying user from database:", error);
-      throw new Error("Failed to fetch user");
-    }
+    // Find or create user
+    const user = await findOrCreateUser({
+      email: userInfo.email,
+      name: userInfo.display_name,
+      image: userInfo.images?.[0]?.url,
+      emailVerified: true
+    });
 
-    if (user.length === 0) {
-      console.log("entering if");
-      try {
-        user = await sql`
-          INSERT INTO users 
-          (email, name, image, email_verified, role) 
-          VALUES (${userInfo.email}, ${userInfo.display_name}, ${userInfo.images?.[0]?.url}, ${true}, ${'user'}) 
-          RETURNING *;
-        `;
-      } catch (error) {
-        console.error("Error inserting user into database:", error);
-        throw new Error("Failed to create user");
-      }
-    }
-    console.log("user: ", user);
     // Create session with Iron Session
     const session = await getSession();
 
-    // Store minimal data in the session
-    session.userId = user[0].id;
+    // Store user data in the session
+    session.userId = user.id;
+    session.userShard = user.shard;
     session.isLoggedIn = true;
 
     // If you want to store the refresh token (optional)

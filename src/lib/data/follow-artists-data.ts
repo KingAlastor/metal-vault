@@ -1,7 +1,7 @@
 "use server";
 
 import sql from "../db";
-import { getSession } from "../session/actions";
+import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 
 export type Band = {

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { ReportSchema } from "./post-form-schemas";
 import { ReportFormInput, ReportPostFormProps } from "./post-form-types";
-import { savePostReport } from "@/lib/data/posts/posts-data-actions";
+import { savePostReport } from "@/lib/data/posts-data";
 
 export function ReportPostForm({ setIsOpen, postId }: ReportPostFormProps) {
   const [submissionState, setSubmissionState] = useState<{ message?: string }>(

@@ -1,7 +1,7 @@
 "use server";
 
 import sql from "../db";
-import { getSession } from "../session/actions";
+import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import {
   AddEventProps,
@@ -28,12 +28,12 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
           event_name = ${event.eventName},
           country = ${event.country},
           city = ${event.city},
-          "fromDate" = ${event.dateRange.from},
-          "toDate" = ${event.dateRange.to},
+          from_date = ${event.dateRange.from},
+          to_date = ${event.dateRange.to},
           bands = ${event.bands},
-          "bandIds" = ${event.bandIds ?? []},
+          band_ids = ${event.bandIds ?? []},
           genre_tags = ${event.genreTags},
-          "imageUrl" = ${event.imageUrl},
+          image_url = ${event.imageUrl},
           website = ${event.website}
         WHERE id = ${event.id}
         RETURNING *
@@ -49,12 +49,12 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
           event_name,
           country,
           city,
-          "fromDate",
-          "toDate",
+          from_date,
+          to_date,
           bands,
-          "bandIds",
+          band_ids,
           genre_tags,
-          "imageUrl",
+          image_url,
           website,
           created_at
         ) VALUES (
@@ -79,7 +79,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
       const userInfo = await sql`
         SELECT
           name,
-          "userName",
+          user_name,
           image,
           role
         FROM users
@@ -109,7 +109,7 @@ export const getEventsByFilters = async (
   let params = [];
   
   // Base condition: event hasn't ended yet
-  whereConditions.push(`"toDate" >= ${today.toISOString()}`);
+  whereConditions.push(`"to_date" >= ${today.toISOString()}`);
 
   // Handle favorite genres filter
   if (filters?.favorite_genres_only && session.isLoggedIn) {
@@ -119,7 +119,7 @@ export const getEventsByFilters = async (
     const userGenres = await sql`
       SELECT genre_tags
       FROM users
-      WHERE id = ${session.userId}
+      WHERE id = ${session.userId ?? ''}
     `;
 
     if (userGenres[0]?.genre_tags) {
@@ -153,23 +153,23 @@ export const getEventsByFilters = async (
         e.event_name AS "eventName",
         e.country,
         e.city,
-        e."fromDate",
-        e."toDate",
+        e.from_date,
+        e.to_date,
         e.bands,
-        e."bandIds",
+        e.band_ids,
         e.genre_tags AS "genreTags",
-        e."imageUrl",
+        e.image_url,
         e.website,
         e.created_at AS "createdAt",
         u.name,
-        u."userName",
+        u.user_name,
         u.image,
         u.role
       FROM events e
       JOIN users u ON e.user_id = u.id
       ${sql.unsafe(whereClause)}
       ${sql.unsafe(cursorCondition)}
-      ORDER BY e."fromDate" ASC
+      ORDER BY e.from_date ASC
       LIMIT ${queryParams.pageSize + 1}
     )
     SELECT * FROM events_data
@@ -177,12 +177,12 @@ export const getEventsByFilters = async (
 
   // Map results to include isUserOwner
   const eventsWithOwner = events.map((record) => {
-    const { userId, name, userName, image, role, ...rest } = record;
+    const { userId, name, user_name, image, role, ...rest } = record;
     return {
       ...rest,
       user: {
         name,
-        userName,
+        user_name,
         image,
         role,
       },

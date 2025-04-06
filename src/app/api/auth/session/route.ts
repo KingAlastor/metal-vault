@@ -1,17 +1,20 @@
-import { getSession } from '@/lib/session/actions'
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
+import { getSession } from '@/lib/session/server-actions';
 
 export async function GET() {
-  const session = await getSession();
-  console.log("session", session);
-  if (session.isLoggedIn) {
+  try {
+    const session = await getSession();
     return NextResponse.json({
-      isLoggedIn: true,
+      isLoggedIn: session.isLoggedIn,
       userId: session.userId,
-    })
+      userShard: session.userShard,
+      refreshToken: session.refreshToken,
+    });
+  } catch (error) {
+    console.error('Session error:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({
-    isLoggedIn: false,
-  })
 }

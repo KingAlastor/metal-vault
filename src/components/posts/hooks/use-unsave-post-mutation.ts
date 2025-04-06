@@ -1,4 +1,4 @@
-import { addPostToSavedPosts, removePostFromSavedPosts } from "@/lib/data/posts/posts-data-actions";
+import { removePostFromSavedPosts } from "@/lib/data/posts-data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUnSavePostMutation() {

@@ -1,7 +1,7 @@
 "use server";
 
 import { convertDateToISO } from "@/lib/general/dateTime";
-import { prisma } from "@/lib/prisma";
+import sql from "@/lib/db";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { updateBandsTableData, type BandsData } from "./band-data-actions";
@@ -70,11 +70,11 @@ const extractBandDetails = async (band: Array<any>) => {
 
     const bandDataObject = {
       name: name,
-      namePretty: bandName,
-      genreTags: genreTags,
+      name_pretty: bandName,
+      genre_tags: genreTags,
       country: country,
       status: "Active",
-      archivesLink: parseInt(bandArchivesLink, 10),
+      archives_link: parseInt(bandArchivesLink, 10),
     };
 
     bandsData.push(bandDataObject);
@@ -119,20 +119,43 @@ type ReleaseData = {
 
 const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
   try {
-    await prisma.upcomingReleases.createMany({
-      data: releasesData,
-      skipDuplicates: true,
-    });
+    await sql`
+      INSERT INTO upcoming_releases (
+        band_id,
+        band_name,
+        album_name,
+        genre_tags,
+        band_archives_link,
+        album_archives_link,
+        type,
+        release_date
+      ) VALUES ${sql(releasesData.map(release => ({
+        band_id: release.bandId,
+        band_name: release.bandName,
+        album_name: release.albumName,
+        genre_tags: release.genreTags,
+        band_archives_link: release.bandArchivesLink,
+        album_archives_link: release.albumArchivesLink,
+        type: release.type,
+        release_date: release.releaseDate
+      })))}
+      ON CONFLICT (album_archives_link) DO NOTHING
+    `;
   } catch (error) {
-    console.error("Error updating bands table data:", error);
+    console.error("Error updating upcoming releases table data:", error);
+    throw error;
   }
 };
 
 const getBandByArchivesLink = async (archivesLink: number) => {
   try {
-    const band = await prisma.bands.findUnique({ where: { archivesLink } });
-    return band;
-  } catch {
+    const band = await sql`
+      SELECT * FROM bands 
+      WHERE archives_link = ${archivesLink}
+    `;
+    return band[0] || null;
+  } catch (error) {
+    console.error("Error fetching band by archives link:", error);
     return null;
   }
 };

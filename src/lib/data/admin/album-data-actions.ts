@@ -1,40 +1,68 @@
 "use server";
-import { prisma } from "@/lib/prisma";
-import { AlbumTracks, Prisma } from "@prisma/client";
+import sql from "@/lib/db";
 
 export async function updateAlbumsTableData(
-  albumsData: Prisma.BandAlbumsCreateInput
+  albumsData: {
+    id: string;
+    band_id: string;
+    name: string;
+    name_pretty?: string;
+    archives_link: number;
+    type?: string;
+    release_date?: Date;
+    spotify_id?: string;
+    updated_at?: Date;
+  }
 ) {
   try {
-    await prisma.bandAlbums.create({
-      data: albumsData,
-    });
+    await sql`
+      INSERT INTO band_albums (
+        id,
+        band_id,
+        name,
+        name_pretty,
+        archives_link,
+        type,
+        release_date,
+        spotify_id,
+        updated_at
+      ) VALUES (
+        ${albumsData.id},
+        ${albumsData.band_id},
+        ${albumsData.name},
+        ${albumsData.name_pretty ?? null},
+        ${albumsData.archives_link},
+        ${albumsData.type ?? null},
+        ${albumsData.release_date ?? null},
+        ${albumsData.spotify_id ?? null},
+        ${albumsData.updated_at ?? null}
+      )
+    `;
   } catch (error) {
-    //  console.error("Error creating band album:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error("Prisma error code:", error.code);
-    }
-    if (error instanceof Error) {
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    }
-    throw error; // Re-throw the error for the caller to handle
+    console.error("Error creating band album:", error);
+    throw error;
   }
 }
 
 export async function updateAlbumTracksDataTable(
-  tracks: Prisma.AlbumTracksCreateManyInput[]
+  tracks: {
+    id: string;
+    band_id: string;
+    album_id: string;
+    title: string;
+    track_number?: number;
+    duration?: number;
+    spotify_id?: string;
+    updated_at?: Date;
+  }[]
 ) {
   try {
-    await prisma.albumTracks.createMany({
-      data: tracks,
-    });
+    await sql`
+      INSERT INTO album_tracks ${sql(tracks)}
+    `;
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error stack:", error.stack);
-    } else {
-      console.error("Unknown error:", error);
-    }
+    console.error("Error creating album tracks:", error);
+    throw error;
   }
 }
 
@@ -43,50 +71,43 @@ export async function getBandLinks() {
   twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
   
   try {
-    const archivesLinks = await prisma.bands.findMany({
-      select: {
-        id: true,
-        name: true,
-        archivesLink: true,
-      },
-      where: {
-        OR: [{ lastSync: null }, { lastSync: { lt: twoMonthsAgo } }],
-      },
-      take: 10,
-    });
+    const archivesLinks = await sql`
+      SELECT id, name, archives_link
+      FROM bands
+      WHERE last_sync IS NULL OR last_sync < ${twoMonthsAgo}
+      LIMIT 10
+    `;
 
     return archivesLinks;
   } catch (error) {
-    console.log("Failed to fetch band links");
+    console.error("Failed to fetch band links:", error);
+    throw error;
   }
 }
 
 export async function getAlbumId(bandId: string, archivesLink: number) {
   try {
-    const albumId = await prisma.bandAlbums.findUnique({
-      select: {
-        id: true,
-      },
-      where: {
-        bandId,
-        archivesLink,
-      },
-    });
-    return albumId;
+    const albumId = await sql`
+      SELECT id
+      FROM band_albums
+      WHERE band_id = ${bandId} AND archives_link = ${archivesLink}
+    `;
+    return albumId[0];
   } catch (error) {
-    console.log("Unable to fetch album ID.");
+    console.error("Unable to fetch album ID:", error);
+    throw error;
   }
 }
 
 export async function updateBandsLastSync(id: string) {
   try {
-    await prisma.bands.update({
-      data: {
-        lastSync: new Date(),
-      },
-      where: { id },
-    });
+    await sql`
+      UPDATE bands
+      SET last_sync = NOW()
+      WHERE id = ${id}
+    `;
   } catch (error) {
-    console.log("Unable to fetch album ID.");
+    console.error("Unable to update band last sync:", error);
+    throw error;
   }
 }

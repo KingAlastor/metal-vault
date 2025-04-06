@@ -44,6 +44,7 @@
     "embla-carousel-autoplay": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
     "glob": "^11.0.1",
+    "google-auth-library": "^9.15.1",
     "hono": "^4.7.4",
     "iron-session": "^8.0.4",
     "ky": "^1.7.4",

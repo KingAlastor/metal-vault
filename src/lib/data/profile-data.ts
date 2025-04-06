@@ -1,7 +1,7 @@
 "use server";
 
 import sql from "../db";
-import { getSession } from "../session/actions";
+import { getSession } from "../session/server-actions";
 import { revalidatePath } from "next/cache";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 

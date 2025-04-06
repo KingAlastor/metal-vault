@@ -3,8 +3,8 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { hideUserPostsForUserById } from "@/lib/data/posts/posts-data-actions";
 import { PostsPageData } from "@/app/api/posts/route";
+import { hideUserPostsForUserById } from "@/lib/data/posts-data";
 
 export function useUnFollowUserPostMutation() {
   const queryClient = useQueryClient();

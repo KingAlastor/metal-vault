@@ -1,6 +1,5 @@
+import { followArtistByBandId } from "@/lib/data/follow-artists-data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { followArtistByBandId } from "@/lib/data/releases/releases-data-actions";
-import { incrementBandFollowersValue } from "@/lib/data/user/followArtists/follow-artists-data-actions";
 
 export function useFollowArtistPostMutation() {
   const queryClient = useQueryClient();
@@ -8,7 +7,6 @@ export function useFollowArtistPostMutation() {
   return useMutation({
     mutationFn: async (bandId: string) => {
       await followArtistByBandId(bandId);
-      await incrementBandFollowersValue(bandId);
       return bandId; // Return the bandId for use in onMutate and onSuccess
     },
     onMutate: async (bandId) => {

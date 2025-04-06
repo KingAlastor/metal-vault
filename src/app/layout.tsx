@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackServerApp } from "../stack";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "./ReactQueryProvider";
@@ -21,13 +19,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StackProvider app={stackServerApp}>
-          <StackTheme>
-            <ReactQueryProvider>
-              <ThemeWrapper>{children}</ThemeWrapper>
-            </ReactQueryProvider>
-          </StackTheme>
-        </StackProvider>
+        <ReactQueryProvider>
+          <ThemeWrapper>{children}</ThemeWrapper>
+        </ReactQueryProvider>
       </body>
     </html>
   );

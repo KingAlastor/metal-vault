@@ -1,6 +1,9 @@
 import { getGoogleTokens, getGoogleUserInfo } from "@/lib/auth/google-auth";
-import { getSession } from "@/lib/session/session";
-import sql from "@/lib/db";
+import { getSession } from "@/lib/session/server-actions";
+import { findOrCreateUser } from "@/lib/data/user-data";
+
+const MAX_SHARDS = 1000;
+const USERS_PER_SHARD = 5000;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -18,37 +21,20 @@ export async function GET(request: Request) {
     const userInfo = await getGoogleUserInfo(tokens.access_token!);
     console.log("user info: ", userInfo);
 
-    // Find or create user in your database
-    let user;
-    try {
-      user = await sql`
-      SELECT * FROM users WHERE email = ${userInfo.email}
-      `;
-    } catch (error) {
-      console.error("Error querying user from database:", error);
-      throw new Error("Failed to fetch user");
-    }
-
-    if (user.length === 0) {
-      console.log("entering if");
-      try {
-        user = await sql`
-          INSERT INTO users 
-          (email, name, image, email_verified, role) 
-          VALUES (${userInfo.email}, ${userInfo.name}, ${userInfo.picture}, ${userInfo.email_verified}, ${'user'}) 
-          RETURNING *;
-        `;
-      } catch (error) {
-        console.error("Error inserting user into database:", error);
-        throw new Error("Failed to create user");
-      }
-    }
-    console.log("user: ", user);
+    // Find or create user
+    const user = await findOrCreateUser({
+      email: userInfo.email,
+      name: userInfo.name,
+      image: userInfo.picture,
+      emailVerified: userInfo.email_verified
+    });
+    
     // Create session with Iron Session
     const session = await getSession();
 
-    // Store minimal data in the session
-    session.userId = user[0].id;
+    // Store user data in the session
+    session.userId = user.id;
+    session.userShard = user.shard;
     session.isLoggedIn = true;
 
     // If you want to store the refresh token (optional)
