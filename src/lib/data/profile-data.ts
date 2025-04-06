@@ -10,6 +10,7 @@ export type UpdateUser = {
   location?: string;
   genreTags?: string[];
   notifications?: string[];
+  postsSettings?: string;
 };
 
 export async function updateUserData(data: UpdateUser) {
@@ -42,6 +43,11 @@ export async function updateUserData(data: UpdateUser) {
   if (data.notifications !== undefined) {
     updates.push("notifications = ${notifications}");
     values.push(data.notifications);
+  }
+
+  if (data.postsSettings !== undefined) {
+    updates.push("posts_settings = ${postsSettings}");
+    values.push(data.postsSettings);
   }
 
   if (updates.length === 0) {

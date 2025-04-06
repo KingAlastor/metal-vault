@@ -1,10 +1,11 @@
+import { useToast } from "@/components/ui/use-toast";
 import {
   InfiniteData,
   QueryFilters,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { deletePost } from "@/lib/data/posts/posts-data-actions";
+import { deletePost } from "@/lib/data/posts-data";
 import { PostsPageData } from "@/app/api/posts/route";
 
 export function useDeletePostMutation() {
@@ -27,7 +28,7 @@ export function useDeletePostMutation() {
           return {
             pageParams: oldData.pageParams,
             pages: oldData.pages.map((page) => ({
-              nextCursor: page.nextCursor,
+              next_cursor: page.next_cursor,
               posts: page.posts.filter((p) => p.id !== deletedPost.id),
             })),
           };

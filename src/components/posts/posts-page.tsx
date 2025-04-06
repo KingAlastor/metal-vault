@@ -37,7 +37,7 @@ export default function PostsPage() {
         )
         .json<PostsPageData>(),
     initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    getNextPageParam: (lastPage) => lastPage.next_cursor,
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });

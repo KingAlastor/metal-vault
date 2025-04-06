@@ -12,12 +12,12 @@ export const PostCard = (post: Post) => {
 
   let audioUrl;
 
-  if (post.YTLink) {
-    audioUrl = post.YTLink;
-  } else if (post.SpotifyLink) {
-    audioUrl = post.SpotifyLink;
-  } else if (post.BandCampLink) {
-    audioUrl = post.BandCampLink;
+  if (post.yt_link) {
+    audioUrl = post.yt_link;
+  } else if (post.spotify_link) {
+    audioUrl = post.spotify_link;
+  } else if (post.bandcamp_link) {
+    audioUrl = post.bandcamp_link;
   } else {
     audioUrl = null;
   }
@@ -66,15 +66,15 @@ export const PostCard = (post: Post) => {
                       </p>
                     )}
                     {type && <p className="s-font">{type}</p>}
-                    {post.genreTags && (
-                      <p className="s-font">{post.genreTags.join(", ")}</p>
+                    {post.genre_tags && (
+                      <p className="s-font">{post.genre_tags.join(", ")}</p>
                     )}
                   </>
                 </a>
               </Link>
-              {post.previewUrl && (
+              {post.preview_url && (
                 <audio controls className="mt-2">
-                  <source src={post.previewUrl} type="audio/mpeg" />
+                  <source src={post.preview_url} type="audio/mpeg" />
                   Your browser does not support the audio element.
                 </audio>
               )}
@@ -119,17 +119,17 @@ export const PostCard = (post: Post) => {
                         </p>
                       )}
                       {type && <p className="s-font">{type}</p>}
-                      {post.genreTags && (
-                        <p className="s-font">{post.genreTags.join(", ")}</p>
+                      {post.genre_tags && (
+                        <p className="s-font">{post.genre_tags.join(", ")}</p>
                       )}
                     </>
                   </a>
                 </Link>
               </div>
             </div>
-            {post.previewUrl && (
+            {post.preview_url && (
               <audio controls className="mt-2">
-                <source src={post.previewUrl} type="audio/mpeg" />
+                <source src={post.preview_url} type="audio/mpeg" />
                 Your browser does not support the audio element.
               </audio>
             )}
@@ -172,8 +172,8 @@ export const PostCard = (post: Post) => {
                       </p>
                     )}
                     {type && <p className="s-font">{type}</p>}
-                    {post.genreTags && (
-                      <p className="s-font">{post.genreTags.join(", ")}</p>
+                    {post.genre_tags && (
+                      <p className="s-font">{post.genre_tags.join(", ")}</p>
                     )}
                   </>
                 </a>

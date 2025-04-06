@@ -30,7 +30,7 @@ export function useHideArtistPostMutation() {
             pageParams: oldData.pageParams,
             pages: oldData.pages.map((page) => ({
               ...page,
-              posts: page.posts.filter((p) => p.bandId !== response.bandId),
+              posts: page.posts.filter((p) => p.band_id !== response.band_id),
             })),
           };
         }

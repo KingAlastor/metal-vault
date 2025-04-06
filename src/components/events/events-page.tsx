@@ -17,13 +17,15 @@ import { EventCards } from "./event-cards";
 import { CreateEventCard } from "./create-event-card";
 import Image from "next/image";
 import { EventsLoadingSkeleton } from "./events-loading-skeleton";
-import { useSession } from "@/lib/auth/auth-client";
+import { useSession } from "@/lib/session/client-hooks";
+import { useUser } from "@/lib/session/client-hooks";
 
 export function EventsPage() {
   const {data: session } = useSession();
+  const user = useUser(session?.userId);
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState(
-    JSON.parse(session?.user?.postsSettings || "{}")
+    JSON.parse(user?.data?.postsSettings || "{}")
   );
 
   const {

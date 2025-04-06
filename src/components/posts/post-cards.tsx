@@ -14,21 +14,21 @@ import PostLinkIcons from "./post-link-icons";
 import { PostCard } from "./post-card";
 import { formatDateAndTime } from "@/lib/general/dateTime";
 import { Post, PostsProps } from "./post-types";
-import { useSession } from "@/lib/auth/auth-client";
+import { useSession } from "@/lib/session/client-hooks";
 
 const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
   {
-    source: "YTLink",
+    source: "yt_link",
     logo: "/YTLogo.svg",
     alt: "YouTube Logo",
   },
   {
-    source: "SpotifyLink",
+    source: "spotify_link",
     logo: "/SpotifyLogo.svg",
     alt: "Spotify Logo",
   },
   {
-    source: "BandCampLink",
+    source: "bandcamp_link",
     logo: "/BandCampLogo.png",
     alt: "BandCamp Logo",
   },
@@ -36,7 +36,7 @@ const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
 
 export const Posts = ({ posts }: PostsProps) => {
   const { data: session } = useSession();
-  const loggedIn = session?.user.id ? true : false;
+  const loggedIn = session?.isLoggedIn;
   return (
     <>
       {posts.map((post) => {
@@ -50,10 +50,10 @@ export const Posts = ({ posts }: PostsProps) => {
                   </div>
                   <div className="flex flex-col pl-2">
                     <>
-                      {post.user.userName ? post.user.userName : post.user.name}
+                      {post.user.user_name ? post.user.user_name : post.user.name}
                     </>
                     <div className="xs-font">
-                      {formatDateAndTime(post.postDateTime)}
+                      {formatDateAndTime(post.post_date_time)}
                     </div>
                   </div>
                 </div>

@@ -283,5 +283,98 @@ export async function hideArtistForUserById(bandId: string) {
 
   const shard = user[0]?.shard || "0";
   const tableName = `band_unfollowers${shard}`;
-  const followersTableName = `band_followers${shard}`
+  const followersTableName = `band_followers${shard}`;
+
+  try {
+    await sql`
+      INSERT INTO ${sql.unsafe(tableName)} (user_id, band_id)
+      VALUES (${session.userId}, ${bandId})
+      ON CONFLICT (user_id, band_id) DO NOTHING
+    `;
+
+    return { band_id: bandId };
+  } catch (error) {
+    console.error("Error hiding artist:", error);
+    throw error;
+  }
+}
+
+export async function addPostToSavedPosts(postId: string) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    throw new Error("User must be logged in to save posts.");
+  }
+
+  try {
+    await sql`
+      INSERT INTO user_posts_saved (user_id, post_id)
+      VALUES (${session.userId}, ${postId})
+      ON CONFLICT (user_id, post_id) DO NOTHING
+    `;
+  } catch (error) {
+    console.error("Error saving post:", error);
+    throw error;
+  }
+}
+
+export async function removePostFromSavedPosts(postId: string) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    throw new Error("User must be logged in to unsave posts.");
+  }
+
+  try {
+    await sql`
+      DELETE FROM user_posts_saved
+      WHERE user_id = ${session.userId} AND post_id = ${postId}
+    `;
+  } catch (error) {
+    console.error("Error unsaving post:", error);
+    throw error;
+  }
+}
+
+export async function savePostReport(postId: string, field: string, value: string, comment: string) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    throw new Error("User must be logged in to report posts.");
+  }
+
+  try {
+    await sql`
+      INSERT INTO reported_posts (user_id, post_id, field, value, comment)
+      VALUES (${session.userId}, ${postId}, ${field}, ${value}, ${comment})
+    `;
+  } catch (error) {
+    console.error("Error reporting post:", error);
+    throw error;
+  }
+}
+
+export async function hideUserPostsForUserById(userId: string) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    throw new Error("User must be logged in to hide user posts.");
+  }
+
+  try {
+    await sql`
+      INSERT INTO user_unfollowers_${session.userId} (user_id, unfollowed_user_id)
+      VALUES (${session.userId}, ${userId})
+      ON CONFLICT (user_id, unfollowed_user_id) DO NOTHING
+    `;
+
+    return userId;
+  } catch (error) {
+    console.error("Error hiding user posts:", error);
+    throw error;
+  }
 }

@@ -17,7 +17,9 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PostsDataFilters } from "../post-types";
-import { authClient, useSession } from "@/lib/auth/auth-client";
+import { useSession, useUser } from "@/lib/session/client-hooks";
+import { updateUserData } from "@/lib/data/profile-data";
+import { getFullUserData } from "@/lib/data/user-data";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -30,7 +32,8 @@ interface FiltersFormProps {
 
 export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   const { data: session } = useSession();
-  const filters = JSON.parse(session?.user?.postsSettings || "{}");
+  const fullUser = useUser(session?.userId || "");
+  const filters = JSON.parse(fullUser.data?.postsSettings || "{}");
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -48,7 +51,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
       favorite_genres_only: data.favorite_genres_only ?? false,
     };
     setIsOpen(false);
-    await authClient.updateUser({
+    await updateUserData({
       postsSettings: JSON.stringify(filters),
     });
     queryClient.invalidateQueries({ queryKey: ["post-feed"] });

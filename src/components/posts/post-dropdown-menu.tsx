@@ -17,16 +17,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "../ui/drawer";
 import { useHideArtistPostMutation } from "./hooks/use-hide-artist-posts-mutation";
-import { useSession } from "@/lib/auth/auth-client";
 import { useFollowArtistPostMutation } from "./hooks/use-follow-artist-mutation";
 import { useUnFollowArtistPostMutation } from "./hooks/use-unfollow-artist-mutation";
 import { useUnFollowUserPostMutation } from "./hooks/use-unfollow-user-posts-mutation";
 import { ReportPostForm } from "./forms/report-post-form";
 import { useSavePostMutation } from "./hooks/use-save-post-mutation";
 import { useUnSavePostMutation } from "./hooks/use-unsave-post-mutation";
+import { useSession } from "@/lib/session/client-hooks";
 
 const PostDropdownMenu = (post: Post) => {
-  const { data: user } = useSession();
+  const { data: session } = useSession();
   const size = useWindowSize();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditPostOpen, setIsEditPostFormOpen] = useState(false);
@@ -51,14 +51,14 @@ const PostDropdownMenu = (post: Post) => {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onClick={() =>
-              post.isFavorite
-                ? post.bandId && unfollowMutation.mutate(post.bandId)
-                : post.bandId && followMutation.mutate(post.bandId)
+              post.is_favorite
+                ? post.band_id && unfollowMutation.mutate(post.band_id)
+                : post.band_id && followMutation.mutate(post.band_id)
             }
             disabled={followMutation.isPending || unfollowMutation.isPending}
           >
             <div className="dropdown-options">
-              {post.isFavorite
+              {post.is_favorite
                 ? unfollowMutation.isPending
                   ? "Unfollowing..."
                   : "Unfollow artist"
@@ -68,23 +68,23 @@ const PostDropdownMenu = (post: Post) => {
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => post.bandId && hideMutation.mutate(post.bandId)}
+            onClick={() => post.band_id && hideMutation.mutate(post.band_id)}
             disabled={hideMutation.isPending}
           >
             <div className="dropdown-options">
               {hideMutation.isPending ? "Hiding..." : "Hide artist"}
             </div>
           </DropdownMenuItem>
-          {post.userId != user?.user.id && (
+          {post.user_id != session?.userId && (
             <>
               <DropdownMenuItem
-                onClick={() => unfollowUserMutation.mutate(post.userId)}
+                onClick={() => unfollowUserMutation.mutate(post.user_id)}
               >
                 <div className="dropdown-options">Hide user</div>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
-                  post.isSaved
+                  post.is_saved
                     ? unsavePostMutation.mutate(post.id)
                     : savePostMutation.mutate(post.id)
                 }
@@ -93,7 +93,7 @@ const PostDropdownMenu = (post: Post) => {
                 }
               >
                 <div className="dropdown-options">
-                  {post.isSaved
+                  {post.is_saved
                     ? unsavePostMutation.isPending
                       ? "Unsaving..."
                       : "Unsave Post"
@@ -104,7 +104,7 @@ const PostDropdownMenu = (post: Post) => {
               </DropdownMenuItem>
             </>
           )}
-          {post.userId === user?.user.id && (
+          {post.user_id === session?.userId && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsEditPostFormOpen(true)}>
@@ -115,7 +115,7 @@ const PostDropdownMenu = (post: Post) => {
               </DropdownMenuItem>
             </>
           )}
-          {post.userId != user?.user.id && (
+          {post.user_id != session?.userId && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsReportPostOpen(true)}>

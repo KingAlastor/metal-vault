@@ -25,7 +25,7 @@ export function useUnFollowUserPostMutation() {
             pageParams: oldData.pageParams,
             pages: oldData.pages.map((page) => ({
               ...page,
-              posts: page.posts.filter((post) => post.userId !== userId),
+              posts: page.posts.filter((post) => post.user_id !== userId),
             })),
           };
         }
