@@ -7,6 +7,7 @@ import {
   AddEventProps,
   EventFilters,
   EventQueryParams,
+  Event as EventType
 } from "@/components/events/event-types";
 
 export const addOrUpdateEvent = async (event: AddEventProps) => {
@@ -101,7 +102,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
 export const getEventsByFilters = async (
   filters: EventFilters,
   queryParams: EventQueryParams
-) => {
+): Promise<EventType[]> => {
   const session = await getSession();
   const today = new Date(new Date().setHours(0, 0, 0, 0));
 
@@ -179,14 +180,25 @@ export const getEventsByFilters = async (
   const eventsWithOwner = events.map((record) => {
     const { userId, name, user_name, image, role, ...rest } = record;
     return {
-      ...rest,
+      id: rest.id,
+      eventName: rest.eventName,
+      country: rest.country,
+      city: rest.city,
+      fromDate: rest.from_date,
+      toDate: rest.to_date,
+      bands: rest.bands,
+      bandIds: rest.band_ids,
+      genreTags: rest.genreTags,
+      imageUrl: rest.image_url,
+      website: rest.website,
+      createdAt: rest.createdAt,
       user: {
         name,
-        user_name,
+        userName: user_name,
         image,
-        role,
+        role
       },
-      isUserOwner: session.userId ? userId === session.userId : false,
+      isUserOwner: session.userId ? userId === session.userId : false
     };
   });
 

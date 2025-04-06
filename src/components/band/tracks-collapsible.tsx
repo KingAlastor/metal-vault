@@ -9,7 +9,7 @@ export function TrackList({ tracks }: TrackListProps) {
             {track.track_number}. {track.title}
           </span>
           <span>
-            {track.duration !== null
+            {track.duration != null
               ? `${Math.floor(track.duration / 60)}:${(track.duration % 60)
                   .toString()
                   .padStart(2, "0")}`

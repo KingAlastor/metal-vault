@@ -1,6 +1,6 @@
 import { Event, EventFilters } from "@/components/events/event-types";
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session/actions";
+import { getSession } from "@/lib/session/server-actions";
 import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
 import { getEventsByFilters } from "@/lib/data/events-data";
 import { getFullUserData } from "@/lib/data/user-data";
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const events = await getEventsByFilters(filters, queryParams) as Event[];
+    const events = await getEventsByFilters(filters, queryParams);
 
     const nextCursor =
       events.length > queryParams.pageSize

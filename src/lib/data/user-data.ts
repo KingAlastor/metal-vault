@@ -140,3 +140,63 @@ export const fetchUnfollowedUsers = async (userId: string) => {
     throw error;
   }
 };
+
+export const getPostsFilters = async (userId: string) => {
+  try {
+    const user = await sql`
+      SELECT 
+        genre_tags,
+        shard
+      FROM users
+      WHERE id = ${userId}
+    `;
+    
+    const savedPosts = await sql`
+      SELECT post_id
+      FROM user_posts_saved
+      WHERE user_id = ${userId}
+    `;
+
+    const shard = user[0]?.shard || 0;
+    const favoriteBands = await sql`
+      SELECT band_id
+      FROM band_followers_${shard}
+      WHERE user_id = ${userId}
+    `;
+
+    return {
+      genre_tags: user[0]?.genre_tags || [],
+      favorite_bands: favoriteBands.map(row => row.band_id),
+      saved_posts: savedPosts.map(row => row.post_id)
+    };
+  } catch (error) {
+    console.error("Error fetching post filters:", error);
+    return {
+      genre_tags: [],
+      favorite_bands: [],
+      saved_posts: []
+    };
+  }
+};
+
+export async function fetchUserSavedPosts() {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    return [];
+  }
+
+  try {
+    const savedPosts = await sql`
+      SELECT post_id
+      FROM user_posts_saved
+      WHERE user_id = ${session.userId}
+    `;
+
+    return savedPosts.map(row => row.post_id);
+  } catch (error) {
+    console.error("Failed to fetch saved posts:", error);
+    return [];
+  }
+}

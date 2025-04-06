@@ -31,7 +31,7 @@ export function AlbumList({ albums }: AlbumListProps) {
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="pl-4">
-              <TrackList tracks={album.album_tracks} />
+              <TrackList tracks={album.album_tracks || []} />
             </CollapsibleContent>
           </Collapsible>
         ))}

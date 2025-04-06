@@ -1,21 +1,20 @@
-import { auth } from "@/lib/auth/auth";
+import { getSession } from "@/lib/session/server-actions";
 import { getGenres } from "@/lib/data/genres-data";
-import { headers } from "next/headers";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const { user } =
-      (await auth.api.getSession({ headers: await headers() })) ?? {};
+    const session = await getSession();
 
-    if (!user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session.isLoggedIn || !session.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const genreTags = await getGenres();
 
-    return Response.json(genreTags);
+    return NextResponse.json(genreTags);
   } catch (error) {
     console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

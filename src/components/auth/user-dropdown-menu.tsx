@@ -16,8 +16,8 @@ import UserAvatar from "./user-avatar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getFullUserData } from "@/lib/data/user-data";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/session/use-session";
-import { logout } from "@/lib/session/actions";
+import { useSession } from "@/lib/session/client-hooks";
+import { logout } from "@/lib/session/server-actions";
 
 export function UserMenu() {
   const router = useRouter();

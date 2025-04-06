@@ -1,5 +1,5 @@
 import { useToast } from "@/components/ui/use-toast";
-import { addOrUpdateEvent } from "@/lib/data/events/events-data-actions";
+import { addOrUpdateEvent } from "@/lib/data/events-data";
 import {
   useMutation,
   useQueryClient,

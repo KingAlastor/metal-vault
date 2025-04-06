@@ -1,42 +1,38 @@
 import { Post } from "@/components/posts/post-types";
-import { auth } from "@/lib/auth/auth";
-import { getPostsByFilters } from "@/lib/data/posts/posts-data-actions";
-import { headers } from "next/headers";
-import { NextRequest } from "next/server";
+import { getPostsByFilters } from "@/lib/data/posts-data";
+import { NextRequest, NextResponse } from "next/server";
+import { getPostsFilters } from "@/lib/data/user-data";
 
 export type PostsPageData = {
   posts: Post[];
-  nextCursor: string | null;
+  next_cursor: string | null;
 };
 
 export async function GET(req: NextRequest) {
-  const { user } =
-    (await auth.api.getSession({ headers: await headers() })) ?? {};
   try {
     const queryParams = {
       cursor: req.nextUrl.searchParams.get("cursor") || undefined,
-      pageSize: 3,
+      page_size: 3,
     };
 
-    const filters =
-      user?.postsSettings && typeof user.postsSettings === "string"
-        ? JSON.parse(user.postsSettings)
-        : {};
-    const posts: Post[] = await getPostsByFilters(filters, queryParams);
+    const userId = req.nextUrl.searchParams.get("user_id");
+    const filters = userId ? await getPostsFilters(userId) : {};
+    
+    const posts = await getPostsByFilters(filters, queryParams);
 
-    const nextCursor =
-      posts.length > queryParams.pageSize
-        ? posts[queryParams.pageSize].id
+    const next_cursor =
+      posts.length > queryParams.page_size
+        ? posts[queryParams.page_size].id
         : null;
 
     const data: PostsPageData = {
-      posts: posts.slice(0, queryParams.pageSize),
-      nextCursor,
+      posts: posts.slice(0, queryParams.page_size),
+      next_cursor,
     };
 
-    return Response.json(data);
+    return NextResponse.json(data);
   } catch (error) {
     console.error(error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

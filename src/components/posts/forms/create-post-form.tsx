@@ -28,11 +28,12 @@ import { useSubmitPostMutation } from "../hooks/use-submit-post-mutation";
 import { Post } from "../post-types";
 import { getGenres } from "@/lib/data/genres-data";
 import { SearchTermBand } from "@/lib/data/bands-data";
+import { PostProps } from "@/lib/data/posts-data";
 
 const initialFormState = {
   post_message: "",
   band_name: "",
-  genreTags: [] as string[],
+  genre_tags: [] as string[],
   testing: [] as string[],
   yt_link: "",
   spotify_link: "",
@@ -49,7 +50,7 @@ const FormSchema = z
     band_name: z.string().min(1, {
       message: "Please enter a band name",
     }),
-    genreTags: z.array(z.string(), {
+    genre_tags: z.array(z.string(), {
       message: "Please select at least one genre",
     }),
     yt_link: z
@@ -92,12 +93,12 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: post
       ? {
-          post_message: post.postContent ?? undefined,
-          band_name: post.bandName ?? "",
-          genreTags: post.genreTags ?? [],
-          yt_link: post.YTLink ?? undefined,
-          spotify_link: post.SpotifyLink ?? undefined,
-          bandcamp_link: post.BandCampLink ?? undefined,
+          post_message: post.post_content ?? undefined,
+          band_name: post.band_name ?? "",
+          genre_tags: post.genre_tags ?? [],
+          yt_link: post.yt_link ?? undefined,
+          spotify_link: post.spotify_link ?? undefined,
+          bandcamp_link: post.bandcamp_link ?? undefined,
         }
       : initialFormState,
   });
@@ -106,7 +107,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
   const mutation = useSubmitPostMutation();
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const bandIdRef = useRef<string | null | undefined>(post?.bandId ?? null);
+  const bandIdRef = useRef<string | null | undefined>(post?.band_id ?? null);
   const MAX_HEIGHT = 200;
 
   const adjustTextareaHeight = () => {
@@ -139,12 +140,17 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const linkData = await getLinkData(data);
-      const formData = {
-        ...data,
+      const formData: PostProps = {
         id: post?.id ?? "",
-        previewUrl: linkData?.previewUrl,
-        title: JSON.stringify(linkData?.title),
+        band_name: data.band_name,
         bandId: bandIdRef.current,
+        title: JSON.stringify(linkData?.title),
+        genreTags: data.genre_tags,
+        post_message: data.post_message,
+        yt_link: data.yt_link,
+        spotify_link: data.spotify_link,
+        bandcamp_link: data.bandcamp_link,
+        previewUrl: linkData?.previewUrl,
       };
       
       mutation.mutate(formData, {
@@ -165,7 +171,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
 
   const handleBandSelect = (band: SearchTermBand) => {
     setValue("band_name", band.namePretty);
-    setValue("genreTags", band.genreTags);
+    setValue("genre_tags", band.genreTags);
     bandIdRef.current = band.bandId;
   };
 
@@ -196,7 +202,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
         />
         <FormField
           control={control}
-          name="genreTags"
+          name="genre_tags"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormControl>
@@ -204,7 +210,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
                   options={genres || []}
                   onChange={(newValue) => {
                     field.onChange(newValue);
-                    setValue("genreTags", newValue);
+                    setValue("genre_tags", newValue);
                   }}
                   value={field.value}
                   triggerText="Select genres"

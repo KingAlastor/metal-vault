@@ -66,10 +66,11 @@ export type EventCardProps = {
 type FavBand = {
   id: string, 
   namePretty: string, 
-  country: string, 
+  country: string | null, 
   genreTags: string[],
-  follower: number,
-  status: string,
+  followers: number | null,
+  status: string | null,
+  rating: number,
 }
 
 export type EventCountry = {

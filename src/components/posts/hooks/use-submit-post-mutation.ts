@@ -1,6 +1,6 @@
 import { PostsPageData } from "@/app/api/posts/route";
 import { useToast } from "@/components/ui/use-toast";
-import { addOrUpdatePost } from "@/lib/data/posts/posts-data-actions";
+import { addOrUpdatePost } from "@/lib/data/posts-data";
 import {
   InfiniteData,
   QueryFilters,

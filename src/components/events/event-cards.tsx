@@ -5,7 +5,7 @@ import { EventCardsProps } from "./event-types";
 import { EventCard } from "./event-card";
 import { EventDropdownMenu } from "./event-dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUserFavBandsFullData } from "@/lib/data/user/followArtists/follow-artists-data-actions";
+import { fetchUserFavBandsFullData } from "@/lib/data/follow-artists-data";
 
 export const EventCards = ({ events }: EventCardsProps) => {
   const {
@@ -47,7 +47,7 @@ export const EventCards = ({ events }: EventCardsProps) => {
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
-              <EventCard event={event} favbands={favbands} />
+              <EventCard event={event} favbands={favbands || []} />
             </CardContent>
           </Card>
         );

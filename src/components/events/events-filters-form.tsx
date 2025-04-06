@@ -14,8 +14,8 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { PostsFilters } from "@/lib/data/posts/posts-filters-data-actions";
-import { updateProfileFilters } from "@/lib/data/posts/posts-data-actions";
+import { EventFilters } from "@/components/events/event-types";
+import { getEventsByFilters } from "@/lib/data/events-data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const FormSchema = z.object({
@@ -26,7 +26,7 @@ const FormSchema = z.object({
 interface FiltersFormProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   filters: any;
-  setFilters: Dispatch<SetStateAction<PostsFilters>>;
+  setFilters: Dispatch<SetStateAction<EventFilters>>;
 }
 
 export function EventsFiltersForm({
@@ -45,7 +45,7 @@ export function EventsFiltersForm({
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: updateProfileFilters,
+    mutationFn: (filters: EventFilters) => getEventsByFilters(filters, { cursor: undefined, pageSize: 10 }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events-feed"] });
     },
@@ -53,7 +53,7 @@ export function EventsFiltersForm({
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const updateFilters = async () => {
-      let filters: PostsFilters = {
+      let filters: EventFilters = {
         favorites_only: data.favorites_only ?? false,
         favorite_genres_only: data.favorite_genres_only ?? false,
       };
