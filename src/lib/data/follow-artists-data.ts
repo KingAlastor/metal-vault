@@ -131,7 +131,7 @@ export async function fetchUserFavBandsFullData(): Promise<(Band & { rating: num
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   const favorites = await sql`
     SELECT 
@@ -171,7 +171,7 @@ export async function saveUserFavorites(favorites: string[]): Promise<void> {
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   if (favorites && favorites.length > 0) {
     // Delete existing favorites
@@ -206,7 +206,7 @@ export async function saveUserFavoriteAndUpdateFollowerCount(bandId: string): Pr
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   // Check if favorite exists
   const existingRecord = await sql`
@@ -248,7 +248,7 @@ export async function deleteFavoriteArtist(bandId: string): Promise<{ success: b
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   try {
     await sql`
@@ -283,7 +283,7 @@ export async function updateBandRating(bandId: string, rating: number): Promise<
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   try {
     await sql`
@@ -331,7 +331,7 @@ export async function checkFavoriteExists(bandId: string | null | undefined): Pr
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   try {
     const favorite = await sql`
@@ -359,7 +359,7 @@ export async function followArtistByBandId(bandId: string) {
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_followers${shard}`;
+  const tableName = `band_followers_${shard}`;
 
   try {
     // @ts-ignore - postgres-js has incomplete types for template literals with dynamic table names

@@ -283,7 +283,7 @@ export async function hideArtistForUserById(bandId: string) {
 
   const shard = user[0]?.shard || "0";
   const tableName = `band_unfollowers${shard}`;
-  const followersTableName = `band_followers${shard}`;
+  const followersTableName = `band_followers_${shard}`;
 
   try {
     await sql`
