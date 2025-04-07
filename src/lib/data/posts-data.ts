@@ -49,7 +49,7 @@ export async function addOrUpdatePost(post: PostProps) {
         UPDATE user_posts_active
         SET 
           band_id = ${post.bandId || null},
-          bandname = ${post.band_name},
+          band_name = ${post.band_name},
           title = ${post.title || null},
           genre_tags = ${post.genreTags},
           post_content = ${post.post_message || null},
@@ -70,7 +70,7 @@ export async function addOrUpdatePost(post: PostProps) {
           spotify_link as "SpotifyLink",
           bandcamp_link as "BandCampLink",
           preview_url as "previewUrl",
-          post_datetime as "postDateTime",
+          post_date_time as "postDateTime",
           (
             SELECT json_build_object(
               'name', u.name,
@@ -87,7 +87,7 @@ export async function addOrUpdatePost(post: PostProps) {
         INSERT INTO user_posts_active (
           user_id,
           band_id,
-          bandname,
+          band_name,
           title,
           genre_tags,
           post_content,
@@ -95,7 +95,7 @@ export async function addOrUpdatePost(post: PostProps) {
           spotify_link,
           bandcamp_link,
           preview_url,
-          post_datetime
+          post_date_time
         ) VALUES (
           ${session.userId},
           ${post.bandId || null},
@@ -113,7 +113,7 @@ export async function addOrUpdatePost(post: PostProps) {
           id,
           user_id as "userId",
           band_id as "bandId",
-          bandname as "bandName",
+          band_name as "bandName",
           title,
           genre_tags as "genreTags",
           post_content as "postContent",
@@ -121,7 +121,7 @@ export async function addOrUpdatePost(post: PostProps) {
           spotify_link as "SpotifyLink",
           bandcamp_link as "BandCampLink",
           preview_url as "previewUrl",
-          post_datetime as "postDateTime",
+          post_date_time as "postDateTime",
           (
             SELECT json_build_object(
               'name', u.name,
@@ -226,7 +226,7 @@ export async function getPostsByFilters(
       id,
       user_id,
       band_id,
-      bandname,
+      band_name,
       title,
       genre_tags,
       post_content,
@@ -234,7 +234,7 @@ export async function getPostsByFilters(
       spotify_link,
       bandcamp_link,
       preview_url,
-      post_datetime,
+      post_date_time,
       (
         SELECT json_build_object(
           'name', u.name,
@@ -247,7 +247,7 @@ export async function getPostsByFilters(
       ) as user
     FROM user_posts_active
     ${conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''}
-    ORDER BY post_datetime DESC
+    ORDER BY post_date_time DESC
     LIMIT $${params.length + 1}
     ${queryParams.cursor ? `OFFSET $${params.length + 2}` : ''}
   `;
