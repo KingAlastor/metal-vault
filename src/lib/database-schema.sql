@@ -12,12 +12,12 @@ CREATE TABLE users (
   bands_settings JSON,
   release_settings JSON,
   posts_settings JSON,
-  last_login TIMESTAMP,
+  last_login TIMESTAMP WITH TIME ZONE,
   genre_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   notifications TEXT[] DEFAULT ARRAY[]::TEXT[],
   pending_actions TEXT[] DEFAULT ARRAY[]::TEXT[],
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
 CREATE TABLE user_tokens (
@@ -39,7 +39,7 @@ CREATE TABLE bands (
   followers INT DEFAULT 0,
   archives_link BIGINT NOT NULL,
   spotify_id VARCHAR(255),
-  last_sync TIMESTAMP,
+  last_sync TIMESTAMP WITH TIME ZONE,
   UNIQUE (archives_link)
 );
 
@@ -62,9 +62,9 @@ CREATE TABLE band_albums (
   name_pretty VARCHAR(255),
   archives_link BIGINT,
   type VARCHAR(255),
-  release_date TIMESTAMP,
+  release_date TIMESTAMP WITH TIME ZONE,
   spotify_id VARCHAR(255),
-  updated_at TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
   UNIQUE (archives_link)
 );
@@ -77,7 +77,7 @@ CREATE TABLE album_tracks (
   track_number INT,
   duration INT,
   spotify_id VARCHAR(255),
-  updated_at TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
   FOREIGN KEY (album_id) REFERENCES band_albums(id) ON DELETE CASCADE
 );
@@ -91,7 +91,7 @@ CREATE TABLE upcoming_releases (
   band_archives_link BIGINT,
   album_archives_link BIGINT,
   type VARCHAR(255),
-  release_date TIMESTAMP,
+  release_date TIMESTAMP WITH TIME ZONE,
   UNIQUE (album_archives_link)
 );
 
@@ -105,7 +105,6 @@ CREATE TABLE band_followers_0 (
 );
 CREATE INDEX idx_band_followers_0_band_user ON band_followers_0 (band_id, user_id);
 CREATE INDEX idx_band_followers_0_user ON band_followers_0 (user_id);
-
 
 CREATE TABLE band_followers_1 (
   band_id VARCHAR(36) NOT NULL,
@@ -144,7 +143,6 @@ CREATE TABLE user_unfollowers_0 (
 );
 CREATE INDEX idx_user_unfollowers_0_users ON user_unfollowers_0(user_id, unfollowed_user_id);
 
-
 CREATE TABLE user_unfollowers_1 (
   user_id VARCHAR(36) NOT NULL,
   unfollowed_user_id VARCHAR(36) NOT NULL,
@@ -165,7 +163,7 @@ CREATE TABLE user_posts_active (
   spotify_link VARCHAR(255),
   band_camp_link VARCHAR(255),
   preview_url VARCHAR(255),
-  post_date_time TIMESTAMP DEFAULT now(),
+  post_date_time TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (band_id) REFERENCES bands(id)
 );
@@ -184,7 +182,7 @@ CREATE TABLE user_posts_archived (
   spotify_link VARCHAR(255),
   band_camp_link VARCHAR(255),
   preview_url VARCHAR(255),
-  post_date_time TIMESTAMP DEFAULT now(),
+  post_date_time TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (band_id) REFERENCES bands(id)
 );
@@ -193,7 +191,7 @@ CREATE INDEX idx_user_posts_archived_user ON user_posts_archived (user_id);
 CREATE TABLE user_posts_saved (
   user_id VARCHAR(36) NOT NULL,
   post_id VARCHAR(36) NOT NULL,
-  created_at TIMESTAMP DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (post_id) REFERENCES user_posts_active(id) ON DELETE CASCADE,
   PRIMARY KEY (user_id, post_id)
@@ -210,14 +208,14 @@ CREATE TABLE events (
   event_name VARCHAR(255) NOT NULL,
   country VARCHAR(255) NOT NULL,
   city VARCHAR(255) NOT NULL,
-  from_date TIMESTAMP NOT NULL,
-  to_date TIMESTAMP NOT NULL,
+  from_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  to_date TIMESTAMP WITH TIME ZONE NOT NULL,
   bands TEXT[] DEFAULT ARRAY[]::TEXT[],
   band_ids TEXT[] DEFAULT ARRAY[]::TEXT[],
   genre_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   image_url VARCHAR(255),
   website VARCHAR(255),
-  created_at TIMESTAMP DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_events_country_dates ON events (country, from_date, to_date);
@@ -227,7 +225,7 @@ CREATE INDEX idx_events_genre_tags ON events USING GIN (genre_tags);
 CREATE TABLE user_events_saved (
   user_id VARCHAR(36) NOT NULL,
   event_id VARCHAR(36) NOT NULL,
-  created_at TIMESTAMP DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
   PRIMARY KEY (user_id, event_id)
@@ -241,7 +239,7 @@ CREATE TABLE reported_posts (
   field VARCHAR(255) NOT NULL,
   value VARCHAR(255),
   comment TEXT,
-  created_at TIMESTAMP DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (post_id) REFERENCES user_posts_active(id) ON DELETE CASCADE
 );

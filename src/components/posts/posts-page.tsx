@@ -29,20 +29,22 @@ export default function PostsPage() {
     error,
   } = useInfiniteQuery({
     queryKey: ["post-feed"],
-    queryFn: ({ pageParam }) =>
-      kyInstance
+    queryFn: async ({ pageParam }) => {
+      const response = await kyInstance
         .get(
           "/api/posts",
           pageParam ? { searchParams: { cursor: pageParam } } : {}
         )
-        .json<PostsPageData>(),
+        .json<PostsPageData>();
+      return response;
+    },
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.next_cursor,
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
-  const posts = data?.pages.flatMap((page) => page.posts) || [];
+  const posts = data?.pages.flatMap((page: PostsPageData) => page.posts) || [];
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
@@ -69,11 +71,17 @@ export default function PostsPage() {
       {status === "success" && !posts.length && !hasNextPage && (
         <p className="text-center text-muted-foreground">No posts found</p>
       )}
-      {status === "error" && <>Error: {error.message}</>}
+      {status === "error" && error instanceof Error && (
+        <p className="text-center text-red-500">Error: {error.message}</p>
+      )}
 
       {status === "success" && posts.length > 0 && (
         <InfiniteScrollContainer
-          onBottomReached={() => hasNextPage && !isFetching && fetchNextPage()}
+          onBottomReached={() => {
+            if (hasNextPage && !isFetching && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
         >
           <Posts posts={posts} />
           {isFetchingNextPage && (

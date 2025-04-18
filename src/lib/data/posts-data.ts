@@ -7,7 +7,7 @@ import { checkFavoriteExists } from "./follow-artists-data";
 import { fetchUserFavoriteBands } from "./follow-artists-data";
 import { fetchUserUnfollowedBands } from "./unfollow-artists-data";
 import { fetchUnfollowedUsers, fetchUserSavedPosts } from "./user-data";
-import { UserPostsActive } from '../database-schema-types';
+import { UserPostsActive } from "../database-schema-types";
 import { Post } from "@/components/posts/post-types";
 
 export type PostProps = {
@@ -35,9 +35,9 @@ export type PostsDataFilters = {
 
 export async function addOrUpdatePost(post: PostProps) {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to create or update posts.");
   }
 
@@ -107,7 +107,7 @@ export async function addOrUpdatePost(post: PostProps) {
           ${post.spotify_link || null},
           ${post.bandcamp_link || null},
           ${post.previewUrl || null},
-          NOW()
+          NOW() AT TIME ZONE 'UTC'
         )
         RETURNING 
           id,
@@ -137,11 +137,24 @@ export async function addOrUpdatePost(post: PostProps) {
 
     const isFav = await checkFavoriteExists(post.bandId);
 
-    return {
+    const result = {
       ...updatedPost[0],
       is_favorite: isFav,
-      is_saved: false
+      is_saved: false,
+      user_id: updatedPost[0].userId,
+      band_id: updatedPost[0].bandId,
+      band_name: updatedPost[0].bandName,
+      genre_tags: updatedPost[0].genreTags,
+      post_content: updatedPost[0].postContent,
+      yt_link: updatedPost[0].YTLink,
+      spotify_link: updatedPost[0].SpotifyLink,
+      bandcamp_link: updatedPost[0].BandCampLink,
+      preview_url: updatedPost[0].previewUrl,
+      post_date_time: updatedPost[0].postDateTime,
+      user: updatedPost[0].user,
     } as Post;
+
+    return result;
   } catch (error) {
     console.error("Error updating or creating post:", error);
     throw error;
@@ -150,9 +163,9 @@ export async function addOrUpdatePost(post: PostProps) {
 
 export async function deletePost(postId: string) {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to delete posts.");
   }
 
@@ -175,54 +188,92 @@ export async function getPostsByFilters(
   queryParams: QueryParamProps
 ): Promise<Post[]> {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     return [];
   }
 
   let favorites: string[] = [];
   let savedPosts: string[] = [];
 
-  favorites = await fetchUserFavoriteBands();
-  savedPosts = await fetchUserSavedPosts();
+  try {
+    favorites = await fetchUserFavoriteBands();
+    savedPosts = await fetchUserSavedPosts();
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return [];
+  }
 
   let conditions: string[] = [];
   let params: any[] = [];
 
   if (filters?.favorites_only && favorites.length > 0) {
-    conditions.push('band_id = ANY($1)');
+    conditions.push("band_id = ANY($1)");
     params.push(favorites);
   }
 
   if (filters?.favorite_genres_only) {
-    const user = await sql`
-      SELECT genre_tags
-      FROM users
-      WHERE id = ${session.userId}
-    `;
-    
-    if (user[0]?.genre_tags?.length > 0) {
-      conditions.push('genre_tags && $2');
-      params.push(user[0].genre_tags);
+    try {
+      const user = await sql`
+        SELECT genre_tags
+        FROM users
+        WHERE id = ${session.userId}
+      `;
+
+      if (user[0]?.genre_tags?.length > 0) {
+        conditions.push("genre_tags && $2");
+        params.push(user[0].genre_tags);
+      }
+    } catch (error) {
+      console.error("Error fetching user genres:", error);
+      return [];
     }
   }
 
-  const unfollowedBands = await fetchUserUnfollowedBands() || [];
-  const unfollowedUsers = await fetchUnfollowedUsers(session.userId) || [];
-
-  if (unfollowedBands.length > 0) {
-    conditions.push('band_id != ALL($3)');
-    params.push(unfollowedBands);
+  try {
+    const unfollowedBands = (await fetchUserUnfollowedBands()) || [];
+    if (unfollowedBands.length > 0) {
+      conditions.push("band_id != ALL($3)");
+      params.push(unfollowedBands);
+    }
+  } catch (error) {
+    console.error("Error fetching unfollowed bands:", error);
+    return [];
   }
 
-  if (unfollowedUsers.length > 0) {
-    conditions.push('user_id != ALL($4)');
-    params.push(unfollowedUsers);
+  try {
+    const unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
+    if (unfollowedUsers.length > 0) {
+      conditions.push("user_id != ALL($4)");
+      params.push(unfollowedUsers);
+    }
+  } catch (error) {
+    console.error("Error fetching unfollowed users:", error);
+    return [];
+  }
+
+  const limitValue = queryParams.page_size + 1;
+  let whereClause = "";
+
+  if (conditions.length > 0 || queryParams.cursor) {
+    whereClause = "WHERE ";
+    const whereConditions: string[] = [];
+
+    if (conditions.length > 0) {
+      whereConditions.push(conditions.join(" AND "));
+    }
+
+    if (queryParams.cursor) {
+      whereConditions.push(`post_date_time < ($${params.length + 1})::timestamp with time zone`);
+      params.push(queryParams.cursor);
+    }
+
+    whereClause += whereConditions.join(" AND ");
   }
 
   const query = `
-    SELECT 
+    SELECT
       id,
       user_id,
       band_id,
@@ -246,27 +297,28 @@ export async function getPostsByFilters(
         WHERE u.id = user_posts_active.user_id
       ) as user
     FROM user_posts_active
-    ${conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : ''}
+    ${whereClause}
     ORDER BY post_date_time DESC
-    LIMIT $${params.length + 1}
-    ${queryParams.cursor ? `OFFSET $${params.length + 2}` : ''}
+    LIMIT ${limitValue}
   `;
 
   try {
-    const posts = await sql.unsafe<UserPostsActive[]>(
-      query,
-      [...params, queryParams.page_size + 1, queryParams.cursor].filter(p => p !== undefined)
-    );
+    console.log("Executing query:", query);
+    console.log("With params:", params);
+
+    const posts = await sql.unsafe<UserPostsActive[]>(query, params);
 
     return posts.map((post: UserPostsActive) => ({
       ...post,
-      is_favorite: favorites.includes(post.band_id || ''),
-      is_saved: savedPosts.includes(post.id)
+      is_favorite: favorites.includes(post.band_id || ""),
+      is_saved: savedPosts.includes(post.id),
     })) as Post[];
   } catch (error) {
     console.error("Error fetching posts:", error);
     if (error instanceof Error) {
       console.error("Error stack:", error.stack);
+      console.error("Query:", query);
+      console.error("Params:", params);
     }
     return [];
   }
@@ -274,9 +326,9 @@ export async function getPostsByFilters(
 
 export async function hideArtistForUserById(bandId: string) {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to hide artists");
   }
 
@@ -304,9 +356,9 @@ export async function hideArtistForUserById(bandId: string) {
 
 export async function addPostToSavedPosts(postId: string) {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to save posts.");
   }
 
@@ -324,9 +376,9 @@ export async function addPostToSavedPosts(postId: string) {
 
 export async function removePostFromSavedPosts(postId: string) {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to unsave posts.");
   }
 
@@ -341,11 +393,16 @@ export async function removePostFromSavedPosts(postId: string) {
   }
 }
 
-export async function savePostReport(postId: string, field: string, value: string, comment: string) {
+export async function savePostReport(
+  postId: string,
+  field: string,
+  value: string,
+  comment: string
+) {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to report posts.");
   }
 
@@ -362,9 +419,9 @@ export async function savePostReport(postId: string, field: string, value: strin
 
 export async function hideUserPostsForUserById(userId: string) {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to hide user posts.");
   }
 

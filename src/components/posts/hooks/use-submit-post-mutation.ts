@@ -33,7 +33,7 @@ export function useSubmitPostMutation() {
             const updatedPosts = page.posts.map(post => {
               if (post.id === newPost.id) {
                 postUpdated = true;
-                return { ...post, ...newPost };
+                return newPost;
               }
               return post;
             });

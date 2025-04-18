@@ -106,46 +106,44 @@ export const getEventsByFilters = async (
   const session = await getSession();
   const today = new Date(new Date().setHours(0, 0, 0, 0));
 
-  let whereConditions = [];
-  let params = [];
-  
-  // Base condition: event hasn't ended yet
-  whereConditions.push(`"to_date" >= ${today.toISOString()}`);
+  // Use sql tagged template literals for conditions to handle parameters
+  const conditions = [sql`e.to_date >= ${today}`]; // Pass Date object directly
 
   // Handle favorite genres filter
-  if (filters?.favorite_genres_only && session.isLoggedIn) {
-    // Get user's genre tags
-    // @ts-ignore -- Line 122: postgres-js has incomplete types for template literals with dynamic parameters
-    // This is safe as we've already checked session.isLoggedIn and session.userId exists
-    const userGenres = await sql`
+  let userGenreTags: string[] | null = null;
+  if (filters?.favorite_genres_only && session.isLoggedIn && session.userId) {
+    const userResult = await sql<{ genre_tags: string[] | null }[]>`
       SELECT genre_tags
       FROM users
-      WHERE id = ${session.userId ?? ''}
+      WHERE id = ${session.userId}
     `;
-
-    if (userGenres[0]?.genre_tags) {
-      const genreTags = Array.isArray(userGenres[0].genre_tags) 
-        ? userGenres[0].genre_tags 
-        : [userGenres[0].genre_tags];
-        
-      if (genreTags.length > 0) {
-        // @ts-ignore - postgres-js has incomplete types for array operations
-        // This is safe as we're using proper array syntax for PostgreSQL
-        whereConditions.push(`genre_tags && ${JSON.stringify(genreTags)}`);
-      }
-    }
+    userGenreTags = userResult[0]?.genre_tags ?? null; // Get the tags
   }
 
-  const whereClause = whereConditions.length > 0 
-    ? `WHERE ${whereConditions.join(" AND ")}` 
-    : "";
-
-  // Handle pagination
-  let cursorCondition = "";
-  if (queryParams.cursor) {
-    cursorCondition = `AND e.id > ${queryParams.cursor}`;
+  // Add genre condition IF user wants it AND we found tags
+  if (filters?.favorite_genres_only && userGenreTags && userGenreTags.length > 0) {
+     // Ensure it's an array even if DB stores single tag as string (adjust if needed)
+     const genreTagsArray = Array.isArray(userGenreTags) ? userGenreTags : [userGenreTags];
+     if (genreTagsArray.length > 0) {
+        // Use the && operator with the array parameter. postgres-js handles array formatting.
+        conditions.push(sql`e.genre_tags && ${genreTagsArray}`);
+     }
   }
 
+  // Construct WHERE clause
+  const whereClause = conditions.length > 0 ? sql`WHERE ${sql.join(conditions, ' AND ')}` : sql``; // Use sql.join
+
+  // Handle pagination cursor - also parameterized
+  const cursorCondition = queryParams.cursor ? sql`AND e.id > ${queryParams.cursor}` : sql``;
+
+  // Note: LIMIT clause needs a number, direct interpolation is usually safe here,
+  // but ensure queryParams.pageSize is validated as a number beforehand.
+  const limitClause = sql`LIMIT ${Number(queryParams.pageSize) + 1}`;
+
+
+  // --- Main Query ---
+  // Inject the built clauses. Since they are `sql` objects, postgres-js
+  // will assemble them correctly with parameters.
   const events = await sql`
     WITH events_data AS (
       SELECT
@@ -168,42 +166,44 @@ export const getEventsByFilters = async (
         u.role
       FROM events e
       JOIN users u ON e.user_id = u.id
-      ${sql.unsafe(whereClause)}
-      ${sql.unsafe(cursorCondition)}
-      ORDER BY e.from_date ASC
-      LIMIT ${queryParams.pageSize + 1}
+      ${whereClause}  -- Inject the WHERE clause SQL object
+      ${cursorCondition} -- Inject the cursor condition SQL object
+      ORDER BY e.from_date ASC, e.id ASC -- Added secondary sort for stable pagination
+      ${limitClause} -- Inject the LIMIT clause SQL object
     )
     SELECT * FROM events_data
   `;
 
-  // Map results to include isUserOwner
+  // Map results (your existing mapping logic seems okay)
   const eventsWithOwner = events.map((record) => {
-    const { userId, name, user_name, image, role, ...rest } = record;
-    return {
-      id: rest.id,
-      eventName: rest.eventName,
-      country: rest.country,
-      city: rest.city,
-      fromDate: rest.from_date,
-      toDate: rest.to_date,
-      bands: rest.bands,
-      bandIds: rest.band_ids,
-      genreTags: rest.genreTags,
-      imageUrl: rest.image_url,
-      website: rest.website,
-      createdAt: rest.createdAt,
-      user: {
-        name,
-        userName: user_name,
-        image,
-        role
-      },
-      isUserOwner: session.userId ? userId === session.userId : false
-    };
+     // ... (keep your mapping logic)
+      const { userId, name, user_name, image, role, ...rest } = record;
+      return {
+        id: rest.id,
+        eventName: rest.eventName,
+        country: rest.country,
+        city: rest.city,
+        fromDate: rest.from_date, // Assuming these date types are handled correctly
+        toDate: rest.to_date,     // by the driver or your mapping
+        bands: rest.bands,
+        bandIds: rest.band_ids,
+        genreTags: rest.genreTags,
+        imageUrl: rest.image_url,
+        website: rest.website,
+        createdAt: rest.createdAt,
+        user: {
+          name,
+          userName: user_name,
+          image,
+          role
+        },
+        isUserOwner: session.userId ? userId === session.userId : false
+      };
   });
 
-  return eventsWithOwner;
+  return eventsWithOwner as EventType[]; // Adjust type assertion if needed
 };
+
 
 export const deleteEvent = async (eventId: string) => {
   const session = await getSession();
