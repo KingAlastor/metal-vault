@@ -71,7 +71,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
           ${event.genreTags},
           ${event.imageUrl},
           ${event.website},
-          NOW()
+          NOW() AT TIME ZONE 'UTC'
         )
         RETURNING *
       `;
@@ -104,104 +104,100 @@ export const getEventsByFilters = async (
   queryParams: EventQueryParams
 ): Promise<EventType[]> => {
   const session = await getSession();
-  const today = new Date(new Date().setHours(0, 0, 0, 0));
 
-  // Use sql tagged template literals for conditions to handle parameters
-  const conditions = [sql`e.to_date >= ${today}`]; // Pass Date object directly
-
-  // Handle favorite genres filter
   let userGenreTags: string[] | null = null;
-  if (filters?.favorite_genres_only && session.isLoggedIn && session.userId) {
-    const userResult = await sql<{ genre_tags: string[] | null }[]>`
-      SELECT genre_tags
-      FROM users
-      WHERE id = ${session.userId}
-    `;
-    userGenreTags = userResult[0]?.genre_tags ?? null; // Get the tags
+
+  if (filters?.favorite_genres_only && session.userId) {
+    try {
+      const userResult = await sql<{ genre_tags: string[] | null }[]>`
+        SELECT genre_tags
+        FROM users
+        WHERE id = ${session.userId}
+      `;
+      userGenreTags = userResult[0]?.genre_tags ?? null;
+    } catch (error) {
+      console.error("Error fetching user genres:", error);
+      return [];
+    }
   }
 
-  // Add genre condition IF user wants it AND we found tags
+  const conditions: string[] = [];
+  const params: any[] = [];
+
+  conditions.push("e.to_date >= $1");
+  params.push(new Date(new Date().setHours(0, 0, 0, 0)));
+
   if (filters?.favorite_genres_only && userGenreTags && userGenreTags.length > 0) {
-     // Ensure it's an array even if DB stores single tag as string (adjust if needed)
-     const genreTagsArray = Array.isArray(userGenreTags) ? userGenreTags : [userGenreTags];
-     if (genreTagsArray.length > 0) {
-        // Use the && operator with the array parameter. postgres-js handles array formatting.
-        conditions.push(sql`e.genre_tags && ${genreTagsArray}`);
-     }
+    conditions.push("e.genre_tags && $2");
+    params.push(userGenreTags);
   }
 
-  // Construct WHERE clause
-  const whereClause = conditions.length > 0 ? sql`WHERE ${sql.join(conditions, ' AND ')}` : sql``; // Use sql.join
+  const limitValue = queryParams.pageSize + 1;
+  let whereClause = "";
 
-  // Handle pagination cursor - also parameterized
-  const cursorCondition = queryParams.cursor ? sql`AND e.id > ${queryParams.cursor}` : sql``;
+  if (conditions.length > 0 || queryParams.cursor) {
+    whereClause = "WHERE ";
+    const whereConditions: string[] = [];
 
-  // Note: LIMIT clause needs a number, direct interpolation is usually safe here,
-  // but ensure queryParams.pageSize is validated as a number beforehand.
-  const limitClause = sql`LIMIT ${Number(queryParams.pageSize) + 1}`;
+    if (conditions.length > 0) {
+      whereConditions.push(conditions.join(" AND "));
+    }
 
+    if (queryParams.cursor) {
+      whereConditions.push(`e.from_date > ($${params.length + 1})::timestamp with time zone`);
+      params.push(queryParams.cursor);
+    }
 
-  // --- Main Query ---
-  // Inject the built clauses. Since they are `sql` objects, postgres-js
-  // will assemble them correctly with parameters.
-  const events = await sql`
-    WITH events_data AS (
-      SELECT
-        e.id,
-        e.user_id AS "userId",
-        e.event_name AS "eventName",
-        e.country,
-        e.city,
-        e.from_date,
-        e.to_date,
-        e.bands,
-        e.band_ids,
-        e.genre_tags AS "genreTags",
-        e.image_url,
-        e.website,
-        e.created_at AS "createdAt",
-        u.name,
-        u.user_name,
-        u.image,
-        u.role
-      FROM events e
-      JOIN users u ON e.user_id = u.id
-      ${whereClause}  -- Inject the WHERE clause SQL object
-      ${cursorCondition} -- Inject the cursor condition SQL object
-      ORDER BY e.from_date ASC, e.id ASC -- Added secondary sort for stable pagination
-      ${limitClause} -- Inject the LIMIT clause SQL object
-    )
-    SELECT * FROM events_data
+    whereClause += whereConditions.join(" AND ");
+  }
+
+  const query = `
+    SELECT
+      e.id,
+      e.user_id AS "userId",
+      e.event_name AS "eventName",
+      e.country,
+      e.city,
+      e.from_date AS "fromDate",
+      e.to_date AS "toDate",
+      e.bands,
+      e.band_ids AS "bandIds",
+      e.genre_tags AS "genreTags",
+      e.image_url AS "imageUrl",
+      e.website,
+      e.created_at AS "createdAt",
+      (
+        SELECT json_build_object(
+          'name', u.name,
+          'user_name', u.user_name,
+          'image', u.image,
+          'role', u.role
+        )
+        FROM users u
+        WHERE u.id = e.user_id
+      ) AS user
+    FROM events e
+    ${whereClause}
+    ORDER BY e.from_date ASC, e.id ASC
+    LIMIT ${limitValue}
   `;
 
-  // Map results (your existing mapping logic seems okay)
-  const eventsWithOwner = events.map((record) => {
-     // ... (keep your mapping logic)
-      const { userId, name, user_name, image, role, ...rest } = record;
-      return {
-        id: rest.id,
-        eventName: rest.eventName,
-        country: rest.country,
-        city: rest.city,
-        fromDate: rest.from_date, // Assuming these date types are handled correctly
-        toDate: rest.to_date,     // by the driver or your mapping
-        bands: rest.bands,
-        bandIds: rest.band_ids,
-        genreTags: rest.genreTags,
-        imageUrl: rest.image_url,
-        website: rest.website,
-        createdAt: rest.createdAt,
-        user: {
-          name,
-          userName: user_name,
-          image,
-          role
-        },
-        isUserOwner: session.userId ? userId === session.userId : false
-      };
-  });
+  try {
+    const events = await sql.unsafe<EventType[]>(query, params);
 
-  return eventsWithOwner as EventType[]; // Adjust type assertion if needed
+    return events.map((event) => ({
+      ...event,
+      isUserOwner: session.userId === event.userId,
+    }));
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    if (error instanceof Error) {
+      console.error("Error stack:", error.stack);
+      console.error("Query:", query);
+      console.error("Params:", params);
+    }
+    return [];
+  }
 };
 
 

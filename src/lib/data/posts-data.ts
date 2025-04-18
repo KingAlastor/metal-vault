@@ -189,11 +189,6 @@ export async function getPostsByFilters(
 ): Promise<Post[]> {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
-    return [];
-  }
-
   let favorites: string[] = [];
   let savedPosts: string[] = [];
 
@@ -213,7 +208,7 @@ export async function getPostsByFilters(
     params.push(favorites);
   }
 
-  if (filters?.favorite_genres_only) {
+  if (filters?.favorite_genres_only && session.userId) {
     try {
       const user = await sql`
         SELECT genre_tags
@@ -243,10 +238,13 @@ export async function getPostsByFilters(
   }
 
   try {
-    const unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
-    if (unfollowedUsers.length > 0) {
-      conditions.push("user_id != ALL($4)");
-      params.push(unfollowedUsers);
+    if (session.userId) {
+      const unfollowedUsers =
+        (await fetchUnfollowedUsers(session.userId)) || [];
+      if (unfollowedUsers.length > 0) {
+        conditions.push("user_id != ALL($4)");
+        params.push(unfollowedUsers);
+      }
     }
   } catch (error) {
     console.error("Error fetching unfollowed users:", error);
@@ -265,7 +263,9 @@ export async function getPostsByFilters(
     }
 
     if (queryParams.cursor) {
-      whereConditions.push(`post_date_time < ($${params.length + 1})::timestamp with time zone`);
+      whereConditions.push(
+        `post_date_time < ($${params.length + 1})::timestamp with time zone`
+      );
       params.push(queryParams.cursor);
     }
 
@@ -303,9 +303,6 @@ export async function getPostsByFilters(
   `;
 
   try {
-    console.log("Executing query:", query);
-    console.log("With params:", params);
-
     const posts = await sql.unsafe<UserPostsActive[]>(query, params);
 
     return posts.map((post: UserPostsActive) => ({

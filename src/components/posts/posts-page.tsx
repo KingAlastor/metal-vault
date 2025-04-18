@@ -45,6 +45,7 @@ export default function PostsPage() {
   });
 
   const posts = data?.pages.flatMap((page: PostsPageData) => page.posts) || [];
+  const uniquePosts = [...new Map(posts.map(post => [post.id, post])).values()];
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
@@ -83,7 +84,7 @@ export default function PostsPage() {
             }
           }}
         >
-          <Posts posts={posts} />
+          <Posts posts={uniquePosts} />
           {isFetchingNextPage && (
             <Loader2 className="mx-auto my-3 animate-spin" />
           )}

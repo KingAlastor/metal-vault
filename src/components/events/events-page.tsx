@@ -25,7 +25,7 @@ export function EventsPage() {
   const user = useUser(session?.userId);
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState(
-    JSON.parse(user?.data?.postsSettings || "{}")
+    JSON.parse(user?.data?.posts_settings || "{}")
   );
 
   const {
@@ -80,7 +80,7 @@ export function EventsPage() {
       </Collapsible>
       {status === "pending" && <EventsLoadingSkeleton />}
       {status === "success" && !events.length && !hasNextPage && (
-        <p className="text-center text-muted-foreground">No posts found</p>
+        <p className="text-center text-muted-foreground">No events found</p>
       )}
       {status === "error" && <>Error: {error.message}</>}
 

@@ -14,8 +14,8 @@ type EventUser = {
 
 export type Event = {
   id: string;
-/*   userId: string, 
- */  eventName: string;
+  userId: string, 
+  eventName: string;
   country?: string;
   city?: string;
   fromDate: Date;
