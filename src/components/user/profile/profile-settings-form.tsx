@@ -39,7 +39,7 @@ export default function ProfileSettingsForm() {
   const { data: session } = useSession();
   const user = useUser(session?.userId);
   const queryClient = useQueryClient();
-
+  console.log("user; ", user.data)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -48,26 +48,6 @@ export default function ProfileSettingsForm() {
       genre_tags: Array.isArray(user?.data?.genre_tags) ? user?.data?.genre_tags : [],
     },  
   });
-
-  const [countries, setCountries] = useState<Country[]>([]);
-
-  useEffect(() => {
-    const fetchCountries = async () => {
-      const response = await fetch("https://restcountries.com/v3.1/all");
-      const data = await response.json();
-      data
-        .sort((a: Country, b: Country) =>
-          a.name.common.localeCompare(b.name.common)
-        )
-        .map((country: Country) => ({
-          name: country.name.common,
-          code: country.cca2,
-        }));
-      setCountries(data);
-    };
-
-    fetchCountries();
-  }, []);
 
   const { data: genres } = useQuery({
     queryKey: ["genreTags"],
@@ -115,7 +95,6 @@ export default function ProfileSettingsForm() {
               <CountrySelectDropdown
                 control={form.control}
                 name="location"
-                countries={countries}
               />
               <FormDescription>
                 Country is used to receive relevant events and band updates

@@ -84,27 +84,8 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
   const mutation = useSubmitEventMutation();
 
-  const [countries, setCountries] = useState<EventCountry[]>([]);
   const [bandsIds, setBandIds] = useState<string[]>(event?.bandIds ?? []);
   const [bands, setBands] = useState<string[]>(event?.bands ?? []);
-
-  useEffect(() => {
-    const fetchCountries = async () => {
-      const response = await fetch("https://restcountries.com/v3.1/all");
-      const data = await response.json();
-      data
-        .sort((a: EventCountry, b: EventCountry) =>
-          a.name.common.localeCompare(b.name.common)
-        )
-        .map((country: EventCountry) => ({
-          name: country.name.common,
-          code: country.cca2,
-        }));
-      setCountries(data);
-    };
-
-    fetchCountries();
-  }, []);
 
   const { data: genres } = useQuery({
     queryKey: ["genreTags"],
@@ -203,7 +184,6 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
                   <CountrySelectDropdown
                     control={form.control}
                     name="country"
-                    countries={countries}
                   />
                 </FormControl>
                 <FormMessage />
