@@ -23,6 +23,7 @@ export type FullUser = {
   bands_settings?: string;
   release_settings?: string;
   posts_settings?: string;
+  events_settings?: string;
   last_login?: string;
   genre_tags: string[];
   notifications?: string[];

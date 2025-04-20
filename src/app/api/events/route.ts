@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
     let filters: EventFilters = {};
     if (session.userId) {
       const userData = await getFullUserData(session.userId);
-      if (userData?.postsSettings) {
-        filters = JSON.parse(userData.postsSettings);
+      if (userData?.events_settings) {
+        filters = JSON.parse(userData.events_settings);
       }
     }
 

@@ -12,6 +12,7 @@ CREATE TABLE users (
   bands_settings JSON,
   release_settings JSON,
   posts_settings JSON,
+  events_settings JSON,
   last_login TIMESTAMP WITH TIME ZONE,
   genre_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   notifications TEXT[] DEFAULT ARRAY[]::TEXT[],
