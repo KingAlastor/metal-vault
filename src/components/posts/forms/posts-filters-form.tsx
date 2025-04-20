@@ -33,7 +33,7 @@ interface FiltersFormProps {
 export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   const { data: session } = useSession();
   const fullUser = useUser(session?.userId || "");
-  const filters = JSON.parse(fullUser.data?.postsSettings || "{}");
+  const filters = JSON.parse(fullUser.data?.posts_settings || "{}");
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),

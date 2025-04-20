@@ -24,49 +24,55 @@ export async function updateUserData(data: UpdateUser) {
   }
 
   // Build the update query dynamically based on provided fields
-  const updates: string[] = [];
-  const values: (string | string[] | undefined)[] = [];
+  const updateParts = [];
+  const values = [];
+  let paramIndex = 1;
   
   if (data.userName !== undefined) {
-    updates.push("user_name = ${userName}");
+    updateParts.push(`user_name = $${paramIndex}`);
     values.push(data.userName);
+    paramIndex++;
   }
   
   if (data.location !== undefined) {
-    updates.push("location = ${location}");
+    updateParts.push(`location = $${paramIndex}`);
     values.push(data.location);
+    paramIndex++;
   }
   
   if (data.genreTags !== undefined) {
-    updates.push("genre_tags = ${genreTags}");
+    updateParts.push(`genre_tags = $${paramIndex}`);
     values.push(data.genreTags);
+    paramIndex++;
   }
   
   if (data.notifications !== undefined) {
-    updates.push("notifications = ${notifications}");
+    updateParts.push(`notifications = $${paramIndex}`);
     values.push(data.notifications);
+    paramIndex++;
   }
 
   if (data.postsSettings !== undefined) {
-    updates.push("posts_settings = ${postsSettings}");
+    updateParts.push(`posts_settings = $${paramIndex}`);
     values.push(data.postsSettings);
+    paramIndex++;
   }
 
-  if (updates.length === 0) {
+  if (updateParts.length === 0) {
     return; // No updates to perform
   }
 
-  // Add userId to values array
-  values.push(session.userId);
+  updateParts.push(`updated_at = NOW() AT TIME ZONE 'UTC'`);
 
-  // Construct and execute the update query
-  await sql`
+  const query = `
     UPDATE users 
-    SET ${sql.unsafe(updates.join(", "))}, updated_at = NOW() AT TIME ZONE 'UTC'
-    WHERE id = ${session.userId}
+    SET ${updateParts.join(', ')}
+    WHERE id = $${paramIndex}
   `;
-
-  revalidatePath("/");
+  
+  values.push(session.userId);
+  console.log("query: ", query)
+  await sql.unsafe(query, values);
 }
 
 export async function deleteUser() {

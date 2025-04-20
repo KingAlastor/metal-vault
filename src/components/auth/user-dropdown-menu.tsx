@@ -13,10 +13,9 @@ import { Lock, LogOut, Settings, Music, Mail, Pencil } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getFullUserData } from "@/lib/data/user-data";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/session/client-hooks";
+import { useSession, useUser } from "@/lib/session/client-hooks";
 import { logout } from "@/lib/session/server-actions";
 
 export function UserMenu() {
@@ -24,12 +23,7 @@ export function UserMenu() {
   const queryClient = useQueryClient();
   const { data: session, isLoading } = useSession();
 
-  const { data: fullUser } = useQuery({
-    queryKey: ["fullUser"],
-    queryFn: async () => getFullUserData(session?.userId || ""),
-    staleTime: 23 * 60 * 60 * 1000,
-    gcTime: 23 * 60 * 60 * 1000,
-  });
+  const user = useUser(session?.userId);
 
   const handleLogout = async () => {
     await logout();
@@ -46,11 +40,11 @@ export function UserMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className={cn("flex-none rounded-full sm:ms-auto")}>
-          <UserAvatar avatarUrl={fullUser?.image} size={40} />
+          <UserAvatar avatarUrl={user?.data?.image} size={40} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>{fullUser?.userName || "User"}</DropdownMenuLabel>
+        <DropdownMenuLabel>{user?.data?.user_name || "User"}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
@@ -71,7 +65,7 @@ export function UserMenu() {
               <span className="dropdown-options">Profile</span>
             </Link>
           </DropdownMenuItem>
-          {fullUser?.role === "admin" && (
+          {user?.data?.role === "admin" && (
             <DropdownMenuItem asChild>
               <Link href="/user/admin">
                 <Lock className="mr-2 h-4 w-4" />

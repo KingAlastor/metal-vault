@@ -84,6 +84,7 @@ export default function ProfileSettingsForm() {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
+      console.log("data: ", data)
       await updateUserData(data);
       queryClient.invalidateQueries({ queryKey: ['user', session?.userId] });
       toast({ description: "Profile updated." });
