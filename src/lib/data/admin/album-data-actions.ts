@@ -103,7 +103,7 @@ export async function updateBandsLastSync(id: string) {
   try {
     await sql`
       UPDATE bands
-      SET last_sync = NOW()
+      SET last_sync = NOW() AT TIME ZONE 'UTC'
       WHERE id = ${id}
     `;
   } catch (error) {

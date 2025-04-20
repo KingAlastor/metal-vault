@@ -132,7 +132,7 @@ export default function ProfileSettingsForm() {
               <FormDescription>Add your favorite genres</FormDescription>
               <MultiSelectDropdown
                 options={genres || []}
-                onChange={field.onChange}
+                onChange={field.onChange || ""}
                 value={field.value}
                 triggerText="Select genres"
               />

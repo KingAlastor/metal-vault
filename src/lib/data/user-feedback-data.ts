@@ -28,7 +28,7 @@ export async function postUserFeedback(data: FeedbackData): Promise<{ success: b
         ${session.userId},
         ${data.title},
         ${data.comment},
-        NOW()
+        NOW() AT TIME ZONE 'UTC'
       )
     `;
 

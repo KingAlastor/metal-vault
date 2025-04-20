@@ -62,7 +62,7 @@ export async function updateUserData(data: UpdateUser) {
   // Construct and execute the update query
   await sql`
     UPDATE users 
-    SET ${sql.unsafe(updates.join(", "))}, updated_at = NOW()
+    SET ${sql.unsafe(updates.join(", "))}, updated_at = NOW() AT TIME ZONE 'UTC'
     WHERE id = ${session.userId}
   `;
 
@@ -99,7 +99,7 @@ export async function deleteUserPendingAction(action: string) {
   await sql`
     UPDATE users
     SET pending_actions = array_remove(pending_actions, ${action}),
-        updated_at = NOW()
+        updated_at = NOW() AT TIME ZONE 'UTC'
     WHERE id = ${session.userId}
   `;
 }
