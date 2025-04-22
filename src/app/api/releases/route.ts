@@ -5,11 +5,6 @@ import { getReleasesByFilters } from "@/lib/data/release-filters-data";
 
 export async function GET() {
   const session = await getSession();
-  
-  if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const releases = await getReleasesByFilters({});
