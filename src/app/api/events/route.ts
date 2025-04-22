@@ -1,7 +1,6 @@
 import { Event, EventFilters } from "@/components/events/event-types";
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session/server-actions";
-import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
 import { getEventsByFilters } from "@/lib/data/events-data";
 import { getFullUserData } from "@/lib/data/user-data";
 

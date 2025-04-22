@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/drawer";
 import { useState } from "react";
 import { CreatePostForm } from "@/components/posts/forms/create-post-form";
+import { useSession } from "@/lib/session/client-hooks";
+import { useRouter } from "next/navigation";
 
 interface MenuBarProps {
   className?: string;
@@ -28,6 +30,17 @@ interface MenuBarProps {
 export default function MenuBar({ className }: MenuBarProps) {
   const size = useWindowSize();
   const [open, setOpen] = useState(false);
+
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleCreatePostClick = () => {
+    if (!session?.userId) {
+      router.push("/signin");
+    } else {
+      setOpen(true);
+    }
+  };
 
   return (
     <div className={className}>
@@ -75,43 +88,45 @@ export default function MenuBar({ className }: MenuBarProps) {
         </Link>
       </Button>
       {size.width > 640 ? (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex items-center justify-start gap-3 w-full"
-              title="Create Post"
-            >
-              <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
-              <span className="hidden lg:inline">Create Post</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle> Create Post</DialogTitle>
-            </DialogHeader>
-            <CreatePostForm setOpen={setOpen} />
-          </DialogContent>
-        </Dialog>
+        <>
+          <Button
+            variant="ghost"
+            className="flex items-center justify-start gap-3 w-full"
+            title="Create Post"
+            onClick={handleCreatePostClick}
+          >
+            <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
+            <span className="hidden lg:inline">Create Post</span>
+          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create Post</DialogTitle>
+              </DialogHeader>
+              <CreatePostForm setOpen={setOpen} />
+            </DialogContent>
+          </Dialog>
+        </>
       ) : (
-        <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex items-center justify-start gap-3 w-full"
-              title="Create Post"
-            >
-              <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
-              <span className="hidden lg:inline">Create Post</span>
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader className="text-left">
-              <DrawerTitle>Create Post</DrawerTitle>
-            </DrawerHeader>
-            <CreatePostForm setOpen={setOpen} />
-          </DrawerContent>
-        </Drawer>
+        <>
+          <Button
+            variant="ghost"
+            className="flex items-center justify-start gap-3 w-full"
+            title="Create Post"
+            onClick={handleCreatePostClick}
+          >
+            <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
+            <span className="hidden lg:inline">Create Post</span>
+          </Button>
+          <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerContent>
+              <DrawerHeader className="text-left">
+                <DrawerTitle>Create Post</DrawerTitle>
+              </DrawerHeader>
+              <CreatePostForm setOpen={setOpen} />
+            </DrawerContent>
+          </Drawer>
+        </>
       )}
     </div>
   );
