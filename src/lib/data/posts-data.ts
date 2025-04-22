@@ -192,12 +192,14 @@ export async function getPostsByFilters(
   let favorites: string[] = [];
   let savedPosts: string[] = [];
 
-  try {
-    favorites = await fetchUserFavoriteBands();
-    savedPosts = await fetchUserSavedPosts();
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    return [];
+  if (session.userId) {
+    try {
+      favorites = await fetchUserFavoriteBands();
+      savedPosts = await fetchUserSavedPosts();
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return [];
+    }
   }
 
   let conditions: string[] = [];
@@ -226,29 +228,31 @@ export async function getPostsByFilters(
     }
   }
 
-  try {
-    const unfollowedBands = (await fetchUserUnfollowedBands()) || [];
-    if (unfollowedBands.length > 0) {
-      conditions.push("band_id != ALL($3)");
-      params.push(unfollowedBands);
-    }
-  } catch (error) {
-    console.error("Error fetching unfollowed bands:", error);
-    return [];
-  }
-
-  try {
-    if (session.userId) {
-      const unfollowedUsers =
-        (await fetchUnfollowedUsers(session.userId)) || [];
-      if (unfollowedUsers.length > 0) {
-        conditions.push("user_id != ALL($4)");
-        params.push(unfollowedUsers);
+  if (session.userId) {
+    try {
+      const unfollowedBands = (await fetchUserUnfollowedBands()) || [];
+      if (unfollowedBands.length > 0) {
+        conditions.push("band_id != ALL($3)");
+        params.push(unfollowedBands);
       }
+    } catch (error) {
+      console.error("Error fetching unfollowed bands:", error);
+      return [];
     }
-  } catch (error) {
-    console.error("Error fetching unfollowed users:", error);
-    return [];
+
+    try {
+      if (session.userId) {
+        const unfollowedUsers =
+          (await fetchUnfollowedUsers(session.userId)) || [];
+        if (unfollowedUsers.length > 0) {
+          conditions.push("user_id != ALL($4)");
+          params.push(unfollowedUsers);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching unfollowed users:", error);
+      return [];
+    }
   }
 
   const limitValue = queryParams.page_size + 1;
