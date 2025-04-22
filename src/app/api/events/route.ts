@@ -12,11 +12,6 @@ export type EventsPageData = {
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
-  
-  if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const queryParams = {
