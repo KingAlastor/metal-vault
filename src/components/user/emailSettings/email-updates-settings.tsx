@@ -16,10 +16,10 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { authClient, useSession } from "@/lib/auth/auth-client";
 import { toast } from "@/components/ui/use-toast";
 import { createEmail } from "./create-email";
 import { sendMail } from "@/lib/email/send-email";
+import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
 
 export const EmailFormSchema = z.object({
   preferred_email: z.string(),
@@ -29,33 +29,42 @@ export const EmailFormSchema = z.object({
 });
 
 export default function EmailUpdatesPage() {
-  const { data: session } = useSession();
-  const user = session?.user;
-  const filters = session?.user.emailSettings
-    ? JSON.parse(session?.user.emailSettings)
+  const { data: session } = useSession()
+  const { data: user } = useUser(session?.userId);
+  const filters = user?.email_settings
+    ? JSON.parse(user?.email_settings)
     : {};
-  console.log("email settings: ", filters);
+
   const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(
     !!filters.email_updates_enabled
   );
-  console.log("updates enabled", emailUpdatesEnabled)
 
   useEffect(() => {
     setEmailUpdatesEnabled(!!filters.email_updates_enabled);
   }, [filters.email_updates_enabled]);
 
+  const updateUser = useUpdateUser();
+
   const toggleEmailUpdatesEnabled = useCallback(
     async (checked: boolean) => {
-      const updateFilters = {
+      const updatedFilters = {
         ...filters,
         email_updates_enabled: checked,
       };
-      await authClient.updateUser({
-        emailSettings: JSON.stringify(updateFilters),
-      });
-      setEmailUpdatesEnabled(checked);
+
+      try {
+        // Use the useUpdateUser hook to update the user
+        await updateUser.mutateAsync({
+          email_settings: JSON.stringify(updatedFilters),
+        });
+        setEmailUpdatesEnabled(checked);
+        toast({ description: "Email updates setting updated." });
+      } catch (error) {
+        console.error("Failed to update email updates setting:", error);
+        toast({ description: "Failed to update email updates setting.", variant: "destructive" });
+      }
     },
-    [filters, authClient]
+    [filters, updateUser]
   );
 
   const form = useForm<z.infer<typeof EmailFormSchema>>({
@@ -96,23 +105,26 @@ export default function EmailUpdatesPage() {
 
   const onSubmit = useCallback(
     async (data: z.infer<typeof EmailFormSchema>) => {
-      let filters = {
+      const updatedFilters = {
         preferred_email: data.preferred_email,
         email_frequency: data.email_frequency,
         favorite_bands: data.favorite_bands ?? false,
         favorite_genres: data.favorite_genres ?? false,
         email_updates_enabled: emailUpdatesEnabled,
       };
+
       try {
-        await authClient.updateUser({
-          emailSettings: JSON.stringify(filters),
+        // Use the useUpdateUser hook to update the user
+        await updateUser.mutateAsync({
+          email_settings: JSON.stringify(updatedFilters),
         });
-        toast({ description: "Email settings updated." });
+        toast({ description: "Email settings updated successfully." });
       } catch (error) {
-        toast({ description: "Failed to update email settings." });
+        console.error("Failed to update email settings:", error);
+        toast({ description: "Failed to update email settings.", variant: "destructive" });
       }
     },
-    [authClient, toast]
+    [emailUpdatesEnabled, updateUser]
   );
 
   return (

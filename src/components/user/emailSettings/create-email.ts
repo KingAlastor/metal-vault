@@ -3,15 +3,12 @@
 import { z } from "zod";
 import { EmailFormSchema } from "./email-updates-settings";
 import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
-import {
-  getFavoriteBandReleasesForEmail,
-  getFavoriteGenreReleasesForEmail,
-} from "@/lib/data/user/emailUpdates/email-settings-data-actions";
-import { Prisma } from "@prisma/client";
+import { getFavoriteBandReleasesForEmail, getFavoriteGenreReleasesForEmail } from "@/lib/data/user-email-settings-data";
+
 
 export const createEmail = async (data: z.infer<typeof EmailFormSchema>) => {
-  let favBandRleases: Prisma.UpcomingReleasesGetPayload<{}>[] = [];
-  let favGenreReleases: Prisma.UpcomingReleasesGetPayload<{}>[] = [];
+  let favBandRleases: any[] = []; // Declare the variable with an appropriate type
+  let favGenreReleases: any[] = []; // Declare the variable with an appropriate type
 
   if (data.favorite_bands) {
     favBandRleases = await getFavoriteBandReleasesForEmail(

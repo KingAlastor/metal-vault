@@ -14,7 +14,7 @@ export type FullUser = {
   name: string;
   user_name?: string;
   email?: string;
-  email_verified: boolean;
+  email_verified?: boolean;
   location?: string;
   image?: string;
   role?: string;
@@ -27,9 +27,9 @@ export type FullUser = {
   last_login?: string;
   genre_tags: string[];
   notifications?: string[];
-  pending_actions: string[];
-  created_at: string;
-  updated_at: string;
+  pending_actions?: string[];
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type OAuthUserInfo = {
@@ -222,4 +222,127 @@ export async function getRefreshTokenFromUserTokens(provider: string) {
     console.error("Failed to fetch refresh token:", error);
     return null;
   }
+}
+
+// Update the type definition
+export type UpdateUserData = {
+  email_settings?: string;
+  user_name?: string;
+  location?: string;
+  genre_tags?: string[];
+  notifications?: string[];
+  posts_settings?: string;
+  events_settings?: string;
+  pending_actions?: string[];
+  release_settings?: string;
+};
+
+export async function updateUserData(data: UpdateUserData) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    return null;
+  }
+  
+  // Create dynamic SQL query parts
+  const updateParts = [];
+  const values = [];
+  let paramIndex = 1;
+  
+  if (data.user_name !== undefined) {
+    updateParts.push(`user_name = $${paramIndex}`);
+    values.push(data.user_name);
+    paramIndex++;
+  }
+  
+  if (data.location !== undefined) {
+    updateParts.push(`location = $${paramIndex}`);
+    values.push(data.location);
+    paramIndex++;
+  }
+  
+  if (data.genre_tags !== undefined) {
+    updateParts.push(`genre_tags = $${paramIndex}`);
+    values.push(data.genre_tags);
+    paramIndex++;
+  }
+  
+  if (data.email_settings !== undefined) {
+    updateParts.push(`email_settings = $${paramIndex}`);
+    values.push(data.email_settings);
+    paramIndex++;
+  }
+
+  if (data.posts_settings !== undefined) {
+    updateParts.push(`posts_settings = $${paramIndex}`);
+    values.push(data.posts_settings);
+    paramIndex++;
+  }
+
+  if (data.events_settings !== undefined) {
+    updateParts.push(`events_settings = $${paramIndex}`);
+    values.push(data.events_settings);
+    paramIndex++;
+  }
+  
+  if (updateParts.length === 0) {
+    return null; // No updates to perform
+  }
+  
+  // Add updated_at timestamp
+  updateParts.push(`updated_at = NOW() AT TIME ZONE 'UTC'`);
+  
+  // Construct the SQL query
+  const query = `
+    UPDATE users 
+    SET ${updateParts.join(', ')}
+    WHERE id = $${paramIndex}
+    RETURNING *
+  `;
+  
+  values.push(session.userId);
+  
+  try {
+    const updatedUser = await sql.unsafe(query, values);
+    return updatedUser[0] || null;
+  } catch (error) {
+    console.error("Failed to update user data:", error);
+    throw error; // Let the API route handle the error
+  }
+}
+
+export async function deleteUser() {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    throw new Error("User is not logged in");
+  }
+
+  try {
+    await sql`
+      DELETE FROM users 
+      WHERE id = ${session.userId}
+    `;
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw new Error("Failed to delete user");
+  }
+}
+
+export async function deleteUserPendingAction(action: string) {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || 'unknown');
+    throw new Error("User is not logged in");
+  }
+
+  await sql`
+    UPDATE users
+    SET pending_actions = array_remove(pending_actions, ${action}),
+        updated_at = NOW() AT TIME ZONE 'UTC'
+    WHERE id = ${session.userId}
+  `;
 }
