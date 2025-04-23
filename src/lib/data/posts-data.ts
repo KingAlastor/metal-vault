@@ -205,9 +205,14 @@ export async function getPostsByFilters(
   let conditions: string[] = [];
   let params: any[] = [];
 
-  if (filters?.favorites_only && favorites.length > 0) {
-    conditions.push("band_id = ANY($1)");
-    params.push(favorites);
+  if (filters?.favorites_only) {
+    if (favorites.length > 0) {
+      const favoritesArray = `ARRAY[${favorites.map((band) => `'${band}'`).join(", ")}]::text[]`;
+      conditions.push(`band_id = ANY(${favoritesArray})`);
+    } else {
+      // If no favorites, return no results
+      conditions.push("FALSE");
+    }
   }
 
   if (filters?.favorite_genres_only && session.userId) {
@@ -219,8 +224,8 @@ export async function getPostsByFilters(
       `;
 
       if (user[0]?.genre_tags?.length > 0) {
-        conditions.push("genre_tags && $2");
-        params.push(user[0].genre_tags);
+        const genreTagsArray = `ARRAY[${user[0].genre_tags.map((tag: any) => `'${tag}'`).join(", ")}]::text[]`;
+        conditions.push(`genre_tags && ${genreTagsArray}`);
       }
     } catch (error) {
       console.error("Error fetching user genres:", error);
@@ -228,26 +233,27 @@ export async function getPostsByFilters(
     }
   }
 
+  // Handle unfollowedBands filter
   if (session.userId) {
     try {
       const unfollowedBands = (await fetchUserUnfollowedBands()) || [];
+      console.log("unfollowed bands: ", unfollowedBands);
+
       if (unfollowedBands.length > 0) {
-        conditions.push("band_id != ALL($3)");
-        params.push(unfollowedBands);
+        const unfollowedBandsArray = `ARRAY[${unfollowedBands.map((band) => `'${band}'`).join(", ")}]::text[]`;
+        conditions.push(`band_id != ALL(${unfollowedBandsArray})`);
       }
     } catch (error) {
       console.error("Error fetching unfollowed bands:", error);
       return [];
     }
 
+    // Handle unfollowedUsers filter
     try {
-      if (session.userId) {
-        const unfollowedUsers =
-          (await fetchUnfollowedUsers(session.userId)) || [];
-        if (unfollowedUsers.length > 0) {
-          conditions.push("user_id != ALL($4)");
-          params.push(unfollowedUsers);
-        }
+      const unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
+      if (unfollowedUsers.length > 0) {
+        const unfollowedUsersArray = `ARRAY[${unfollowedUsers.map((user) => `'${user}'`).join(", ")}]::text[]`;
+        conditions.push(`user_id != ALL(${unfollowedUsersArray})`);
       }
     } catch (error) {
       console.error("Error fetching unfollowed users:", error);
@@ -268,9 +274,8 @@ export async function getPostsByFilters(
 
     if (queryParams.cursor) {
       whereConditions.push(
-        `post_date_time < ($${params.length + 1})::timestamp with time zone`
+        `post_date_time < '${queryParams.cursor}'::timestamp with time zone`
       );
-      params.push(queryParams.cursor);
     }
 
     whereClause += whereConditions.join(" AND ");
@@ -305,9 +310,10 @@ export async function getPostsByFilters(
     ORDER BY post_date_time DESC
     LIMIT ${limitValue}
   `;
+  console.log("Query:", query);
 
   try {
-    const posts = await sql.unsafe<UserPostsActive[]>(query, params);
+    const posts = await sql.unsafe<UserPostsActive[]>(query);
 
     return posts.map((post: UserPostsActive) => ({
       ...post,
@@ -338,15 +344,27 @@ export async function hideArtistForUserById(bandId: string) {
   `;
 
   const shard = user[0]?.shard || "0";
-  const tableName = `band_unfollowers${shard}`;
+  const unfollowersTableName = `band_unfollowers_${shard}`;
   const followersTableName = `band_followers_${shard}`;
 
   try {
-    await sql`
-      INSERT INTO ${sql.unsafe(tableName)} (user_id, band_id)
-      VALUES (${session.userId}, ${bandId})
-      ON CONFLICT (user_id, band_id) DO NOTHING
-    `;
+    // Start a transaction
+    await sql.begin(async (trx) => {
+      // Add the band to the unfollowers table
+      await trx.unsafe(
+        `INSERT INTO ${unfollowersTableName} (user_id, band_id)
+         VALUES ($1, $2)
+         ON CONFLICT (user_id, band_id) DO NOTHING`,
+        [session.userId!, bandId]
+      );
+
+      // Remove the band from the followers table
+      await trx.unsafe(
+        `DELETE FROM ${followersTableName}
+         WHERE user_id = $1 AND band_id = $2`,
+        [session.userId!, bandId]
+      );
+    });
 
     return { band_id: bandId };
   } catch (error) {

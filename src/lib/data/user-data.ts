@@ -40,10 +40,28 @@ export type OAuthUserInfo = {
 };
 
 export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
+  const session = await getSession();
+  let email = '';
+
+  if (session.userId) {
+    const user = await getFullUserData(session.userId);
+    if (user?.email) {
+     email = user?.email;
+    }
+  }
+  else {
+    email = userInfo?.email;
+  }
+  console.log("session:", session, "user: ", email, "userInfo: ", userInfo)
+  
+  if (!email) {
+    throw new Error("Email is required to find or create a user");
+  }
+
   try {
     // Try to find existing user
     let user = await sql`
-      SELECT * FROM users WHERE email = ${userInfo.email}
+      SELECT * FROM users WHERE email = ${email}
     `;
 
     if (user.length === 0) {
