@@ -12,14 +12,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
-import { useEffect, useState } from "react";
-import { updateUserData } from "@/lib/data/profile-data";
 import UserNameField from "./form-username-input";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
 import { useSession, useUser } from "@/lib/session/client-hooks";
+import { updateUserData } from "@/lib/data/user-data";
 
 interface Country {
   name: {

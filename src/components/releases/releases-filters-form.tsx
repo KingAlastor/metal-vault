@@ -20,7 +20,7 @@ import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutati
 import { MultiSelectDropdown } from "../shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
 import { useSession, useUser } from "@/lib/session/client-hooks";
-import { updateUserData } from "@/lib/data/profile-data";
+import { updateUserData } from "@/lib/data/user-data";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),

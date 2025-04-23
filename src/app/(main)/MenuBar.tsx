@@ -35,6 +35,7 @@ export default function MenuBar({ className }: MenuBarProps) {
   const router = useRouter();
 
   const handleCreatePostClick = () => {
+    // doesn't work
     if (!session?.userId) {
       router.push("/signin");
     } else {

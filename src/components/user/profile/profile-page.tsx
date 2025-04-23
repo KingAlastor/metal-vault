@@ -5,9 +5,9 @@ import { DeleteUserDialog } from "./delete-user-dialog";
 import { Button } from "@/components/ui/button";
 import ProfileSettingsForm from "./profile-settings-form";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { deleteUserPendingAction, updateUserData } from "@/lib/data/profile-data";
 import { useSession, useUser } from "@/lib/session/client-hooks";
 import { logout } from "@/lib/session/server-actions";
+import { deleteUserPendingAction, updateUserData } from "@/lib/data/user-data";
 
 export default function ProfilePage() {
   const { data: session } = useSession();

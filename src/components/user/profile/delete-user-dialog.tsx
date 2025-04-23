@@ -7,8 +7,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { deleteUser } from "@/lib/data/profile-data";
 import { useState } from "react";
+import { deleteUser } from "@/lib/data/user-data";
 
 type DeleteUserDialogProps = {
   open: boolean;

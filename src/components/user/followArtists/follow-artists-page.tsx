@@ -18,7 +18,7 @@ import {
   refreshSpotifyAccessToken,
 } from "@/lib/apis/Spotify-api";
 import { UnresolvedBands } from "./unresolved-bands";
-import { deleteUserPendingAction, updateUserData } from "@/lib/data/profile-data";
+import { deleteUserPendingAction, updateUserData } from "@/lib/data/user-profile-data";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
 import { useSession, useUser } from "@/lib/session/client-hooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

@@ -9,17 +9,16 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { PostsDataFilters } from "../post-types";
 import { useSession, useUser } from "@/lib/session/client-hooks";
-import { updateUserData } from "@/lib/data/profile-data";
-import { getFullUserData } from "@/lib/data/user-data";
+import { updateUserData } from "@/lib/data/user-data";
+
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -52,7 +51,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
     };
     setIsOpen(false);
     await updateUserData({
-      postsSettings: JSON.stringify(filters),
+      posts_settings: JSON.stringify(filters),
     });
     queryClient.invalidateQueries({ queryKey: ["post-feed"] });
   }
