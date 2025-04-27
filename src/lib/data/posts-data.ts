@@ -237,7 +237,6 @@ export async function getPostsByFilters(
   if (session.userId) {
     try {
       const unfollowedBands = (await fetchUserUnfollowedBands()) || [];
-      console.log("unfollowed bands: ", unfollowedBands);
 
       if (unfollowedBands.length > 0) {
         const unfollowedBandsArray = `ARRAY[${unfollowedBands.map((band) => `'${band}'`).join(", ")}]::text[]`;
@@ -310,7 +309,6 @@ export async function getPostsByFilters(
     ORDER BY post_date_time DESC
     LIMIT ${limitValue}
   `;
-  console.log("Query:", query);
 
   try {
     const posts = await sql.unsafe<UserPostsActive[]>(query);
