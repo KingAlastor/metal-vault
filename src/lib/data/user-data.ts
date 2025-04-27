@@ -52,7 +52,6 @@ export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
   else {
     email = userInfo?.email;
   }
-  console.log("session:", session, "user: ", email, "userInfo: ", userInfo)
   
   if (!email) {
     throw new Error("Email is required to find or create a user");

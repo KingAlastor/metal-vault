@@ -1,6 +1,7 @@
 import { getSpotifyTokens, getSpotifyUserInfo } from "@/lib/auth/spotify-auth";
 import { getSession } from "@/lib/session/server-actions";
 import { findOrCreateUser } from "@/lib/data/user-data";
+import { saveRefreshTokenToUserTokens } from "@/lib/data/callback-data";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -24,10 +25,12 @@ export async function GET(request: Request) {
       email: userInfo.email,
       name: userInfo.display_name,
       image: userInfo.images?.[0]?.url,
-      emailVerified: true
+      emailVerified: true,
     });
 
-    // Create session with Iron Session
+    await saveRefreshTokenToUserTokens("spotify", tokens.refresh_token);
+
+    // Create session
     const session = await getSession();
 
     // Store user data in the session
@@ -35,7 +38,7 @@ export async function GET(request: Request) {
     session.userShard = user.shard;
     session.isLoggedIn = true;
 
-    // If you want to store the refresh token (optional)
+    // Store the refresh token 
     if (tokens.refresh_token) {
       session.refreshToken = tokens.refresh_token;
     }
@@ -44,10 +47,10 @@ export async function GET(request: Request) {
     await session.save();
 
     // Redirect to dashboard or home page
-    console.log("url", request.url)
+    console.log("url", request.url);
     return Response.redirect(new URL("/", request.url));
   } catch (error) {
     console.error("OAuth error:", error);
     return new Response("Authentication failed", { status: 500 });
   }
-} 
+}

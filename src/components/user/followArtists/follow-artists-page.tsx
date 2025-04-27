@@ -201,7 +201,7 @@ export default function FollowArtistsPage() {
 }
 
 const handleSpotifyTokenRevalidation = async () => {
-  const refreshToken = await getRefreshTokenFromUserTokens("spotify");
+  const refreshToken = await getRefreshTokenFromUserTokens("spotify"); 
   if (refreshToken) {
     const token = await refreshSpotifyAccessToken(refreshToken);
     return token;
@@ -215,7 +215,6 @@ const handleSpotifyTokenRevalidation = async () => {
       scope
     )}&redirect_uri=${encodeURIComponent(redirectUrl)}`;
     const popupWindow = window.open(authUrl, "Auth", "width=500,height=600");
-    console.log("popup window: ", popupWindow);
     if (
       !popupWindow ||
       popupWindow.closed ||

@@ -29,8 +29,7 @@ export const saveRefreshTokenToUserTokens = async (
       )
       ON CONFLICT (user_id, provider) 
       DO UPDATE SET 
-        refresh_token = ${token},
-        updated_at = CURRENT_TIMESTAMP
+        refresh_token = ${token}
     `;
   } catch (error) {
     console.error("Error saving refresh token:", error);

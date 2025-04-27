@@ -82,6 +82,10 @@ export type Artist = {
 };
 
 export const getFollowedArtistsFromSpotify = async (token: string) => {
+  if (!token) {
+    throw new Error("Token empty");
+  }
+  
   let artists: Artist[] = [];
   let nextUrl = "https://api.spotify.com/v1/me/following?type=artist&limit=50";
 
