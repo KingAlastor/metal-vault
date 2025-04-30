@@ -6,7 +6,7 @@ import { getFullUserData } from "@/lib/data/user-data";
 
 export type EventsPageData = {
   events: Event[];
-  nextCursor: string | null;
+  next_cursor: string | null;
 };
 
 export async function GET(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   try {
     const queryParams = {
       cursor: req.nextUrl.searchParams.get("cursor") || undefined,
-      pageSize: 3,
+      page_size: 3,
     };
 
     let filters: EventFilters = {};
@@ -25,19 +25,17 @@ export async function GET(req: NextRequest) {
         filters = JSON.parse(userData.events_settings);
       }
     }
-
     const events = await getEventsByFilters(filters, queryParams);
 
-    const nextCursor =
-      events.length > queryParams.pageSize
-        ? events[queryParams.pageSize].id
-        : null;
+    const next_cursor = events.length > queryParams.page_size
+    ? events[queryParams.page_size - 1]?.fromDate.toISOString()
+    : null;
 
     const data: EventsPageData = {
-      events: events.slice(0, queryParams.pageSize),
-      nextCursor,
+      events: events.slice(0, queryParams.page_size),
+      next_cursor: next_cursor ? new Date(next_cursor).toISOString() : null, 
     };
-
+    
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching events:", error);

@@ -124,31 +124,26 @@ export const getEventsByFilters = async (
   const conditions: string[] = [];
   const params: any[] = [];
 
-  conditions.push("e.to_date >= $1");
-  params.push(new Date(new Date().setHours(0, 0, 0, 0)));
+  const today = new Date(new Date().setHours(0, 0, 0, 0));
+  conditions.push(`e.from_date >= '${today.toISOString()}'::timestamp with time zone`);
 
+  // Add condition for favorite genres
   if (filters?.favorite_genres_only && userGenreTags && userGenreTags.length > 0) {
-    conditions.push("e.genre_tags && $2");
-    params.push(userGenreTags);
+    const genreTagsArray = `ARRAY[${userGenreTags.map((tag) => `'${tag}'`).join(", ")}]::text[]`;
+    conditions.push(`e.genre_tags && ${genreTagsArray}`);
   }
 
-  const limitValue = queryParams.pageSize + 1;
+  // Handle cursor for pagination
+  if (queryParams.cursor) {
+    conditions.push(`e.from_date > '${queryParams.cursor}'::timestamp with time zone`);
+  }
+
+  const limitValue = queryParams.page_size + 1;
+
+  // Build the WHERE clause
   let whereClause = "";
-
-  if (conditions.length > 0 || queryParams.cursor) {
-    whereClause = "WHERE ";
-    const whereConditions: string[] = [];
-
-    if (conditions.length > 0) {
-      whereConditions.push(conditions.join(" AND "));
-    }
-
-    if (queryParams.cursor) {
-      whereConditions.push(`e.from_date > ($${params.length + 1})::timestamp with time zone`);
-      params.push(queryParams.cursor);
-    }
-
-    whereClause += whereConditions.join(" AND ");
+  if (conditions.length > 0) {
+    whereClause = `WHERE ${conditions.join(" AND ")}`;
   }
 
   const query = `
@@ -182,9 +177,9 @@ export const getEventsByFilters = async (
     LIMIT ${limitValue}
   `;
 
+
   try {
     const events = await sql.unsafe<EventType[]>(query, params);
-
     return events.map((event) => ({
       ...event,
       isUserOwner: session.userId === event.userId,

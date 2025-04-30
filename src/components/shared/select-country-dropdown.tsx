@@ -137,7 +137,6 @@ export function CountrySelectDropdown({
                     </CommandItem>
                   ))}
                 </CommandGroup>
-                ;
               </>
             )}
           </CommandList>

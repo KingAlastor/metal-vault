@@ -2,6 +2,7 @@ import { Post } from "@/components/posts/post-types";
 import { getPostsByFilters } from "@/lib/data/posts-data";
 import { NextRequest, NextResponse } from "next/server";
 import { getPostsFilters } from "@/lib/data/user-data";
+import { getSession } from "@/lib/session/server-actions";
 
 export type PostsPageData = {
   posts: Post[];
@@ -16,9 +17,8 @@ export async function GET(req: NextRequest) {
       page_size: 5,
     };
 
-    console.log("queryparams: ", queryParams)
-    const userId = req.nextUrl.searchParams.get("user_id");
-    const filters = userId ? await getPostsFilters(userId) : {};
+    const session = await getSession();
+    const filters = session.userId ? await getPostsFilters(session.userId) : {};
 
     const posts = await getPostsByFilters(filters, queryParams);
 

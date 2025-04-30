@@ -51,7 +51,7 @@ export type EventFilters = {
 
 export type EventQueryParams = {
   cursor: string | undefined;
-  pageSize: number;
+  page_size: number;
 };
 
 export type EventCardsProps = {

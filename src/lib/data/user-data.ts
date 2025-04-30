@@ -39,6 +39,23 @@ export type OAuthUserInfo = {
   emailVerified?: boolean;
 };
 
+/**
+ * Finds an existing user by their email or creates a new user if none exists.
+ * 
+ * This function first attempts to retrieve the user's email from the current session.
+ * If no session user is found, it uses the email provided in the `OAuthUserInfo` object.
+ * If no email is available, an error is thrown.
+ * 
+ * If a user with the given email exists in the database, it is returned.
+ * Otherwise, a new user is created with the provided `OAuthUserInfo` data.
+ * The shard for the new user is calculated based on the total number of users
+ * and the defined shard limits.
+ * 
+ * @param userInfo - The OAuth user information containing details such as email, name, image, and email verification status.
+ * @returns The user object, either retrieved from the database or newly created.
+ * @throws If no email is provided or if there is an error during database operations.
+ */
+
 export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
   const session = await getSession();
   let email = '';
@@ -96,6 +113,22 @@ export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
     throw new Error("Failed to find or create user");
   }
 };
+
+/**
+ * Retrieves the full user data for a given user ID, ensuring the request is authorized.
+ * 
+ * This function first checks if the user associated with the current session is logged in.
+ * If not logged in, it logs an unauthorized access attempt and returns `null`.
+ * It then verifies if the requested `userId` matches the `userId` stored in the session.
+ * If they don't match, it logs a wrong user access attempt and returns `null`.
+ * 
+ * If both checks pass, it queries the database for the user record matching the provided `userId`.
+ * 
+ * @param userId - The unique identifier of the user whose data is to be retrieved.
+ * @returns A promise that resolves to the `FullUser` object if found and authorized, 
+ *          or `null` if the user is not logged in, the requested `userId` doesn't match 
+ *          the session user, or the user is not found in the database.
+ */
 
 export const getFullUserData = async (userId: string) => {
   const session = await getSession();
@@ -161,34 +194,52 @@ export const fetchUnfollowedUsers = async (userId: string) => {
 
 export const getPostsFilters = async (userId: string) => {
   try {
-    const user = await sql`
-      SELECT 
+    const userResult = await sql<{ shard: number | null; genre_tags: string[] | null }[]>`
+      SELECT
         genre_tags,
         shard
       FROM users
       WHERE id = ${userId}
     `;
-    
-    const savedPosts = await sql`
+
+    const user = userResult[0];
+    const shard = user?.shard ?? 0; // Use nullish coalescing for default
+
+    // Validate shard value (optional but recommended)
+    if (shard < 0 || shard >= MaxTableShards.BandFollowers || !Number.isInteger(shard)) {
+       console.error(`Invalid shard value ${shard} for user ${userId}`);
+       // Decide how to handle: return default, throw error, etc.
+       return {
+         genre_tags: user?.genre_tags || [],
+         favorite_bands: [],
+         saved_posts: []
+       };
+    }
+
+    const savedPostsResult = await sql<{ post_id: string }[]>`
       SELECT post_id
       FROM user_posts_saved
       WHERE user_id = ${userId}
     `;
 
-    const shard = user[0]?.shard || 0;
-    const favoriteBands = await sql`
+    // Construct the query string for favorite bands
+    const favoriteBandsQuery = `
       SELECT band_id
       FROM band_followers_${shard}
-      WHERE user_id = ${userId}
+      WHERE user_id = $1
     `;
 
+    // Execute using sql.unsafe
+    const favoriteBandsResult = await sql.unsafe<{ band_id: string }[]>(favoriteBandsQuery, [userId]);
+
     return {
-      genre_tags: user[0]?.genre_tags || [],
-      favorite_bands: favoriteBands.map(row => row.band_id),
-      saved_posts: savedPosts.map(row => row.post_id)
+      genre_tags: user?.genre_tags || [],
+      favorite_bands: favoriteBandsResult.map(row => row.band_id),
+      saved_posts: savedPostsResult.map(row => row.post_id)
     };
   } catch (error) {
     console.error("Error fetching post filters:", error);
+    // Return default structure on error
     return {
       genre_tags: [],
       favorite_bands: [],
