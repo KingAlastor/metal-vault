@@ -290,7 +290,8 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
         title: {
           name: videoData.title,
           imageUrl: videoData.thumbnails.high.url,
-        },
+          releaseDate: videoData.publishedAt,
+        },   
       };
     } else return null;
   } else if (data.spotify_link) {
