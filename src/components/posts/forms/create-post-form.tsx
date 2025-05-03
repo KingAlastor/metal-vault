@@ -340,6 +340,7 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
         name: bandcampData.trackTitle,
         artist: bandcampData.bandName,
         imageUrl: bandcampData.imgSrc,
+        releaseDate: bandcampData.releaseDate,
       },
     };
   }
