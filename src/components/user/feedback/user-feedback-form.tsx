@@ -8,7 +8,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
-import { postUserFeedback } from "@/lib/data/user/feedback/user-feedback-data-actions"
+import { postUserFeedback } from "@/lib/data/user-feedback-data"
 
 const formSchema = z.object({
   title: z

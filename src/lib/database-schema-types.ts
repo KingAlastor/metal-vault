@@ -38,26 +38,6 @@ export type Account = {
   updatedAt: Date;
 };
 
-export type Session = {
-  id: string;
-  expiresAt: Date;
-  token: string;
-  createdAt: Date;
-  updatedAt: Date;
-  ipAddress?: string;
-  userAgent?: string;
-  userId: string;
-};
-
-export type Verification = {
-  id: string;
-  identifier: string;
-  value: string;
-  expiresAt: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
-
 export type UserTokens = {
   id: number;
   user_id: string;

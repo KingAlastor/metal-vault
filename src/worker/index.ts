@@ -1,0 +1,75 @@
+import { run } from "graphile-worker";
+// Import the new tasks
+import { syncAllBands, syncLatestBands, syncAlbums } from "./tasks/sync-tasks";
+
+async function main() {
+  const dbConnectionString = process.env.DATABASE_URL;
+  if (!dbConnectionString) {
+    throw new Error("DATABASE_URL environment variable is not set!");
+  }
+  const shouldRunOnce = process.argv.includes("--once");
+
+  // Define the schedules for your tasks
+  const crontab = [
+    // Run latest band sync daily at 1 AM
+/*     "0 1 * * * sync_latest_bands",
+    // Run album sync daily at 2 AM (adjust timing based on expected duration)
+    "0 2 * * * sync_albums",
+    // Run full band sync weekly on Sunday at 3 AM (this is long, run less often) */
+    "0 3 * * 0 sync_all_bands",
+    // Add more schedules here if needed
+  ].join("\n");
+
+  console.log("Starting worker...");
+  const runner = await run({
+    connectionString: dbConnectionString,
+    concurrency: 2, // Adjust concurrency based on resource usage and API limits
+    // noHandleSignals: false, // Recommended to keep this false unless debugging
+    pollInterval: 1000,
+    // Define the list of tasks the worker can run
+    taskList: {
+      sync_all_bands: syncAllBands,
+/*       sync_latest_bands: syncLatestBands,
+      sync_albums: syncAlbums, */
+      // Add other task identifiers here if you create more tasks
+    },
+    // Add the crontab for scheduled tasks
+    crontab: crontab,
+  });
+
+  console.log("Worker started successfully.");
+
+  // Graceful shutdown
+  const stop = async () => {
+    try {
+      console.log("Stopping worker...");
+      await runner.stop();
+      console.log("Worker stopped.");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error stopping worker:", err);
+      process.exit(1);
+    }
+  };
+
+  if (shouldRunOnce) {
+    // If --once is passed, wait for the current jobs to complete and then stop.
+    // Note: This doesn't automatically run scheduled jobs, only jobs already in the queue.
+    // You might need to manually add a job if you want --once to run a specific task.
+    console.log("Running worker once...");
+    await runner.promise; // Wait for worker to settle (no more jobs running)
+    await stop();
+  } else {
+    // Listen for termination signals
+    process.once("SIGINT", stop);
+    process.once("SIGTERM", stop);
+  }
+
+  // Keep the worker running indefinitely unless stopped
+  await runner.promise;
+}
+
+main().catch((err) => {
+  console.error("Worker failed to start or encountered a fatal error:", err);
+  process.exit(1);
+});

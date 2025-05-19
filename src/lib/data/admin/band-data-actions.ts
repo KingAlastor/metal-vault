@@ -12,6 +12,14 @@ export type BandsData = {
 
 export const updateBandsTableData = async (bandsData: BandsData) => {
   try {
+    const currentTime = new Date().toISOString(); // Current ISO timestamp in UTC
+
+    // Add updated_at to each band object
+    const bandsDataWithTimestamp = bandsData.map(band => ({
+      ...band,
+      updated_at: currentTime,
+    }));
+
     await sql`
       INSERT INTO bands (
         name,
@@ -19,8 +27,9 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
         genre_tags,
         country,
         status,
-        archives_link
-      ) VALUES ${sql(bandsData)}
+        archives_link,
+        updated_at -- Added updated_at column
+      ) VALUES ${sql(bandsDataWithTimestamp)}
       ON CONFLICT (archives_link) DO NOTHING
     `;
   } catch (error) {

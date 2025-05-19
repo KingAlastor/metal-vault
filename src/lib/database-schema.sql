@@ -40,7 +40,7 @@ CREATE TABLE bands (
   followers INT DEFAULT 0,
   archives_link BIGINT NOT NULL,
   spotify_id VARCHAR(255),
-  last_sync TIMESTAMP WITH TIME ZONE,
+  updated_at TIMESTAMP WITH TIME ZONE,
   UNIQUE (archives_link)
 );
 

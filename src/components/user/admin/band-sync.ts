@@ -61,12 +61,12 @@ function extractBandDetails(band: Array<any>) {
   const archivesLink = archivesLinkMatch ? archivesLinkMatch[1] : "";
 
   return {
-    name,
-    namePretty,
-    genreTags,
-    country,
-    status,
-    archivesLink,
+    name: name ?? '',
+    name_pretty: namePretty ?? '',
+    genre_tags: genreTags,
+    country: country ?? '',
+    status: status ?? '',
+    archives_link: archivesLink ? parseInt(archivesLink, 10) : 0,
   };
 }
 
@@ -128,12 +128,12 @@ const extractLatestBandAdditionDetails = (band: Array<any> ) => {
   const status = 'Active';
 
   return {
-    name,
-    namePretty,
-    genreTags,
-    country,
+    name: name ?? '',
+    name_pretty: namePretty ?? '',
+    genre_tags: genreTags,
+    country: country ?? '',
     status,
-    archivesLink,
+    archives_link: archivesLink ? parseInt(archivesLink, 10) : 0, 
   };
 };
 

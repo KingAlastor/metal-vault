@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
-
+ "use server";
+ 
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,8 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const session = await auth();
-  const user = session?.user;
-  return <> User profile page {user?.id}</>
+
+  return <> User profile page</>
   //return <UserProfilePage user={user}/>;
 }

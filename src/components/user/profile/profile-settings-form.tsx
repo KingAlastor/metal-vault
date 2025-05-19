@@ -37,6 +37,7 @@ export default function ProfileSettingsForm() {
   const { toast } = useToast();
   const { data: session } = useSession();
   const user = useUser(session?.userId);
+  console.log("user: ", user)
   const queryClient = useQueryClient();
   console.log("user; ", user.data)
   const form = useForm<z.infer<typeof FormSchema>>({

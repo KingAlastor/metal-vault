@@ -13,7 +13,6 @@ import {
   formatTimeToSeconds,
   parseMetalArchivesDate,
 } from "@/lib/general/dateTime";
-import { Prisma } from "@prisma/client";
 
 export async function syncAlbumDataFromArchives() {
   const archivesLinks = await getBandLinks();
@@ -46,7 +45,7 @@ export async function syncAlbumDataFromArchives() {
             const releaseData = await getReleaseData(albumUrl);
             console.log("release data: ", releaseData);
             if (releaseData) {
-              const albumData: Prisma.BandAlbumsCreateInput = {
+              const albumData = {
                 band: { connect: { id } },
                 name: albumName,
                 namePretty: album,
@@ -56,7 +55,7 @@ export async function syncAlbumDataFromArchives() {
               };
               await updateAlbumsTableData(albumData);
               const albumId = await getAlbumId(id, parseInt(albumLink, 10));
-              let tracks: Prisma.AlbumTracksCreateManyInput[] = [];
+              let tracks = [];
               if (albumId && releaseData.tracklist) {
                 for (const track of releaseData.tracklist) {
                   const trackData = {
