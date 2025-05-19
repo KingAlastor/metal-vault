@@ -39,7 +39,12 @@ export function ReportPostForm({ setIsOpen, postId }: ReportPostFormProps) {
       ...data,
       postId,
     }
-    await savePostReport(formData);
+    await savePostReport(
+      formData.postId,
+      formData.field, 
+      formData.value,
+      formData.comment
+    );
     setIsOpen(false);
     setSubmissionState({ message: "Report submitted successfully!" });
   }

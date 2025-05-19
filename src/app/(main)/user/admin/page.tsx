@@ -1,5 +1,3 @@
-"use server";
-
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import AdminPage from "../../../../components/user/admin/admin-page";

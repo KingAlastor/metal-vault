@@ -44,7 +44,7 @@ export async function syncAlbumDataFromArchives() {
             console.log(`Fetching album URL: ${albumUrl}`);
             const releaseData = await getReleaseData(albumUrl);
             console.log("release data: ", releaseData);
-            if (releaseData) {
+/*             if (releaseData) {
               const albumData = {
                 band: { connect: { id } },
                 name: albumName,
@@ -70,7 +70,7 @@ export async function syncAlbumDataFromArchives() {
                 await updateAlbumTracksDataTable(tracks);
               }
             }
-            await new Promise((resolve) => setTimeout(resolve, 3000));
+            await new Promise((resolve) => setTimeout(resolve, 3000)); */
           }
         }
       }

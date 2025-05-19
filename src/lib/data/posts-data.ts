@@ -412,9 +412,9 @@ export async function removePostFromSavedPosts(postId: string) {
 
 export async function savePostReport(
   postId: string,
-  field: string,
-  value: string,
-  comment: string
+  field?: string,
+  value?: string,
+  comment?: string
 ) {
   const session = await getSession();
 
@@ -426,7 +426,7 @@ export async function savePostReport(
   try {
     await sql`
       INSERT INTO reported_posts (user_id, post_id, field, value, comment)
-      VALUES (${session.userId}, ${postId}, ${field}, ${value}, ${comment})
+      VALUES (${session.userId}, ${postId}, ${field || null}, ${value || null}, ${comment || null})
     `;
   } catch (error) {
     console.error("Error reporting post:", error);

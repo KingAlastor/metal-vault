@@ -11,12 +11,12 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { toast } from "@/components/ui/use-toast";
+import { toast, useToast } from "@/components/ui/use-toast";
 import { createEmail } from "./create-email";
 import { sendMail } from "@/lib/email/send-email";
 import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
@@ -31,19 +31,31 @@ export const EmailFormSchema = z.object({
 export default function EmailUpdatesPage() {
   const { data: session } = useSession()
   const { data: user } = useUser(session?.userId);
-  const filters = user?.email_settings
-    ? JSON.parse(user?.email_settings)
-    : {};
+
+  const filters = useMemo(() => {
+    if (!user?.email_settings) {
+      return {}; // Return an empty object if no settings
+    }
+    try {
+      return JSON.parse(user.email_settings);
+    } catch (error) {
+      console.error("Failed to parse email_settings JSON:", error);
+      return {}; // Return empty object or default on parsing error
+    }
+  }, [user?.email_settings]); // Dependency: recompute only if email_settings string changes
 
   const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(
+    // Initialize based on memoized filters
     !!filters.email_updates_enabled
   );
 
+  // Update emailUpdatesEnabled if filters change (e.g., after initial data load)
   useEffect(() => {
     setEmailUpdatesEnabled(!!filters.email_updates_enabled);
   }, [filters.email_updates_enabled]);
 
   const updateUser = useUpdateUser();
+  const { toast } = useToast(); 
 
   const toggleEmailUpdatesEnabled = useCallback(
     async (checked: boolean) => {
@@ -64,7 +76,7 @@ export default function EmailUpdatesPage() {
         toast({ description: "Failed to update email updates setting.", variant: "destructive" });
       }
     },
-    [filters, updateUser]
+    [filters, updateUser, toast]
   );
 
   const form = useForm<z.infer<typeof EmailFormSchema>>({
@@ -77,12 +89,23 @@ export default function EmailUpdatesPage() {
     },
   });
 
+  useEffect(() => {
+    if (user) { // Ensure user data is available
+      form.reset({
+        preferred_email: filters?.preferred_email || user.email || "",
+        favorite_bands: filters?.favorite_bands || false,
+        email_frequency: filters?.email_frequency || "W",
+        favorite_genres: filters?.favorite_genres || false,
+      });
+    }
+  }, [user, filters, form.reset]);
+
   const sendTestEmail = useCallback(
     async (data: z.infer<typeof EmailFormSchema>) => {
       const email = await createEmail(data);
       console.log("email: ", email);
       if (email) {
-        const response = await sendMail(
+        await sendMail(
           data.preferred_email,
           "Newsletter",
           email.text,
@@ -100,7 +123,7 @@ export default function EmailUpdatesPage() {
         toast({ description: "Failed to send test email." });
       }
     },
-    [createEmail, sendMail, toast]
+    []
   );
 
   const onSubmit = useCallback(

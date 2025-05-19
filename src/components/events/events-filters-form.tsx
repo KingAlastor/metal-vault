@@ -45,7 +45,7 @@ export function EventsFiltersForm({
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (filters: EventFilters) => getEventsByFilters(filters, { cursor: undefined, pageSize: 10 }),
+    mutationFn: (filters: EventFilters) => getEventsByFilters(filters, { cursor: undefined, page_size: 10 }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events-feed"] });
     },
