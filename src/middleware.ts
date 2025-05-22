@@ -12,6 +12,8 @@ export function middleware() {
   const headers = response.headers
   const nonce = generateNonce()
 
+  // Currently doesn't work with Next.js 15.2.4
+/* 
   // Store nonce in response headers for use in templates
   headers.set('X-CSP-Nonce', nonce)
 
@@ -56,7 +58,7 @@ export function middleware() {
   } else {
     // In production, use strict CSP
     headers.set('Content-Security-Policy', cspString)
-  }
+  } */
 
   // Other security headers
   headers.set('X-DNS-Prefetch-Control', 'on')
