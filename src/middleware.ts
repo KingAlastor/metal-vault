@@ -8,7 +8,6 @@ function generateNonce() {
 }
 
 export function middleware() {
-  console.log('Middleware running...');
   const response = NextResponse.next()
   const headers = response.headers
   const nonce = generateNonce()

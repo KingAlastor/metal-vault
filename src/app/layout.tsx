@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: "Get latest album release updates",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function RootLayout({
   children,
 }: Readonly<{

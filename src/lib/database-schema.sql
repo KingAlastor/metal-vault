@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE users (
   id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(100) NOT NULL,
@@ -28,6 +30,7 @@ CREATE TABLE user_tokens (
   refresh_token VARCHAR(255) NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE (user_id, provider)
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
 CREATE TABLE bands (
@@ -93,6 +96,7 @@ CREATE TABLE upcoming_releases (
   album_archives_link BIGINT,
   type VARCHAR(255),
   release_date TIMESTAMP WITH TIME ZONE,
+  updated_at TIMESTAMP WITH TIME ZONE,
   UNIQUE (album_archives_link)
 );
 
@@ -100,6 +104,7 @@ CREATE TABLE band_followers_0 (
   band_id VARCHAR(36) NOT NULL,
   user_id VARCHAR(36) NOT NULL,
   rating INT DEFAULT 5,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (band_id) REFERENCES bands(id),
   UNIQUE (user_id, band_id)
@@ -111,6 +116,7 @@ CREATE TABLE band_followers_1 (
   band_id VARCHAR(36) NOT NULL,
   user_id VARCHAR(36) NOT NULL,
   rating INT DEFAULT 5,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (band_id) REFERENCES bands(id),
   UNIQUE (user_id, band_id)
@@ -121,6 +127,7 @@ CREATE INDEX idx_band_followers_1_user ON band_followers_1 (user_id);
 CREATE TABLE band_unfollowers_0 (
   band_id VARCHAR(36) NOT NULL,
   user_id VARCHAR(36) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (band_id) REFERENCES bands(id),
   UNIQUE (user_id, band_id)
@@ -130,6 +137,7 @@ CREATE INDEX idx_band_unfollowers_0_band_user ON band_unfollowers_0 (band_id, us
 CREATE TABLE band_unfollowers_1 (
   band_id VARCHAR(36) NOT NULL,
   user_id VARCHAR(36) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (band_id) REFERENCES bands(id),
   UNIQUE (user_id, band_id)
@@ -139,6 +147,7 @@ CREATE INDEX idx_band_unfollowers_1_band_user ON band_unfollowers_1 (band_id, us
 CREATE TABLE user_unfollowers_0 (
   user_id VARCHAR(36) NOT NULL,
   unfollowed_user_id VARCHAR(36) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE (user_id, unfollowed_user_id)
 );
@@ -147,6 +156,7 @@ CREATE INDEX idx_user_unfollowers_0_users ON user_unfollowers_0(user_id, unfollo
 CREATE TABLE user_unfollowers_1 (
   user_id VARCHAR(36) NOT NULL,
   unfollowed_user_id VARCHAR(36) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE (user_id, unfollowed_user_id)
 );
@@ -165,6 +175,7 @@ CREATE TABLE user_posts_active (
   band_camp_link VARCHAR(255),
   preview_url VARCHAR(255),
   post_date_time TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (band_id) REFERENCES bands(id)
 );
@@ -217,6 +228,7 @@ CREATE TABLE events (
   image_url VARCHAR(255),
   website VARCHAR(255),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_events_country_dates ON events (country, from_date, to_date);
@@ -227,6 +239,7 @@ CREATE TABLE user_events_saved (
   user_id VARCHAR(36) NOT NULL,
   event_id VARCHAR(36) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
   PRIMARY KEY (user_id, event_id)
@@ -241,6 +254,7 @@ CREATE TABLE reported_posts (
   value VARCHAR(255),
   comment TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (post_id) REFERENCES user_posts_active(id) ON DELETE CASCADE
 );
@@ -250,5 +264,6 @@ CREATE TABLE user_feedback (
   user_id VARCHAR(36) NOT NULL,
   title VARCHAR(255) NOT NULL,
   comment TEXT NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
