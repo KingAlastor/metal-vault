@@ -96,7 +96,7 @@ export default function MenuBar({ className }: MenuBarProps) {
             title="Create Post"
             onClick={handleCreatePostClick}
           >
-            <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
+            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} />
             <span className="hidden lg:inline">Create Post</span>
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -116,7 +116,7 @@ export default function MenuBar({ className }: MenuBarProps) {
             title="Create Post"
             onClick={handleCreatePostClick}
           >
-            <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
+            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} />
             <span className="hidden lg:inline">Create Post</span>
           </Button>
           <Drawer open={open} onOpenChange={setOpen}>

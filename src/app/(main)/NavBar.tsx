@@ -17,7 +17,7 @@ export default function NavBar() {
           className="flex items-center text-2xl font-bold text-primary"
         >
           <Image
-            src="/logo.svg"
+            src="/Logo.svg"
             alt="Logo"
             width={28}
             height={28}
