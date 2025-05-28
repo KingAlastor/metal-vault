@@ -24,7 +24,9 @@ export async function syncBandDataFromArchives() {
           bandsData.push(data);
         }
 
-        updateBandsTableData(bandsData);
+        if (bandsData.length > 0) {
+          await updateBandsTableData(bandsData);
+        }
 
         if (data.aaData.length === 0 || data.aaData.length < iDisplayLength) {
           hasMoreData = false;

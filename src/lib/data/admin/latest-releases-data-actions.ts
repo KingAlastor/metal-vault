@@ -78,7 +78,9 @@ const extractBandDetails = async (band: Array<any>) => {
     };
 
     bandsData.push(bandDataObject);
-    await updateBandsTableData(bandsData);
+    if (bandsData.length > 0) {
+      await updateBandsTableData(bandsData);
+    }
     const bandDetails = await getBandByArchivesLink(bandArchivesLink);
     bandId = bandDetails?.id!;
   } else {

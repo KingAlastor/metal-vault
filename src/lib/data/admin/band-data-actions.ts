@@ -8,30 +8,49 @@ export type BandsData = {
   country: string;
   status: string;
   archives_link: number;
+  updated_at?: string; 
 }[];
 
 export const updateBandsTableData = async (bandsData: BandsData) => {
   try {
+    if (!bandsData || bandsData.length === 0) {
+      console.log("No band data provided to update or insert.");
+      return; 
+    }
     const currentTime = new Date().toISOString(); // Current ISO timestamp in UTC
 
     // Add updated_at to each band object
     const bandsDataWithTimestamp = bandsData.map(band => ({
       ...band,
+      genre_tags: band.genre_tags,
       updated_at: currentTime,
     }));
 
-    await sql`
-      INSERT INTO bands (
-        name,
-        name_pretty,
-        genre_tags,
-        country,
-        status,
-        archives_link,
-        updated_at -- Added updated_at column
-      ) VALUES ${sql(bandsDataWithTimestamp)}
-      ON CONFLICT (archives_link) DO NOTHING
-    `;
+    console.log('First band object:', bandsDataWithTimestamp[0]); // Debug log
+    console.log('Number of bands:', bandsDataWithTimestamp.length); // Debug log
+
+    for (const band of bandsData) {
+      await sql`
+        INSERT INTO bands (
+          name,
+          name_pretty,
+          genre_tags,
+          country,
+          status,
+          archives_link,
+          updated_at 
+        ) VALUES (
+          ${band.name},
+          ${band.name_pretty},
+          ${band.genre_tags},
+          ${band.country},
+          ${band.status},
+          ${band.archives_link},
+          ${currentTime}
+        )
+        ON CONFLICT (archives_link) DO NOTHING
+      `;
+    }
   } catch (error) {
     console.error("Error updating bands table data:", error);
     throw error;
