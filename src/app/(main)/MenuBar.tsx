@@ -47,7 +47,7 @@ export default function MenuBar({ className }: MenuBarProps) {
     <div className={className}>
       <Button
         variant="ghost"
-        className="flex items-center justify-start gap-3"
+        className="flex items-center justify-start gap-3 [&_svg]:!size-6"
         title="Upcoming Releases"
         asChild
       >
@@ -57,13 +57,14 @@ export default function MenuBar({ className }: MenuBarProps) {
             alt="Upcoming Release"
             width={24}
             height={24}
+            className="shrink-0"
           />
           <span className="hidden lg:inline">Upcoming Releases</span>
         </Link>
       </Button>
       <Button
         variant="ghost"
-        className="flex items-center justify-start gap-3"
+        className="flex items-center justify-start gap-3 [&_svg]:!size-6"
         title="Recommendations"
         asChild
       >
@@ -73,18 +74,19 @@ export default function MenuBar({ className }: MenuBarProps) {
             alt="Recommendations"
             width={24}
             height={24}
+            className="shrink-0"
           />
           <span className="hidden lg:inline">Recommendations</span>
         </Link>
       </Button>
       <Button
         variant="ghost"
-        className="flex items-center justify-start gap-3"
+        className="flex items-center justify-start gap-3 [&_svg]:!size-6"
         title="Events"
         asChild
       >
         <Link href="/events">
-          <Image src="/Events.svg" alt="Events" width={24} height={24} />
+          <Image src="/Events.svg" alt="Events" width={24} height={24} className="shrink-0"/>
           <span className="hidden lg:inline">Events</span>
         </Link>
       </Button>
@@ -92,11 +94,11 @@ export default function MenuBar({ className }: MenuBarProps) {
         <>
           <Button
             variant="ghost"
-            className="flex items-center justify-start gap-3 w-full"
+            className="flex items-center justify-start gap-3 w-full [&_svg]:!size-6"
             title="Create Post"
             onClick={handleCreatePostClick}
           >
-            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} />
+            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} className="shrink-0"/>
             <span className="hidden lg:inline">Create Post</span>
           </Button>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -112,11 +114,11 @@ export default function MenuBar({ className }: MenuBarProps) {
         <>
           <Button
             variant="ghost"
-            className="flex items-center justify-start gap-3 w-full"
+            className="flex items-center justify-start gap-3 w-full [&_svg]:!size-6"
             title="Create Post"
             onClick={handleCreatePostClick}
           >
-            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} />
+            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} className="shrink-0"/>
             <span className="hidden lg:inline">Create Post</span>
           </Button>
           <Drawer open={open} onOpenChange={setOpen}>
