@@ -177,7 +177,7 @@ export function FileUpload() {
 
       {/* Upload Area */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-1">
           <div
             {...getRootProps()}
             className={`
@@ -204,7 +204,7 @@ export function FileUpload() {
       {/* File List */}
       {files.length > 0 && (
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-1">
             <h3 className="font-semibold mb-4">Uploaded Files</h3>
             <div className="space-y-4">
               {files.map((uploadFile, index) => (
