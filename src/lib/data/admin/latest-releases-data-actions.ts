@@ -18,7 +18,6 @@ export async function syncUpcomingReleaseDataFromArchives() {
   let hasMoreData = true;
   while (hasMoreData) {
     const url = `${baseUrl}${iDisplayStart}${commonParams}`;
-    console.log(`Fetching URL: ${url}`);
     try {
       let releasesData: ReleaseData = [];
       const response = await axios.get(url);
@@ -124,17 +123,6 @@ type ReleaseData = {
 
 const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
   try {
-    console.log("Releases data sample:", releasesData[0]); // Debug log
-    console.log("Number of releases:", releasesData.length); // Debug log
-
-    // Check table structure first
-    const tableInfo = await sql`
-      SELECT column_name, data_type, is_nullable 
-      FROM information_schema.columns 
-      WHERE table_name = 'upcoming_releases' 
-      ORDER BY ordinal_position
-    `;
-    console.log("Table structure:", tableInfo);
     const mappedData = releasesData.map((release) => ({
       band_id: release.bandId,
       band_name: release.bandName || null,
@@ -145,17 +133,13 @@ const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
       type: release.type,
       release_date: release.releaseDate,
     }));
-    console.log("Mapped data sample:", mappedData[0]); // Debug log
-    console.log("Mapped data keys:", Object.keys(mappedData[0])); // Debug log
 
-    // Use bulk insert for better performance
+    // Use bulk insert 
     if (mappedData.length > 0) {
-      console.log(`Attempting to bulk insert ${mappedData.length} records`);
       await sql`
         INSERT INTO upcoming_releases ${sql(mappedData)}
         ON CONFLICT (album_archives_link) DO NOTHING
       `;
-      console.log("Bulk insert successful");
     }
   } catch (error) {
     console.error("Error updating upcoming releases table data:", error);
