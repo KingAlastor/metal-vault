@@ -3,7 +3,6 @@ import sql from "@/lib/db";
 
 export async function updateAlbumsTableData(
   albumsData: {
-    id: string;
     band_id: string;
     name: string;
     name_pretty?: string;
@@ -15,9 +14,8 @@ export async function updateAlbumsTableData(
   }
 ) {
   try {
-    await sql`
+    const result = await sql`
       INSERT INTO band_albums (
-        id,
         band_id,
         name,
         name_pretty,
@@ -27,7 +25,6 @@ export async function updateAlbumsTableData(
         spotify_id,
         updated_at
       ) VALUES (
-        ${albumsData.id},
         ${albumsData.band_id},
         ${albumsData.name},
         ${albumsData.name_pretty ?? null},
@@ -37,7 +34,9 @@ export async function updateAlbumsTableData(
         ${albumsData.spotify_id ?? null},
         ${albumsData.updated_at ?? null}
       )
+      RETURNING id
     `;
+    return result[0];
   } catch (error) {
     console.error("Error creating band album:", error);
     throw error;
@@ -46,7 +45,6 @@ export async function updateAlbumsTableData(
 
 export async function updateAlbumTracksDataTable(
   tracks: {
-    id: string;
     band_id: string;
     album_id: string;
     title: string;

@@ -43,26 +43,26 @@ export async function syncAlbumDataFromArchives() {
             const albumUrl = `https://www.metal-archives.com/albums/${name}/${albumName}/${albumLink}`;
             console.log(`Fetching album URL: ${albumUrl}`);
             const releaseData = await getReleaseData(albumUrl);
-            console.log("release data: ", releaseData);
-/*             if (releaseData) {
+            console.log("release data: ", releaseData);            if (releaseData) {
               const albumData = {
-                band: { connect: { id } },
+                band_id: id,
                 name: albumName,
-                namePretty: album,
-                archivesLink: BigInt(albumLink),
+                name_pretty: album,
+                archives_link: parseInt(albumLink, 10),
                 type: type,
-                releaseDate: releaseData.releaseDateFormatted,
+                release_date: releaseData.releaseDateFormatted || undefined,
               };
-              await updateAlbumsTableData(albumData);
-              const albumId = await getAlbumId(id, parseInt(albumLink, 10));
+              const insertedAlbum = await updateAlbumsTableData(albumData);
+              const albumId = insertedAlbum?.id;
+              
               let tracks = [];
               if (albumId && releaseData.tracklist) {
                 for (const track of releaseData.tracklist) {
                   const trackData = {
-                    bandId: id,
-                    albumId: albumId.id,
+                    band_id: id,
+                    album_id: albumId,
                     title: track.title,
-                    trackNumber: parseInt(track.trackNumber, 10),
+                    track_number: parseInt(track.trackNumber, 10),
                     duration: formatTimeToSeconds(track.duration),
                   };
                   tracks.push(trackData);
@@ -70,7 +70,7 @@ export async function syncAlbumDataFromArchives() {
                 await updateAlbumTracksDataTable(tracks);
               }
             }
-            await new Promise((resolve) => setTimeout(resolve, 3000)); */
+            await new Promise((resolve) => setTimeout(resolve, 3000));
           }
         }
       }

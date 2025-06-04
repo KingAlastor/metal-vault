@@ -24,12 +24,10 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
       ...band,
       genre_tags: band.genre_tags,
       updated_at: currentTime,
-    }));
-
-    console.log('First band object:', bandsDataWithTimestamp[0]); // Debug log
+    }));    console.log('First band object:', bandsDataWithTimestamp[0]); // Debug log
     console.log('Number of bands:', bandsDataWithTimestamp.length); // Debug log
 
-    for (const band of bandsData) {
+    for (const band of bandsDataWithTimestamp) {
       await sql`
         INSERT INTO bands (
           name,
@@ -46,7 +44,7 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
           ${band.country},
           ${band.status},
           ${band.archives_link},
-          ${currentTime}
+          ${band.updated_at}
         )
         ON CONFLICT (archives_link) DO NOTHING
       `;
