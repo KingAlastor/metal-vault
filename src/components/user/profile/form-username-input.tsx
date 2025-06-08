@@ -6,17 +6,19 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
 export default function UserNameField() {
-  const { control } = useFormContext();
-
-  return (
+  const { control } = useFormContext();  return (
     <FormField
       control={control}
-      name="userName"
+      name="user_name"
       render={({ field }) => (
         <FormItem>
           <FormLabel>Name</FormLabel>
           <FormControl>
-            <Input placeholder="Enter a username" {...field} />
+            <Input 
+              placeholder="Enter a username" 
+              {...field} 
+              value={field.value || ""} 
+            />
           </FormControl>
           <FormDescription>Your public username</FormDescription>
           <FormMessage />

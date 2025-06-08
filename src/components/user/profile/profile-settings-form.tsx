@@ -19,6 +19,7 @@ import { CountrySelectDropdown } from "@/components/shared/select-country-dropdo
 import { getGenres } from "@/lib/data/genres-data";
 import { useSession, useUser } from "@/lib/session/client-hooks";
 import { updateUserData } from "@/lib/data/user-data";
+import { useEffect } from "react";
 
 interface Country {
   name: {
@@ -43,11 +44,22 @@ export default function ProfileSettingsForm() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      user_name: user?.data?.user_name || user?.data?.name!,
-      location: user?.data?.location || "",
-      genre_tags: Array.isArray(user?.data?.genre_tags) ? user?.data?.genre_tags : [],
+      user_name: "",
+      location: "",
+      genre_tags: [],
     },  
   });
+
+  // Reset form when user data becomes available
+  useEffect(() => {
+    if (user?.data) {
+      form.reset({
+        user_name: user.data.user_name || user.data.name || "",
+        location: user.data.location || "",
+        genre_tags: Array.isArray(user.data.genre_tags) ? user.data.genre_tags : [],
+      });
+    }
+  }, [user?.data, form]);
 
   const { data: genres } = useQuery({
     queryKey: ["genreTags"],
