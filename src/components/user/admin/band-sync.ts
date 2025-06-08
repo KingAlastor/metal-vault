@@ -11,10 +11,9 @@ export async function syncBandDataFromArchives() {
 
   for (const letter of alphabet) {
     let iDisplayStart = 0;
-    let hasMoreData = true;
-
-    while (hasMoreData) {
-      const url = `${baseUrl}${letter}/json/1?sEcho=1&iColumns=4&sColumns=&iDisplayStart=${iDisplayStart}&iDisplayLength=${iDisplayLength}`;
+    let hasMoreData = true;    while (hasMoreData) {
+      const timestamp = Date.now();
+      const url = `${baseUrl}${letter}/json/1?sEcho=1&iColumns=4&sColumns=&iDisplayStart=${iDisplayStart}&iDisplayLength=${iDisplayLength}&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&iSortCol_0=0&sSortDir_0=asc&iSortingCols=1&bSortable_0=true&bSortable_1=true&bSortable_2=true&bSortable_3=false&_=${timestamp}`;
       try {
         let bandsData: BandsData = [];
         const response = await axios.get(url);
@@ -25,6 +24,7 @@ export async function syncBandDataFromArchives() {
         }
 
         if (bandsData.length > 0) {
+          console.log(`Updating bands data for letter ${letter}:`, bandsData.length);
           await updateBandsTableData(bandsData);
         }
 
@@ -80,9 +80,9 @@ export async function syncLatestBandAdditionsFromArchives() {
   const iDisplayLength = 200;
   let iDisplayStart = 0;
   let hasMoreData = true;
-
   while (hasMoreData) {
-    const url = `${baseUrl}${iDisplayStart}&iDisplayLength=${iDisplayLength}`;
+    const timestamp = Date.now();
+    const url = `${baseUrl}${iDisplayStart}&iDisplayLength=${iDisplayLength}&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4&mDataProp_5=5&iSortCol_0=0&sSortDir_0=desc&iSortingCols=1&bSortable_0=true&bSortable_1=true&bSortable_2=true&bSortable_3=true&bSortable_4=true&bSortable_5=true&_=${timestamp}`;
     try {
       let bandsData: BandsData = [];
       const response = await axios.get(url);
@@ -90,9 +90,8 @@ export async function syncLatestBandAdditionsFromArchives() {
 
       for (const band of data.aaData) {
         const data = extractLatestBandAdditionDetails(band);
-        bandsData.push(data);
-      }
-      updateBandsTableData(bandsData);
+        bandsData.push(data);      }
+      await updateBandsTableData(bandsData);
 
       if (data.aaData.length === 0 || data.aaData.length < iDisplayLength) {
         hasMoreData = false;

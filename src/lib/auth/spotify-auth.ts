@@ -22,11 +22,14 @@ export async function getSpotifyAuthUrl() {
 }
 
 // Exchange code for tokens
-export async function getSpotifyTokens(code: string) {
+export async function getSpotifyTokens(code: string, redirectUri?: string) {
+  const defaultRedirectUri = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/auth/spotify/callback`;
+  const finalRedirectUri = redirectUri || defaultRedirectUri;
+  
   const params = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
-    redirect_uri: `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/auth/spotify/callback`,
+    redirect_uri: finalRedirectUri,
   });
 
   const response = await fetch('https://accounts.spotify.com/api/token', {

@@ -75,19 +75,28 @@ export default function FollowArtistsPage() {
     inputPlaceholder: "Search band from database...",
     clearInput: true,
   };
-
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (event.data.type === "AUTH_COMPLETE") {
         setIsSyncing(true);
-        const token = event.data.token;
-        sessionStorage.setItem("spotify_access_token", token);
-        const followedBands = await getFollowedArtistsFromSpotify(token);
-        const unresolvedBands = await handleBandMapping(followedBands);
-        setUnresolvedBands(unresolvedBands);
-        setIsBandsDialogOpen(true);
-        queryClient.invalidateQueries({ queryKey: ["favbands"] });
+        try {
+          const token = event.data.token;
+          sessionStorage.setItem("spotify_access_token", token);
+          const followedBands = await getFollowedArtistsFromSpotify(token);
+          const unresolvedBands = await handleBandMapping(followedBands);
+          setUnresolvedBands(unresolvedBands);
+          setIsBandsDialogOpen(true);
+          queryClient.invalidateQueries({ queryKey: ["favbands"] });
+        } catch (error) {
+          console.error("Error during Spotify sync:", error);
+          alert("Failed to sync with Spotify. Please try again.");
+        } finally {
+          setIsSyncing(false);
+        }
+      } else if (event.data.type === "AUTH_ERROR") {
         setIsSyncing(false);
+        console.error("Spotify auth error:", event.data.error);
+        alert("Spotify authentication failed. Please try again.");
       }
     };
 
@@ -97,16 +106,27 @@ export default function FollowArtistsPage() {
       window.removeEventListener("message", handleMessage);
     };
   }, [queryClient]);
-
   const handleSpotifyRedirect = async () => {
     setIsSyncing(true);
-    const token = await handleSpotifyTokenRevalidation();
-    const followedBands = await getFollowedArtistsFromSpotify(token);
-    const unresolvedBands = await handleBandMapping(followedBands);
-    setUnresolvedBands(unresolvedBands);
-    setIsBandsDialogOpen(true);
-    queryClient.invalidateQueries({ queryKey: ["favbands"] });
-    setIsSyncing(false);
+    try {
+      const token = await handleSpotifyTokenRevalidation();
+      
+      // If we got a token directly (from refresh token), process it
+      if (token) {
+        const followedBands = await getFollowedArtistsFromSpotify(token);
+        const unresolvedBands = await handleBandMapping(followedBands);
+        setUnresolvedBands(unresolvedBands);
+        setIsBandsDialogOpen(true);
+        queryClient.invalidateQueries({ queryKey: ["favbands"] });
+        setIsSyncing(false);
+      }
+      // If no token returned, it means popup auth is in progress
+      // The message handler will handle the rest when popup sends the token
+    } catch (error) {
+      console.error("Error during Spotify redirect:", error);
+      alert("Failed to connect to Spotify. Please try again.");
+      setIsSyncing(false);
+    }
   };
 
   const handleDialogClose = () => {
@@ -207,21 +227,28 @@ const handleSpotifyTokenRevalidation = async () => {
     return token;
   } else {
     const scope = await fetchEnvironmentVariables("SPOTIFY_SCOPE");
-    const redirectUrl = await fetchEnvironmentVariables("SPOTIFY_REDIRECT_URL");
     const spotifyId = await fetchEnvironmentVariables("SPOTIFY_ID");
     const BASE_URL = "https://accounts.spotify.com/authorize";
 
+    // Use the same callback route but with popup=true parameter
+    const redirectUrl = `${window.location.origin}/api/auth/spotify/callback?popup=true`;
+
     const authUrl = `${BASE_URL}?response_type=code&client_id=${spotifyId}&scope=${encodeURIComponent(
       scope
-    )}&redirect_uri=${encodeURIComponent(redirectUrl)}`;
-    const popupWindow = window.open(authUrl, "Auth", "width=500,height=600");
-    if (
-      !popupWindow ||
-      popupWindow.closed ||
-      typeof popupWindow.closed == "undefined"
-    ) {
+    )}&redirect_uri=${encodeURIComponent(redirectUrl)}&show_dialog=true`;
+    
+    const popupWindow = window.open(
+      authUrl, 
+      "SpotifyAuth", 
+      "width=500,height=600,scrollbars=yes,resizable=yes"
+    );
+    
+    if (!popupWindow || popupWindow.closed || typeof popupWindow.closed == "undefined") {
       alert("Popup blocked. Please allow popups for this website.");
+      return null;
     }
+
+    return null; // Token will be received via postMessage
   }
 };
 
