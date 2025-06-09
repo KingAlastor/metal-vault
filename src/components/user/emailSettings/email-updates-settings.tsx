@@ -99,10 +99,16 @@ export default function EmailUpdatesPage() {
       });
     }
   }, [user, filters, form.reset]);
-
   const sendTestEmail = useCallback(
     async (data: z.infer<typeof EmailFormSchema>) => {
-      const email = await createEmail(data);
+      // Ensure all boolean fields are defined for EmailData type
+      const emailData = {
+        preferred_email: data.preferred_email,
+        email_frequency: data.email_frequency,
+        favorite_bands: data.favorite_bands ?? false,
+        favorite_genres: data.favorite_genres ?? false,
+      };
+      const email = await createEmail(emailData);
       console.log("email: ", email);
       if (email) {
         await sendMail(

@@ -122,3 +122,127 @@ export async function getFavoriteGenreReleasesForEmail(
     return [];
   }
 }
+
+// Worker-specific versions that don't use session (for background jobs)
+export async function getFavoriteBandReleasesForEmailWorker(
+  userId: string,
+  frequency: string
+): Promise<UpcomingRelease[]> {
+  try {
+    // Get user's shard for band followers table
+    const userResult = await sql`
+      SELECT shard FROM users WHERE id = ${userId}
+    `;
+    
+    const shard = userResult[0]?.shard || 0;
+    
+    // Get user's favorite bands
+    const bandIds = await sql`
+      SELECT band_id
+      FROM band_followers_${sql.unsafe(shard.toString())}
+      WHERE user_id = ${userId}
+    `;
+    
+    const bandIdArray = bandIds.map(row => row.band_id);
+    const date = getFromAndToDates(frequency);
+
+    if (bandIdArray.length === 0) {
+      return [];
+    }    const releases = await sql`
+      SELECT 
+        id,
+        band_id as "bandId",
+        band_name as "bandName",
+        album_name as "albumName",
+        release_date as "releaseDate",
+        genre_tags as "genreTags",
+        type
+      FROM upcoming_releases
+      WHERE band_id = ANY(${bandIdArray})
+      AND release_date >= ${date.from}
+      AND release_date <= ${date.to}
+      ORDER BY release_date ASC
+    `;
+
+    return releases.map(row => ({
+      id: row.id,
+      bandId: row.bandId,
+      bandName: row.bandName,
+      albumName: row.albumName,
+      title: row.albumName, // Use albumName as title
+      releaseDate: row.releaseDate,
+      genreTags: row.genreTags,
+      type: row.type,
+      status: 'active' // Default status since table doesn't have this column
+    }));
+  } catch (error) {
+    console.error("Error fetching favorite band releases for worker:", error);
+    return [];
+  }
+}
+
+export async function getFavoriteGenreReleasesForEmailWorker(
+  userId: string,
+  frequency: string
+): Promise<UpcomingRelease[]> {
+  try {
+    // Get user's shard and genre preferences
+    const userResult = await sql`
+      SELECT shard, genre_tags as "genreTags"
+      FROM users 
+      WHERE id = ${userId}
+    `;
+    
+    const user = userResult[0];
+    if (!user) {
+      return [];
+    }
+    
+    const shard = user.shard || 0;
+    const userGenreTags = user.genreTags || [];
+    
+    // Get user's favorite bands to exclude them
+    const bandIds = await sql`
+      SELECT band_id
+      FROM band_followers_${sql.unsafe(shard.toString())}
+      WHERE user_id = ${userId}
+    `;
+    
+    const bandIdArray = bandIds.map(row => row.band_id);
+    const date = getFromAndToDates(frequency);
+
+    if (userGenreTags.length === 0) {
+      return [];
+    }    const releases = await sql`
+      SELECT 
+        id,
+        band_id as "bandId",
+        band_name as "bandName",
+        album_name as "albumName",
+        release_date as "releaseDate",
+        genre_tags as "genreTags",
+        type
+      FROM upcoming_releases
+      WHERE ${bandIdArray.length > 0 ? sql`band_id != ALL(${bandIdArray})` : sql`1=1`}
+      AND genre_tags && ${userGenreTags}
+      AND release_date >= ${date.from}
+      AND release_date <= ${date.to}
+      ORDER BY release_date ASC
+    `;
+
+    return releases.map(row => ({
+      id: row.id,
+      bandId: row.bandId,
+      bandName: row.bandName,
+      albumName: row.albumName,
+      title: row.albumName, // Use albumName as title
+      releaseDate: row.releaseDate,
+      genreTags: row.genreTags,
+      type: row.type,
+      status: 'active' // Default status since table doesn't have this column
+    }));
+  } catch (error) {
+    console.error("Error fetching favorite genre releases for worker:", error);
+    return [];
+  }
+}
