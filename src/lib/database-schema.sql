@@ -43,6 +43,7 @@ CREATE TABLE bands (
   followers INT DEFAULT 0,
   archives_link BIGINT NOT NULL,
   spotify_id VARCHAR(255),
+  last_sync TIMESTAMP WITH TIME ZONE,
   updated_at TIMESTAMP WITH TIME ZONE,
   UNIQUE (archives_link)
 );
@@ -266,4 +267,102 @@ CREATE TABLE user_feedback (
   comment TEXT NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ad_details (
+  id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ad_target_id VARCHAR(36) NOT NULL,
+  ad_target_type VARCHAR(50) NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
+
+  -- Ad configuration
+  total_impressions_available INT DEFAULT 1,
+  total_impressions INT DEFAULT 0,
+  start_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  end_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ad_stats (
+  id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ad_target_id VARCHAR(36) NOT NULL,
+  ad_target_type VARCHAR(50) NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
+  impressions_source JSONB DEFAULT '{}'::JSONB,
+  impressions_by_source JSONB DEFAULT '{}'::JSONB,
+  total_impressions_available INT DEFAULT 1,
+  total_impressions INT DEFAULT 0,
+  ad_content JSONB DEFAULT '{}'::JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CREATE INDEX idx_ad_stats_ad_target_id ON active_ads (ad_target_id),
+  CREATE INDEX idx_ad_stats_start_date ON active_ads (start_date),
+);
+
+-- Function to increment a key in a JSONB object
+CREATE OR REPLACE FUNCTION jsonb_increment(
+  target_jsonb JSONB,
+  key_name TEXT,
+  increment_by INT DEFAULT 1
+) RETURNS JSONB AS $$
+BEGIN
+  RETURN target_jsonb || jsonb_build_object(
+    key_name, 
+    COALESCE((target_jsonb->>key_name)::int, 0) + increment_by
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Usage:
+-- UPDATE active_ads 
+-- SET impressions_by_source = jsonb_increment(impressions_by_source, 'google', 1)
+-- WHERE id = 'some-ad-id';
+
+-- Increment multiple sources at once
+-- UPDATE active_ads 
+-- SET impressions_by_source = jsonb_increment(
+--   jsonb_increment(impressions_by_source, 'google', 1), 
+--   'facebook', 1
+-- )
+-- WHERE id = 'some-ad-id';
+
+CREATE TABLE archived_ads (
+  id VARCHAR(36) PRIMARY KEY,  -- Same ID as the active ad
+  ad_target_id VARCHAR(36) NOT NULL,
+  ad_target_type VARCHAR(50) NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
+  impressions_by_source JSONB DEFAULT '{}'::JSONB,
+  total_impressions_available INT DEFAULT 1,
+  total_impressions INT DEFAULT 0,
+  start_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  end_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  ad_content JSONB DEFAULT '{}'::JSONB,
+  archived_reason VARCHAR(50) NOT NULL, -- 'expired' or 'exhausted'
+  archived_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ad_billing (
+  id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ad_id VARCHAR(36) NOT NULL,
+  user_id VARCHAR(36) NOT NULL,
+  amount_paid DECIMAL(10, 2) NOT NULL,
+  currency VARCHAR(10) NOT NULL,
+  payment_method VARCHAR(50) NOT NULL,
+  payment_status VARCHAR(50) NOT NULL,
+  transaction_id VARCHAR(100) NOT NULL,
+  payment_date TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  amount_left DECIMAL(10, 2) DEFAULT 0.00,
+  impressions_used INT DEFAULT 0,
+  impressions_left INT DEFAULT 0,
+  refunded_amount DECIMAL(10, 2) DEFAULT 0.00,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CREATE INDEX idx_ad_billing_user ON ad_billing (user_id)
 );
