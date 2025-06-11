@@ -6,8 +6,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "worker:start": "NODE_ENV=production node -r tsconfig-paths/register -r ts-node/register src/worker/index.ts",
-    "worker:once": "NODE_ENV=production node -r tsconfig-paths/register -r ts-node/register src/worker/index.ts --once"
+    "worker:start": "NODE_ENV=production node --loader ts-node/esm src/worker/index.ts",
+    "worker:once": "NODE_ENV=production node --loader ts-node/esm src/worker/index.ts --once"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
