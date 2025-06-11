@@ -4,7 +4,7 @@
   "private": true,  "scripts": {
     "dev": "cross-env NODE_OPTIONS='--inspect' next dev --turbopack",
     "build": "next build && npm run build:worker",
-    "build:worker": "./node_modules/.bin/tsc src/worker/index.ts --outDir dist --module commonjs --target ES2020 --moduleResolution node --esModuleInterop --resolveJsonModule --skipLibCheck",
+    "build:worker": "./node_modules/.bin/tsc src/worker/index.ts --outDir dist --module commonjs --target ES2020 --moduleResolution node --esModuleInterop --resolveJsonModule --skipLibCheck --baseUrl . --paths.@/* ./src/*",
     "start": "next start",
     "lint": "next lint",
     "worker:start": "NODE_ENV=production node dist/worker/index.js",
