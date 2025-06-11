@@ -13,12 +13,12 @@ module.exports = {
       max_memory_restart: "1G",
       env: {
         NODE_ENV: "production",
-        PORT: 3000
+        PORT: 3000,
       },
       error_file: "./logs/app-error.log",
       out_file: "./logs/app-out.log",
       log_file: "./logs/app-combined.log",
-      time: true
+      time: true,
     },
     {
       // GraphQL Worker (background service)
@@ -32,12 +32,12 @@ module.exports = {
       watch: false,
       max_memory_restart: "512M",
       env: {
-        NODE_ENV: "production"
+        NODE_ENV: "production",
       },
       error_file: "./logs/worker-error.log",
       out_file: "./logs/worker-out.log",
       log_file: "./logs/worker-combined.log",
-      time: true
-    }
-  ]
+      time: true,
+    },
+  ],
 };

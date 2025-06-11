@@ -1,14 +1,13 @@
 {
   "name": "metal-vault",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
+  "private": true,  "scripts": {
     "dev": "cross-env NODE_OPTIONS='--inspect' next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "worker:start": "npm run util:load-vars -- node -r tsconfig-paths/register -r ts-node/register src/worker/index.ts",
-    "worker:once": "npm run util:load-vars -- node -r tsconfig-paths/register -r ts-node/register src/worker/index.ts --once"
+    "worker:start": "cross-env NODE_ENV=production node -r tsconfig-paths/register -r ts-node/register src/worker/index.ts",
+    "worker:once": "cross-env NODE_ENV=production node -r tsconfig-paths/register -r ts-node/register src/worker/index.ts --once"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
@@ -71,8 +70,7 @@
     "valibot": "^1.0.0-rc.3",
     "vaul": "^1.1.2",
     "zod": "^3.24.1"
-  },
-  "devDependencies": {
+  },  "devDependencies": {
     "@types/node": "^22",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "19.0.8",
@@ -83,6 +81,8 @@
     "eslint-config-next": "15.1.6",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   },
   "overrides": {
