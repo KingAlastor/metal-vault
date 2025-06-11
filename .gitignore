@@ -39,4 +39,8 @@ next-env.d.ts
 #images 
 /src/images/
 
+# PM2 logs
 /logs/
+
+# Compiled worker
+/dist/

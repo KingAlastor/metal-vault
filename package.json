@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,  "scripts": {
     "dev": "cross-env NODE_OPTIONS='--inspect' next dev --turbopack",
-    "build": "next build",
+    "build": "next build && npm run build:worker",
+    "build:worker": "tsc src/worker/index.ts --outDir dist --module commonjs --target ES2020 --moduleResolution node --esModuleInterop --resolveJsonModule --skipLibCheck",
     "start": "next start",
     "lint": "next lint",
-    "worker:start": "NODE_ENV=production node --loader ts-node/esm src/worker/index.ts",
-    "worker:once": "NODE_ENV=production node --loader ts-node/esm src/worker/index.ts --once"
+    "worker:start": "NODE_ENV=production node dist/worker/index.js",
+    "worker:once": "NODE_ENV=production node dist/worker/index.js --once"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
