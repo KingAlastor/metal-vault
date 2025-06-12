@@ -19,12 +19,11 @@ module.exports = {
       out_file: "./logs/app-out.log",
       log_file: "./logs/app-combined.log",
       time: true,
-    },
-    {
+    },    {
       // GraphQL Worker (background service)
       name: "metal-vault-worker",
-      script: "npm",
-      args: "run worker:start",
+      script: "node",
+      args: "dist/worker/index.js",
       cwd: "./",
       instances: 1,
       exec_mode: "fork",
