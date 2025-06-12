@@ -1,3 +1,7 @@
+// Load environment variables explicitly
+import { config } from 'dotenv';
+config();
+
 import { run } from "graphile-worker";
 // Import the new tasks
 import { syncAllBands, syncLatestBands, syncAlbums } from "./tasks/sync-tasks";
