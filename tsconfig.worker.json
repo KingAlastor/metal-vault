@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2020",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noEmit": false,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "src/worker/**/*",
+    "src/lib/**/*",
+    "src/components/user/admin/**/*",
+    "src/components/user/emailSettings/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}
