@@ -88,7 +88,6 @@ export default function EmailUpdatesPage() {
       favorite_genres: filters?.favorite_genres || false,
     },
   });
-
   useEffect(() => {
     if (user) { // Ensure user data is available
       form.reset({
@@ -98,8 +97,7 @@ export default function EmailUpdatesPage() {
         favorite_genres: filters?.favorite_genres || false,
       });
     }
-  }, [user, filters, form.reset]);
-  const sendTestEmail = useCallback(
+  }, [user, filters, form, form.reset]);  const sendTestEmail = useCallback(
     async (data: z.infer<typeof EmailFormSchema>) => {
       // Ensure all boolean fields are defined for EmailData type
       const emailData = {
@@ -129,9 +127,8 @@ export default function EmailUpdatesPage() {
         toast({ description: "Failed to send test email." });
       }
     },
-    []
+    [toast]
   );
-
   const onSubmit = useCallback(
     async (data: z.infer<typeof EmailFormSchema>) => {
       const updatedFilters = {
@@ -153,7 +150,7 @@ export default function EmailUpdatesPage() {
         toast({ description: "Failed to update email settings.", variant: "destructive" });
       }
     },
-    [emailUpdatesEnabled, updateUser]
+    [emailUpdatesEnabled, updateUser, toast]
   );
 
   return (
