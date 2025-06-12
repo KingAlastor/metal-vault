@@ -22,8 +22,8 @@ module.exports = {
     },    {
       // GraphQL Worker (background service)
       name: "metal-vault-worker",
-      script: "dist/worker/index.js",
-      interpreter: "node",
+      script: "npm",
+      args: "run worker:start",
       cwd: "./",
       instances: 1,
       exec_mode: "fork",
