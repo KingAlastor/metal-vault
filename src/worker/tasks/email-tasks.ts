@@ -80,9 +80,7 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
           helpers.logger.debug(`No content to send for user ${user.id}`);
           emailsSkipped++;
           continue;
-        }
-
-        // Send the email
+        }        // Send the email
         const subject = `Metal Vault Newsletter - ${emailSettings.email_frequency === 'W' ? 'Weekly' : 'Monthly'} Update`;
         const result = await sendMail(
           recipientEmail,
@@ -93,6 +91,19 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
 
         if (result.success) {
           helpers.logger.info(`Email sent successfully to user ${user.id} (${recipientEmail})`);
+          
+          // Update last_email_sent timestamp
+          try {
+            await sql`
+              UPDATE users 
+              SET last_email_sent = NOW() 
+              WHERE id = ${user.id}
+            `;
+            helpers.logger.debug(`Updated last_email_sent for user ${user.id}`);
+          } catch (updateError) {
+            helpers.logger.warn(`Failed to update last_email_sent for user ${user.id}: ${updateError}`);
+          }
+          
           emailsSent++;
         } else {
           helpers.logger.error(`Failed to send email to user ${user.id}: ${result.error}`);

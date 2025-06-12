@@ -16,6 +16,7 @@ CREATE TABLE users (
   posts_settings JSON,
   events_settings JSON,
   last_login TIMESTAMP WITH TIME ZONE,
+  last_email_sent TIMESTAMP WITH TIME ZONE,
   genre_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   notifications TEXT[] DEFAULT ARRAY[]::TEXT[],
   pending_actions TEXT[] DEFAULT ARRAY[]::TEXT[],
