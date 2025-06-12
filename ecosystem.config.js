@@ -1,6 +1,5 @@
 module.exports = {
-  apps: [
-    {
+  apps: [    {
       // Next.js application
       name: "metal-vault-app",
       script: "npm",
@@ -11,6 +10,7 @@ module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: "1G",
+      env_file: ".env",
       env: {
         NODE_ENV: "production",
         PORT: 3000,
@@ -19,7 +19,7 @@ module.exports = {
       out_file: "./logs/app-out.log",
       log_file: "./logs/app-combined.log",
       time: true,
-    },    {
+    },{
       // GraphQL Worker (background service)
       name: "metal-vault-worker",
       script: "npm",
@@ -30,6 +30,7 @@ module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: "512M",
+      env_file: ".env",
       env: {
         NODE_ENV: "production",
       },
