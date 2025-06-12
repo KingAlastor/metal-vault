@@ -1,6 +1,7 @@
 import { Task } from "graphile-worker";
 import { syncBandDataFromArchives, syncLatestBandAdditionsFromArchives } from "@/components/user/admin/band-sync";
 import { syncAlbumDataFromArchives } from "@/components/user/admin/album-sync";
+import { syncUpcomingReleaseDataFromArchives } from "@/lib/data/admin/latest-releases-data-actions";
 
 // Task to sync all bands (potentially long running)
 export const syncAllBands: Task = async (payload, helpers) => {
@@ -35,6 +36,18 @@ export const syncAlbums: Task = async (payload, helpers) => {
     helpers.logger.info("Finished album sync.");
   } catch (error) {
     helpers.logger.error(`Album sync failed: ${error}`);
+    throw error;
+  }
+};
+
+// Task to sync upcoming releases data
+export const syncUpcomingReleases: Task = async (payload, helpers) => {
+  helpers.logger.info("Starting upcoming releases sync from Metal Archives...");
+  try {
+    await syncUpcomingReleaseDataFromArchives();
+    helpers.logger.info("Finished upcoming releases sync.");
+  } catch (error) {
+    helpers.logger.error(`Upcoming releases sync failed: ${error}`);
     throw error;
   }
 };

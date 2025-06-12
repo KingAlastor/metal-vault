@@ -4,7 +4,7 @@ config();
 
 import { run } from "graphile-worker";
 // Import the new tasks
-import { syncAllBands, syncLatestBands, syncAlbums } from "./tasks/sync-tasks";
+import { syncAllBands, syncLatestBands, syncAlbums, syncUpcomingReleases } from "./tasks/sync-tasks";
 import { sendScheduledEmails } from "./tasks/email-tasks";
 
 async function main() {
@@ -12,9 +12,10 @@ async function main() {
   if (!dbConnectionString) {
     throw new Error("DATABASE_URL environment variable is not set!");
   }
-  const shouldRunOnce = process.argv.includes("--once");
-  // Define the schedules for your tasks
+  const shouldRunOnce = process.argv.includes("--once");  // Define the schedules for your tasks
   const crontab = [
+    // Sync upcoming releases daily at 12:30 AM (before emails)
+    "30 0 * * * sync_upcoming_releases",
     // Send weekly emails every Saturday at 9 AM
     "0 9 * * 6 send_weekly_emails",
     // Send monthly emails on the 1st of every month at 9 AM
@@ -36,6 +37,7 @@ async function main() {
     pollInterval: 1000,    // Define the list of tasks the worker can run
     taskList: {
       sync_all_bands: syncAllBands,
+      sync_upcoming_releases: syncUpcomingReleases,
       send_weekly_emails: sendScheduledEmails,
       send_monthly_emails: sendScheduledEmails,
 /*       sync_latest_bands: syncLatestBands,
