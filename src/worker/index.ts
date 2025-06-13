@@ -9,6 +9,7 @@ import { sendScheduledEmails } from "./tasks/email-tasks";
 
 async function main() {
   const dbConnectionString = process.env.DATABASE_URL;
+  console.log('DATABASE_URL seen by worker:', dbConnectionString);
   if (!dbConnectionString) {
     throw new Error("DATABASE_URL environment variable is not set!");
   }
