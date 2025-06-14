@@ -1,6 +1,6 @@
-// Load environment variables explicitly
-import { config } from 'dotenv';
-config();
+// Load environment variables using @next/env for consistent loading
+import { loadEnvConfig } from '@next/env';
+loadEnvConfig(process.cwd());
 
 import { run } from "graphile-worker";
 // Import the new tasks
