@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { followArtistByBandId } from "@/lib/data/follow-artists-data";
+import { useSession } from "@/lib/session/client-hooks";
 
 export type BandAlbum = {
   bandId: string;
@@ -20,6 +21,37 @@ export type BandAlbum = {
   type: string | null;
   genreTags: string[];
   releaseDate: Date | null;
+};
+
+// Separate component for the actions dropdown
+const ActionsDropdown = ({ bandAlbum }: { bandAlbum: BandAlbum }) => {
+  const { data: session } = useSession();
+
+  const handleAddToFavoritesClick = async () => {
+    await followArtistByBandId(bandAlbum.bandId);
+  };
+
+  // Don't render if user is not logged in
+  if (!session?.isLoggedIn) {
+    return null;
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleAddToFavoritesClick}>
+          <div className="dropdown-options">Follow Artist</div>
+        </DropdownMenuItem>
+        {/* Add new item add album My albums */} 
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 };
 
 export const columns: ColumnDef<BandAlbum>[] = [
@@ -60,32 +92,11 @@ export const columns: ColumnDef<BandAlbum>[] = [
       const dateFormatted: string = getFullDate(dateFull);
       return <>{dateFormatted}</>;
     },
-  },
-  {
+  },  {
     id: "actions",
     cell: ({ row }) => {
       const bandAlbum = row.original;
-
-      const handleAddToFavoritesClick = async () => {
-        await followArtistByBandId(bandAlbum.bandId);
-      };
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={handleAddToFavoritesClick}>
-              <div className="dropdown-options">Follow Artist</div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <ActionsDropdown bandAlbum={bandAlbum} />;
     },
   },
 ];
