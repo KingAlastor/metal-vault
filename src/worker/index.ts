@@ -6,6 +6,7 @@ import { run } from "graphile-worker";
 // Import the new tasks
 import { syncAllBands, syncLatestBands, syncAlbums, syncUpcomingReleases } from "./tasks/sync-tasks";
 import { sendScheduledEmails } from "./tasks/email-tasks";
+import { runJob } from "./task-wrapper.js";
 
 async function main() {
   const dbConnectionString = process.env.DATABASE_URL;
@@ -28,19 +29,16 @@ async function main() {
     // Run full band sync weekly on Sunday at 3 AM (this is long, run less often) */
     "0 3 * * 0 sync_all_bands",
     // Add more schedules here if needed
-  ].join("\n");
-
-  console.log("Starting worker...");
-  const runner = await run({
+  ].join("\n");  console.log("Starting worker...");  const runner = await run({
     connectionString: dbConnectionString,
     concurrency: 2, // Adjust concurrency based on resource usage and API limits
     // noHandleSignals: false, // Recommended to keep this false unless debugging
     pollInterval: 1000,    // Define the list of tasks the worker can run
     taskList: {
-      sync_all_bands: syncAllBands,
-      sync_upcoming_releases: syncUpcomingReleases,
-      send_weekly_emails: sendScheduledEmails,
-      send_monthly_emails: sendScheduledEmails,
+      sync_all_bands: runJob('sync_all_bands', syncAllBands),
+      sync_upcoming_releases: runJob('sync_upcoming_releases', syncUpcomingReleases),
+      send_weekly_emails: runJob('send_weekly_emails', sendScheduledEmails),
+      send_monthly_emails: runJob('send_monthly_emails', sendScheduledEmails),
 /*       sync_latest_bands: syncLatestBands,
       sync_albums: syncAlbums, */
       // Add other task identifiers here if you create more tasks
