@@ -1,6 +1,6 @@
 import { Task } from "graphile-worker";
 import sql from "@/lib/db";
-import { createEmailForWorker, EmailData } from "@/components/user/emailSettings/create-email";
+import { createEmail, EmailData } from "@/components/user/emailSettings/create-email";
 import { sendMail } from "@/lib/email/send-email";
 
 type EmailSettings = {
@@ -73,7 +73,7 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
           favorite_bands: emailSettings.favorite_bands || false,
           favorite_genres: emailSettings.favorite_genres || false,
         };        // Generate email content
-        const emailContent = await createEmailForWorker(user.id, emailData);
+        const emailContent = await createEmail(emailData, user.id);
 
         // Check if there's content to send
         if (!emailContent.text || emailContent.text.trim() === "") {
