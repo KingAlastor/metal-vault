@@ -21,14 +21,14 @@ type UserWithEmailSettings = {
 // Task to send scheduled emails to users based on their email settings
 export const sendScheduledEmails: Task = async (payload, helpers) => {
   helpers.logger.info("Starting scheduled email task...");
-  
-  try {
+    try {
     // Fetch all users with email_settings
     const users = await sql<UserWithEmailSettings[]>`
       SELECT id, name, email, email_settings
       FROM users
       WHERE email_settings IS NOT NULL 
-      AND email_settings != ''
+      AND email_settings::text != 'null'
+      AND email_settings::text != '{}'
       AND email IS NOT NULL
     `;
 
