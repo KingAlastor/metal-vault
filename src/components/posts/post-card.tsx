@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import useWindowSize from "@/lib/hooks/get-window-size";
-import { formatDateWithNamedMonth } from "@/lib/general/dateTime"; 
+import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
 import { Post } from "./post-types";
 
 export const PostCard = (post: Post) => {
@@ -28,49 +28,45 @@ export const PostCard = (post: Post) => {
         size.width > 640 ? (
           <div className="flex">
             {imageUrl && (
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
-                  <div
+              <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
+                <div
+                  style={{
+                    position: "relative",
+                    width: "158px",
+                    height: "158px",
+                  }}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt="Cropped image"
+                    fill
+                    sizes="158px"
                     style={{
-                      position: "relative",
-                      width: "158px",
-                      height: "158px",
+                      objectFit: "cover",
+                      objectPosition: "center",
                     }}
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt="Cropped image"
-                      fill
-                      sizes="158px"
-                      style={{
-                        objectFit: "cover",
-                        objectPosition: "center",
-                      }}
-                    />
-                  </div>
-                </a>
+                  />
+                </div>
               </Link>
             )}
             <div
               className="flex flex-col justify-between ml-4"
               style={{ height: "158px" }}
             >
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
-                  <>
-                    {name && <p className="font-bold">{name}</p>}
-                    {artist && <p>{artist}</p>}
-                    {releaseDate && (
-                      <p className="s-font">
-                        {formatDateWithNamedMonth(releaseDate)}
-                      </p>
-                    )}
-                    {type && <p className="s-font">{type}</p>}
-                    {post.genre_tags && (
-                      <p className="s-font">{post.genre_tags.join(", ")}</p>
-                    )}
-                  </>
-                </a>
+              <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
+                <>
+                  {name && <p className="font-bold">{name}</p>}
+                  {artist && <p>{artist}</p>}
+                  {releaseDate && (
+                    <p className="s-font">
+                      {formatDateWithNamedMonth(releaseDate)}
+                    </p>
+                  )}
+                  {type && <p className="s-font">{type}</p>}
+                  {post.genre_tags && (
+                    <p className="s-font">{post.genre_tags.join(", ")}</p>
+                  )}
+                </>
               </Link>
               {post.preview_url && (
                 <audio controls className="mt-2">
@@ -84,61 +80,7 @@ export const PostCard = (post: Post) => {
           <div className="flex flex-col">
             <div className="flex">
               {imageUrl && (
-                <Link href={audioUrl} passHref legacyBehavior>
-                  <a target="_blank" rel="noopener noreferrer">
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "158px",
-                        height: "158px",
-                      }}
-                    >
-                      <Image
-                        src={imageUrl}
-                        alt="Cropped image"
-                        fill
-                        sizes="158px"
-                        style={{
-                          objectFit: "cover",
-                          objectPosition: "center",
-                        }}
-                      />
-                    </div>
-                  </a>
-                </Link>
-              )}
-              <div className="flex flex-col justify-between ml-4">
-                <Link href={audioUrl} passHref legacyBehavior>
-                  <a target="_blank" rel="noopener noreferrer">
-                    <>
-                      {name && <p className="font-bold">{name}</p>}
-                      {artist && <p>{artist}</p>}
-                      {releaseDate && (
-                        <p className="s-font">
-                          {formatDateWithNamedMonth(releaseDate)}
-                        </p>
-                      )}
-                      {type && <p className="s-font">{type}</p>}
-                      {post.genre_tags && (
-                        <p className="s-font">{post.genre_tags.join(", ")}</p>
-                      )}
-                    </>
-                  </a>
-                </Link>
-              </div>
-            </div>
-            {post.preview_url && (
-              <audio controls className="mt-2">
-                <source src={post.preview_url} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
-            )}
-          </div>
-        ) : size.width <= 400 ? (
-          <div className="flex flex-col items-center">
-            {imageUrl && (
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
+                <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
                   <div
                     style={{
                       position: "relative",
@@ -157,12 +99,10 @@ export const PostCard = (post: Post) => {
                       }}
                     />
                   </div>
-                </a>
-              </Link>
-            )}
-            <div className="flex flex-col justify-between mt-4 w-full text-left">
-              <Link href={audioUrl} passHref legacyBehavior>
-                <a target="_blank" rel="noopener noreferrer">
+                </Link>
+              )}
+              <div className="flex flex-col justify-between ml-4">
+                <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
                   <>
                     {name && <p className="font-bold">{name}</p>}
                     {artist && <p>{artist}</p>}
@@ -176,7 +116,55 @@ export const PostCard = (post: Post) => {
                       <p className="s-font">{post.genre_tags.join(", ")}</p>
                     )}
                   </>
-                </a>
+                </Link>
+              </div>
+            </div>
+            {post.preview_url && (
+              <audio controls className="mt-2">
+                <source src={post.preview_url} type="audio/mpeg" />
+                Your browser does not support the audio element.
+              </audio>
+            )}
+          </div>
+        ) : size.width <= 400 ? (
+          <div className="flex flex-col items-center">
+            {imageUrl && (
+              <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
+                <div
+                  style={{
+                    position: "relative",
+                    width: "158px",
+                    height: "158px",
+                  }}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt="Cropped image"
+                    fill
+                    sizes="158px"
+                    style={{
+                      objectFit: "cover",
+                      objectPosition: "center",
+                    }}
+                  />
+                </div>
+              </Link>
+            )}
+            <div className="flex flex-col justify-between mt-4 w-full text-left">
+              <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
+                <>
+                  {name && <p className="font-bold">{name}</p>}
+                  {artist && <p>{artist}</p>}
+                  {releaseDate && (
+                    <p className="s-font">
+                      {formatDateWithNamedMonth(releaseDate)}
+                    </p>
+                  )}
+                  {type && <p className="s-font">{type}</p>}
+                  {post.genre_tags && (
+                    <p className="s-font">{post.genre_tags.join(", ")}</p>
+                  )}
+                </>
               </Link>
             </div>
           </div>

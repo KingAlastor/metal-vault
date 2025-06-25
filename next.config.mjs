@@ -3,7 +3,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
-  img-src 'self' blob: data: lh3.googleusercontent.com f4.bcbits.com i.ytimg.com i.scdn.co platform-lookaside.fbsbx.com;
+  img-src 'self' blob: data: *;
   font-src 'self';
   object-src 'none';
   base-uri 'self';
@@ -14,14 +14,7 @@ const cspHeader = `
 
 const nextConfig = {
   images: {
-    unoptimized: true,
-    remotePatterns: [
-      { hostname: 'f4.bcbits.com' },
-      { hostname: 'yt3.ggpht.com' },
-      { hostname: 'i.ytimg.com' },
-      { hostname: 'i.scdn.co' },
-      { hostname: 'lh3.googleusercontent.com' },
-    ],
+    remotePatterns: [],
   },
   compiler: {
     styledComponents: true,
@@ -30,11 +23,11 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'Content-Security-Policy',
-            value: cspHeader.replace(/\n/g, ''),
+            key: "Content-Security-Policy",
+            value: cspHeader.replace(/\n/g, ""),
           },
         ],
       },

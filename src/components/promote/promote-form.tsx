@@ -17,6 +17,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FileUpload } from "./file-upload"
+import { uploadPromotionFile } from "./upload-file"
 
 // Define the form schema
 const promotionFormSchema = z.object({
@@ -83,13 +84,17 @@ export default function ToggleForm() {
     }
   }, [showPromotionTo, amount])
 
-  function onSubmit(data: PromotionFormValues) {
+  async function onSubmit(data: PromotionFormValues) {
     console.log("Promotion form submitted:", {
       ...data,
       type: formType,
       totalCost,
     })
-    // Handle form submission
+    const result = await uploadPromotionFile(data)
+    if (result.success) {
+      console.log("Promotion created successfully:", result.data)
+      form.reset()
+    }
   }
 
   const getTargetDescription = (target: string) => {

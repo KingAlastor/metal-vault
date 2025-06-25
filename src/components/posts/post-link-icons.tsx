@@ -7,17 +7,10 @@ interface PostLinkIconsProps {
   alt: string;
 }
 
-const PostLinkIcons = ({link, src, alt}: PostLinkIconsProps) => {
+const PostLinkIcons = ({ link, src, alt }: PostLinkIconsProps) => {
   return (
-    <Link href={link} passHref legacyBehavior>
-      <a target="_blank" rel="noopener noreferrer">
-        <Image
-          src={src}
-          alt={alt}
-          width={24}
-          height={24}
-        />
-      </a>
+    <Link href={link} target="_blank" rel="noopener noreferrer">
+      <Image src={src} alt={alt} width={24} height={24} />
     </Link>
   );
 };
