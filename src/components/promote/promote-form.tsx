@@ -90,9 +90,25 @@ export default function ToggleForm() {
       type: formType,
       totalCost,
     })
-    const result = await uploadPromotionFile(data)
+    
+    // Convert form data to FormData object
+    const formData = new FormData()
+    formData.append("name", data.name)
+    formData.append("amount", data.amount.toString())
+    formData.append("showPromotionTo", JSON.stringify(data.showPromotionTo))
+    formData.append("type", formType)
+    formData.append("totalCost", totalCost.toString())
+    
+    if (data.startDate) {
+      formData.append("startDate", data.startDate.toISOString())
+    }
+    if (data.endDate) {
+      formData.append("endDate", data.endDate.toISOString())
+    }
+    
+    const result = await uploadPromotionFile(formData)
     if (result.success) {
-      console.log("Promotion created successfully:", result.data)
+      console.log("Promotion created successfully:")
       form.reset()
     }
   }
