@@ -14,7 +14,11 @@ const cspHeader = `
 
 const nextConfig = {
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        hostname: "**",
+      },
+    ],
   },
   compiler: {
     styledComponents: true,

@@ -31,7 +31,7 @@ export interface JobStats {
 export async function createJobStart(taskName: string, payload?: any, jobId?: string, workerId?: string): Promise<number> {
   try {
     const result = await sql`
-      INSERT INTO job_history (
+      INSERT INTO graphile_worker.job_history (
         job_id, task_name, payload, status, started_at, worker_id
       ) VALUES (
         ${jobId || null}, 
@@ -56,7 +56,7 @@ export async function updateJobCompletion(logId: number, duration?: number): Pro
   
   try {
     await sql`
-      UPDATE job_history 
+      UPDATE graphile_worker.job_history 
       SET status = 'completed', 
           completed_at = NOW(),
           duration_ms = ${duration || null}
@@ -73,7 +73,7 @@ export async function updateJobFailure(logId: number, errorMessage: string, dura
   
   try {
     await sql`
-      UPDATE job_history 
+      UPDATE graphile_worker.job_history 
       SET status = 'failed', 
           completed_at = NOW(),
           duration_ms = ${duration || null},
@@ -107,7 +107,7 @@ export async function getJobHistory(
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';    const result = await sql<JobLogEntry[]>`
-      SELECT * FROM job_history 
+      SELECT * FROM graphile_worker.job_history 
       ${sql.unsafe(whereClause)}
       ORDER BY started_at DESC 
       LIMIT ${limit} OFFSET ${offset}
@@ -132,7 +132,7 @@ export async function getJobStats(hours: number = 24): Promise<JobStats[]> {
         COUNT(CASE WHEN status = 'started' THEN 1 END) as running,
         AVG(duration_ms) as avg_duration_ms,
         MAX(duration_ms) as max_duration_ms
-      FROM job_history 
+      FROM graphile_worker.job_history 
       WHERE started_at > NOW() - INTERVAL '${hours} hours'
       GROUP BY task_name
       ORDER BY total_jobs DESC
@@ -151,7 +151,7 @@ export async function getRecentJobFailures(hours: number = 24, limit: number = 5
     const result = await sql<JobLogEntry[]>`
       SELECT 
         id, task_name, error_message, started_at, completed_at, duration_ms, worker_id
-      FROM job_history 
+      FROM graphile_worker.job_history 
       WHERE status = 'failed' 
         AND started_at > NOW() - INTERVAL '${hours} hours'
       ORDER BY started_at DESC 
@@ -171,7 +171,7 @@ export async function getRunningJobs(): Promise<JobLogEntry[]> {
     const result = await sql<JobLogEntry[]>`
       SELECT 
         id, task_name, started_at, worker_id, payload
-      FROM job_history 
+      FROM graphile_worker.job_history 
       WHERE status = 'started'
       ORDER BY started_at DESC
     `;
@@ -187,7 +187,7 @@ export async function getRunningJobs(): Promise<JobLogEntry[]> {
 export async function cleanupOldJobHistory(daysToKeep: number = 30): Promise<number> {
   try {
     const result = await sql`
-      DELETE FROM job_history 
+      DELETE FROM graphile_worker.job_history 
       WHERE started_at < NOW() - INTERVAL '${daysToKeep} days'
       RETURNING id
     `;
