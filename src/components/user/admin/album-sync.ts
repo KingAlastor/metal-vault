@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  getAlbumExists,
   getAlbumId,
   getBandLinks,
   updateAlbumsTableData,
@@ -19,42 +20,44 @@ export async function syncAlbumDataFromArchives() {
 
   const baseUrl = "https://www.metal-archives.com/band/discography/id/";
 
-  if (archivesLinks) {
+  if (archivesLinks.length > 0) {
     for (const { id, name, archivesLink } of archivesLinks) {
       const url = `${baseUrl}${archivesLink}/tab/all`;
-      console.log(`Fetching URL: ${url}`);
       const response = await axios.get(url);
       const html = response.data;
 
       const $ = cheerio.load(html);
 
-      const rows = $("tr").toArray(); // Convert cheerio object to an array
+      const rows = $("tr").toArray();
 
       for (const elem of rows) {
         const href = $(elem).find("a.album, a.other").attr("href");
         if (href) {
           const parts = href.split("/");
           const albumName = parts[parts.length - 2];
-          const albumLink = parts.pop();
+          const albumLink = parseInt(parts.pop() || "0", 10);
 
           const album = $(elem).find("td").first().text().trim();
           const type = $(elem).find("td").eq(1).text().trim();
-          if (name && albumName && albumLink) {
+          if (name && albumName && albumLink > 0) {
+            const albumExists = await getAlbumExists(albumLink);
+            if (albumExists) {
+              continue;
+            }
             const albumUrl = `https://www.metal-archives.com/albums/${name}/${albumName}/${albumLink}`;
-            console.log(`Fetching album URL: ${albumUrl}`);
             const releaseData = await getReleaseData(albumUrl);
-            console.log("release data: ", releaseData);            if (releaseData) {
+            if (releaseData) {
               const albumData = {
                 band_id: id,
                 name: albumName,
                 name_pretty: album,
-                archives_link: parseInt(albumLink, 10),
+                archives_link: albumLink,
                 type: type,
                 release_date: releaseData.releaseDateFormatted || undefined,
               };
               const insertedAlbum = await updateAlbumsTableData(albumData);
               const albumId = insertedAlbum?.id;
-              
+
               let tracks = [];
               if (albumId && releaseData.tracklist) {
                 for (const track of releaseData.tracklist) {
@@ -74,7 +77,7 @@ export async function syncAlbumDataFromArchives() {
           }
         }
       }
-      await updateBandsLastSync(id);
+      updateBandsLastSync(id);
       await new Promise((resolve) => setTimeout(resolve, 3000));
     }
   }
@@ -82,7 +85,6 @@ export async function syncAlbumDataFromArchives() {
 
 async function getReleaseData(url: string) {
   try {
-    console.log(`Fetching release data from URL: ${url}`);
     const response = await axios.get(url);
     const html = response.data;
     const $ = cheerio.load(html);
@@ -113,19 +115,34 @@ async function getReleaseData(url: string) {
       trackNumber: string;
     }[] = [];
     $("#album_tabs_tracklist table.table_lyrics tbody tr") // Refined selector
-      .filter((i, el) => $(el).find('td').length === 4 && !$(el).hasClass('sideRow')) // Filter out side rows and rows with incorrect number of columns
+      .filter(
+        (i, el) => $(el).find("td").length === 4 && !$(el).hasClass("sideRow")
+      ) // Filter out side rows and rows with incorrect number of columns
       .each((i, el) => {
         const $row = $(el);
         const trackNumber = $row.find("td:nth-child(1)").text().trim();
-        const title = $row.find("td.wrapWords").text().trim();
-        const duration = $row.find('td[align="right"]').text().trim();
+
+        // Extract and sanitize title text
+        let title = $row.find("td.wrapWords").text().trim();
 
         // Check if it's a bonus track
         const bonusTrack = $row.find("td.wrapWords.bonus").text().trim();
 
-        if (title) { // Filter out empty rows
+        // Use bonus track text if available, otherwise use regular title
+        title = bonusTrack || title;
+
+        // Sanitize the title: remove excessive whitespace, tabs, and newlines
+        title = title
+          .replace(/\s+/g, " ") // Replace multiple whitespace characters with single space
+          .replace(/[\r\n\t]/g, " ") // Replace newlines and tabs with spaces
+          .trim(); // Final trim
+
+        const duration = $row.find('td[align="right"]').text().trim();
+
+        if (title) {
+          // Filter out empty rows
           tracklist.push({
-            title: bonusTrack || title,
+            title,
             trackNumber,
             duration: duration,
           });

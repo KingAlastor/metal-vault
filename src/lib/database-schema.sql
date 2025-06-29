@@ -44,7 +44,7 @@ CREATE TABLE bands (
   followers INT DEFAULT 0,
   archives_link BIGINT NOT NULL,
   spotify_id VARCHAR(255),
-  last_sync TIMESTAMP WITH TIME ZONE,
+  last_album_sync TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE,
   UNIQUE (archives_link)
 );
@@ -74,6 +74,8 @@ CREATE TABLE band_albums (
   FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
   UNIQUE (archives_link)
 );
+
+CREATE INDEX idx_band_albums_archives_link ON band_albums (archives_link);
 
 CREATE TABLE album_tracks (
   id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),

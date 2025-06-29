@@ -1,18 +1,16 @@
 "use server";
 import sql from "@/lib/db";
 
-export async function updateAlbumsTableData(
-  albumsData: {
-    band_id: string;
-    name: string;
-    name_pretty?: string;
-    archives_link: number;
-    type?: string;
-    release_date?: Date;
-    spotify_id?: string;
-    updated_at?: Date;
-  }
-) {
+export async function updateAlbumsTableData(albumsData: {
+  band_id: string;
+  name: string;
+  name_pretty?: string;
+  archives_link: number;
+  type?: string;
+  release_date?: Date;
+  spotify_id?: string;
+  updated_at?: Date;
+}) {
   try {
     const result = await sql`
       INSERT INTO band_albums (
@@ -67,12 +65,12 @@ export async function updateAlbumTracksDataTable(
 export async function getBandLinks() {
   const twoMonthsAgo = new Date();
   twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
-  
+
   try {
     const archivesLinks = await sql`
       SELECT id, name, archives_link
       FROM bands
-      WHERE last_sync IS NULL OR last_sync < ${twoMonthsAgo}
+      WHERE last_album_sync IS NULL OR last_album_sync < ${twoMonthsAgo}
       LIMIT 10
     `;
 
@@ -101,11 +99,25 @@ export async function updateBandsLastSync(id: string) {
   try {
     await sql`
       UPDATE bands
-      SET last_sync = NOW() AT TIME ZONE 'UTC'
+      SET last_album_sync = NOW() AT TIME ZONE 'UTC'
       WHERE id = ${id}
     `;
   } catch (error) {
     console.error("Unable to update band last sync:", error);
+    throw error;
+  }
+}
+
+export async function getAlbumExists(archivesLink: number) {
+  try {
+    const result = await sql`
+      SELECT id
+      FROM band_albums
+      WHERE archives_link = ${archivesLink}
+    `;
+    return result.length > 0;
+  } catch (error) {
+    console.error("Error checking if album exists:", error);
     throw error;
   }
 }
