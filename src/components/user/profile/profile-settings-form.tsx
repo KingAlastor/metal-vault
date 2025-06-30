@@ -21,17 +21,11 @@ import { useSession, useUser } from "@/lib/session/client-hooks";
 import { updateUserData } from "@/lib/data/user-data";
 import { useEffect } from "react";
 
-interface Country {
-  name: {
-    common: string;
-  };
-  cca2: string;
-}
-
 export const FormSchema = z.object({
   user_name: z.string().trim().min(1, "Cannot be empty"),
   location: z.string().optional(),
   genre_tags: z.array(z.string()).optional(),
+  excluded_genre_tags: z.array(z.string()).optional(),
 });
 
 export default function ProfileSettingsForm() {
@@ -47,6 +41,7 @@ export default function ProfileSettingsForm() {
       user_name: "",
       location: "",
       genre_tags: [],
+      excluded_genre_tags: [],
     },  
   });
 
@@ -57,6 +52,7 @@ export default function ProfileSettingsForm() {
         user_name: user.data.user_name || user.data.name || "",
         location: user.data.location || "",
         genre_tags: Array.isArray(user.data.genre_tags) ? user.data.genre_tags : [],
+        excluded_genre_tags: Array.isArray(user.data.excluded_genre_tags) ? user.data.excluded_genre_tags : [],
       });
     }
   }, [user?.data, form]);
@@ -122,6 +118,23 @@ export default function ProfileSettingsForm() {
             <FormItem className="flex flex-col">
               <FormLabel>Genres</FormLabel>
               <FormDescription>Add your favorite genres</FormDescription>
+              <MultiSelectDropdown
+                options={genres || []}
+                onChange={field.onChange || ""}
+                value={field.value}
+                triggerText="Select genres"
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+                <FormField
+          control={form.control}
+          name="excluded_genre_tags"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Disliked Genres</FormLabel>
+              <FormDescription>Add your disliked genres</FormDescription>
               <MultiSelectDropdown
                 options={genres || []}
                 onChange={field.onChange || ""}

@@ -26,10 +26,11 @@ export const EmailFormSchema = z.object({
   email_frequency: z.string().default("W"),
   favorite_bands: z.boolean().default(false).optional(),
   favorite_genres: z.boolean().default(true).optional(),
+  disliked_genres: z.boolean().default(true).optional(),
 });
 
 export default function EmailUpdatesPage() {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
   const { data: user } = useUser(session?.userId);
 
   const filters = useMemo(() => {
@@ -55,7 +56,7 @@ export default function EmailUpdatesPage() {
   }, [filters.email_updates_enabled]);
 
   const updateUser = useUpdateUser();
-  const { toast } = useToast(); 
+  const { toast } = useToast();
 
   const toggleEmailUpdatesEnabled = useCallback(
     async (checked: boolean) => {
@@ -73,7 +74,10 @@ export default function EmailUpdatesPage() {
         toast({ description: "Email updates setting updated." });
       } catch (error) {
         console.error("Failed to update email updates setting:", error);
-        toast({ description: "Failed to update email updates setting.", variant: "destructive" });
+        toast({
+          description: "Failed to update email updates setting.",
+          variant: "destructive",
+        });
       }
     },
     [filters, updateUser, toast]
@@ -86,18 +90,22 @@ export default function EmailUpdatesPage() {
       favorite_bands: filters?.favorite_bands || false,
       email_frequency: filters?.email_frequency || "W",
       favorite_genres: filters?.favorite_genres || false,
+      disliked_genres: filters?.disliked_genres || false,
     },
   });
   useEffect(() => {
-    if (user) { // Ensure user data is available
+    if (user) {
+      // Ensure user data is available
       form.reset({
         preferred_email: filters?.preferred_email || user.email || "",
         favorite_bands: filters?.favorite_bands || false,
         email_frequency: filters?.email_frequency || "W",
         favorite_genres: filters?.favorite_genres || false,
+        disliked_genres: filters?.disliked_genres || false,
       });
     }
-  }, [user, filters, form, form.reset]);  const sendTestEmail = useCallback(
+  }, [user, filters, form, form.reset]);
+  const sendTestEmail = useCallback(
     async (data: z.infer<typeof EmailFormSchema>) => {
       // Ensure all boolean fields are defined for EmailData type
       const emailData = {
@@ -105,6 +113,7 @@ export default function EmailUpdatesPage() {
         email_frequency: data.email_frequency,
         favorite_bands: data.favorite_bands ?? false,
         favorite_genres: data.favorite_genres ?? false,
+        disliked_genres: data.disliked_genres ?? false,
       };
       const email = await createEmail(emailData);
       console.log("email: ", email);
@@ -136,6 +145,7 @@ export default function EmailUpdatesPage() {
         email_frequency: data.email_frequency,
         favorite_bands: data.favorite_bands ?? false,
         favorite_genres: data.favorite_genres ?? false,
+        disliked_genres: data.disliked_genres ?? false,
         email_updates_enabled: emailUpdatesEnabled,
       };
 
@@ -147,7 +157,10 @@ export default function EmailUpdatesPage() {
         toast({ description: "Email settings updated successfully." });
       } catch (error) {
         console.error("Failed to update email settings:", error);
-        toast({ description: "Failed to update email settings.", variant: "destructive" });
+        toast({
+          description: "Failed to update email settings.",
+          variant: "destructive",
+        });
       }
     },
     [emailUpdatesEnabled, updateUser, toast]
@@ -271,6 +284,28 @@ export default function EmailUpdatesPage() {
                         <FormLabel className="text-base">
                           My favorite genres
                         </FormLabel>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="disliked_genres"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          My disliked genres
+                        </FormLabel>
+                        <FormDescription className="hidden sm:block text-sm text-gray-500">
+                          Exclude bands with disliked genre tags
+                        </FormDescription>
                       </div>
                       <FormControl>
                         <Switch

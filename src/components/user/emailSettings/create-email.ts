@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { EmailFormSchema } from "./email-updates-settings";
 import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
-import { getFavoriteBandReleasesForEmail, getFavoriteGenreReleasesForEmail } from "@/lib/data/user-email-settings-data";
+import { getFavoriteBandReleasesForEmail, getGenreReleasesForEmail } from "@/lib/data/user-email-settings-data";
 
 // Define a server-side type for email data to avoid client/server boundary issues
 export type EmailData = {
@@ -21,14 +21,14 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   // Use worker functions if userId is provided, otherwise use session-based functions
   if (userId) {
     // Worker context - use functions that don't rely on session
-    const { getFavoriteBandReleasesForEmailWorker, getFavoriteGenreReleasesForEmailWorker } = await import("@/lib/data/user-email-settings-data");
+    const { getFavoriteBandReleasesForEmailWorker, getGenreReleasesForEmailWorker } = await import("@/lib/data/user-email-settings-data");
     
     if (data.favorite_bands) {
       favBandReleases = await getFavoriteBandReleasesForEmailWorker(userId, data.email_frequency);
     }
 
     if (data.favorite_genres) {
-      favGenreReleases = await getFavoriteGenreReleasesForEmailWorker(userId, data.email_frequency);
+      favGenreReleases = await getGenreReleasesForEmailWorker(userId, data.email_frequency);
     }
   } else {
     // Regular context - use session-based functions
@@ -37,7 +37,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
     }
 
     if (data.favorite_genres) {
-      favGenreReleases = await getFavoriteGenreReleasesForEmail(data.email_frequency);
+      favGenreReleases = await getGenreReleasesForEmail(data.email_frequency);
     }
   }
   let text = "";

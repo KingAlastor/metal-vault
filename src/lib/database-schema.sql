@@ -18,6 +18,7 @@ CREATE TABLE users (
   last_login TIMESTAMP WITH TIME ZONE,
   last_email_sent TIMESTAMP WITH TIME ZONE,
   genre_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
+  excluded_genre_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   notifications TEXT[] DEFAULT ARRAY[]::TEXT[],
   pending_actions TEXT[] DEFAULT ARRAY[]::TEXT[],
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),

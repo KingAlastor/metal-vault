@@ -26,6 +26,7 @@ export type FullUser = {
   events_settings?: string;
   last_login?: string;
   genre_tags: string[];
+  excluded_genre_tags: string[];
   notifications?: string[];
   pending_actions?: string[];
   created_at?: string;
@@ -308,6 +309,7 @@ export type UpdateUserData = {
   user_name?: string;
   location?: string;
   genre_tags?: string[];
+  excluded_genre_tags?: string[];
   notifications?: string[];
   posts_settings?: string;
   events_settings?: string;
@@ -343,6 +345,12 @@ export async function updateUserData(data: UpdateUserData) {
   if (data.genre_tags !== undefined) {
     updateParts.push(`genre_tags = $${paramIndex}`);
     values.push(data.genre_tags);
+    paramIndex++;
+  }
+
+   if (data.excluded_genre_tags !== undefined) {
+    updateParts.push(`excluded_genre_tags = $${paramIndex}`);
+    values.push(data.excluded_genre_tags);
     paramIndex++;
   }
 

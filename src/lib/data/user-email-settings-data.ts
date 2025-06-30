@@ -68,7 +68,7 @@ export async function getFavoriteBandReleasesForEmail(
   }
 }
 
-export async function getFavoriteGenreReleasesForEmail(
+export async function getGenreReleasesForEmail(
   frequency: string
 ): Promise<UpcomingRelease[]> {
   const session = await getSession();
@@ -83,12 +83,13 @@ export async function getFavoriteGenreReleasesForEmail(
 
   // Get user's genre preferences
   const user = await sql`
-    SELECT genre_tags as "genreTags"
+    SELECT genre_tags, disliked_genre_tags"
     FROM users
     WHERE id = ${session.userId}
   `;
 
-  const userGenreTags = user[0]?.genreTags || [];
+  const userGenreTags = user[0]?.genre_tags || [];
+  const dislikedGenreTags = user[0]?.disliked_genre_tags || [];
 
   try {
     const releases = await sql`
@@ -103,6 +104,7 @@ export async function getFavoriteGenreReleasesForEmail(
       FROM upcoming_releases
       WHERE ${bandIds.length > 0 ? sql`band_id != ALL(${bandIds})` : sql`1=1`}
       AND ${userGenreTags.length > 0 ? sql`genre_tags && ${userGenreTags}` : sql`1=1`}
+      AND ${dislikedGenreTags.length > 0 ? sql`NOT (genre_tags && ${dislikedGenreTags})` : sql`1=1`}
       AND release_date >= ${date.from}
       AND release_date <= ${date.to}
       ORDER BY release_date ASC
@@ -181,7 +183,7 @@ export async function getFavoriteBandReleasesForEmailWorker(
   }
 }
 
-export async function getFavoriteGenreReleasesForEmailWorker(
+export async function getGenreReleasesForEmailWorker(
   userId: string,
   frequency: string
 ): Promise<UpcomingRelease[]> {
