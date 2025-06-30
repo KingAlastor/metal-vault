@@ -1,9 +1,10 @@
 "use server";
 
-import { z } from "zod";
-import { EmailFormSchema } from "./email-updates-settings";
 import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
-import { getFavoriteBandReleasesForEmail, getGenreReleasesForEmail } from "@/lib/data/user-email-settings-data";
+import {
+  getFavoriteBandReleasesForEmail,
+  getGenreReleasesForEmail,
+} from "@/lib/data/user-email-settings-data";
 
 // Define a server-side type for email data to avoid client/server boundary issues
 export type EmailData = {
@@ -21,19 +22,30 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   // Use worker functions if userId is provided, otherwise use session-based functions
   if (userId) {
     // Worker context - use functions that don't rely on session
-    const { getFavoriteBandReleasesForEmailWorker, getGenreReleasesForEmailWorker } = await import("@/lib/data/user-email-settings-data");
-    
+    const {
+      getFavoriteBandReleasesForEmailWorker,
+      getGenreReleasesForEmailWorker,
+    } = await import("@/lib/data/user-email-settings-data");
+
     if (data.favorite_bands) {
-      favBandReleases = await getFavoriteBandReleasesForEmailWorker(userId, data.email_frequency);
+      favBandReleases = await getFavoriteBandReleasesForEmailWorker(
+        userId,
+        data.email_frequency
+      );
     }
 
     if (data.favorite_genres) {
-      favGenreReleases = await getGenreReleasesForEmailWorker(userId, data.email_frequency);
+      favGenreReleases = await getGenreReleasesForEmailWorker(
+        userId,
+        data.email_frequency
+      );
     }
   } else {
     // Regular context - use session-based functions
     if (data.favorite_bands) {
-      favBandReleases = await getFavoriteBandReleasesForEmail(data.email_frequency);
+      favBandReleases = await getFavoriteBandReleasesForEmail(
+        data.email_frequency
+      );
     }
 
     if (data.favorite_genres) {
@@ -114,20 +126,24 @@ export const createEmail = async (data: EmailData, userId?: string) => {
         </tr>
       `;
     }
-    
+
     html += `
           </tbody>
         </table>
       </div>
     `;
   }
-  
+
   // Favorite Genres Section
   if (favGenreReleases.length > 0) {
     text += "\nLatest releases of your favorite genres:\n";
     html += `
       <div style="margin-bottom: 20px;">
-        ${favBandReleases.length > 0 ? '<hr class="email-separator" style="border: none; height: 2px; background: linear-gradient(to right, #e74c3c, #f39c12); margin: 30px 0;">' : ''}
+        ${
+          favBandReleases.length > 0
+            ? '<hr class="email-separator" style="border: none; height: 2px; background: linear-gradient(to right, #e74c3c, #f39c12); margin: 30px 0;">'
+            : ""
+        }
         <h2 class="email-header" style="color: #333; border-bottom: 3px solid #f39c12; padding-bottom: 10px; margin-bottom: 20px;">
           🎵 Latest Releases from Your Favorite Genres
         </h2>
@@ -145,14 +161,21 @@ export const createEmail = async (data: EmailData, userId?: string) => {
 
     for (const band of favGenreReleases) {
       const date = formatDateWithNamedMonth(band.releaseDate!);
-      const genres = Array.isArray(band.genreTags) ? band.genreTags.join(', ') : band.genreTags;
-      
+      const genres = Array.isArray(band.genreTags)
+        ? band.genreTags.join(", ")
+        : band.genreTags;
+
       // Split genres into individual tags for better mobile display
-      const genreArray = Array.isArray(band.genreTags) ? band.genreTags : [band.genreTags];
-      const genreTags = genreArray.map((genre: string) => 
-        `<span class="email-genre-tag" style="background-color: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 1px; display: inline-block; white-space: nowrap;">${genre}</span>`
-      ).join(' ');
-      
+      const genreArray = Array.isArray(band.genreTags)
+        ? band.genreTags
+        : [band.genreTags];
+      const genreTags = genreArray
+        .map(
+          (genre: string) =>
+            `<span class="email-genre-tag" style="background-color: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 1px; display: inline-block; white-space: nowrap;">${genre}</span>`
+        )
+        .join(" ");
+
       text += `\n- ${date} - ${band.bandName} - ${band.albumName} - ${genres}`;
       html += `
         <tr style="border-bottom: 1px solid #e9ecef;">
