@@ -69,7 +69,9 @@ export async function getBandLinks() {
     const archivesLinks = await sql`
       SELECT id, name, archives_link
       FROM bands
-      WHERE last_album_sync IS NULL OR last_album_sync < ${sixtyDaysAgo}
+      WHERE (last_album_sync IS NULL OR last_album_sync < ${sixtyDaysAgo})
+      AND archives_link IS NOT NULL
+      AND archives_link > 0
       LIMIT 10000
     `;
 

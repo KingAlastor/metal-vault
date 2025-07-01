@@ -86,18 +86,34 @@ export async function syncAlbumDataFromArchives() {
   const archivesLinks = await getBandLinks();
   const axiosInstance = createAxiosInstance();
 
+  console.log(`Found ${archivesLinks.length} bands to sync`);
+  console.log('Sample bands:', archivesLinks.slice(0, 3).map(band => ({
+    id: band.id,
+    name: band.name,
+    archivesLink: band.archives_link,
+    archivesLinkType: typeof band.archives_link
+  })));
+
   const baseUrl = "https://www.metal-archives.com/band/discography/id/";
 
   if (archivesLinks.length > 0) {
-    for (const { id, name, archivesLink } of archivesLinks) {
+    for (const { id, name, archives_link } of archivesLinks) {
+      // Skip bands with invalid archive links (extra safety check)
+      if (!archives_link || archives_link <= 0) {
+        console.log(`Skipping band ${name} (${id}) - invalid archives link: ${archives_link}`);
+        updateBandsLastSync(id); // Still update sync timestamp to avoid retrying
+        continue;
+      }
+      
       let retryCount = 0;
       const maxRetries = 3;
       let success = false;
       
       while (retryCount < maxRetries && !success) {
         try {
-          const url = `${baseUrl}${archivesLink}/tab/all`;
+          const url = `${baseUrl}${archives_link}/tab/all`;
           console.log(`Fetching discography for band: ${name} (${id}) - Attempt ${retryCount + 1}`);
+          console.log(`URL: ${url}`);
           
           const response = await axiosInstance.get(url);
           
