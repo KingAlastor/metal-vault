@@ -72,7 +72,7 @@ export async function getBandLinks() {
       WHERE (last_album_sync IS NULL OR last_album_sync < ${sixtyDaysAgo})
       AND archives_link IS NOT NULL
       AND archives_link > 0
-      LIMIT 10000
+      LIMIT 4000
     `;
 
     return archivesLinks;
