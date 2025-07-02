@@ -68,11 +68,26 @@ export function parseMetalArchivesDate(dateString: string): Date | null {
     return new Date(Date.UTC(parseInt(year), monthIndex, 1));
   }
 
-  // Handle "Day Month YYYY" format (e.g., "January 2nd, 1996" or "August 23rd, 2021")
-  if (/^\w+ \d{1,2}(?:st|nd|rd|th)?(?:,)? \d{4}$/.test(dateString)) {
-    // Clean up the date string by removing ordinal suffixes and commas
-    const cleanedDateString = dateString.replace(/(st|nd|rd|th|,)/g, "");
-    const [month, day, year] = cleanedDateString.split(" ");
+  // Handle "Month Day, YYYY" format (e.g., "August 11th, 2023" or "January 2nd, 1996")
+  if (/^[a-zA-Z]+ \d{1,2}(?:st|nd|rd|th)?(?:,)? \d{4}$/.test(dateString)) {
+    // Clean up the date string by removing ordinal suffixes and commas, then normalize spaces
+    const cleanedDateString = dateString
+      .replace(/(st|nd|rd|th)/g, "")
+      .replace(/,/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    
+    console.log(`Original: "${dateString}", Cleaned: "${cleanedDateString}"`);
+    const parts = cleanedDateString.split(" ");
+    console.log(`Split parts:`, parts);
+    
+    if (parts.length !== 3) {
+      console.warn(`Expected 3 parts, got ${parts.length}: ${parts}`);
+      return null;
+    }
+    
+    const [month, day, year] = parts;
+    console.log(`Parsed: month="${month}", day="${day}", year="${year}"`);
     const monthIndex = getMonthIndex(month);
 
     if (monthIndex === -1) {
