@@ -348,7 +348,7 @@ export async function updateUserData(data: UpdateUserData) {
     paramIndex++;
   }
 
-   if (data.excluded_genre_tags !== undefined) {
+  if (data.excluded_genre_tags !== undefined) {
     updateParts.push(`excluded_genre_tags = $${paramIndex}`);
     values.push(data.excluded_genre_tags);
     paramIndex++;
@@ -369,6 +369,12 @@ export async function updateUserData(data: UpdateUserData) {
   if (data.events_settings !== undefined) {
     updateParts.push(`events_settings = $${paramIndex}`);
     values.push(data.events_settings);
+    paramIndex++;
+  }
+
+  if (data.release_settings !== undefined) {
+    updateParts.push(`release_settings = $${paramIndex}`);
+    values.push(data.release_settings);
     paramIndex++;
   }
 
