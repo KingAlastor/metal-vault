@@ -51,7 +51,7 @@ async function main() {
       send_weekly_emails: runJob("send_weekly_emails", sendScheduledEmails),
       send_monthly_emails: runJob("send_monthly_emails", sendScheduledEmails),
       // sync_latest_bands: syncLatestBands,
-      sync_albums: syncAlbums,
+      sync_albums: runJob("sync_albums", syncAlbums),
       // Add other task identifiers here if you create more tasks
     },
     // Add the crontab for scheduled tasks
