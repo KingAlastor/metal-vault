@@ -1,13 +1,13 @@
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getReleasesByFilters, ReleasesFilters } from "@/lib/data/release-filters-data";
+import { getReleasesByFilters } from "@/lib/data/release-filters-data";
 
 export function useApplyReleaseFiltersMutation() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (filters: ReleasesFilters) => getReleasesByFilters(filters),
+    mutationFn: getReleasesByFilters,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["releases"],

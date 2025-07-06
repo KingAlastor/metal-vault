@@ -103,11 +103,7 @@ export async function fetchUserFavoriteBands(): Promise<string[]> {
     throw new Error("User is not logged in");
   }
 
-  const user = await sql`
-    SELECT shard FROM users WHERE id = ${session.userId}
-  `;
-
-  const shard = user[0]?.shard || "0";
+  const shard = session.userShard || "0"; 
   const tableName = `band_followers_${shard}`;
 
   const favorites = await sql`
@@ -126,11 +122,7 @@ export async function fetchUserFavBandsFullData(): Promise<(Band & { rating: num
     return [];
   }
 
-  const user = await sql`
-    SELECT shard FROM users WHERE id = ${session.userId}
-  `;
-
-  const shard = user[0]?.shard || "0";
+  const shard = session.userShard || "0"; 
   const tableName = `band_followers_${shard}`;
 
   const favorites = await sql`
@@ -166,11 +158,7 @@ export async function saveUserFavorites(favorites: string[]): Promise<void> {
     throw new Error("User is not logged in");
   }
 
-  const user = await sql`
-    SELECT shard FROM users WHERE id = ${session.userId}
-  `;
-
-  const shard = user[0]?.shard || "0";
+  const shard = session.userShard || "0"; 
   const tableName = `band_followers_${shard}`;
 
   if (favorites && favorites.length > 0) {
@@ -201,11 +189,7 @@ export async function saveUserFavoriteAndUpdateFollowerCount(bandId: string): Pr
     throw new Error("User is not logged in");
   }
 
-  const user = await sql`
-    SELECT shard FROM users WHERE id = ${session.userId}
-  `;
-
-  const shard = user[0]?.shard || "0";
+  const shard = session.userShard || "0"; 
   const tableName = `band_followers_${shard}`;
 
   // Check if favorite exists

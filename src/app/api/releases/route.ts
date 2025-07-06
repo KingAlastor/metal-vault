@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/session/server-actions";
 import { getReleasesByFilters } from "@/lib/data/release-filters-data";
 
 export async function GET() {
-  const session = await getSession();
-
   try {
-    const releases = await getReleasesByFilters({});
+    const releases = await getReleasesByFilters();
     return NextResponse.json(releases);
   } catch (error) {
     console.error("Error fetching releases:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

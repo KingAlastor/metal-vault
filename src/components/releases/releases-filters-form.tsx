@@ -76,16 +76,8 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
       release_settings: JSON.stringify(filters),
     });
     queryClient.invalidateQueries({ queryKey: ['user', session?.userId] });
-    filters = {
-      ...filters,
-      genreTags: data.genreTags,
-    };
 
-    mutation.mutate(filters, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
+    mutation.mutate();
   }
 
   return (
