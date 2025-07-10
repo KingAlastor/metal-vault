@@ -24,6 +24,7 @@ export const PostCard = (post: Post) => {
 
   return (
     <div className="spotify-card p-2">
+      <span className="m-font">{post.post_content}</span>
       {audioUrl ? (
         size.width > 640 ? (
           <div className="flex">
