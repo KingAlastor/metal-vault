@@ -17,9 +17,8 @@ export const EventCards = ({ events }: EventCardsProps) => {
     queryFn: () => fetchUserFavBandsFullData(),
   });
   
-  if (isFavBandsLoading) return <>Loading...</>;
-  if (isFavBandsError)
-  return <>Error loading events.</>;
+  if (isFavBandsLoading) return <div>Loading...</div>;
+  if (isFavBandsError) return <div>Error loading events.</div>;
 
   return (
     <>
@@ -33,11 +32,11 @@ export const EventCards = ({ events }: EventCardsProps) => {
                     <UserAvatar avatarUrl={event.user.image} size={30} />
                   </div>
                   <div className="flex flex-col pl-2">
-                    <>
+                    <div>
                       {event.user.userName
                         ? event.user.userName
                         : event.user.name}
-                    </>
+                    </div>
                     <div className="xs-font">
                       {formatDateAndTime(event.createdAt)}
                     </div>
