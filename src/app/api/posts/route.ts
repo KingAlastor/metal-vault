@@ -1,34 +1,44 @@
 import { Post } from "@/components/posts/post-types";
-import { getPostsByFilters } from "@/lib/data/posts-data";
+import { getAllPostsByFilters, PostsDataFilters } from "@/lib/data/posts-data";
 import { NextRequest, NextResponse } from "next/server";
-import { getPostsFilters } from "@/lib/data/user-data";
 import { getSession } from "@/lib/session/server-actions";
+import { getPostsFilterSettings } from "@/lib/data/user-data";
 
 export type PostsPageData = {
   posts: Post[];
   next_cursor: string | null; 
+  total_posts: number;
 }
 
 export async function GET(req: NextRequest) {
   try {
-
-    const queryParams = {
-      cursor: req.nextUrl.searchParams.get("cursor") || undefined,
-      page_size: 5,
-    };
+    console.log("Posts API - Fetching all posts with user filters");
 
     const session = await getSession();
-    const filters = session.userId ? await getPostsFilters(session.userId) : {};
+    
+    // Get filter settings from user's posts_settings (empty object if not logged in)
+    const filters: PostsDataFilters = session.userId 
+      ? await getPostsFilterSettings(session.userId)
+      : {
+          favorite_bands: false,
+          disliked_bands: false,
+          favorite_genres: false,
+          disliked_genres: false,
+        };
+    
+    console.log("Posts API - Using filters:", filters);
+    
+    // Get ALL filtered posts - client handles all pagination
+    const allPosts = await getAllPostsByFilters(filters);
 
-    const posts = await getPostsByFilters(filters, queryParams);
-
-    const next_cursor = posts.length > queryParams.page_size
-    ? posts[queryParams.page_size - 1]?.post_date_time.toISOString()
-    : null;
+    console.log("Posts API - Response:", {
+      totalPosts: allPosts.length,
+    });
 
     const data: PostsPageData = {
-      posts: posts.slice(0, queryParams.page_size), 
-      next_cursor: next_cursor ? new Date(next_cursor).toISOString() : null, 
+      posts: allPosts,
+      next_cursor: null, // Client handles pagination entirely
+      total_posts: allPosts.length,
     };
     return NextResponse.json(data);
   } catch (error) {

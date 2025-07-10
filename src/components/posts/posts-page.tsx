@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -15,9 +15,28 @@ import { PostsPageData } from "@/app/api/posts/route";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 import Image from "next/image";
+import { useSession, useUser } from "@/lib/session/client-hooks";
+import { PostsDataFilters } from "@/lib/data/posts-data";
+import { Post } from "./post-types";
 
 export default function PostsPage() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+  const fullUser = useUser(session?.userId || "");
+  
+  // Store all posts in a ref for client-side pagination
+  const allPostsRef = useRef<Post[]>([]);
+  const hasInitiallyFetchedRef = useRef(false);
+  
+  // Get current filters from user settings
+  const filters: PostsDataFilters = fullUser.data?.posts_settings 
+    ? JSON.parse(fullUser.data.posts_settings) 
+    : {
+        favorite_bands: false,
+        disliked_bands: false,
+        favorite_genres: false,
+        disliked_genres: false,
+      };
 
   const {
     data,
@@ -29,22 +48,58 @@ export default function PostsPage() {
     error,
   } = useInfiniteQuery({
     queryKey: ["post-feed"],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam }): Promise<PostsPageData> => {
+      // If we already have all posts cached, paginate through them
+      if (hasInitiallyFetchedRef.current && allPostsRef.current.length > 0) {
+        const pageSize = 5;
+        const startIndex = (pageParam as number) || 0;
+        const endIndex = startIndex + pageSize;
+        const postsPage = allPostsRef.current.slice(startIndex, endIndex);
+        
+        const next_cursor = endIndex < allPostsRef.current.length ? endIndex.toString() : null;
+        console.log("React Query, ", startIndex, endIndex, postsPage)
+        
+        return {
+          posts: postsPage,
+          next_cursor,
+          total_posts: allPostsRef.current.length,
+        };
+      }
+      
+      // First time fetch - get ALL posts from API
+      console.log("first time fetch")
       const response = await kyInstance
-        .get(
-          "/api/posts",
-          pageParam ? { searchParams: { cursor: pageParam } } : {}
-        )
+        .get("/api/posts", {})
         .json<PostsPageData>();
-      return response;
+      
+      // Store all posts in our ref for future pagination
+      allPostsRef.current = response.posts;
+      hasInitiallyFetchedRef.current = true;
+      
+      // Return first page
+      const pageSize = 5;
+      const postsPage = response.posts.slice(0, pageSize);
+      const next_cursor = pageSize < response.posts.length ? pageSize.toString() : null;
+      
+      return {
+        posts: postsPage,
+        next_cursor,
+        total_posts: response.posts.length,
+      };
     },
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.next_cursor ? parseInt(lastPage.next_cursor) : undefined,
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
-  const posts = data?.pages.flatMap((page: PostsPageData) => page.posts) || [];
+  // Reset refs when query is invalidated (filter changes)
+  if (status === "pending" && hasInitiallyFetchedRef.current) {
+    hasInitiallyFetchedRef.current = false;
+    allPostsRef.current = [];
+  }
+
+  const posts = data?.pages.flatMap((page) => page.posts) || [];
   const uniquePosts = [...new Map(posts.map(post => [post.id, post])).values()];
 
   return (

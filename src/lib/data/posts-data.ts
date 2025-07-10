@@ -29,8 +29,10 @@ export type QueryParamProps = {
 };
 
 export type PostsDataFilters = {
-  favorites_only?: boolean;
-  favorite_genres_only?: boolean;
+  favorite_bands?: boolean;
+  disliked_bands?: boolean;
+  favorite_genres?: boolean;
+  disliked_genres?: boolean;
 };
 
 export async function addOrUpdatePost(post: PostProps) {
@@ -183,147 +185,126 @@ export async function deletePost(postId: string) {
   }
 }
 
-export async function getPostsByFilters(
-  filters: PostsDataFilters,
-  queryParams: QueryParamProps
+export async function getAllPostsByFilters(
+  filters: PostsDataFilters
 ): Promise<Post[]> {
   const session = await getSession();
 
-  let favorites: string[] = [];
+  let followedBandIds: string[] = [];
+  let unfollowedBandIds: string[] = [];
+  let userFavoriteGenreTags: string[] | undefined = [];
+  let userDislikedGenreTags: string[] | undefined = [];
   let savedPosts: string[] = [];
+  let unfollowedUsers: string[] = [];
 
   if (session.userId) {
     try {
-      favorites = await fetchUserFavoriteBands();
       savedPosts = await fetchUserSavedPosts();
+      unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
+      
+      // Fetch data based on filter settings (same logic as releases)
+      if (filters.favorite_bands) {
+        followedBandIds = await fetchUserFavoriteBands();
+      }
+      if (filters.disliked_bands) {
+        unfollowedBandIds = await fetchUserUnfollowedBands();
+      }
+      if (filters.favorite_genres || filters.disliked_genres) {
+        const user = await sql`
+          SELECT genre_tags, excluded_genre_tags
+          FROM users
+          WHERE id = ${session.userId}
+        `;
+        if (filters.favorite_genres) {
+          userFavoriteGenreTags = user[0]?.genre_tags;
+        }
+        if (filters.disliked_genres) {
+          userDislikedGenreTags = user[0]?.excluded_genre_tags;
+        }
+      }
     } catch (error) {
       console.error("Error fetching user data:", error);
       return [];
     }
   }
 
-  let conditions: string[] = [];
-  let params: any[] = [];
-
-  if (filters?.favorites_only) {
-    if (favorites.length > 0) {
-      const favoritesArray = `ARRAY[${favorites.map((band) => `'${band}'`).join(", ")}]::text[]`;
-      conditions.push(`band_id = ANY(${favoritesArray})`);
-    } else {
-      // If no favorites, return no results
-      conditions.push("FALSE");
-    }
-  }
-
-  if (filters?.favorite_genres_only && session.userId) {
-    try {
-      const user = await sql`
-        SELECT genre_tags
-        FROM users
-        WHERE id = ${session.userId}
-      `;
-
-      if (user[0]?.genre_tags?.length > 0) {
-        const genreTagsArray = `ARRAY[${user[0].genre_tags.map((tag: any) => `'${tag}'`).join(", ")}]::text[]`;
-        conditions.push(`genre_tags && ${genreTagsArray}`);
-      }
-    } catch (error) {
-      console.error("Error fetching user genres:", error);
-      return [];
-    }
-  }
-
-  // Handle unfollowedBands filter
-  if (session.userId) {
-    try {
-      const unfollowedBands = (await fetchUserUnfollowedBands()) || [];
-
-      if (unfollowedBands.length > 0) {
-        const unfollowedBandsArray = `ARRAY[${unfollowedBands.map((band) => `'${band}'`).join(", ")}]::text[]`;
-        conditions.push(`band_id != ALL(${unfollowedBandsArray})`);
-      }
-    } catch (error) {
-      console.error("Error fetching unfollowed bands:", error);
-      return [];
-    }
-
-    // Handle unfollowedUsers filter
-    try {
-      const unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
-      if (unfollowedUsers.length > 0) {
-        const unfollowedUsersArray = `ARRAY[${unfollowedUsers.map((user) => `'${user}'`).join(", ")}]::text[]`;
-        conditions.push(`user_id != ALL(${unfollowedUsersArray})`);
-      }
-    } catch (error) {
-      console.error("Error fetching unfollowed users:", error);
-      return [];
-    }
-  }
-
-  const limitValue = queryParams.page_size + 1;
-  let whereClause = "";
-
-  if (conditions.length > 0 || queryParams.cursor) {
-    whereClause = "WHERE ";
-    const whereConditions: string[] = [];
-
-    if (conditions.length > 0) {
-      whereConditions.push(conditions.join(" AND "));
-    }
-
-    if (queryParams.cursor) {
-      whereConditions.push(
-        `post_date_time < '${queryParams.cursor}'::timestamp with time zone`
-      );
-    }
-
-    whereClause += whereConditions.join(" AND ");
-  }
-
-  const query = `
-    SELECT
-      id,
-      user_id,
-      band_id,
-      band_name,
-      title,
-      genre_tags,
-      post_content,
-      yt_link,
-      spotify_link,
-      bandcamp_link,
-      preview_url,
-      post_date_time,
-      (
-        SELECT json_build_object(
-          'name', u.name,
-          'user_name', u.user_name,
-          'image', u.image,
-          'role', u.role
-        )
-        FROM users u
-        WHERE u.id = user_posts_active.user_id
-      ) as user
-    FROM user_posts_active
-    ${whereClause}
-    ORDER BY post_date_time DESC
-    LIMIT ${limitValue}
-  `;
+  // Simple checks: arrays are already safe (initialized as []) and filters already checked
+  const hasFollowedBands = followedBandIds.length > 0;
+  const hasUnfollowedBands = unfollowedBandIds.length > 0;
+  const hasFavoriteGenres = (userFavoriteGenreTags?.length ?? 0) > 0;
+  const hasDislikedGenres = (userDislikedGenreTags?.length ?? 0) > 0;
+  const hasUnfollowedUsers = unfollowedUsers.length > 0;
 
   try {
-    const posts = await sql.unsafe<UserPostsActive[]>(query);
+    // Use the same filtering logic as releases, but fetch ALL posts (limit 500)
+    const posts = await sql`
+      SELECT
+        id,
+        user_id,
+        band_id,
+        band_name,
+        title,
+        genre_tags,
+        post_content,
+        yt_link,
+        spotify_link,
+        bandcamp_link,
+        preview_url,
+        post_date_time,
+        (
+          SELECT json_build_object(
+            'name', u.name,
+            'user_name', u.user_name,
+            'image', u.image,
+            'role', u.role
+          )
+          FROM users u
+          WHERE u.id = user_posts_active.user_id
+        ) as user
+      FROM user_posts_active
+      WHERE (
+        -- Always exclude unfollowed users (highest priority exclusion)
+        ${hasUnfollowedUsers ? sql`user_id != ALL(${unfollowedUsers})` : sql`1=1`}
+      )
+      AND (
+        -- Always exclude unfollowed bands (highest priority exclusion)
+        ${hasUnfollowedBands ? sql`band_id != ALL(${unfollowedBandIds})` : sql`1=1`}
+      )
+      AND (
+        -- Include if ANY of these conditions are met:
+        ${hasFollowedBands && hasFavoriteGenres ? 
+          sql`(band_id = ANY(${followedBandIds}) OR genre_tags && ${userFavoriteGenreTags || []})` :
+          hasFollowedBands ? 
+            sql`band_id = ANY(${followedBandIds})` :
+            hasFavoriteGenres ?
+              sql`genre_tags && ${userFavoriteGenreTags || []}` :
+              sql`1=1`
+        }
+      )
+      AND (
+        -- Apply disliked genre exclusion, BUT followed bands are protected
+        ${hasDislikedGenres ? 
+          hasFollowedBands ?
+            sql`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${userDislikedGenreTags || []}))` :
+            sql`NOT (genre_tags && ${userDislikedGenreTags || []})` :
+          sql`1=1`
+        }
+      )
+      ORDER BY post_date_time DESC
+      LIMIT 500
+    `;
 
-    return posts.map((post: UserPostsActive) => ({
+    console.log("Fetched ALL posts with filters:", posts.length);
+
+    return posts.map((post: any) => ({
       ...post,
-      is_favorite: favorites.includes(post.band_id || ""),
+      is_favorite: followedBandIds.includes(post.band_id || ""),
       is_saved: savedPosts.includes(post.id),
     })) as Post[];
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    console.error("Error fetching all posts:", error);
     if (error instanceof Error) {
       console.error("Error stack:", error.stack);
-      console.error("Query:", query);
-      console.error("Params:", params);
     }
     return [];
   }

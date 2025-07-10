@@ -2,6 +2,7 @@
 
 import sql from "@/lib/db";
 import { MaxTableShards } from "@/lib/enums";
+import { PostsDataFilters } from "./posts-data";
 
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess, logWrongUserAccess } from "../loggers/auth-log";
@@ -191,6 +192,33 @@ export const fetchUnfollowedUsers = async (userId: string) => {
   } catch (error) {
     console.error("Error fetching unfollowed users:", error);
     throw error;
+  }
+};
+
+export const getPostsFilterSettings = async (userId: string): Promise<PostsDataFilters> => {
+  try {
+    const userResult = await sql`
+      SELECT posts_settings 
+      FROM users 
+      WHERE id = ${userId}
+    `;
+    if (userResult[0]?.posts_settings) {
+      return JSON.parse(userResult[0].posts_settings);
+    }
+    return {
+      favorite_bands: false,
+      disliked_bands: false,
+      favorite_genres: false,
+      disliked_genres: false,
+    };
+  } catch (error) {
+    console.error("Error fetching user posts settings:", error);
+    return {
+      favorite_bands: false,
+      disliked_bands: false,
+      favorite_genres: false,
+      disliked_genres: false,
+    };
   }
 };
 

@@ -93,12 +93,12 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: post
       ? {
-          post_message: post.post_content ?? undefined,
+          post_message: post.post_content ?? "",
           band_name: post.band_name ?? "",
           genre_tags: post.genre_tags ?? [],
-          yt_link: post.yt_link ?? undefined,
-          spotify_link: post.spotify_link ?? undefined,
-          bandcamp_link: post.bandcamp_link ?? undefined,
+          yt_link: post.yt_link ?? "",
+          spotify_link: post.spotify_link ?? "",
+          bandcamp_link: post.bandcamp_link ?? "",
         }
       : initialFormState,
   });

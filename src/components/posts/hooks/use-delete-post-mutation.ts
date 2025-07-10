@@ -30,6 +30,7 @@ export function useDeletePostMutation() {
             pages: oldData.pages.map((page) => ({
               next_cursor: page.next_cursor,
               posts: page.posts.filter((p) => p.id !== deletedPost.id),
+              total_posts: page.total_posts - 1,
             })),
           };
         }

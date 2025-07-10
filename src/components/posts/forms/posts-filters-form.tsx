@@ -15,14 +15,16 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
-import { PostsDataFilters } from "../post-types";
+import { PostsDataFilters } from "@/lib/data/posts-data";
 import { useSession, useUser } from "@/lib/session/client-hooks";
 import { updateUserData } from "@/lib/data/user-data";
 
 
 const FormSchema = z.object({
-  favorites_only: z.boolean().default(false).optional(),
-  favorite_genres_only: z.boolean().default(false).optional(),
+  favorite_bands: z.boolean().default(false).optional(),
+  disliked_bands: z.boolean().default(false).optional(),
+  favorite_genres: z.boolean().default(false).optional(),
+  disliked_genres: z.boolean().default(false).optional(),
 });
 
 interface FiltersFormProps {
@@ -37,8 +39,10 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      favorites_only: filters?.favorites_only || false,
-      favorite_genres_only: filters?.favorite_genres_only || false,
+      favorite_bands: filters?.favorite_bands || false,
+      disliked_bands: filters?.disliked_bands || false,
+      favorite_genres: filters?.favorite_genres || false,
+      disliked_genres: filters?.disliked_genres || false,
     },
   });
 
@@ -46,13 +50,16 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let filters: PostsDataFilters = {
-      favorites_only: data.favorites_only ?? false,
-      favorite_genres_only: data.favorite_genres_only ?? false,
+      favorite_bands: data.favorite_bands ?? false,
+      disliked_bands: data.disliked_bands ?? false,
+      favorite_genres: data.favorite_genres ?? false,
+      disliked_genres: data.disliked_genres ?? false,
     };
     setIsOpen(false);
     await updateUserData({
       posts_settings: JSON.stringify(filters),
     });
+    // Invalidate cache - this will automatically refetch with new filters
     queryClient.invalidateQueries({ queryKey: ["post-feed"] });
   }
 
@@ -69,12 +76,12 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
           <div className="space-y-1 rounded-lg border p-2">
             <FormField
               control={form.control}
-              name="favorites_only"
+              name="favorite_bands"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base s-font">
-                      <p className="m-font">Only show my favorite artists</p>
+                      <p className="m-font">Show my favorite artists</p>
                     </FormLabel>
                   </div>
                   <FormControl>
@@ -88,12 +95,50 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
             />
             <FormField
               control={form.control}
-              name="favorite_genres_only"
+              name="disliked_bands"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base s-font">
-                      <p className="m-font">Only show my favorite genres</p>
+                      <p className="m-font">Exclude my unfollowed artists</p>
+                    </FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="favorite_genres"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base s-font">
+                      <p className="m-font">Use my favorite genres</p>
+                    </FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="disliked_genres"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base s-font">
+                      <p className="m-font">Exclude my disliked genres</p>
                     </FormLabel>
                   </div>
                   <FormControl>
