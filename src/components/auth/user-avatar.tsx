@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useState } from "react";
 
 interface UserAvatarProps {
   avatarUrl: string | null | undefined;
@@ -12,9 +13,14 @@ export default function UserAvatar({
   size,
   className,
 }: UserAvatarProps) {
+  const [imageError, setImageError] = useState(false);
+  
+  // Use placeholder if no URL, if there was an error, or if URL is invalid
+  const shouldUsePlaceholder = !avatarUrl || imageError;
+  
   return (
     <Image
-      src={avatarUrl || '/avatar-placeholder.png'}
+      src={shouldUsePlaceholder ? '/avatar-placeholder.png' : avatarUrl}
       alt="User avatar"
       width={size ?? 48}
       height={size ?? 48}
@@ -22,6 +28,7 @@ export default function UserAvatar({
         "aspect-square h-fit flex-none rounded-full bg-secondary object-cover",
         className,
       )}
+      onError={() => setImageError(true)}
     />
   );
 }
