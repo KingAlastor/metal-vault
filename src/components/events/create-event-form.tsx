@@ -89,6 +89,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
   const [bandsIds, setBandIds] = useState<string[]>(event?.bandIds ?? []);
   const [bands, setBands] = useState<string[]>(event?.bands ?? []);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: genres } = useQuery({
     queryKey: ["genreTags"],
@@ -110,6 +111,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
       // Handle file upload if a file was selected
       if (uploadedFile) {
+        setIsUploading(true);
         const fileFormData = new FormData();
         fileFormData.append("file", uploadedFile);
 
@@ -119,9 +121,11 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
           console.log("File uploaded successfully:", uploadResult.url);
         } else {
           console.error("File upload failed:", uploadResult.error);
+          setIsUploading(false);
           // You might want to show an error message to the user here
           return;
         }
+        setIsUploading(false);
       }
 
       const formData: AddEventProps = {
@@ -141,6 +145,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
       });
     } catch (error) {
       console.error("Error adding event:", error);
+      setIsUploading(false);
     }
   }
 
@@ -294,15 +299,12 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         {/* Event Poster Upload */}
         <div className="space-y-2">
           <FormLabel>Event Poster</FormLabel>
-          <FileUpload onFileSelect={setUploadedFile} />
-          {uploadedFile && (
-            <p className="text-sm text-muted-foreground">
-              Selected: {uploadedFile.name}
-            </p>
-          )}
+          <FileUpload compact onFileSelect={setUploadedFile} />
         </div>
         <div className="flex justify-end">
-          <Button type="submit">Save Event</Button>
+          <Button type="submit" disabled={isUploading || mutation.isPending}>
+            {isUploading ? "Uploading..." : mutation.isPending ? "Saving..." : "Save Event"}
+          </Button>
         </div>
       </form>
     </Form>

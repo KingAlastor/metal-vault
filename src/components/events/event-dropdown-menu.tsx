@@ -62,7 +62,7 @@ export const EventDropdownMenu = (event: Event) => {
       />
       {size.width > 640 ? (
         <Dialog open={isEditEventOpen} onOpenChange={setIsEditEventFormgOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[528px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle> Edit Post</DialogTitle>
             </DialogHeader>
@@ -71,11 +71,13 @@ export const EventDropdownMenu = (event: Event) => {
         </Dialog>
       ) : (
         <Drawer open={isEditEventOpen} onOpenChange={setIsEditEventFormgOpen}>
-          <DrawerContent>
+          <DrawerContent className="max-h-[90vh] overflow-y-auto">
             <DrawerHeader className="text-left">
               <DrawerTitle>Edit Post</DrawerTitle>
             </DrawerHeader>
-            <CreateEventForm setOpen={setIsEditEventFormgOpen} event={event} />
+            <div className="px-4 pb-4">
+              <CreateEventForm setOpen={setIsEditEventFormgOpen} event={event} />
+            </div>
           </DrawerContent>
         </Drawer>
       )}

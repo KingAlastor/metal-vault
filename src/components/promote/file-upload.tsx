@@ -67,14 +67,47 @@ const validateImage = (file: File): Promise<{ valid: boolean; error?: string; di
 
 interface FileUploadProps {
   onFileSelect?: (file: File) => void;
+  compact?: boolean; // New prop for compact mode
 }
 
-export function FileUpload({ onFileSelect }: FileUploadProps = {}) {
+export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = {}) {
   const [files, setFiles] = useState<UploadedFile[]>([])
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      // Validate each file before adding to the list
+      if (acceptedFiles.length === 0) return;
+      
+      setIsProcessing(true);
+      
+      // In compact mode with callback, only handle the first file
+      if (compact && onFileSelect) {
+        const file = acceptedFiles[0];
+        const validation = await validateImage(file);
+        
+        if (!validation.valid) {
+          setFiles([{
+            file,
+            status: "error" as const,
+            progress: 0,
+            error: validation.error
+          }]);
+          setIsProcessing(false);
+          return;
+        }
+        
+        // Set processing state and call callback
+        setFiles([{
+          file,
+          status: "success" as const,
+          progress: 100,
+        }]);
+        onFileSelect(file);
+        setIsProcessing(false);
+        return;
+      }
+      
+      // Original logic for non-compact mode
       for (const file of acceptedFiles) {
         const validation = await validateImage(file)
         
@@ -105,8 +138,9 @@ export function FileUpload({ onFileSelect }: FileUploadProps = {}) {
           }
         }
       }
+      setIsProcessing(false);
     },
-    [files.length, onFileSelect],
+    [files.length, onFileSelect, compact],
   )
 
   const uploadToPublic = async (file: File, index: number) => {
@@ -170,12 +204,75 @@ export function FileUpload({ onFileSelect }: FileUploadProps = {}) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: true,
+    multiple: !compact, // Single file in compact mode
     maxSize: 10 * 1024 * 1024, // 10MB
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif']
     }
   })
+
+  // Compact mode for forms
+  if (compact) {
+    return (
+      <div className="w-full">
+        <div
+          {...getRootProps()}
+          className={`
+            border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
+            ${isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50"}
+            ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
+          `}
+        >
+          <input {...getInputProps()} disabled={isProcessing} />
+          <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+          {isProcessing ? (
+            <p className="text-sm text-muted-foreground">Processing...</p>
+          ) : isDragActive ? (
+            <p className="text-sm">Drop the image here...</p>
+          ) : (
+            <div>
+              <p className="text-sm mb-1">Click to select or drag & drop an image</p>
+              <p className="text-xs text-muted-foreground">Max 10MB • JPG, PNG, WebP, GIF</p>
+            </div>
+          )}
+        </div>
+        
+        {/* Show file status below the dropzone */}
+        {files.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {files.map((uploadFile, index) => (
+              <div key={index} className="flex items-center space-x-2 text-sm">
+                <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="flex-1 truncate">{uploadFile.file.name}</span>
+                
+                {uploadFile.status === "success" && (
+                  <div className="flex items-center space-x-1 text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-xs">Ready</span>
+                  </div>
+                )}
+                
+                {uploadFile.status === "error" && (
+                  <div className="flex items-center space-x-1 text-red-600">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-xs">Error</span>
+                  </div>
+                )}
+                
+                <Button variant="ghost" size="sm" onClick={() => removeFile(index)} className="h-6 w-6 p-0">
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+            
+            {files.length > 0 && files[0].status === "error" && files[0].error && (
+              <p className="text-xs text-red-600 mt-1">{files[0].error}</p>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="w-full space-y-6">

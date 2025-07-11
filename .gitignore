@@ -37,7 +37,7 @@ next-env.d.ts
 .vscode
 
 #images 
-/src/images/
+/public/images/
 
 # PM2 logs
 /logs/

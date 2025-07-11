@@ -26,7 +26,7 @@ export const CreateEventCard = () => {
               <span className="hidden lg:inline ml-1">Create Event</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[528px]">
+          <DialogContent className="sm:max-w-[528px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle> Create Event</DialogTitle>
             </DialogHeader>
@@ -52,11 +52,13 @@ export const CreateEventCard = () => {
               </Button>
             </>
           </DrawerTrigger>
-          <DrawerContent>
+          <DrawerContent className="max-h-[90vh] overflow-y-auto">
             <DrawerHeader className="text-left">
               <DrawerTitle>Create Event</DrawerTitle>
             </DrawerHeader>
-            <CreateEventForm setOpen={setOpen} />
+            <div className="px-4 pb-4">
+              <CreateEventForm setOpen={setOpen} />
+            </div>
           </DrawerContent>
         </Drawer>
       )}

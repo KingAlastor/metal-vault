@@ -22,6 +22,19 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
     .map((band) => band.namePretty)
     .sort((a, b) => a.localeCompare(b));
 
+  // Helper function to get the full image path
+  const getImagePath = (imageUrl: string | null) => {
+    if (!imageUrl) return null;
+    // If it's already a full URL, return as-is
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
+      return imageUrl;
+    }
+    // If it's just a filename, construct the full path
+    return `/images/event_posters/${imageUrl}`;
+  };
+
+  const imagePath = getImagePath(event.imageUrl);
+
   const eventDetails = (
     <div className="flex flex-col justify-between">
       <>
@@ -61,7 +74,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
 
       {size.width <= 400 ? (
         <div className="flex flex-col items-center w-full">
-          {event.imageUrl && (
+          {imagePath && (
             <div
               style={{
                 position: "relative",
@@ -72,7 +85,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
               onClick={() => setShowFullImage(true)}
             >
               <Image
-                src={event.imageUrl}
+                src={imagePath}
                 alt="Event image"
                 fill
                 sizes="158px"
@@ -89,7 +102,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
         </div>
       ) : (
         <div className="flex mt-2 gap-4">
-          {event.imageUrl && (
+          {imagePath && (
             <div
               style={{
                 position: "relative",
@@ -100,7 +113,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
               onClick={() => setShowFullImage(true)}
             >
               <Image
-                src={event.imageUrl}
+                src={imagePath}
                 alt="Event image"
                 fill
                 sizes="158px"
@@ -120,13 +133,13 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
         </p>
       )}
 
-      {event.imageUrl && (
+      {imagePath && (
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-3xl">
               <DialogTitle className="sr-only">Event Image for {event.eventName}</DialogTitle>
             <div className="relative w-full h-[80vh]">
               <Image
-                src={event.imageUrl}
+                src={imagePath}
                 alt="Event image full size"
                 fill
                 style={{
