@@ -25,10 +25,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
   // Helper function to get the full image path
   const getImagePath = (imageUrl: string | null) => {
     if (!imageUrl) return null;
-    // If it's already a full URL, return as-is
-    if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
-      return imageUrl;
-    }
+    
     // If it's just a filename, construct the full path
     return `/images/event_posters/${imageUrl}`;
   };
