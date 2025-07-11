@@ -29,6 +29,8 @@ import { DateRangePicker } from "../shared/date-range-picker";
 import { BandList } from "./band-list";
 import { getGenres } from "@/lib/data/genres-data";
 import { SearchTermBand } from "@/lib/data/bands-data";
+import { FileUpload } from "../promote/file-upload";
+import { uploadEventImage } from "../promote/upload-file";
 
 const initialFormState = {
   eventName: "",
@@ -86,6 +88,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
   const [bandsIds, setBandIds] = useState<string[]>(event?.bandIds ?? []);
   const [bands, setBands] = useState<string[]>(event?.bands ?? []);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const { data: genres } = useQuery({
     queryKey: ["genreTags"],
@@ -96,28 +99,48 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         label: genre.genres,
       }));
     },
-    staleTime: 24 * 60 * 60 * 1000, 
-    gcTime: 24 * 60 * 60 * 1000, 
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log("Form validation passed, raw data:", data);
     try {
+      let imageUrl = data.imageUrl; // Default to existing imageUrl
+
+      // Handle file upload if a file was selected
+      if (uploadedFile) {
+        const fileFormData = new FormData();
+        fileFormData.append("file", uploadedFile);
+
+        const uploadResult = await uploadEventImage(fileFormData);
+        if (uploadResult.success && uploadResult.filename) {
+          imageUrl = uploadResult.filename; // Store just the filename in database
+          console.log("File uploaded successfully:", uploadResult.url);
+        } else {
+          console.error("File upload failed:", uploadResult.error);
+          // You might want to show an error message to the user here
+          return;
+        }
+      }
+
       const formData: AddEventProps = {
         ...data,
         id: event?.id ?? "",
         bands: bands,
         bandIds: bandsIds,
+        imageUrl: imageUrl, // Use uploaded filename or existing imageUrl
       };
       console.log("form data: ", formData);
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
+          setUploadedFile(null); // Clear uploaded file
           setOpen(false);
         },
       });
     } catch (error) {
-      console.error("Error adding post:", error);
+      console.error("Error adding event:", error);
     }
   }
 
@@ -258,18 +281,6 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         </div>
         <FormField
           control={control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input placeholder="Poster/image URL" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
           name="website"
           render={({ field }) => (
             <FormItem>
@@ -280,6 +291,16 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
             </FormItem>
           )}
         />
+        {/* Event Poster Upload */}
+        <div className="space-y-2">
+          <FormLabel>Event Poster</FormLabel>
+          <FileUpload onFileSelect={setUploadedFile} />
+          {uploadedFile && (
+            <p className="text-sm text-muted-foreground">
+              Selected: {uploadedFile.name}
+            </p>
+          )}
+        </div>
         <div className="flex justify-end">
           <Button type="submit">Save Event</Button>
         </div>

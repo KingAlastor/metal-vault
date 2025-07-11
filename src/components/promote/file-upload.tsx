@@ -65,7 +65,11 @@ const validateImage = (file: File): Promise<{ valid: boolean; error?: string; di
   })
 }
 
-export function FileUpload() {
+interface FileUploadProps {
+  onFileSelect?: (file: File) => void;
+}
+
+export function FileUpload({ onFileSelect }: FileUploadProps = {}) {
   const [files, setFiles] = useState<UploadedFile[]>([])
 
   const onDrop = useCallback(
@@ -92,12 +96,17 @@ export function FileUpload() {
           
           setFiles((prev) => [...prev, newFile])
           
-          // Start upload
-          uploadToPublic(file, files.length)
+          // Call the callback if provided (for external handling)
+          if (onFileSelect) {
+            onFileSelect(file);
+          } else {
+            // Start upload (default behavior)
+            uploadToPublic(file, files.length)
+          }
         }
       }
     },
-    [files.length],
+    [files.length, onFileSelect],
   )
 
   const uploadToPublic = async (file: File, index: number) => {
@@ -170,11 +179,6 @@ export function FileUpload() {
 
   return (
     <div className="w-full space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">Image Upload</h2>
-      </div>
-
-      {/* Upload Area */}
       <Card>
         <CardContent className="p-1">
           <div
