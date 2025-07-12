@@ -36,21 +36,19 @@ export const CreateEventCard = () => {
       ) : (
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerTrigger asChild>
-            <>
-              <Button
-                variant="ghost"
-                className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
-                title="Create Post"
-              >
-                <Image
-                  src="/newPost.svg"
-                  alt="New Post"
-                  width={24}
-                  height={24}
-                />
-                <span className="hidden lg:inline ml-1">Create Event</span>
-              </Button>
-            </>
+            <Button
+              variant="ghost"
+              className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
+              title="Create Event"
+            >
+              <Image
+                src="/newPost.svg"
+                alt="New Event"
+                width={24}
+                height={24}
+              />
+              <span className="ml-1">Create Event</span>
+            </Button>
           </DrawerTrigger>
           <DrawerContent className="max-h-[90vh] overflow-y-auto">
             <DrawerHeader className="text-left">
