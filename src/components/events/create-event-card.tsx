@@ -23,7 +23,7 @@ export const CreateEventCard = () => {
               title="Create Post"
             >
               <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
-              <span className="hidden lg:inline ml-1">Create Event</span>
+              <span className="ml-1">Create Event</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[528px] max-h-[90vh] overflow-y-auto">
