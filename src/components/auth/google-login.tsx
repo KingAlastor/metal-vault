@@ -33,6 +33,11 @@ export function GoogleLogin() {
     <GoogleOAuthLogin
       onSuccess={handleSuccess}
       onError={handleError}
+      shape="pill"
+      size="large"
+      width="100%"
+      theme="outline"
+      text="signin_with"
     />
   );
 }
