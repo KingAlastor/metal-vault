@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "./ReactQueryProvider";
 import ThemeWrapper from "./ThemeProvider";
+import GoogleProvider from "./GoogleProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   description: "Get latest album release updates",
 };
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function RootLayout({
   children,
@@ -21,9 +22,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ReactQueryProvider>
-          <ThemeWrapper>{children}</ThemeWrapper>
-        </ReactQueryProvider>
+        <GoogleProvider>
+          <ReactQueryProvider>
+            <ThemeWrapper>{children}</ThemeWrapper>
+          </ReactQueryProvider>
+        </GoogleProvider>
       </body>
     </html>
   );

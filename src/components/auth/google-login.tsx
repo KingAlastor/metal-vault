@@ -1,21 +1,38 @@
 'use client';
 
+import { GoogleLogin as GoogleOAuthLogin } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
 
 export function GoogleLogin() {
   const router = useRouter();
 
-  const handleLogin = () => {
-    router.push('/api/auth/google');
+  const handleSuccess = async (credentialResponse: any) => {
+    // Send the credential to your server for verification and session creation
+    const res = await fetch('/api/auth/google/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ credential: credentialResponse.credential }),
+    });
+
+    if (res.ok) {
+      // Force a full page reload to ensure all server components re-render
+      window.location.href = '/';
+    } else {
+      console.error('Login failed');
+      // Handle login failure on the client-side if needed
+    }
+  };
+
+  const handleError = () => {
+    console.log('Login Failed');
   };
 
   return (
-    
-    <button 
-      onClick={handleLogin}
-      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
-      Sign in with Google
-    </button>
+    <GoogleOAuthLogin
+      onSuccess={handleSuccess}
+      onError={handleError}
+    />
   );
 }
