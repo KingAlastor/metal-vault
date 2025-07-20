@@ -20,7 +20,8 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
-      enableSystem={true}
+      enableSystem={false}
+      forcedTheme="dark"
       disableTransitionOnChange
     >
       {children}
