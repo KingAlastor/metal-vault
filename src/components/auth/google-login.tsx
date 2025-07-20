@@ -33,6 +33,7 @@ export function GoogleLogin() {
     <GoogleOAuthLogin
       onSuccess={handleSuccess}
       onError={handleError}
+      // oneTap can be added here once it works
       shape="pill"
       size="large"
       width="100%"
