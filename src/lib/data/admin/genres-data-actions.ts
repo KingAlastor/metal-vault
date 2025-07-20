@@ -15,7 +15,7 @@ const getDistinctGenreTags = async () => {
     FROM bands 
     ORDER BY genres ASC
   `;
-  return result.map(row => ({ genres: row.genres }));
+  return result.map((row) => row.genres);
 };
 
 const clearGenreTagsTable = async () => {
@@ -24,9 +24,9 @@ const clearGenreTagsTable = async () => {
   `;
 };
 
-const updateGenreTagsTable = async (genreTags: { genres: string }[]) => {
+const updateGenreTagsTable = async (genreTags: string[]) => {
   await sql`
     INSERT INTO genre_tags (genres)
-    VALUES ${sql(genreTags.map(tag => ({ genres: tag.genres })))}
+    VALUES ${sql(genreTags.map((tag) => [tag]))} 
   `;
 };
