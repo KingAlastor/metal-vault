@@ -13,7 +13,7 @@ export default async function Layout({
       <NavBar />
       <div className="mx-auto flex w-full max-w-7xl grow gap-0 lg:gap-5 p-0 lg:p-5">
         <MenuBar className="sticky top-[5.25rem] hidden h-fit flex-none space-y-3 rounded-2xl bg-card px-3 py-5 shadow-sm lg:block lg:px-5 xl:w-80" />
-        <div className="flex-1 min-w-0 w-full">{children}</div>
+        <div className="flex-1 min-w-0 w-full p-5 lg:p-0">{children}</div>
         <Toaster />
         <PromotionsBar className="sticky top-[5.25rem] hidden lg:block w-full max-w-xs" />
       </div>
