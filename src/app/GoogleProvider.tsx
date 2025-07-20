@@ -9,7 +9,6 @@ export default function GoogleProvider({
   children: React.ReactNode;
 }) {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID!;
-  console.log("google Id: ", clientId)
 
   if (!clientId) {
     console.error("Google OAuth Client ID is not configured. Please check your .env.local file.");
