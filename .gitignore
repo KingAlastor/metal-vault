@@ -37,7 +37,7 @@ next-env.d.ts
 .vscode
 
 #images 
-/public/images/
+/public/images/event_posters
 
 # PM2 logs
 /logs/
