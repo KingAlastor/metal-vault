@@ -31,7 +31,7 @@ CREATE TABLE user_tokens (
   provider VARCHAR(255) NOT NULL,
   refresh_token VARCHAR(255) NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  UNIQUE (user_id, provider)
+  UNIQUE (user_id, provider),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
@@ -278,8 +278,6 @@ CREATE TABLE ad_details (
   ad_target_id VARCHAR(36) NOT NULL,
   ad_target_type VARCHAR(50) NOT NULL,
   user_id VARCHAR(36) NOT NULL,
-
-  -- Ad configuration
   total_impressions_available INT DEFAULT 1,
   total_impressions INT DEFAULT 0,
   start_date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -288,6 +286,8 @@ CREATE TABLE ad_details (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_ad_details_ad_target_id ON ad_details (ad_target_id);
 
 CREATE TABLE ad_stats (
   id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -302,9 +302,10 @@ CREATE TABLE ad_stats (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  CREATE INDEX idx_ad_stats_ad_target_id ON active_ads (ad_target_id),
-  CREATE INDEX idx_ad_stats_start_date ON active_ads (start_date),
 );
+
+CREATE INDEX idx_ad_stats_ad_target_id ON ad_stats (ad_target_id);
+CREATE INDEX idx_ad_stats_start_date ON ad_stats (start_date);
 
 -- Function to increment a key in a JSONB object
 CREATE OR REPLACE FUNCTION jsonb_increment(
@@ -367,6 +368,7 @@ CREATE TABLE ad_billing (
   refunded_amount DECIMAL(10, 2) DEFAULT 0.00,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  CREATE INDEX idx_ad_billing_user ON ad_billing (user_id)
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+  CREATE INDEX idx_ad_billing_user ON ad_billing (user_id);

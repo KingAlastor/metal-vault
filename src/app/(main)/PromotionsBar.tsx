@@ -1,90 +1,85 @@
-"use client"
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import Autoplay from "embla-carousel-autoplay"
-import { cn } from "@/lib/utils"
-import { usePathname } from "next/navigation"
+"use client";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
+import { fetchActiveAds } from "@/lib/data/promotions-data";
 
-interface Ad {
-  id: string
-  type: "band" | "event"
-  extension: string
-}
-
-interface PromotionsBarProps {
-  className?: string
-}
-
-// Dummy API function to fetch active ads
-async function fetchActiveAds(): Promise<Ad[]> {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 500))
-
-  // Mock data - in real app this would be an actual API call
-  return [
-    { id: "behemoth_2024", type: "band", extension: "jpg" },
-    { id: "halo_effect_tour", type: "band", extension: "jpg" },
-    { id: "metal_festival_2024", type: "event", extension: "png" },
-    { id: "summer_concert_series", type: "event", extension: "jpg" },
-    { id: "iron_maiden_legacy", type: "band", extension: "jpg" },
-    { id: "rock_weekend", type: "event", extension: "png" },
-  ]
-}
+type PromotionsBarProps = {
+  className?: string;
+};
 
 export default function PromotionsBar({ className }: PromotionsBarProps) {
-  const [bandAds, setBandAds] = useState<string[]>([])
-  const [eventAds, setEventAds] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
-  const pathname = usePathname()
-  const router = useRouter()
+  const [bandAds, setBandAds] = useState<string[]>([]);
+  const [eventAds, setEventAds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+  const router = useRouter();
 
-  const promoBarRouter = ["/", "/events"]
-  const dynamicPaths = [/^\/band\/.+$/]
+  const promoBarRouter = ["/", "/events"];
+  const dynamicPaths = [/^\/band\/.+$/];
   const shouldRenderPromotionsBar =
-    promoBarRouter.includes(pathname) || dynamicPaths.some((regex) => regex.test(pathname))
+    promoBarRouter.includes(pathname) ||
+    dynamicPaths.some((regex) => regex.test(pathname));
 
   useEffect(() => {
     const fetchAds = async () => {
       try {
-        setLoading(true)
-        const activeAds = await fetchActiveAds()
+        setLoading(true);
+        const activeAds = await fetchActiveAds();
 
-        const bandAdPaths: string[] = []
-        const eventAdPaths: string[] = []
+        const bandAdPaths: string[] = [];
+        const eventAdPaths: string[] = [];
+        if (activeAds && activeAds?.length > 0) {
+          activeAds.forEach((ad) => {
+            const imagePath = `/images/promotions/${ad.filename}`;
 
-        activeAds.forEach((ad) => {
-          const imagePath = `/images/${ad.type}Ads/${ad.id}.${ad.extension}`
+            if (ad.type === "band") {
+              bandAdPaths.push(imagePath);
+            } else if (ad.type === "event") {
+              eventAdPaths.push(imagePath);
+            }
+          });
+        }
 
-          if (ad.type === "band") {
-            bandAdPaths.push(imagePath)
-          } else if (ad.type === "event") {
-            eventAdPaths.push(imagePath)
-          }
-        })
+        if (bandAdPaths.length === 0) {
+          bandAdPaths.push("/images/promotions/bandpromo_placeholder.png");
+        }
 
-        setBandAds(bandAdPaths)
-        setEventAds(eventAdPaths)
+        if (eventAdPaths.length === 0) {
+          eventAdPaths.push("/images/promotions/eventpromo_placeholder.png");
+        }
+
+        setBandAds(bandAdPaths);
+        setEventAds(eventAdPaths);
       } catch (error) {
-        console.error("Failed to fetch ads:", error)
+        console.error("Failed to fetch ads:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchAds()
-  }, [])
+    fetchAds();
+  }, []);
 
   const handleAdClick = (adPath: string) => {
     // Extract ad ID from path for navigation
-    const adId = adPath.split("/").pop()?.split(".")[0]
-    router.push(`/promotion?ad=${adId}`)
-  }
+    const adId = adPath.split("/").pop()?.split(".")[0];
+    router.push(`/promotion?ad=${adId}`);
+  };
 
   if (!shouldRenderPromotionsBar || loading) {
-    return null
+    return null;
   }
 
   const CarouselComponent = ({
@@ -92,11 +87,11 @@ export default function PromotionsBar({ className }: PromotionsBarProps) {
     title,
     autoplayDelay = 5000,
   }: {
-    ads: string[]
-    title: string
-    autoplayDelay?: number
+    ads: string[];
+    title: string;
+    autoplayDelay?: number;
   }) => {
-    if (ads.length === 0) return null
+    if (ads.length === 0) return null;
 
     return (
       <div className="mb-6">
@@ -139,13 +134,21 @@ export default function PromotionsBar({ className }: PromotionsBarProps) {
           </CarouselContent>
         </Carousel>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className={cn("space-y-4", className)}>
-      <CarouselComponent ads={bandAds} title="Band Promotions" autoplayDelay={6000} />
-      <CarouselComponent ads={eventAds} title="Event Promotions" autoplayDelay={8000} />
+      <CarouselComponent
+        ads={bandAds}
+        title="Band Promotions"
+        autoplayDelay={6000}
+      />
+      <CarouselComponent
+        ads={eventAds}
+        title="Event Promotions"
+        autoplayDelay={8000}
+      />
     </div>
-  )
+  );
 }
