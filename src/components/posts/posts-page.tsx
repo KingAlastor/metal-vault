@@ -66,8 +66,6 @@ export default function PostsPage() {
         };
       }
       
-      // First time fetch - get ALL posts from API
-      console.log("first time fetch")
       const response = await kyInstance
         .get("/api/posts", {})
         .json<PostsPageData>();

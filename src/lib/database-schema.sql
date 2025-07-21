@@ -278,6 +278,7 @@ CREATE TABLE ad_details (
   ad_target_id VARCHAR(36) NOT NULL,
   ad_target_type VARCHAR(50) NOT NULL,
   user_id VARCHAR(36) NOT NULL,
+  filename VARCHAR(255), 
   total_impressions_available INT DEFAULT 1,
   total_impressions INT DEFAULT 0,
   start_date TIMESTAMP WITH TIME ZONE NOT NULL,
