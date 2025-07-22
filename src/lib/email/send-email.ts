@@ -17,31 +17,31 @@ export async function sendMail(
   html: string
 ) {
   if (
-    !process.env.AWS_SES_REGION ||
-    !process.env.AWS_SES_ACCESS_KEY ||
-    !process.env.AWS_SES_ACCESS_SECRET ||
-    !process.env.AWS_SES_SENDER_EMAIL
+    !process.env.AWS_REGION ||
+    !process.env.AWS_ACCESS_KEY ||
+    !process.env.AWS_ACCESS_SECRET ||
+    !process.env.AWS_SENDER_EMAIL
   ) {
     console.error("Missing required AWS SES environment variables");
     console.error("AWS SES configuration check:");
-    console.error("- Region:", process.env.AWS_SES_REGION);
+    console.error("- Region:", process.env.AWS_REGION);
     console.error(
       "- Access Key:",
-      process.env.AWS_SES_ACCESS_KEY ? "Set" : "Missing"
+      process.env.AWS_ACCESS_KEY ? "Set" : "Missing"
     );
     console.error(
       "- Secret Key:",
-      process.env.AWS_SES_ACCESS_SECRET ? "Set" : "Missing"
+      process.env.AWS_ACCESS_SECRET ? "Set" : "Missing"
     );
-    console.error("- Sender Email:", process.env.AWS_SES_SENDER_EMAIL);
+    console.error("- Sender Email:", process.env.AWS_SENDER_EMAIL);
     return { success: false, error: "Missing AWS SES configuration" };
   }
 
   const sesClient = new SESClient({
-    region: process.env.AWS_SES_REGION,
+    region: process.env.AWS_REGION,
     credentials: {
-      accessKeyId: process.env.AWS_SES_ACCESS_KEY!,
-      secretAccessKey: process.env.AWS_SES_ACCESS_SECRET!,
+      accessKeyId: process.env.AWS_ACCESS_KEY!,
+      secretAccessKey: process.env.AWS_ACCESS_SECRET!,
     },
   });
 
@@ -51,7 +51,7 @@ export async function sendMail(
 
   try {
     const info = await transporter.sendMail({
-      from: process.env.AWS_SES_SENDER_EMAIL,
+      from: process.env.AWS_SENDER_EMAIL,
       to: to,
       subject: subject,
       text: text,

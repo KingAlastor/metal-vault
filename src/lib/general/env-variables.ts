@@ -28,14 +28,14 @@ export const fetchEnvironmentVariables = async (
       return process.env.REDIRECT_URI || "";
     case "DATABASE_URL":
       return process.env.DATABASE_URL || "";
-    case "AWS_SES_ACCESS_KEY":
-      return process.env.AWS_SES_ACCESS_KEY || "";
-    case "AWS_SES_ACCESS_SECRET":
-      return process.env.AWS_SES_ACCESS_SECRET || "";
-    case "AWS_SES_SENDER_EMAIL":
-      return process.env.AWS_SES_SENDER_EMAIL || "";
-    case "AWS_SES_REGION":
-      return process.env.AWS_SES_REGION || "";
+    case "AWS_ACCESS_KEY":
+      return process.env.AWS_ACCESS_KEY || "";
+    case "AWS_ACCESS_SECRET":
+      return process.env.AWS_ACCESS_SECRET || "";
+    case "AWS_SENDER_EMAIL":
+      return process.env.AWS_SENDER_EMAIL || "";
+    case "AWS_REGION":
+      return process.env.AWS_REGION || "";
     default:
       throw new Error(`Unknown environment variable key: ${envKey}`);
   }

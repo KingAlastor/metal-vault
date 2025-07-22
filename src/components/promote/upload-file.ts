@@ -1,16 +1,15 @@
 "use server";
 
-import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
-  region: process.env.AWS_SES_REGION!,
+  region: process.env.AWS_REGION!,
   credentials: {
-    accessKeyId: process.env.AWS_SES_ACCESS_KEY!,
-    secretAccessKey: process.env.AWS_SES_ACCESS_SECRET!,
+    accessKeyId: process.env.AWS_ACCESS_KEY!,
+    secretAccessKey: process.env.AWS_ACCESS_SECRET!,
   },
 });
 
