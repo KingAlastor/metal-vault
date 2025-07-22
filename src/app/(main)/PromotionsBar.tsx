@@ -53,11 +53,11 @@ export default function PromotionsBar({ className }: PromotionsBarProps) {
         }
 
         if (bandAdPaths.length === 0) {
-          bandAdPaths.push("/images/promotions/bandpromo_placeholder.png");
+          bandAdPaths.push("/bandpromo_placeholder.png");
         }
 
         if (eventAdPaths.length === 0) {
-          eventAdPaths.push("/images/promotions/eventpromo_placeholder.png");
+          eventAdPaths.push("/eventpromo_placeholder.png");
         }
 
         setBandAds(bandAdPaths);

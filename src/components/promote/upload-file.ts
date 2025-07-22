@@ -4,6 +4,17 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
+const s3Client = new S3Client({
+  region: process.env.AWS_SES_REGION!,
+  credentials: {
+    accessKeyId: process.env.AWS_SES_ACCESS_KEY!,
+    secretAccessKey: process.env.AWS_SES_ACCESS_SECRET!,
+  },
+});
+
+const BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
 interface UploadConfig {
   directory: string;
@@ -30,7 +41,10 @@ const uploadConfigs: Record<string, UploadConfig> = {
   },
 };
 
-async function uploadFile(formData: FormData, type: keyof typeof uploadConfigs) {
+async function uploadFile(
+  formData: FormData,
+  type: keyof typeof uploadConfigs
+) {
   try {
     const file = formData.get("file") as File;
 
@@ -93,31 +107,23 @@ async function uploadFile(formData: FormData, type: keyof typeof uploadConfigs) 
       throw new Error("Failed to process image");
     }
 
-    // Create directory
-    try {
-      await mkdir(config.directory, { recursive: true });
-    } catch (error) {
-      // Directory might already exist
-    }
-
     // Generate unique filename using timestamp and random string
     const timestamp = Date.now();
     const randomSuffix = Math.random().toString(36).substring(2, 8);
     const filename = `${config.filenamePrefix}_${timestamp}_${randomSuffix}.${detectedExtension}`;
-    const filepath = path.join(config.directory, filename);
+    const s3Key = `${config.directory}/${filename}`;
 
-    // Write processed file to directory
-    await writeFile(filepath, processedBuffer);
+    const uploadCommand = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: s3Key,
+      Body: processedBuffer,
+      ContentType: fileType.mime,
+      CacheControl: "max-age=31536000",
+    });
 
-    // Generate appropriate public URL based on type
-    let publicUrl: string;
-    if (type === "promotion") {
-      publicUrl = `/uploads/${filename}`;
-    } else if (type === "event") {
-      publicUrl = `/images/event_posters/${filename}`;
-    } else {
-      publicUrl = `/${filename}`;
-    }
+    await s3Client.send(uploadCommand);
+
+    const publicUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
 
     return {
       success: true,
