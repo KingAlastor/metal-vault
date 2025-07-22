@@ -133,8 +133,8 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
         label: genre.genres,
       }));
     },
-    staleTime: 24 * 60 * 60 * 1000, 
-    gcTime: 24 * 60 * 60 * 1000, 
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -152,7 +152,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
         bandcamp_link: data.bandcamp_link,
         previewUrl: linkData?.previewUrl,
       };
-      
+
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
@@ -178,10 +178,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
   return (
     <Form {...form}>
       <form
-        onSubmit={handleSubmit(onSubmit, (errors) => {
-          console.log("Form validation failed:", errors);
-          console.log("Current form values:", form.getValues());
-        })}
+        onSubmit={handleSubmit(onSubmit, (errors) => {})}
         className="w-full space-y-6"
       >
         <FormField
@@ -291,7 +288,7 @@ const getLinkData = async (data: z.infer<typeof FormSchema>) => {
           name: videoData.title,
           imageUrl: videoData.thumbnails.high.url,
           releaseDate: videoData.publishedAt,
-        },   
+        },
       };
     } else return null;
   } else if (data.spotify_link) {

@@ -77,9 +77,7 @@ export function parseMetalArchivesDate(dateString: string): Date | null {
       .replace(/\s+/g, " ")
       .trim();
     
-    console.log(`Original: "${dateString}", Cleaned: "${cleanedDateString}"`);
     const parts = cleanedDateString.split(" ");
-    console.log(`Split parts:`, parts);
     
     if (parts.length !== 3) {
       console.warn(`Expected 3 parts, got ${parts.length}: ${parts}`);
@@ -87,7 +85,6 @@ export function parseMetalArchivesDate(dateString: string): Date | null {
     }
     
     const [month, day, year] = parts;
-    console.log(`Parsed: month="${month}", day="${day}", year="${year}"`);
     const monthIndex = getMonthIndex(month);
 
     if (monthIndex === -1) {

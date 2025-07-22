@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -105,7 +105,6 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("Form validation passed, raw data:", data);
     try {
       let imageUrl = data.imageUrl; // Default to existing imageUrl
 
@@ -118,9 +117,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         const uploadResult = await uploadEventImage(fileFormData);
         if (uploadResult.success && uploadResult.filename) {
           imageUrl = uploadResult.filename; // Store just the filename in database
-          console.log("File uploaded successfully:", uploadResult.url);
         } else {
-          console.error("File upload failed:", uploadResult.error);
           setIsUploading(false);
           // You might want to show an error message to the user here
           return;
@@ -135,7 +132,6 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         bandIds: bandsIds,
         imageUrl: imageUrl, // Use uploaded filename or existing imageUrl
       };
-      console.log("form data: ", formData);
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
@@ -185,8 +181,6 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit, (errors) => {
-          console.log("Form validation failed:", errors);
-          console.log("Current form values:", form.getValues());
         })}
         className="w-full space-y-6"
       >

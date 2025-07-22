@@ -20,12 +20,10 @@ export function useChangeBandRating() {
       queryClient.setQueryData(["favbands"], (old: any) => {
         if (!old) return old;
     
-        console.log("Updating bandId:", bandId, "with rating:", rating);
     
         const updatedData = old.map((band: any) => {
           if (band.id === bandId) {
             const updatedBand = { ...band, rating: rating };
-            console.log("Updated band:", updatedBand);
             return updatedBand;
           }
           return band;

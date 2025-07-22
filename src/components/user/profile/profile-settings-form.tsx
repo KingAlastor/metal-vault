@@ -32,9 +32,7 @@ export default function ProfileSettingsForm() {
   const { toast } = useToast();
   const { data: session } = useSession();
   const user = useUser(session?.userId);
-  console.log("user: ", user)
   const queryClient = useQueryClient();
-  console.log("user; ", user.data)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -42,7 +40,7 @@ export default function ProfileSettingsForm() {
       location: "",
       genre_tags: [],
       excluded_genre_tags: [],
-    },  
+    },
   });
 
   // Reset form when user data becomes available
@@ -51,8 +49,12 @@ export default function ProfileSettingsForm() {
       form.reset({
         user_name: user.data.user_name || user.data.name || "",
         location: user.data.location || "",
-        genre_tags: Array.isArray(user.data.genre_tags) ? user.data.genre_tags : [],
-        excluded_genre_tags: Array.isArray(user.data.excluded_genre_tags) ? user.data.excluded_genre_tags : [],
+        genre_tags: Array.isArray(user.data.genre_tags)
+          ? user.data.genre_tags
+          : [],
+        excluded_genre_tags: Array.isArray(user.data.excluded_genre_tags)
+          ? user.data.excluded_genre_tags
+          : [],
       });
     }
   }, [user?.data, form]);
@@ -66,15 +68,14 @@ export default function ProfileSettingsForm() {
         label: genre.genres,
       }));
     },
-    staleTime: 24 * 60 * 60 * 1000, 
-    gcTime: 24 * 60 * 60 * 1000, 
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      console.log("data: ", data)
       await updateUserData(data);
-      queryClient.invalidateQueries({ queryKey: ['user', session?.userId] });
+      queryClient.invalidateQueries({ queryKey: ["user", session?.userId] });
       toast({ description: "Profile updated." });
     } catch (error) {
       toast({
@@ -87,10 +88,7 @@ export default function ProfileSettingsForm() {
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log("Form validation failed:", errors);
-          console.log("Current form values:", form.getValues());
-        })}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {})}
         className="max-w-sm space-y-2.5"
       >
         <UserNameField />
@@ -100,10 +98,7 @@ export default function ProfileSettingsForm() {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Country</FormLabel>
-              <CountrySelectDropdown
-                control={form.control}
-                name="location"
-              />
+              <CountrySelectDropdown control={form.control} name="location" />
               <FormDescription>
                 Country is used to receive relevant events and band updates
               </FormDescription>
@@ -128,7 +123,7 @@ export default function ProfileSettingsForm() {
             </FormItem>
           )}
         />
-                <FormField
+        <FormField
           control={form.control}
           name="excluded_genre_tags"
           render={({ field }) => (

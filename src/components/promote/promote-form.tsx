@@ -85,31 +85,31 @@ export default function ToggleForm() {
   }, [showPromotionTo, amount])
 
   async function onSubmit(data: PromotionFormValues) {
-    console.log("Promotion form submitted:", {
-      ...data,
-      type: formType,
-      totalCost,
-    })
-    
-    // Convert form data to FormData object
-    const formData = new FormData()
-    formData.append("name", data.name)
-    formData.append("amount", data.amount.toString())
-    formData.append("showPromotionTo", JSON.stringify(data.showPromotionTo))
-    formData.append("type", formType)
-    formData.append("totalCost", totalCost.toString())
-    
-    if (data.startDate) {
-      formData.append("startDate", data.startDate.toISOString())
-    }
-    if (data.endDate) {
-      formData.append("endDate", data.endDate.toISOString())
-    }
-    
-    const result = await uploadPromotionFile(formData)
-    if (result.success) {
-      console.log("Promotion created successfully:")
-      form.reset()
+    try {
+      const formData = new FormData()
+      formData.append("name", data.name)
+      formData.append("amount", data.amount.toString())
+      formData.append("showPromotionTo", JSON.stringify(data.showPromotionTo))
+      formData.append("type", formType)
+      formData.append("totalCost", totalCost.toString())
+      
+      if (data.startDate) {
+        formData.append("startDate", data.startDate.toISOString())
+      }
+      if (data.endDate) {
+        formData.append("endDate", data.endDate.toISOString())
+      }
+      
+      const result = await uploadPromotionFile(formData)
+      if (result.success) {
+        form.reset()
+        // You might want to show a success message or redirect here
+      } else {
+        // Handle error case
+        console.error("Upload failed:", result.error)
+      }
+    } catch (error) {
+      console.error("Error submitting promotion:", error)
     }
   }
 

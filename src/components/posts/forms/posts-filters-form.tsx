@@ -19,7 +19,6 @@ import { PostsDataFilters } from "@/lib/data/posts-data";
 import { useSession, useUser } from "@/lib/session/client-hooks";
 import { updateUserData } from "@/lib/data/user-data";
 
-
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
   disliked_bands: z.boolean().default(false).optional(),
@@ -66,10 +65,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log("Form validation failed:", errors);
-          console.log("Current form values:", form.getValues());
-        })}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {})}
         className="w-full space-y-6"
       >
         <>

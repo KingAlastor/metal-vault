@@ -26,7 +26,6 @@ export const BandCard = () => {
     enabled: !!bandId,
   });
 
-  console.log("band data: ", band);
   if (isError) {
     return <>Error: {error.message}</>;
   }

@@ -93,10 +93,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log("Form validation failed:", errors);
-          console.log("Current form values:", form.getValues());
-        })}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {})}
         className="w-full space-y-6"
       >
         <>

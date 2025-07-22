@@ -55,9 +55,7 @@ export default function PostsPage() {
         const startIndex = (pageParam as number) || 0;
         const endIndex = startIndex + pageSize;
         const postsPage = allPostsRef.current.slice(startIndex, endIndex);
-        
         const next_cursor = endIndex < allPostsRef.current.length ? endIndex.toString() : null;
-        console.log("React Query, ", startIndex, endIndex, postsPage)
         
         return {
           posts: postsPage,

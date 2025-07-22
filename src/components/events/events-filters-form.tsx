@@ -45,7 +45,8 @@ export function EventsFiltersForm({
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (filters: EventFilters) => getEventsByFilters(filters, { cursor: undefined, page_size: 10 }),
+    mutationFn: (filters: EventFilters) =>
+      getEventsByFilters(filters, { cursor: undefined, page_size: 10 }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events-feed"] });
     },
@@ -67,10 +68,7 @@ export function EventsFiltersForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log("Form validation failed:", errors);
-          console.log("Current form values:", form.getValues());
-        })}
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {})}
         className="w-full space-y-6"
       >
         <>

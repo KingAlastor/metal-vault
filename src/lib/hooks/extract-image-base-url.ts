@@ -8,7 +8,7 @@ export const extractYTID = (link: string) => {
     const videoId = match[2];
     return videoId;
   } else {
-    console.log("No match found for YT link");
+    console.error("No match found for YT link");
     return null;
   }
 };
@@ -20,7 +20,7 @@ const extractSpotifyID = (link: string) => {
   if (match && match[2]) {
     return { type: match[1], id: match[2] };
   } else {
-    console.log("No match found for Spotify link");
+    console.error("No match found for Spotify link");
     return null;
   }
 };
