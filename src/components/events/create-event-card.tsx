@@ -22,7 +22,7 @@ export const CreateEventCard = () => {
               className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
               title="Create Post"
             >
-              <Image src="/newPost.svg" alt="New Post" width={24} height={24} />
+              <Image src="/NewPost.svg" alt="New Post" width={24} height={24} />
               <span className="ml-1">Create Event</span>
             </Button>
           </DialogTrigger>
