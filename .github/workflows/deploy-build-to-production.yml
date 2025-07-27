@@ -1,7 +1,4 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-# github-actions-disable-validation
-
-name: Deploy to Production (Fast)
+name: Deploy to Production 
 
 on:
   # // For future reference if i want to deploy on push
@@ -30,6 +27,8 @@ jobs:
       run: npm run build
       env:
         NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID }}
+        # mock DB url due to Nextjs build process with routes
+        DATABASE_URL: "postgresql://build:build@localhost:5432/build_placeholder"
 
     - name: Create deployment package
       run: |
