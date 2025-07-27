@@ -20,7 +20,7 @@ module.exports = {
       log_file: "./logs/app-combined.log",
       time: true,
     },    {
-      // GraphQL Worker (background service)
+      // GraphQL Worker 
       name: "metal-vault-worker",
       script: "npm",
       args: "run worker:start",
