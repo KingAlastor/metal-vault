@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# github-actions-disable-validation
+
+name: Deploy to Production (Fast)
+
+on:
+  # // For future reference if i want to deploy on push
+  # push:
+  #  branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID }}
+
+    - name: Create deployment package
+      run: |
+        tar -czf deploy.tar.gz .next package.json package-lock.json public
+
+    - name: Deploy to VPS
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        source: "deploy.tar.gz"
+        target: "/tmp/"
+
+    - name: Extract and restart
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        script: |
+          cd /var/www/metal-vault
+          cat .env
+          
+          # Backup current build
+          cp -r .next .next.backup 2>/dev/null || true
+          
+          # Extract new build
+          tar -xzf /tmp/deploy.tar.gz
+          
+          # Install production dependencies
+          npm ci --only=production
+          
+          # Restart PM2
+          pm2 restart metal-vault-app || pm2 start ecosystem.config.js
+          pm2 save
+          
+          # Cleanup
+          rm /tmp/deploy.tar.gz
+          rm -rf .next.backup
+
+    - name: Verify deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        script: |
+          pm2 list
+          echo "Deployment completed successfully!"
