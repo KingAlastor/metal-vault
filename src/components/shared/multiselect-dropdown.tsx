@@ -58,7 +58,7 @@ export function MultiSelectDropdown({
 
   return (
     <div className="flex flex-col space-y-2">
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="h-8 justify-start" aria-expanded={open}>
             {triggerText}
