@@ -1,9 +1,6 @@
 name: Deploy to Production 
 
 on:
-  # // For future reference if i want to deploy on push
-  # push:
-  #  branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -32,9 +29,9 @@ jobs:
 
     - name: Create deployment package
       run: |
-        tar -czf deploy.tar.gz .next package.json package-lock.json public
-
-    - name: Deploy to VPS
+        tar -czf deploy.tar.gz .next package.json package-lock.json public ecosystem.config.js
+    
+    - name: Securely copy package to VPS
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.VPS_HOST }}
@@ -44,7 +41,7 @@ jobs:
         source: "deploy.tar.gz"
         target: "/tmp/"
 
-    - name: Extract and restart
+    - name: Deploy, Verify, and Cleanup
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.VPS_HOST }}
@@ -52,33 +49,56 @@ jobs:
         key: ${{ secrets.VPS_SSH_KEY }}
         port: ${{ secrets.VPS_PORT || 22 }}
         script: |
-          cd /var/www/metal-vault
-          cat .env
+          set -e # Exit immediately if a command exits with a non-zero status.
+
+          # --- 1. Configuration and Setup ---
+          echo "Starting deployment..."
+          APP_DIR="/var/www/metal-vault"
+          RELEASES_DIR="$APP_DIR/releases"
+          NEW_RELEASE_DIR="$RELEASES_DIR/$(date +%Y%m%d%H%M%S)"
           
-          # Backup current build
-          cp -r .next .next.backup 2>/dev/null || true
-          
-          # Extract new build
-          tar -xzf /tmp/deploy.tar.gz
-          
-          # Install production dependencies
+          echo "Creating new release directory: $NEW_RELEASE_DIR"
+          mkdir -p $NEW_RELEASE_DIR
+
+          # --- 2. Unpack the new release ---
+          echo "Unpacking release package..."
+          tar -xzf /tmp/deploy.tar.gz -C $NEW_RELEASE_DIR
+          rm /tmp/deploy.tar.gz
+          cd $NEW_RELEASE_DIR
+
+          # --- 3. Install Production Dependencies ---
+          echo "Installing production dependencies..."
           npm ci --only=production
           
-          # Restart PM2
-          pm2 restart metal-vault-app || pm2 start ecosystem.config.js
+          # --- 4. Prepare Environment ---
+          echo "Copying production .env file..."
+          if [ -f "$APP_DIR/.env" ]; then
+            cp $APP_DIR/.env $NEW_RELEASE_DIR/.env
+            echo ".env file copied."
+          else
+            echo "Warning: No .env file found in $APP_DIR. Skipping copy."
+          fi
+
+          # --- 5. Atomically Switch to New Release ---
+          echo "Activating new release..."
+          ln -sfn $NEW_RELEASE_DIR $APP_DIR/current
+          echo "Symlink updated. Current release is now:"
+          ls -l $APP_DIR/current
+
+          # --- 6. Restart Application and Verify ---
+          echo "Restarting application with PM2..."
+          # Change to the main app directory to ensure PM2 commands work as expected
+          cd $APP_DIR
+          # Your ecosystem file is now part of the release
+          pm2 restart $APP_DIR/current/ecosystem.config.js --update-env || pm2 start $APP_DIR/current/ecosystem.config.js
           pm2 save
           
-          # Cleanup
-          rm /tmp/deploy.tar.gz
-          rm -rf .next.backup
-
-    - name: Verify deployment
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USERNAME }}
-        key: ${{ secrets.VPS_SSH_KEY }}
-        port: ${{ secrets.VPS_PORT || 22 }}
-        script: |
+          echo "Application status after restart:"
           pm2 list
-          echo "Deployment completed successfully!"
+
+          # --- 7. Cleanup Old Releases ---
+          echo "🧹 Cleaning up old releases..."
+          ls -dt $RELEASES_DIR/* | tail -n +6 | xargs -r rm -rf
+          echo "Kept the 5 most recent releases. Cleanup complete."
+
+          echo "🎉 Deployment completed successfully!"
