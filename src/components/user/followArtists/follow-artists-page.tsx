@@ -194,6 +194,7 @@ export default function FollowArtistsPage() {
               <p>Sync from Spotify</p>
             )}
           </Button>
+          <p>{`for /d %i in ("E:\#Muusika\*") do @echo %~nxi >> "E:\#Muusika\folders.csv"`}</p>
           <UnresolvedBands
             unresolvedBands={unresolvedBands}
             isOpen={isBandsDialogOpen}
