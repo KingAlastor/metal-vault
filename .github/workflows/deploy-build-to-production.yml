@@ -68,7 +68,7 @@ jobs:
 
           # --- 3. Install Production Dependencies ---
           echo "Installing production dependencies..."
-          npm ci --only=production
+          npm ci --only=production --force
           
           # --- 4. Prepare Environment ---
           echo "Copying production .env file..."
