@@ -1,14 +1,22 @@
 {
-  "extends": "../../../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../../dist/worker",
-    "rootDir": ".",
+    "moduleResolution": "node",
+    "outDir": "../../dist",
+    "rootDir": "..",
     "module": "commonjs",
     "target": "es2020",
-    "lib": ["es2020"],
+    "lib": ["es2020", "dom"],
     "isolatedModules": false,
-    "noEmit": false
+    "noEmit": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "../..",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["**/*.ts"],
+  "include": ["./**/*.ts", "../lib/**/*.ts"],
   "exclude": ["node_modules"]
 }
