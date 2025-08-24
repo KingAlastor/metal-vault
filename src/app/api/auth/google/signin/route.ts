@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session/server-actions";
 import { findOrCreateUser } from "@/lib/data/user-data";
 import { NextRequest, NextResponse } from 'next/server';
 
-const client = new OAuth2Client(process.env.GOOGLE_OAUTH_CLIENT_ID);
+const client = new OAuth2Client(process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID);
 
 export async function POST(request: NextRequest) {
   const { credential } = await request.json();
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     // Verify the ID token with Google
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_OAUTH_CLIENT_ID,
+      audience: process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
     });
     
     const payload = ticket.getPayload();
