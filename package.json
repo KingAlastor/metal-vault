@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_OPTIONS='--inspect' next dev --turbopack",
-    "build": "next build",
+    "build": "next build && npm run worker:build",
     "start": "next start",
     "lint": "next lint",
-    "worker:start": "cross-env NODE_ENV=production npx tsx src/worker/index.ts",
-    "worker:once": "cross-env NODE_ENV=production npx tsx src/worker/index.ts --once"
+    "worker:build": "tsc --project ./src/worker/tsconfig.json",
+    "worker:start": "cross-env NODE_ENV=production node dist/worker/index.js",
+    "worker:once": "cross-env NODE_ENV=production node dist/worker/index.js --once"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
