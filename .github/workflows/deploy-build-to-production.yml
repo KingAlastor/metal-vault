@@ -70,11 +70,6 @@ jobs:
           echo "Installing production dependencies..."
           npm ci --only=production --force
           
-          # --- Set Permissions ---
-          echo "Setting file permissions..."
-          sudo chown -R www-data:www-data $NEW_RELEASE_DIR
-          sudo chmod -R 755 $NEW_RELEASE_DIR
-
           # --- 4. Prepare Environment ---
           echo "Copying production .env file..."
           if [ -f "$APP_DIR/.env" ]; then
@@ -83,6 +78,11 @@ jobs:
           else
             echo "Warning: No .env file found in $APP_DIR. Skipping copy."
           fi
+
+          # --- Set Permissions ---
+          echo "Setting file permissions..."
+          sudo chown -R www-data:www-data $NEW_RELEASE_DIR
+          sudo chmod -R 755 $NEW_RELEASE_DIR
 
           # --- 5. Atomically Switch to New Release ---
           echo "Activating new release..."
