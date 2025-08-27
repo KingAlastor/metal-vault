@@ -109,7 +109,7 @@ jobs:
 
           # --- 7. Cleanup Old Releases ---
           echo "🧹 Cleaning up old releases..."
-          ls -dt $RELEASES_DIR/* | tail -n +3 | xargs -r rm -rf
-          echo "Kept the 5 most recent releases. Cleanup complete."
+          ls -dt $RELEASES_DIR/* | tail -n +4 | xargs -r rm -rf
+          echo "Kept the 3 most recent releases. Cleanup complete."
 
           echo "🎉 Deployment completed successfully!"
