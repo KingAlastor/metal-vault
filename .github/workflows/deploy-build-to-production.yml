@@ -70,7 +70,7 @@ jobs:
           echo "Installing production dependencies..."
           npm ci --only=production --force
           
-          # --- 4. Prepare Environment ---
+          # --- 4. Prepare Environment & Logs ---
           echo "Copying production .env file..."
           if [ -f "$APP_DIR/.env" ]; then
             cp $APP_DIR/.env $NEW_RELEASE_DIR/.env
@@ -79,10 +79,16 @@ jobs:
             echo "Warning: No .env file found in $APP_DIR. Skipping copy."
           fi
 
+          echo "Creating logs directory..."
+          mkdir -p $NEW_RELEASE_DIR/logs
+
           # --- Set Permissions ---
           echo "Setting file permissions..."
+          # Set the web server as owner for all files
           sudo chown -R www-data:www-data $NEW_RELEASE_DIR
           sudo chmod -R 755 $NEW_RELEASE_DIR
+          # Reclaim ownership of the logs directory for the PM2 user
+          sudo chown -R ${{ secrets.VPS_USERNAME }}:${{ secrets.VPS_USERNAME }} $NEW_RELEASE_DIR/logs
 
           # --- 5. Atomically Switch to New Release ---
           echo "Activating new release..."
