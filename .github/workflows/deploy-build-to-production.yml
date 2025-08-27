@@ -94,14 +94,17 @@ jobs:
           ls -l $APP_DIR/current
 
           # --- 6. Restart Application and Verify ---
-          echo "Restarting application with PM2..."
-          # Change to the main app directory to ensure PM2 commands work as expected
-          cd $APP_DIR
-          # Your ecosystem file is now part of the release
-          pm2 restart $APP_DIR/current/ecosystem.config.js --update-env || pm2 start $APP_DIR/current/ecosystem.config.js
+          echo "Starting clean application slate with PM2..."
+          # Delete all old processes to ensure a clean start
+          pm2 delete all || true
+          # Change directory to the new release
+          cd $APP_DIR/current
+          # Start all applications defined in the new ecosystem file
+          pm2 start ecosystem.config.js
+          # Save the new process list to be resurrected on reboot
           pm2 save
           
-          echo "Application status after restart:"
+          echo "Application status after clean start:"
           pm2 list
 
           # --- 7. Cleanup Old Releases ---
