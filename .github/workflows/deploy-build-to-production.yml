@@ -29,7 +29,7 @@ jobs:
 
     - name: Create deployment package
       run: |
-        tar -czf deploy.tar.gz .next dist package.json package-lock.json public ecosystem.config.js
+        tar -czf deploy.tar.gz .next dist package.json package-lock.json public ecosystem.config.js next.config.mjs
     
     - name: Securely copy package to VPS
       uses: appleboy/scp-action@v0.1.7

@@ -1,25 +1,26 @@
 /** @type {import('next').NextConfig} */
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://accounts.google.com;
-  style-src 'self' 'unsafe-inline' https://accounts.google.com;
-  img-src 'self' blob: data: *;
+  script-src 'self' 'unsafe-eval' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' blob: data: lh3.googleusercontent.com f4.bcbits.com i.ytimg.com i.scdn.co platform-lookaside.fbsbx.com;
   font-src 'self';
   object-src 'none';
   base-uri 'self';
   form-action 'self';
   frame-ancestors 'none';
-  frame-src 'self' https://accounts.google.com; 
-  connect-src 'self' https://accounts.google.com;
   upgrade-insecure-requests;
 `;
 
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
-      {
-        hostname: "**",
-      },
+      { hostname: 'f4.bcbits.com' },
+      { hostname: 'yt3.ggpht.com' },
+      { hostname: 'i.ytimg.com' },
+      { hostname: 'i.scdn.co' },
+      { hostname: 'lh3.googleusercontent.com' },
     ],
   },
   compiler: {
@@ -29,11 +30,11 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
           {
-            key: "Content-Security-Policy",
-            value: cspHeader.replace(/\n/g, ""),
+            key: 'Content-Security-Policy',
+            value: cspHeader.replace(/\n/g, ''),
           },
         ],
       },
