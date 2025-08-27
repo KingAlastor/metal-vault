@@ -118,8 +118,8 @@ jobs:
           pm2 list
 
           # --- 7. Cleanup Old Releases ---
-          echo "🧹 Cleaning up old releases..."
+          echo "Cleaning up old releases..."
           ls -dt $RELEASES_DIR/* | tail -n +4 | xargs -r sudo rm -rf
           echo "Kept the 3 most recent releases. Cleanup complete."
 
-          echo "🎉 Deployment completed successfully!"
+          echo "Deployment completed successfully!"
