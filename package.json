@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS='--inspect' next dev --turbopack",
     "build": "next build && npm run worker:build",
-    "start": "next start",
+    "start": "node -r dotenv/config ./node_modules/.bin/next start",
     "lint": "next lint",
     "worker:build": "tsc --project ./src/worker/tsconfig.json",
-    "worker:start": "cross-env NODE_ENV=production node dist/worker/index.js",
-    "worker:once": "cross-env NODE_ENV=production node dist/worker/index.js --once"
+    "worker:start": "cross-env NODE_ENV=production node -r dotenv/config dist/worker/index.js",
+    "worker:once": "cross-env NODE_ENV=production node -r dotenv/config dist/worker/index.js --once"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
@@ -47,6 +47,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
     "date-fns": "^2.30.0",
+    "dotenv": "^16.4.5",
     "embla-carousel-autoplay": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
     "file-type": "^21.0.0",
