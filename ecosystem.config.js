@@ -11,11 +11,6 @@ module.exports = {
       watch: false,
       max_memory_restart: "1G",
       env_file: ".env",
-      env: {
-        NODE_ENV: "production",
-        PORT: 3000,
-        NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID,
-      },
       error_file: "./logs/app-error.log",
       out_file: "./logs/app-out.log",
       log_file: "./logs/app-combined.log",
