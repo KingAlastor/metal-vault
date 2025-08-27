@@ -7,7 +7,7 @@
     "build": "next build && npm run worker:build",
     "start": "node -r dotenv/config ./node_modules/.bin/next start",
     "lint": "next lint",
-    "worker:build": "tsc --project ./src/worker/tsconfig.json",
+    "worker:build": "tsc --project ./src/worker/tsconfig.json && tsc-alias -p ./src/worker/tsconfig.json",
     "worker:start": "NODE_ENV=production node -r dotenv/config dist/worker/index.js",
     "worker:once": "NODE_ENV=production node -r dotenv/config dist/worker/index.js --once"
   },
