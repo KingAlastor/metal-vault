@@ -84,11 +84,8 @@ jobs:
 
           # --- Set Permissions ---
           echo "Setting file permissions..."
-          # Set the web server as owner for all files
-          sudo chown -R www-data:www-data $NEW_RELEASE_DIR
-          sudo chmod -R 755 $NEW_RELEASE_DIR
-          # Reclaim ownership of the logs directory for the PM2 user
-          sudo chown -R ${{ secrets.VPS_USERNAME }}:${{ secrets.VPS_USERNAME }} $NEW_RELEASE_DIR/logs
+          sudo chown -R ${{ secrets.VPS_USERNAME }}:www-data $NEW_RELEASE_DIR
+          sudo chmod -R 775 $NEW_RELEASE_DIR
 
           # --- 5. Atomically Switch to New Release ---
           echo "Activating new release..."
