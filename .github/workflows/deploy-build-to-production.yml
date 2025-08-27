@@ -21,7 +21,14 @@ jobs:
       run: npm ci
 
     - name: Build application
-      run: npm run build
+      run: |
+        if [ -z "$NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID" ]; then
+          echo "Error: NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID is not set in GitHub Secrets."
+          exit 1
+        else
+          echo "NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID is set. Starting build."
+        fi
+        npm run build
       env:
         NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID }}
         # mock DB url due to Nextjs build process with routes
