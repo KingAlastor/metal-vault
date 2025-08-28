@@ -1,6 +1,36 @@
 // Load environment variables using @next/env for consistent loading
 import { loadEnvConfig } from "@next/env";
-loadEnvConfig(process.cwd());
+import * as path from "path";
+import * as fs from "fs";
+
+// Try to load .env from multiple possible locations
+const possibleEnvPaths = [
+  process.cwd(), // Current working directory (should work with symlinks)
+  path.join(process.cwd(), '..'), // Parent directory
+  path.join(process.cwd(), '../..'), // Grandparent directory
+  path.resolve(process.cwd(), '../../../..'), // Go up to main app dir from releases/xxx/
+];
+
+let envLoaded = false;
+for (const envPath of possibleEnvPaths) {
+  const envFile = path.join(envPath, '.env');
+  try {
+    if (fs.existsSync(envFile)) {
+      console.log(`Found .env file at: ${envFile}`);
+      console.log(`Loading .env from: ${envPath}`);
+      loadEnvConfig(envPath);
+      envLoaded = true;
+      break;
+    }
+  } catch (error) {
+    console.log(`Error checking ${envFile}: ${error}`);
+  }
+}
+
+if (!envLoaded) {
+  console.log('No .env file found in expected locations, trying current directory');
+  loadEnvConfig(process.cwd());
+}
 
 import { run } from "graphile-worker";
 // Import the new tasks
@@ -14,8 +44,15 @@ import { sendScheduledEmails } from "./tasks/email-tasks";
 import { runJob } from "./task-wrapper.js";
 
 async function main() {
+  console.log("Current working directory:", process.cwd());
+  console.log("Environment variables check:");
+  console.log("- DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Missing");
+  console.log("- AWS_REGION:", process.env.AWS_REGION ? "Set" : "Missing");
+  console.log("- AWS_ACCESS_KEY:", process.env.AWS_ACCESS_KEY ? "Set" : "Missing");
+  console.log("- AWS_ACCESS_SECRET:", process.env.AWS_ACCESS_SECRET ? "Set" : "Missing");
+  console.log("- AWS_SENDER_EMAIL:", process.env.AWS_SENDER_EMAIL ? "Set" : "Missing");
+
   const dbConnectionString = process.env.DATABASE_URL;
-  console.log("DATABASE_URL seen by worker:", dbConnectionString);
   if (!dbConnectionString) {
     throw new Error("DATABASE_URL environment variable is not set!");
   }

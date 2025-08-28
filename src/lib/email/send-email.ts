@@ -1,11 +1,7 @@
 "use server";
 
-// Load environment variables using @next/env for consistent loading
-// Only load if not already in Next.js runtime
-if (typeof window === "undefined" && !process.env.NEXT_RUNTIME) {
-  const { loadEnvConfig } = require("@next/env");
-  loadEnvConfig(process.cwd());
-}
+// Environment variables are loaded by the worker process
+// No need to load them here as they're already available
 
 import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import nodemailer from "nodemailer";
