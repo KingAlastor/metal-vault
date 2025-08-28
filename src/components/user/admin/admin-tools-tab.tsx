@@ -1,15 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { syncUpcomingReleaseDataFromArchives } from "../../../lib/data/admin/latest-releases-data-actions";
 import { useState } from "react";
 import { fetchYoutubeVideoData } from "@/lib/apis/YT-api";
 import { syncGenresTableFromBands } from "@/lib/data/admin/genres-data-actions";
 import {
-  syncBandDataFromArchives,
-  syncLatestBandAdditionsFromArchives,
-} from "./band-sync";
-import { syncAlbumDataFromArchives } from "./album-sync";
+  triggerAllBandsSync,
+  triggerAlbumsSync,
+  triggerLatestBandsSync,
+  triggerUpcomingReleasesSync,
+} from "@/lib/actions/admin";
 import { testSqlQuery } from "@/lib/data/admin/admin-data-actions";
 
 export function AdminToolsTab() {
@@ -24,25 +24,25 @@ export function AdminToolsTab() {
 
   const handleBandSyncClick = async () => {
     setIsBandSyncLoading(true);
-    await syncBandDataFromArchives();
+    await triggerAllBandsSync();
     setIsBandSyncLoading(false);
   };
 
   const handleAlbumSyncClick = async () => {
     setIsAlbumSyncLoading(true);
-    await syncAlbumDataFromArchives();
+    await triggerAlbumsSync();
     setIsAlbumSyncLoading(false);
   };
 
   const handleUpcomingReleasesSyncClick = async () => {
     setIsUpcomingReleasesLoading(true);
-    await syncUpcomingReleaseDataFromArchives();
+    await triggerUpcomingReleasesSync();
     setIsUpcomingReleasesLoading(false);
   };
 
   const handleSyncLatestBandsClick = async () => {
     setIsLatestBandsLoading(true);
-    await syncLatestBandAdditionsFromArchives();
+    await triggerLatestBandsSync();
     setIsLatestBandsLoading(false);
   };
 
@@ -99,10 +99,10 @@ export function AdminToolsTab() {
         {isLatestBandsLoading ? "Loading..." : "Sync Latest Bands"}
       </Button>
       <Button onClick={handleSyncGenresClick} disabled={isGenresSyncLoading}>
-        {isLatestBandsLoading ? "Loading..." : "Sync Genres Table"}
+        {isGenresSyncLoading ? "Loading..." : "Sync Genres Table"}
       </Button>
       <Button onClick={handleYoutubeApi} disabled={isTestApiLoading}>
-        {isLatestBandsLoading ? "Loading..." : "Test API"}
+        {isTestApiLoading ? "Loading..." : "Test API"}
       </Button>
       <Button onClick={handleTestSql} disabled={isTestSql}>
         {isTestSql ? "Loading..." : "Test SQL"}

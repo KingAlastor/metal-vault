@@ -28,7 +28,7 @@ async function main() {
     // Send monthly emails on the 1st of every month at 9 AM - no jobKey
     "0 9 1 * * send_monthly_emails",
     // Run latest band sync daily at 1 AM
-    // "0 1 * * * sync_latest_bands ?jobKey=scraping",
+    "0 1 * * * sync_latest_bands ?jobKey=scraping",
     // Run album sync daily at 2 AM (spaced 1 hour after other jobs)
     "0 2 * * * sync_albums ?jobKey=scraping",
     // Run full band sync weekly on Sunday at 4 AM (increased gap, this is the longest job)
@@ -50,7 +50,7 @@ async function main() {
       ),
       send_weekly_emails: runJob("send_weekly_emails", sendScheduledEmails),
       send_monthly_emails: runJob("send_monthly_emails", sendScheduledEmails),
-      // sync_latest_bands: syncLatestBands,
+      sync_latest_bands: runJob("sync_latest_bands", syncLatestBands),
       sync_albums: runJob("sync_albums", syncAlbums),
       // Add other task identifiers here if you create more tasks
     },

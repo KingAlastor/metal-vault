@@ -1,4 +1,4 @@
-"use server";
+
 
 import { BandsData, updateBandsTableData } from "@/lib/data/admin/band-data-actions";
 import puppeteer from "puppeteer-core";

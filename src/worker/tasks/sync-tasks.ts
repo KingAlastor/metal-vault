@@ -1,7 +1,10 @@
 import { Task } from "graphile-worker";
-import { syncBandDataFromArchives, syncLatestBandAdditionsFromArchives } from "@/components/user/admin/band-sync";
-import { syncAlbumDataFromArchives } from "@/components/user/admin/album-sync";
-import { syncUpcomingReleaseDataFromArchives } from "@/lib/data/admin/latest-releases-data-actions";
+import {
+  syncBandDataFromArchives,
+  syncLatestBandAdditionsFromArchives,
+} from "./band-sync";
+import { syncAlbumDataFromArchives } from "./album-sync";
+import { syncUpcomingReleaseDataFromArchives } from "../../lib/data/admin/latest-releases-data-actions";
 
 // Task to sync all bands (potentially long running)
 export const syncAllBands: Task = async (payload, helpers) => {
