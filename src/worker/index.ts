@@ -1,5 +1,5 @@
-// Load environment variables using @next/env for consistent loading
-import { loadEnvConfig } from "@next/env";
+// Load environment variables using dotenv directly for reliable loading
+import * as dotenv from "dotenv";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -18,8 +18,13 @@ for (const envPath of possibleEnvPaths) {
     if (fs.existsSync(envFile)) {
       console.log(`Found .env file at: ${envFile}`);
       console.log(`Loading .env from: ${envPath}`);
-      loadEnvConfig(envPath);
-      envLoaded = true;
+      const result = dotenv.config({ path: envFile });
+      if (result.error) {
+        console.log(`Error loading .env: ${result.error}`);
+      } else {
+        console.log(`Successfully loaded .env file`);
+        envLoaded = true;
+      }
       break;
     }
   } catch (error) {
@@ -28,8 +33,8 @@ for (const envPath of possibleEnvPaths) {
 }
 
 if (!envLoaded) {
-  console.log('No .env file found in expected locations, trying current directory');
-  loadEnvConfig(process.cwd());
+  console.log('No .env file found in expected locations, trying default dotenv loading');
+  dotenv.config();
 }
 
 import { run } from "graphile-worker";

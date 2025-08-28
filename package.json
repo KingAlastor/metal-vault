@@ -8,8 +8,8 @@
     "start": "node -r dotenv/config ./node_modules/.bin/next start",
     "lint": "next lint",
     "worker:build": "tsc --project ./src/worker/tsconfig.json && tsc-alias -p ./src/worker/tsconfig.json",
-    "worker:start": "NODE_ENV=production node -r dotenv/config dist/worker/index.js",
-    "worker:once": "NODE_ENV=production node -r dotenv/config dist/worker/index.js --once"
+    "worker:start": "NODE_ENV=production node dist/worker/index.js",
+    "worker:once": "NODE_ENV=production node dist/worker/index.js --once"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
