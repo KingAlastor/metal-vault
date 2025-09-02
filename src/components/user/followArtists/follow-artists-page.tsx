@@ -159,7 +159,7 @@ export default function FollowArtistsPage() {
           {isFirstTimeUser && (
             <FirstTimeUserNotice
               title="Welcome to Your favorite bands!"
-              description="Find and rate your favorite bands, sync from Spotify, and use ratings to personalize playlists and filters."
+              description="Find and rate your favorite bands or upload a list file and use ratings to personalize notifications and filters."
               onDismiss={handleNoticeDismiss}
             />
           )}
