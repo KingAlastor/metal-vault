@@ -52,14 +52,11 @@ export const createEmail = async (data: EmailData, userId?: string) => {
           /* Mobile responsive styles */
           @media only screen and (max-width: 600px) {
             .email-container { padding: 15px !important; }
-            .email-table { font-size: 14px !important; }
-            .email-table th, .email-table td { padding: 8px 4px !important; }
-            .email-header { font-size: 18px !important; }
             .email-genre-container { 
               display: block !important; 
               word-wrap: break-word !important; 
               white-space: normal !important;
-              max-width: 100% !important;
+              max-width: 100% !important; 
               overflow-wrap: break-word !important;
             }
             .email-genre-tag { 
@@ -68,11 +65,6 @@ export const createEmail = async (data: EmailData, userId?: string) => {
               white-space: nowrap !important;
               font-size: 10px !important;
               padding: 1px 6px !important;
-            }
-            .email-table-mobile th:last-child,
-            .email-table-mobile td:last-child {
-              width: 40% !important;
-              min-width: 120px !important;
             }
           }
           
@@ -96,32 +88,23 @@ export const createEmail = async (data: EmailData, userId?: string) => {
         <h2 class="email-header" style="color: #333; border-bottom: 3px solid #e74c3c; padding-bottom: 10px; margin-bottom: 20px;">
           🎸 Latest Releases from Your Favorite Artists
         </h2>
-        <table class="email-table" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-          <thead>
-            <tr style="background-color: #f8f9fa;">
-              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; font-weight: 600;">Release Date</th>
-              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; font-weight: 600;">Artist</th>
-              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; font-weight: 600;">Album</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
     `;
 
-    for (const band of favBandReleases) {
+    favBandReleases.forEach((band, index) => {
       const date = formatDateWithNamedMonth(band.releaseDate!);
+      const rowColor = index % 2 === 0 ? '#ffffff' : '#f1f3f4';
       text += `\n- ${date} - ${band.bandName} - ${band.albumName}`;
       html += `
-        <tr style="border-bottom: 1px solid #e9ecef;">
-          <td style="padding: 12px; color: #6c757d; font-size: 14px;">${date}</td>
-          <td style="padding: 12px; color: #333; font-weight: 500;">${band.bandName}</td>
-          <td style="padding: 12px; color: #333;">${band.albumName}</td>
-        </tr>
+        <div style="background-color: ${rowColor}; padding: 15px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #e9ecef;">
+          <div style="font-weight: bold; color: #333; margin-bottom: 5px;">${band.bandName} - ${band.albumName}</div>
+          <div style="color: #6c757d; font-size: 14px;">${band.type} • ${date}</div>
+        </div>
       `;
-    }
+    });
 
     html += `
-          </tbody>
-        </table>
+        </div>
       </div>
     `;
   }
@@ -139,25 +122,15 @@ export const createEmail = async (data: EmailData, userId?: string) => {
         <h2 class="email-header" style="color: #333; border-bottom: 3px solid #f39c12; padding-bottom: 10px; margin-bottom: 20px;">
           🎵 Latest Releases from Your Favorite Genres
         </h2>
-        <table class="email-table email-table-mobile" style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="background-color: #f8f9fa;">
-              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; font-weight: 600; width: 20%;">Release Date</th>
-              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; font-weight: 600; width: 25%;">Artist</th>
-              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; font-weight: 600; width: 25%;">Album</th>
-              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; font-weight: 600; width: 30%;">Genres</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
     `;
 
-    for (const band of favGenreReleases) {
+    favGenreReleases.forEach((band, index) => {
       const date = formatDateWithNamedMonth(band.releaseDate!);
       const genres = Array.isArray(band.genreTags)
         ? band.genreTags.join(", ")
         : band.genreTags;
-
-      // Split genres into individual tags for better mobile display
+      const rowColor = index % 2 === 0 ? '#ffffff' : '#f1f3f4';
       const genreArray = Array.isArray(band.genreTags)
         ? band.genreTags
         : [band.genreTags];
@@ -170,22 +143,18 @@ export const createEmail = async (data: EmailData, userId?: string) => {
 
       text += `\n- ${date} - ${band.bandName} - ${band.albumName} - ${genres}`;
       html += `
-        <tr style="border-bottom: 1px solid #e9ecef;">
-          <td style="padding: 12px; color: #6c757d; font-size: 14px; vertical-align: top;">${date}</td>
-          <td style="padding: 12px; color: #333; font-weight: 500; vertical-align: top;">${band.bandName}</td>
-          <td style="padding: 12px; color: #333; vertical-align: top;">${band.albumName}</td>
-          <td style="padding: 12px; color: #666; font-size: 13px; vertical-align: top;">
-            <div class="email-genre-container" style="line-height: 1.4; word-wrap: break-word; max-width: 100%; overflow-wrap: break-word;">
-              ${genreTags}
-            </div>
-          </td>
-        </tr>
+        <div style="background-color: ${rowColor}; padding: 15px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #e9ecef;">
+          <div style="font-weight: bold; color: #333; margin-bottom: 5px;">${band.bandName} - ${band.albumName}</div>
+          <div style="color: #6c757d; font-size: 14px; margin-bottom: 5px;">${band.type} • ${date}</div>
+          <div class="email-genre-container" style="line-height: 1.4; word-wrap: break-word; max-width: 100%; overflow-wrap: break-word;">
+            ${genreTags}
+          </div>
+        </div>
       `;
-    }
+    });
 
     html += `
-          </tbody>
-        </table>
+        </div>
       </div>
     `;
   }
@@ -195,7 +164,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 12px;">
         <p>🤘 Stay heavy! 🤘</p>
         <p style="margin-top: 10px;">
-          <a href="https://www.metal-vault.com/api/email/unsubscribe?id=${userId || ''}" 
+          <a href="https://www.metal-vault.com/api/email/unsubscribe?id=${userId}" 
              style="color: #6c757d; text-decoration: underline; font-size: 11px;">
             Unsubscribe 
           </a>
