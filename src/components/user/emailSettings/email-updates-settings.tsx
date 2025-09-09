@@ -164,7 +164,7 @@ export default function EmailUpdatesPage() {
         });
       }
     },
-    [emailUpdatesEnabled, updateUser, toast]
+    [emailUpdatesEnabled, updateUser, toast, user]
   );
 
   return (

@@ -169,11 +169,58 @@ export async function syncLatestBandAdditionsFromArchives() {
 
   let browser: Browser | null = null;
   try {
-    browser = await puppeteer.launch({
-      args: chrome.args,
-      executablePath: await chrome.executablePath,
-      headless: chrome.headless,
-    });
+    // Launch the browser with production-safe configuration
+    const launchOptions: any = {
+      args: [
+        ...chrome.args,
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ],
+      headless: true,
+    };
+
+    // Try to get executable path, fallback to system Chrome
+    try {
+      const execPath = await chrome.executablePath;
+      if (execPath) {
+        launchOptions.executablePath = execPath;
+      } else {
+        throw new Error('No executable path from chrome-aws-lambda');
+      }
+    } catch (error) {
+      console.log('Chrome executable not found via chrome-aws-lambda, trying system Chrome...');
+      // Fallback to system Chrome/Chromium for production
+      const systemPaths = [
+        '/usr/bin/google-chrome-stable',
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/chromium'
+      ];
+
+      for (const path of systemPaths) {
+        try {
+          const fs = require('fs');
+          if (fs.existsSync(path)) {
+            launchOptions.executablePath = path;
+            console.log(`Using system Chrome at: ${path}`);
+            break;
+          }
+        } catch (e) {
+          // Continue to next path
+        }
+      }
+
+      if (!launchOptions.executablePath) {
+        throw new Error('No Chrome executable found. Please install Chrome/Chromium or ensure chrome-aws-lambda is properly configured.');
+      }
+    }
+
+    browser = await puppeteer.launch(launchOptions);
 
     while (hasMoreData) {
       const timestamp = Date.now();
