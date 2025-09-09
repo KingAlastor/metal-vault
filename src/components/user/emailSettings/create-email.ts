@@ -5,6 +5,8 @@ import {
   getFavoriteBandReleasesForEmail,
   getGenreReleasesForEmail,
 } from "@/lib/data/user-email-settings-data";
+import { getSession } from "@/lib/session/server-actions";
+import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
 
 // Define a server-side type for email data to avoid client/server boundary issues
 export type EmailData = {
@@ -19,39 +21,29 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   let favBandReleases: any[] = [];
   let favGenreReleases: any[] = [];
 
-  // Use worker functions if userId is provided, otherwise use session-based functions
-  if (userId) {
-    // Worker context - use functions that don't rely on session
-    const {
-      getFavoriteBandReleasesForEmailWorker,
-      getGenreReleasesForEmailWorker,
-    } = await import("@/lib/data/user-email-settings-data");
-
-    if (data.favorite_bands) {
-      favBandReleases = await getFavoriteBandReleasesForEmailWorker(
-        userId,
-        data.email_frequency
-      );
+  if (!userId) {
+    const session = await getSession();
+    if (!session.isLoggedIn || !session.userId) {
+      logUnauthorizedAccess(session.userId || "unknown");
+      throw new Error("User must be logged in to create email.");
     }
-
-    if (data.favorite_genres) {
-      favGenreReleases = await getGenreReleasesForEmailWorker(
-        userId,
-        data.email_frequency
-      );
-    }
-  } else {
-    // Regular context - use session-based functions
-    if (data.favorite_bands) {
-      favBandReleases = await getFavoriteBandReleasesForEmail(
-        data.email_frequency
-      );
-    }
-
-    if (data.favorite_genres) {
-      favGenreReleases = await getGenreReleasesForEmail(data.email_frequency);
-    }
+    userId = session.userId;
   }
+
+  if (data.favorite_bands) {
+    favBandReleases = await getFavoriteBandReleasesForEmail(
+      userId,
+      data.email_frequency
+    );
+  }
+
+  if (data.favorite_genres) {
+    favGenreReleases = await getGenreReleasesForEmail(
+      userId,
+      data.email_frequency
+    );
+  }
+
   let text = "";
   let html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
