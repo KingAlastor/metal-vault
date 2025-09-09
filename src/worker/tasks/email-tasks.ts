@@ -38,10 +38,8 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
     let emailsSkipped = 0;
     let emailsFailed = 0;
 
-    // Loop through each user
     for (const user of users) {
       try {
-        // Parse email_settings JSON string to object
         let emailSettings: EmailSettings;
         try {
           emailSettings = JSON.parse(user.email_settings);
@@ -51,14 +49,12 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
           continue;
         }
 
-        // Check if email updates are enabled
         if (!emailSettings.email_updates_enabled) {
           helpers.logger.debug(`Email updates disabled for user ${user.id}`);
           emailsSkipped++;
           continue;
         }
 
-        // Check if user has preferred_email, fallback to user.email
         const recipientEmail = emailSettings.preferred_email || user.email;
         if (!recipientEmail) {
           helpers.logger.warn(`No email address found for user ${user.id}`);
@@ -66,23 +62,23 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
           continue;
         }
 
-        helpers.logger.info(`Processing email for user ${user.id} (${recipientEmail})`);        // Create email content based on user's email settings
+        helpers.logger.info(`Processing email for user ${user.id} (${recipientEmail})`);       
         const emailData: EmailData = {
           preferred_email: recipientEmail,
           email_frequency: emailSettings.email_frequency || "W",
           favorite_bands: emailSettings.favorite_bands || false,
           favorite_genres: emailSettings.favorite_genres || false,
-        };        // Generate email content
+        };       
         const emailContent = await createEmail(emailData, user.id);
 
-        // Check if there's content to send
         if (!emailContent.text || emailContent.text.trim() === "") {
           helpers.logger.debug(`No content to send for user ${user.id}`);
           emailsSkipped++;
           continue;
-        }        // Send the email
+        }      
         const subject = `Metal Vault Newsletter - ${emailSettings.email_frequency === 'W' ? 'Weekly' : 'Monthly'} Update`;
         const result = await sendMail(
+          user.id, 
           recipientEmail,
           subject,
           emailContent.text,
@@ -92,7 +88,6 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
         if (result.success) {
           helpers.logger.info(`Email sent successfully to user ${user.id} (${recipientEmail})`);
           
-          // Update last_email_sent timestamp
           try {
             await sql`
               UPDATE users 

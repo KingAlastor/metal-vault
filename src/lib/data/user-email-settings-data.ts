@@ -27,9 +27,9 @@ export async function getFavoriteBandReleasesForEmail(
   frequency: string
 ): Promise<UpcomingRelease[]> {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to access email settings.");
   }
 
@@ -53,14 +53,14 @@ export async function getFavoriteBandReleasesForEmail(
       ORDER BY release_date ASC
     `;
 
-    return releases.map(row => ({
+    return releases.map((row) => ({
       id: row.id,
       bandId: row.bandId,
       title: row.title,
       releaseDate: row.releaseDate,
       genreTags: row.genreTags,
       type: row.type,
-      status: row.status
+      status: row.status,
     }));
   } catch (error) {
     console.error("Error fetching favorite band releases:", error);
@@ -72,9 +72,9 @@ export async function getGenreReleasesForEmail(
   frequency: string
 ): Promise<UpcomingRelease[]> {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to access email settings.");
   }
 
@@ -103,21 +103,29 @@ export async function getGenreReleasesForEmail(
         status
       FROM upcoming_releases
       WHERE ${bandIds.length > 0 ? sql`band_id != ALL(${bandIds})` : sql`1=1`}
-      AND ${userGenreTags.length > 0 ? sql`genre_tags && ${userGenreTags}` : sql`1=1`}
-      AND ${dislikedGenreTags.length > 0 ? sql`NOT (genre_tags && ${dislikedGenreTags})` : sql`1=1`}
+      AND ${
+        userGenreTags.length > 0
+          ? sql`genre_tags && ${userGenreTags}`
+          : sql`1=1`
+      }
+      AND ${
+        dislikedGenreTags.length > 0
+          ? sql`NOT (genre_tags && ${dislikedGenreTags})`
+          : sql`1=1`
+      }
       AND release_date >= ${date.from}
       AND release_date <= ${date.to}
       ORDER BY release_date ASC
     `;
 
-    return releases.map(row => ({
+    return releases.map((row) => ({
       id: row.id,
       bandId: row.bandId,
       title: row.title,
       releaseDate: row.releaseDate,
       genreTags: row.genreTags,
       type: row.type,
-      status: row.status
+      status: row.status,
     }));
   } catch (error) {
     console.error("Error fetching favorite genre releases:", error);
@@ -135,22 +143,23 @@ export async function getFavoriteBandReleasesForEmailWorker(
     const userResult = await sql`
       SELECT shard FROM users WHERE id = ${userId}
     `;
-    
+
     const shard = userResult[0]?.shard || 0;
-    
+
     // Get user's favorite bands
     const bandIds = await sql`
       SELECT band_id
       FROM band_followers_${sql.unsafe(shard.toString())}
       WHERE user_id = ${userId}
     `;
-    
-    const bandIdArray = bandIds.map(row => row.band_id);
+
+    const bandIdArray = bandIds.map((row) => row.band_id);
     const date = getFromAndToDates(frequency);
 
     if (bandIdArray.length === 0) {
       return [];
-    }    const releases = await sql`
+    }
+    const releases = await sql`
       SELECT 
         id,
         band_id as "bandId",
@@ -166,7 +175,7 @@ export async function getFavoriteBandReleasesForEmailWorker(
       ORDER BY release_date ASC
     `;
 
-    return releases.map(row => ({
+    return releases.map((row) => ({
       id: row.id,
       bandId: row.bandId,
       bandName: row.bandName,
@@ -175,7 +184,7 @@ export async function getFavoriteBandReleasesForEmailWorker(
       releaseDate: row.releaseDate,
       genreTags: row.genreTags,
       type: row.type,
-      status: 'active' // Default status since table doesn't have this column
+      status: "active", // Default status since table doesn't have this column
     }));
   } catch (error) {
     console.error("Error fetching favorite band releases for worker:", error);
@@ -194,28 +203,29 @@ export async function getGenreReleasesForEmailWorker(
       FROM users 
       WHERE id = ${userId}
     `;
-    
+
     const user = userResult[0];
     if (!user) {
       return [];
     }
-    
+
     const shard = user.shard || 0;
     const userGenreTags = user.genreTags || [];
-    
+
     // Get user's favorite bands to exclude them
     const bandIds = await sql`
       SELECT band_id
       FROM band_followers_${sql.unsafe(shard.toString())}
       WHERE user_id = ${userId}
     `;
-    
-    const bandIdArray = bandIds.map(row => row.band_id);
+
+    const bandIdArray = bandIds.map((row) => row.band_id);
     const date = getFromAndToDates(frequency);
 
     if (userGenreTags.length === 0) {
       return [];
-    }    const releases = await sql`
+    }
+    const releases = await sql`
       SELECT 
         id,
         band_id as "bandId",
@@ -225,14 +235,16 @@ export async function getGenreReleasesForEmailWorker(
         genre_tags as "genreTags",
         type
       FROM upcoming_releases
-      WHERE ${bandIdArray.length > 0 ? sql`band_id != ALL(${bandIdArray})` : sql`1=1`}
+      WHERE ${
+        bandIdArray.length > 0 ? sql`band_id != ALL(${bandIdArray})` : sql`1=1`
+      }
       AND genre_tags && ${userGenreTags}
       AND release_date >= ${date.from}
       AND release_date <= ${date.to}
       ORDER BY release_date ASC
     `;
 
-    return releases.map(row => ({
+    return releases.map((row) => ({
       id: row.id,
       bandId: row.bandId,
       bandName: row.bandName,
@@ -241,10 +253,22 @@ export async function getGenreReleasesForEmailWorker(
       releaseDate: row.releaseDate,
       genreTags: row.genreTags,
       type: row.type,
-      status: 'active' // Default status since table doesn't have this column
+      status: "active", // Default status since table doesn't have this column
     }));
   } catch (error) {
     console.error("Error fetching favorite genre releases for worker:", error);
     return [];
+  }
+}
+
+export async function unsubscribeUser(userId: string) {
+  try {
+    await sql`
+      UPDATE users
+      SET email_settings = jsonb_set(email_settings, '{email_updates_enabled}', 'false'::jsonb)
+      WHERE id = ${userId}
+    `;
+  } catch (error) {
+    console.error("Error updating email settings:", error);
   }
 }

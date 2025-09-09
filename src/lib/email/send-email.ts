@@ -7,6 +7,7 @@ import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import nodemailer from "nodemailer";
 
 export async function sendMail(
+  userId: string,
   to: string,
   subject: string,
   text: string,
@@ -52,6 +53,10 @@ export async function sendMail(
       subject: subject,
       text: text,
       html: html,
+      headers: {
+        "List-Unsubscribe":
+          "<https://www.metal-vault.com/api/email/unsubscribe?id=" + userId,
+      },
     });
 
     console.log("Message sent: %s", info.messageId);

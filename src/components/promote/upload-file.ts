@@ -3,17 +3,7 @@
 import path from "path";
 import { fileTypeFromBuffer } from "file-type";
 import sharp from "sharp";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY!,
-    secretAccessKey: process.env.AWS_ACCESS_SECRET!,
-  },
-});
-
-const BUCKET_NAME = process.env.S3_BUCKET_NAME!;
+import { writeFile } from "fs/promises";
 
 interface UploadConfig {
   directory: string;
@@ -25,19 +15,19 @@ interface UploadConfig {
 
 const uploadConfigs: Record<string, UploadConfig> = {
   promotion: {
-    directory: path.join(process.cwd(), "src", "images"),
+    directory: path.resolve(process.cwd(), '../../../..', 'images'),
     filenamePrefix: "promotion",
     maxWidth: 1200,
     maxHeight: 1200,
     quality: 80,
   },
   event: {
-    directory: path.join(process.cwd(), "public", "images", "event_posters"),
+    directory: path.resolve(process.cwd(), '../../../..', 'images'),
     filenamePrefix: "event",
     maxWidth: 1200,
     maxHeight: 1200,
     quality: 80,
-  },
+  }
 };
 
 async function uploadFile(
@@ -110,19 +100,13 @@ async function uploadFile(
     const timestamp = Date.now();
     const randomSuffix = Math.random().toString(36).substring(2, 8);
     const filename = `${config.filenamePrefix}_${timestamp}_${randomSuffix}.${detectedExtension}`;
-    const s3Key = `${config.directory}/${filename}`;
+    const filepath = path.join(config.directory, filename);
 
-    const uploadCommand = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: s3Key,
-      Body: processedBuffer,
-      ContentType: fileType.mime,
-      CacheControl: "max-age=31536000",
-    });
+    // Write processed file to directory
+    await writeFile(filepath, processedBuffer);
 
-    await s3Client.send(uploadCommand);
-
-    const publicUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
+    // Generate public URL for the uploaded image
+    const publicUrl = `/images/${filename}`;
 
     return {
       success: true,

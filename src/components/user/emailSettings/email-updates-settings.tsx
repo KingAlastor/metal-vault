@@ -119,13 +119,14 @@ export default function EmailUpdatesPage() {
       console.log("email: ", email);
       if (email) {
         await sendMail(
+          user!.id!,
           data.preferred_email,
           "Newsletter",
           email.text,
           email.html
         );
       }
-      console.log("Sending test email with data:", data);
+      
       toast({ description: "Sending test email..." });
       try {
         // Replace this with your actual email sending function
