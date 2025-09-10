@@ -144,9 +144,6 @@ export async function syncAlbumDataFromArchives() {
       while (retryCount < maxRetries && !success) {
         try {
           const url = `${baseUrl}${archives_link}/tab/all`;
-          console.log(`Fetching discography for band: ${name} (${id}) - Attempt ${retryCount + 1}`);
-          console.log(`URL: ${url}`);
-
           const html = await fetchPageContent(browser, url);
           const $ = cheerio.load(html);
           const rows = $("tr").toArray();
@@ -198,7 +195,6 @@ export async function syncAlbumDataFromArchives() {
 
           success = true;
           updateBandsLastSync(id);
-          console.log(`Successfully processed band: ${name} (${id})`);
           
           // Additional delay between successful band processing
           await new Promise((resolve) => setTimeout(resolve, 3200));

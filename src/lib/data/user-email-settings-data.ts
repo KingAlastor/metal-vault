@@ -76,7 +76,7 @@ export async function getGenreReleasesForEmail(
 ): Promise<UpcomingRelease[]> {
   try {
     const userResult = await sql`
-      SELECT shard, genre_tags as "genreTags", disliked_genre_tags as "dislikedGenreTags"
+      SELECT shard, genre_tags as "genreTags", excluded_genre_tags as "excludedGenreTags"
       FROM users 
       WHERE id = ${userId}
     `;
@@ -87,7 +87,7 @@ export async function getGenreReleasesForEmail(
 
     const shard = user.shard || 0;
     const userGenreTags = user.genreTags || [];
-    const dislikedGenreTags = user.dislikedGenreTags || [];
+    const excludedGenreTags = user.excludedGenreTags || [];
 
     const bandIds = await sql`
       SELECT band_id
@@ -118,8 +118,8 @@ export async function getGenreReleasesForEmail(
       }
       AND genre_tags && ${userGenreTags}
       AND ${
-        dislikedGenreTags.length > 0
-          ? sql`NOT (genre_tags && ${dislikedGenreTags})`
+        excludedGenreTags.length > 0
+          ? sql`NOT (genre_tags && ${excludedGenreTags})`
           : sql`1=1`
       }
       AND release_date >= ${date.from}
