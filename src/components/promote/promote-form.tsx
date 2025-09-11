@@ -134,7 +134,7 @@ export default function ToggleForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Create Promotion</CardTitle>
         <CardDescription>Set up a promotion campaign for your band or event</CardDescription>

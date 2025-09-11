@@ -75,7 +75,7 @@ export default function PromotionsBar({ className }: PromotionsBarProps) {
   const handleAdClick = (adPath: string) => {
     // Extract ad ID from path for navigation
     const adId = adPath.split("/").pop()?.split(".")[0];
-    router.push(`/promotion?ad=${adId}`);
+    router.push(`/promote?ad=${adId}`);
   };
 
   if (!shouldRenderPromotionsBar || loading) {
