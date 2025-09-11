@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Compiled worker
 /dist/
+
+# Local images
+/public/images/

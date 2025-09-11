@@ -22,7 +22,10 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
     .map((band) => band.namePretty)
     .sort((a, b) => a.localeCompare(b));
 
-  const imagePath = `https://www.metal-vault.com/images/${event.imageUrl}`;
+  const imagePath =
+    process.env.NODE_ENV === "production"
+      ? `https://www.metal-vault.com/images/${event.imageUrl}`
+      : `/images/${event.imageUrl}`;
 
   const eventDetails = (
     <div className="flex flex-col justify-between">
@@ -50,7 +53,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
           target="_blank"
           rel="noopener noreferrer"
           className="underline decoration-1 no-underline-hover"
-          >
+        >
           <p className="font-bold xxl-font w-full text-center mb-3 text-inherit">
             {event.eventName}
           </p>
@@ -125,7 +128,9 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
       {imagePath && (
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-3xl">
-              <DialogTitle className="sr-only">Event Image for {event.eventName}</DialogTitle>
+            <DialogTitle className="sr-only">
+              Event Image for {event.eventName}
+            </DialogTitle>
             <div className="relative w-full h-[80vh]">
               <Image
                 src={imagePath}

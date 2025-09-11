@@ -119,7 +119,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
           setIsUploading(false);
           toast({
             title: "Error",
-            description: "Failed to upload image",
+            description: uploadResult.error,
             variant: "destructive",
           });
           return;

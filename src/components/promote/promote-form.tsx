@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, CheckCircle } from "lucide-react"
 import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
@@ -36,6 +36,7 @@ export default function ToggleForm() {
   const [formType, setFormType] = useState<"bands" | "events">("bands")
   const [totalCost, setTotalCost] = useState<number>(0)
   const [isCalculating, setIsCalculating] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
 
   const form = useForm<PromotionFormValues>({
     resolver: zodResolver(promotionFormSchema),
@@ -100,10 +101,16 @@ export default function ToggleForm() {
         formData.append("endDate", data.endDate.toISOString())
       }
       
+      // Add uploaded file if exists
+      if (uploadedFile) {
+        formData.append("file", uploadedFile)
+      }
+      
       const result = await uploadPromotionFile(formData)
       if (result.success) {
         form.reset()
-        // You might want to show a success message or redirect here
+        setUploadedFile(null) // Clear uploaded file on success
+        // Success message or redirect here
       } else {
         // Handle error case
         console.error("Upload failed:", result.error)
@@ -342,7 +349,13 @@ export default function ToggleForm() {
                 </div>
               </div>
             )}
-            <FileUpload />
+            <FileUpload compact onFileSelect={setUploadedFile} />
+            {uploadedFile && (
+              <div className="text-sm text-green-600 flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                File uploaded: {uploadedFile.name}
+              </div>
+            )}
             {/* Submit Button */}
             <div className="flex gap-3 pt-4">
               <Button type="submit" className="flex-1">
