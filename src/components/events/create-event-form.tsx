@@ -29,8 +29,8 @@ import { DateRangePicker } from "../shared/date-range-picker";
 import { BandList } from "./band-list";
 import { getGenres } from "@/lib/data/genres-data";
 import { SearchTermBand } from "@/lib/data/bands-data";
-import { FileUpload } from "../promote/file-upload";
-import { uploadEventImage } from "../promote/upload-file";
+import { FileUpload } from "../shared/upload-file-client-side";
+import { uploadEventImage } from "../shared/upload-file-server-side";
 
 const initialFormState = {
   eventName: "",

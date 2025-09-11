@@ -16,8 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
-import { FileUpload } from "./file-upload"
-import { uploadPromotionFile } from "./upload-file"
+import { FileUpload } from "../shared/upload-file-client-side"
+import { uploadPromotionFile } from "../shared/upload-file-server-side"
 
 // Define the form schema
 const promotionFormSchema = z.object({
