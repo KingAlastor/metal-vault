@@ -19,11 +19,7 @@ import { BandSearchBar } from "@/components/shared/search-bands-dropdown";
 import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { useQuery } from "@tanstack/react-query";
 import { useSubmitEventMutation } from "./hooks/use-submit-event-mutation";
-import {
-  AddEventProps,
-  CreateEventFormProps,
-  EventCountry,
-} from "./event-types";
+import { AddEventProps, CreateEventFormProps } from "./event-types";
 import { CountrySelectDropdown } from "../shared/select-country-dropdown";
 import { DateRangePicker } from "../shared/date-range-picker";
 import { BandList } from "./band-list";
@@ -109,7 +105,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      let imageUrl = data.imageUrl; 
+      let imageUrl = data.imageUrl;
 
       if (uploadedFile) {
         setIsUploading(true);
@@ -118,7 +114,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
         const uploadResult = await uploadEventImage(fileFormData);
         if (uploadResult.success && uploadResult.filename) {
-          imageUrl = uploadResult.filename; 
+          imageUrl = uploadResult.filename;
         } else {
           setIsUploading(false);
           toast({
@@ -136,12 +132,12 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         id: event?.id ?? "",
         bands: bands,
         bandIds: bandsIds,
-        imageUrl: imageUrl, 
+        imageUrl: imageUrl,
       };
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
-          setUploadedFile(null); 
+          setUploadedFile(null);
           setOpen(false);
         },
       });

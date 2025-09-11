@@ -3,7 +3,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://accounts.google.com;
   style-src 'self' 'unsafe-inline' https://accounts.google.com;
-  img-src 'self' blob: data: lh3.googleusercontent.com f4.bcbits.com i.ytimg.com i.scdn.co platform-lookaside.fbsbx.com;
+  img-src 'self' https://www.metal-vault.com blob: data: lh3.googleusercontent.com f4.bcbits.com i.ytimg.com i.scdn.co platform-lookaside.fbsbx.com;
   font-src 'self' https://accounts.google.com;
   object-src 'none';
   base-uri 'self';
@@ -16,7 +16,6 @@ const cspHeader = `
 
 const nextConfig = {
   images: {
-    unoptimized: true,
     remotePatterns: [
       { hostname: 'f4.bcbits.com' },
       { hostname: 'yt3.ggpht.com' },
