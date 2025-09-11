@@ -31,6 +31,7 @@ import { getGenres } from "@/lib/data/genres-data";
 import { SearchTermBand } from "@/lib/data/bands-data";
 import { FileUpload } from "../shared/upload-file-client-side";
 import { uploadEventImage } from "../shared/upload-file-server-side";
+import { useToast } from "../ui/use-toast";
 
 const initialFormState = {
   eventName: "",
@@ -104,11 +105,12 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
     gcTime: 24 * 60 * 60 * 1000,
   });
 
+  const { toast } = useToast();
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      let imageUrl = data.imageUrl; // Default to existing imageUrl
+      let imageUrl = data.imageUrl; 
 
-      // Handle file upload if a file was selected
       if (uploadedFile) {
         setIsUploading(true);
         const fileFormData = new FormData();
@@ -116,10 +118,14 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
         const uploadResult = await uploadEventImage(fileFormData);
         if (uploadResult.success && uploadResult.filename) {
-          imageUrl = uploadResult.filename; // Store just the filename in database
+          imageUrl = uploadResult.filename; 
         } else {
           setIsUploading(false);
-          // You might want to show an error message to the user here
+          toast({
+            title: "Error",
+            description: "Failed to upload image",
+            variant: "destructive",
+          });
           return;
         }
         setIsUploading(false);
@@ -130,12 +136,12 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         id: event?.id ?? "",
         bands: bands,
         bandIds: bandsIds,
-        imageUrl: imageUrl, // Use uploaded filename or existing imageUrl
+        imageUrl: imageUrl, 
       };
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
-          setUploadedFile(null); // Clear uploaded file
+          setUploadedFile(null); 
           setOpen(false);
         },
       });
@@ -180,8 +186,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
   return (
     <Form {...form}>
       <form
-        onSubmit={handleSubmit(onSubmit, (errors) => {
-        })}
+        onSubmit={handleSubmit(onSubmit, (errors) => {})}
         className="w-full space-y-6"
       >
         <FormField
@@ -297,7 +302,11 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         </div>
         <div className="flex justify-end">
           <Button type="submit" disabled={isUploading || mutation.isPending}>
-            {isUploading ? "Uploading..." : mutation.isPending ? "Saving..." : "Save Event"}
+            {isUploading
+              ? "Uploading..."
+              : mutation.isPending
+              ? "Saving..."
+              : "Save Event"}
           </Button>
         </div>
       </form>

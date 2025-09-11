@@ -22,15 +22,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
     .map((band) => band.namePretty)
     .sort((a, b) => a.localeCompare(b));
 
-  // Helper function to get the full image path
-  const getImagePath = (imageUrl: string | null) => {
-    if (!imageUrl) return null;
-    
-    // If it's just a filename, construct the full path
-    return `/images/event_posters/${imageUrl}`;
-  };
-
-  const imagePath = getImagePath(event.imageUrl);
+  const imagePath = `https://www.metal-vault.com/images/${event.imageUrl}`;
 
   const eventDetails = (
     <div className="flex flex-col justify-between">
