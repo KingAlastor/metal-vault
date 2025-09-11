@@ -16,7 +16,7 @@ interface UploadConfig {
 const uploadConfigs: Record<string, UploadConfig> = {
   promotion: {
     directory: process.env.NODE_ENV === 'production' 
-      ? path.resolve(process.cwd(), '../../../..', 'images')
+      ? path.resolve(process.cwd(), '../..', 'images')
       : path.resolve(process.cwd(), 'public', 'images'),
     filenamePrefix: "promotion",
     maxWidth: 1200,
@@ -25,7 +25,7 @@ const uploadConfigs: Record<string, UploadConfig> = {
   },
   event: {
     directory: process.env.NODE_ENV === 'production' 
-      ? path.resolve(process.cwd(), '../../../..', 'images')
+      ? path.resolve(process.cwd(), '../..', 'images')
       : path.resolve(process.cwd(), 'public', 'images'),
     filenamePrefix: "event",
     maxWidth: 1200,
