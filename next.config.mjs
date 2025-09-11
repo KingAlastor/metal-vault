@@ -23,6 +23,8 @@ const nextConfig = {
       { hostname: 'i.scdn.co' },
       { hostname: 'lh3.googleusercontent.com' },
       { hostname: 'platform-lookaside.fbsbx.com' },
+      { hostname: 'www.metal-vault.com', protocol: 'https' },
+      { hostname: 'metal-vault.com', protocol: 'https' },
     ],
   },
   compiler: {
