@@ -5,32 +5,52 @@ import puppeteer from "puppeteer-core";
 import chrome from "chrome-aws-lambda";
 import { Browser } from "puppeteer-core";
 
-async function fetchJsonData(browser: Browser, url: string): Promise<any> {
-  const page = await browser.newPage();
-  try {
-    // Intercept network requests to capture the JSON response
-    let jsonResponse: any = null;
-    await page.setRequestInterception(true);
-    page.on('request', request => request.continue());
-    page.on('response', async response => {
-      if (response.url() === url && response.headers()['content-type']?.includes('application/json')) {
-        jsonResponse = await response.json();
+async function fetchJsonData(browser: Browser, url: string, retries = 3): Promise<any> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const page = await browser.newPage();
+    try {
+      console.log(`Fetching JSON data from: ${url} (attempt ${attempt})`);
+      
+      // Set user agent to avoid bot detection
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+      
+      // Intercept network requests to capture the JSON response
+      let jsonResponse: any = null;
+      await page.setRequestInterception(true);
+      page.on('request', request => request.continue());
+      page.on('response', async response => {
+        if (response.url() === url && response.headers()['content-type']?.includes('application/json')) {
+          try {
+            jsonResponse = await response.json();
+          } catch (e) {
+            console.warn(`Failed to parse JSON response: ${e}`);
+          }
+        }
+      });
+
+      // Navigate to a blank page and then use fetch within the browser context
+      await page.goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.evaluate(url => fetch(url), url);
+
+      // Wait for the JSON response to be captured
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait a bit for the async fetch to complete
+
+      if (!jsonResponse) {
+        throw new Error("Failed to capture JSON response.");
       }
-    });
-
-    // Navigate to a blank page and then use fetch within the browser context
-    await page.goto('about:blank');
-    await page.evaluate(url => fetch(url), url);
-
-    // Wait for the JSON response to be captured
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Wait a bit for the async fetch to complete
-
-    if (!jsonResponse) {
-      throw new Error("Failed to capture JSON response.");
+      return jsonResponse;
+    } catch (error: any) {
+      console.error(`Attempt ${attempt} failed for ${url}:`, error.message);
+      await page.close();
+      
+      if (attempt < retries) {
+        const waitTime = Math.min(10000 * attempt, 60000); // Exponential backoff
+        console.log(`Waiting ${waitTime}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      } else {
+        throw new Error(`Failed to fetch data from ${url} after ${retries} attempts: ${error.message}`);
+      }
     }
-    return jsonResponse;
-  } finally {
-    await page.close();
   }
 }
 

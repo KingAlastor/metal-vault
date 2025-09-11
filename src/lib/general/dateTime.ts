@@ -103,7 +103,23 @@ function getMonthIndex(month: string): number {
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
-  return months.findIndex(m => m.toLowerCase() === month.toLowerCase());
+  
+  // First try exact match
+  let index = months.findIndex(m => m.toLowerCase() === month.toLowerCase());
+  if (index !== -1) return index;
+  
+  // Handle truncated months (e.g., "Augu" -> "August")
+  const truncatedMonths = months.map(m => m.substring(0, 4).toLowerCase());
+  index = truncatedMonths.findIndex(m => m === month.toLowerCase());
+  if (index !== -1) return index;
+  
+  // Handle even shorter truncations (e.g., "Aug" -> "August")
+  const shortMonths = months.map(m => m.substring(0, 3).toLowerCase());
+  index = shortMonths.findIndex(m => m === month.toLowerCase());
+  if (index !== -1) return index;
+  
+  console.warn(`Could not parse month: ${month}`);
+  return -1;
 }
 
 export function getFromAndToDates(period: string): { from: Date, to: Date } {

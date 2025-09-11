@@ -12,6 +12,12 @@ export async function updateAlbumsTableData(albumsData: {
   updated_at?: Date;
 }) {
   try {
+    // Truncate name and name_pretty to fit VARCHAR(255) limit
+    const truncatedName = albumsData.name.length > 255 ? albumsData.name.substring(0, 255) : albumsData.name;
+    const truncatedNamePretty = albumsData.name_pretty && albumsData.name_pretty.length > 255 
+      ? albumsData.name_pretty.substring(0, 255) 
+      : albumsData.name_pretty;
+
     const result = await sql`
       INSERT INTO band_albums (
         band_id,
@@ -24,8 +30,8 @@ export async function updateAlbumsTableData(albumsData: {
         updated_at
       ) VALUES (
         ${albumsData.band_id},
-        ${albumsData.name},
-        ${albumsData.name_pretty ?? null},
+        ${truncatedName},
+        ${truncatedNamePretty ?? null},
         ${albumsData.archives_link},
         ${albumsData.type ?? null},
         ${albumsData.release_date ?? null},
