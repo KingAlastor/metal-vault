@@ -234,8 +234,6 @@ async function getReleaseData(url: string, browser: Browser) {
   try {
     const html = await fetchPageContent(browser, url);
     const $ = cheerio.load(html);
-
-    console.log("Extracting release date from:", url);
     
     let releaseDateText: string | null = null;
     
@@ -264,7 +262,6 @@ async function getReleaseData(url: string, browser: Browser) {
       }
     }
     
-    console.log("Raw release date text found:", releaseDateText);
     const releaseDate = releaseDateText ? String(releaseDateText).trim() : null;
     const releaseDateFormatted = releaseDate ? parseMetalArchivesDate(releaseDate) : null;
 
