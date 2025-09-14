@@ -10,39 +10,52 @@ async function fetchJsonData(browser: Browser, url: string, retries = 3): Promis
     const page = await browser.newPage();
     try {
       console.log(`Fetching JSON data from: ${url} (attempt ${attempt})`);
-      
+
       // Set user agent to avoid bot detection
       await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-      
-      // Intercept network requests to capture the JSON response
-      let jsonResponse: any = null;
-      await page.setRequestInterception(true);
-      page.on('request', request => request.continue());
-      page.on('response', async response => {
-        if (response.url() === url && response.headers()['content-type']?.includes('application/json')) {
-          try {
-            jsonResponse = await response.json();
-          } catch (e) {
-            console.warn(`Failed to parse JSON response: ${e}`);
-          }
-        }
+
+      // Set additional headers to mimic a real browser
+      await page.setExtraHTTPHeaders({
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Referer': 'https://www.metal-archives.com/'
       });
 
-      // Navigate to a blank page and then use fetch within the browser context
-      await page.goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await page.evaluate(url => fetch(url), url);
+      // Navigate to the URL directly and wait for network idle
+      const response = await page.goto(url, {
+        waitUntil: 'networkidle0',
+        timeout: 30000
+      });
 
-      // Wait for the JSON response to be captured
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait a bit for the async fetch to complete
-
-      if (!jsonResponse) {
-        throw new Error("Failed to capture JSON response.");
+      if (!response) {
+        throw new Error('No response received from server');
       }
-      return jsonResponse;
+
+      console.log(`🔍 RESPONSE STATUS: ${response.status()}, URL: ${response.url()}`);
+      console.log(`🔍 RESPONSE HEADERS:`, response.headers());
+
+      if (!response.ok()) {
+        const responseText = await response.text();
+        console.log(`🔍 RESPONSE BODY:`, responseText.substring(0, 500));
+        throw new Error(`HTTP ${response.status()}: ${response.statusText()}`);
+      }
+
+      const contentType = response.headers()['content-type'] || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error(`Expected JSON response, got: ${contentType}`);
+      }
+
+      const jsonData = await response.json();
+      await page.close();
+      return jsonData;
+
     } catch (error: any) {
       console.error(`Attempt ${attempt} failed for ${url}:`, error.message);
       await page.close();
-      
+
       if (attempt < retries) {
         const waitTime = Math.min(10000 * attempt, 60000); // Exponential backoff
         console.log(`Waiting ${waitTime}ms before retry...`);
@@ -182,7 +195,11 @@ export async function syncLatestBandAdditionsFromArchives() {
   const currentDate = new Date();
   const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
   const date = `${currentDate.getFullYear()}-${month}`;
-  const baseUrl = `https://www.metal-archives.com/archives/ajax-band-list/selection/${date}/by/created//json/1?sEcho=1&iColumns=6&sColumns=&iDisplayStart=`;
+  console.log(`🔍 SYNCING BANDS FOR DATE: ${date}`);
+
+  const baseUrl = `https://www.metal-archives.com/archives/ajax-band-list/selection/${date}/by/created/json/1?sEcho=1&iColumns=6&sColumns=&iDisplayStart=`;
+  console.log(`🔍 BASE URL: ${baseUrl}`);
+
   const iDisplayLength = 200;
   let iDisplayStart = 0;
   let hasMoreData = true;
@@ -245,8 +262,17 @@ export async function syncLatestBandAdditionsFromArchives() {
     while (hasMoreData) {
       const timestamp = Date.now();
       const url = `${baseUrl}${iDisplayStart}&iDisplayLength=${iDisplayLength}&mDataProp_0=0&mDataProp_1=1&mDataProp_2=2&mDataProp_3=3&mDataProp_4=4&mDataProp_5=5&iSortCol_0=0&sSortDir_0=desc&iSortingCols=1&bSortable_0=true&bSortable_1=true&bSortable_2=true&bSortable_3=true&bSortable_4=true&bSortable_5=true&_=${timestamp}`;
+      console.log(`🔍 FETCHING PAGE ${iDisplayStart / iDisplayLength + 1}, URL: ${url}`);
+
       try {
         const data = await fetchJsonData(browser, url);
+        console.log(`🔍 RECEIVED DATA:`, {
+          totalRecords: data.iTotalRecords,
+          totalDisplayRecords: data.iTotalDisplayRecords,
+          dataLength: data.aaData?.length || 0,
+          hasData: !!(data.aaData && data.aaData.length > 0)
+        });
+
         const bandsData: BandsData = (data.aaData || []).map(extractLatestBandAdditionDetails);
         
         if (bandsData.length > 0) {
