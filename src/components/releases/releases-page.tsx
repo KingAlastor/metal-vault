@@ -19,7 +19,7 @@ export default function ReleasesPage() {
   const {data: session } = useSession();
   const { data: user } = useUser(session?.userId);
   const [isOpen, setIsOpen] = useState(false);
-  const filters = user?.release_settings ? JSON.parse(user?.release_settings) : {};
+  const filters = user?.release_settings || {};
 
   const {
     data: releases,

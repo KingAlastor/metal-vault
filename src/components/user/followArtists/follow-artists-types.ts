@@ -6,4 +6,8 @@ export type DataTableBand = {
   status: string | null;
   followers: number | null;
   rating?: number;
-}
+};
+
+export type SyncBandListProps = {
+  setIsOpen: (isOpen: boolean) => void;
+};

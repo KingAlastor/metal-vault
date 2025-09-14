@@ -20,11 +20,11 @@ export type FullUser = {
   image?: string;
   role?: string;
   shard?: number;
-  email_settings?: string;
-  bands_settings?: string;
-  release_settings?: string;
-  posts_settings?: string;
-  events_settings?: string;
+  email_settings?: any; // JSONB object
+  bands_settings?: any; // JSONB object
+  release_settings?: any; // JSONB object
+  posts_settings?: any; // JSONB object
+  events_settings?: any; // JSONB object
   last_login?: string;
   genre_tags: string[];
   excluded_genre_tags: string[];
@@ -198,12 +198,12 @@ export const fetchUnfollowedUsers = async (userId: string) => {
 export const getPostsFilterSettings = async (userId: string): Promise<PostsDataFilters> => {
   try {
     const userResult = await sql`
-      SELECT posts_settings 
-      FROM users 
+      SELECT posts_settings
+      FROM users
       WHERE id = ${userId}
     `;
     if (userResult[0]?.posts_settings) {
-      return JSON.parse(userResult[0].posts_settings);
+      return userResult[0].posts_settings;
     }
     return {
       favorite_bands: false,
@@ -333,16 +333,16 @@ export async function getRefreshTokenFromUserTokens(provider: string) {
 
 // Update the type definition
 export type UpdateUserData = {
-  email_settings?: string;
+  email_settings?: any; // JSONB object
   user_name?: string;
   location?: string;
   genre_tags?: string[];
   excluded_genre_tags?: string[];
   notifications?: string[];
-  posts_settings?: string;
-  events_settings?: string;
+  posts_settings?: any; // JSONB object
+  events_settings?: any; // JSONB object
   pending_actions?: string[];
-  release_settings?: string;
+  release_settings?: any; // JSONB object
 };
 
 export async function updateUserData(data: UpdateUserData) {
@@ -383,26 +383,26 @@ export async function updateUserData(data: UpdateUserData) {
   }
 
   if (data.email_settings !== undefined) {
-    updateParts.push(`email_settings = $${paramIndex}`);
-    values.push(data.email_settings);
+    updateParts.push(`email_settings = $${paramIndex}::jsonb`);
+    values.push(JSON.stringify(data.email_settings));
     paramIndex++;
   }
 
   if (data.posts_settings !== undefined) {
-    updateParts.push(`posts_settings = $${paramIndex}`);
-    values.push(data.posts_settings);
+    updateParts.push(`posts_settings = $${paramIndex}::jsonb`);
+    values.push(JSON.stringify(data.posts_settings));
     paramIndex++;
   }
 
   if (data.events_settings !== undefined) {
-    updateParts.push(`events_settings = $${paramIndex}`);
-    values.push(data.events_settings);
+    updateParts.push(`events_settings = $${paramIndex}::jsonb`);
+    values.push(JSON.stringify(data.events_settings));
     paramIndex++;
   }
 
   if (data.release_settings !== undefined) {
-    updateParts.push(`release_settings = $${paramIndex}`);
-    values.push(data.release_settings);
+    updateParts.push(`release_settings = $${paramIndex}::jsonb`);
+    values.push(JSON.stringify(data.release_settings));
     paramIndex++;
   }
 

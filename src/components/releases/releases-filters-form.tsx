@@ -38,9 +38,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
   const { data: session } = useSession();
   const { data: user } = useUser(session?.userId);
   const queryClient = useQueryClient();
-  const filters = user?.release_settings
-    ? JSON.parse(user?.release_settings)
-    : {};
+  const filters = user?.release_settings || {};
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -83,7 +81,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
       disliked_genres: data.disliked_genres ?? false,
     };
     await updateUserData({
-      release_settings: JSON.stringify(filters),
+      release_settings: filters, 
     });
     queryClient.invalidateQueries({ queryKey: ["user", session?.userId] });
 

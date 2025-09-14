@@ -25,7 +25,7 @@ export function EventsPage() {
   const user = useUser(session?.userId);
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState(
-    JSON.parse(user?.data?.events_settings || "{}")
+    user?.data?.events_settings || {}
   );
 
   const {

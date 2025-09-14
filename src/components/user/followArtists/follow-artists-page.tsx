@@ -25,11 +25,30 @@ import kyInstance from "@/lib/ky";
 import { DataTableBand } from "./follow-artists-types";
 import { useChangeBandRating } from "./hooks/use-change-band-rating";
 import { SearchTermBand } from "@/lib/data/bands-data";
-import { deleteUserPendingAction, getRefreshTokenFromUserTokens, updateUserData } from "@/lib/data/user-data";
+import {
+  deleteUserPendingAction,
+  getRefreshTokenFromUserTokens,
+  updateUserData,
+} from "@/lib/data/user-data";
+import useWindowSize from "@/lib/hooks/get-window-size";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { SyncBandListFromFile } from "./sync-bands-from-file";
 
 export default function FollowArtistsPage() {
   const { data: session } = useSession();
   const user = useUser(session?.userId);
+  const size = useWindowSize();
 
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(
     user?.data?.pending_actions?.includes("syncFollowers") ?? false
@@ -70,6 +89,7 @@ export default function FollowArtistsPage() {
 
   const [unresolvedBands, setUnresolvedBands] = useState<string[]>([]);
   const [isBandsDialogOpen, setIsBandsDialogOpen] = useState(false);
+  const [isBandSyncListOpen, setIsBandSyncListOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const searchInputProps = {
     inputPlaceholder: "Search band from database...",
@@ -106,11 +126,12 @@ export default function FollowArtistsPage() {
       window.removeEventListener("message", handleMessage);
     };
   }, [queryClient]);
+
   const handleSpotifyRedirect = async () => {
     setIsSyncing(true);
     try {
       const token = await handleSpotifyTokenRevalidation();
-      
+
       // If we got a token directly (from refresh token), process it
       if (token) {
         const followedBands = await getFollowedArtistsFromSpotify(token);
@@ -129,6 +150,8 @@ export default function FollowArtistsPage() {
     }
   };
 
+  const handleBandListFileUpload = () => {};
+
   const handleDialogClose = () => {
     setIsBandsDialogOpen(false);
   };
@@ -144,85 +167,125 @@ export default function FollowArtistsPage() {
       (action: string) => action !== "syncFollowers"
     );
     await updateUserData({ pending_actions });
-    queryClient.invalidateQueries({ queryKey: ['user', session?.userId] });
+    queryClient.invalidateQueries({ queryKey: ["user", session?.userId] });
     setIsFirstTimeUser(false);
   };
 
   return (
-    <Tabs defaultValue="favorites">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="favorites">Favorite Bands</TabsTrigger>
-        <TabsTrigger value="unfollowed">Unfollowed Bands</TabsTrigger>
-      </TabsList>
-      <TabsContent value="favorites">
-        <>
-          {isFirstTimeUser && (
-            <FirstTimeUserNotice
-              title="Welcome to Your favorite bands!"
-              description="Find and rate your favorite bands or upload a list file and use ratings to personalize notifications and filters."
-              onDismiss={handleNoticeDismiss}
-            />
-          )}
+    <>
+      <Tabs defaultValue="favorites">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="favorites">Favorite Bands</TabsTrigger>
+          <TabsTrigger value="unfollowed">Unfollowed Bands</TabsTrigger>
+        </TabsList>
+        <TabsContent value="favorites">
           <>
-            <div className="mb-2">Add bands to favorites</div>
-            <BandSearchBar
-              searchInputProps={searchInputProps}
-              onBandSelect={handleBandSelect}
+            {isFirstTimeUser && (
+              <FirstTimeUserNotice
+                title="Welcome to Your favorite bands!"
+                description="Find and rate your favorite bands or upload a list file and use ratings to personalize notifications and filters."
+                onDismiss={handleNoticeDismiss}
+              />
+            )}
+            <>
+              <div className="mb-2">Add bands to favorites</div>
+              <BandSearchBar
+                searchInputProps={searchInputProps}
+                onBandSelect={handleBandSelect}
+              />
+            </>
+
+            {favBandsStatus === "pending" && (
+              <div className="flex justify-center items-center h-screen">
+                <Loader2 className="animate-spin" />
+              </div>
+            )}
+            {favBandsStatus === "error" && (
+              <> Error: {favBandsError?.message}</>
+            )}
+
+            <div className="rounded-lg border p-4 mt-4">
+              <h2 className="text-lg font-bold">My Favorites</h2>
+              <DataTable columns={followedColumns} data={followedBands || []} />
+            </div>
+            <Button
+              variant="outline"
+              className="mt-4 mb-4 flex items-center justify-center"
+              onClick={() => setIsBandSyncListOpen(true)}
+              disabled={isSyncing}
+            >
+              {isSyncing ? (
+                <Loader2 className="animate-spin h-5 w-5" />
+              ) : (
+                <p>Import band list from file</p>
+              )}
+            </Button>
+            <p>{`for /d %i in ("E:\#Muusika\*") do @echo %~nxi >> "E:\#Muusika\folders.csv"`}</p>
+            <UnresolvedBands
+              unresolvedBands={unresolvedBands}
+              isOpen={isBandsDialogOpen}
+              onClose={handleDialogClose}
             />
           </>
-
-          {favBandsStatus === "pending" && (
+        </TabsContent>
+        <TabsContent value="unfollowed">
+          {unfollowedBandsStatus === "pending" && (
             <div className="flex justify-center items-center h-screen">
               <Loader2 className="animate-spin" />
             </div>
           )}
-          {favBandsStatus === "error" && <> Error: {favBandsError?.message}</>}
+          {unfollowedBandsStatus === "error" && (
+            <> Error: {unfollowedBandsError?.message}</>
+          )}
 
           <div className="rounded-lg border p-4 mt-4">
             <h2 className="text-lg font-bold">My Favorites</h2>
-            <DataTable columns={followedColumns} data={followedBands || []} />
+            <DataTable
+              columns={unfollowedColumns}
+              data={unfollowedBands || []}
+            />
           </div>
-          <Button
-            variant="outline"
-            className="mt-4 mb-4 flex items-center justify-center"
-            onClick={handleSpotifyRedirect}
-            disabled={isSyncing}
+        </TabsContent>
+      </Tabs>
+      {size.width > 640 ? (
+        <>
+          <Dialog
+            open={isBandSyncListOpen}
+            onOpenChange={setIsBandSyncListOpen}
           >
-            {isSyncing ? (
-              <Loader2 className="animate-spin h-5 w-5" />
-            ) : (
-              <p>Sync from Spotify</p>
-            )}
-          </Button>
-          <p>{`for /d %i in ("E:\#Muusika\*") do @echo %~nxi >> "E:\#Muusika\folders.csv"`}</p>
-          <UnresolvedBands
-            unresolvedBands={unresolvedBands}
-            isOpen={isBandsDialogOpen}
-            onClose={handleDialogClose}
-          />
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle> Sync favorite bands from file</DialogTitle>
+              </DialogHeader>
+              <SyncBandListFromFile
+                setIsOpen={setIsBandSyncListOpen}
+              />
+            </DialogContent>
+          </Dialog>
         </>
-      </TabsContent>
-      <TabsContent value="unfollowed">
-        {unfollowedBandsStatus === "pending" && (
-          <div className="flex justify-center items-center h-screen">
-            <Loader2 className="animate-spin" />
-          </div>
-        )}
-        {unfollowedBandsStatus === "error" && (
-          <> Error: {unfollowedBandsError?.message}</>
-        )}
-
-        <div className="rounded-lg border p-4 mt-4">
-          <h2 className="text-lg font-bold">My Favorites</h2>
-          <DataTable columns={unfollowedColumns} data={unfollowedBands || []} />
-        </div>
-      </TabsContent>
-    </Tabs>
+      ) : (
+        <>
+          <Drawer
+            open={isBandSyncListOpen}
+            onOpenChange={setIsBandSyncListOpen}
+          >
+            <DrawerContent>
+              <DrawerHeader className="text-left">
+                <DrawerTitle>Sync favorite bands from file</DrawerTitle>
+              </DrawerHeader>
+              <SyncBandListFromFile
+                setIsOpen={setIsBandSyncListOpen}
+              />
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
+    </>
   );
 }
 
 const handleSpotifyTokenRevalidation = async () => {
-  const refreshToken = await getRefreshTokenFromUserTokens("spotify"); 
+  const refreshToken = await getRefreshTokenFromUserTokens("spotify");
   if (refreshToken) {
     const token = await refreshSpotifyAccessToken(refreshToken);
     return token;
@@ -237,14 +300,18 @@ const handleSpotifyTokenRevalidation = async () => {
     const authUrl = `${BASE_URL}?response_type=code&client_id=${spotifyId}&scope=${encodeURIComponent(
       scope
     )}&redirect_uri=${encodeURIComponent(redirectUrl)}&show_dialog=true`;
-    
+
     const popupWindow = window.open(
-      authUrl, 
-      "SpotifyAuth", 
+      authUrl,
+      "SpotifyAuth",
       "width=500,height=600,scrollbars=yes,resizable=yes"
     );
-    
-    if (!popupWindow || popupWindow.closed || typeof popupWindow.closed == "undefined") {
+
+    if (
+      !popupWindow ||
+      popupWindow.closed ||
+      typeof popupWindow.closed == "undefined"
+    ) {
       alert("Popup blocked. Please allow popups for this website.");
       return null;
     }

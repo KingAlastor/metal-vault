@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     if (session.userId) {
       const userData = await getFullUserData(session.userId);
       if (userData?.events_settings) {
-        filters = JSON.parse(userData.events_settings);
+        filters = userData.events_settings;
       }
     }
     const events = await getEventsByFilters(filters, queryParams);

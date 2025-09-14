@@ -36,9 +36,7 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
 
   if (session.userId) {
     userData = await getFullUserData(session.userId);
-    filters = userData?.release_settings
-      ? JSON.parse(userData.release_settings)
-      : {};
+    filters = userData?.release_settings || {};
     if (filters.favorite_bands) {
       followedBandIds = await fetchUserFavoriteBands();
     }

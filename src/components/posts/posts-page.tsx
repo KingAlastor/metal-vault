@@ -29,14 +29,12 @@ export default function PostsPage() {
   const hasInitiallyFetchedRef = useRef(false);
   
   // Get current filters from user settings
-  const filters: PostsDataFilters = fullUser.data?.posts_settings 
-    ? JSON.parse(fullUser.data.posts_settings) 
-    : {
-        favorite_bands: false,
-        disliked_bands: false,
-        favorite_genres: false,
-        disliked_genres: false,
-      };
+  const filters: PostsDataFilters = fullUser.data?.posts_settings || {
+    favorite_bands: false,
+    disliked_bands: false,
+    favorite_genres: false,
+    disliked_genres: false,
+  };
 
   const {
     data,

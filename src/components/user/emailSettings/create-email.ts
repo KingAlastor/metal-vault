@@ -8,7 +8,6 @@ import {
 import { getSession } from "@/lib/session/server-actions";
 import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
 
-// Define a server-side type for email data to avoid client/server boundary issues
 export type EmailData = {
   preferred_email: string;
   email_frequency: string;
@@ -16,7 +15,6 @@ export type EmailData = {
   favorite_genres: boolean;
 };
 
-// Single unified function that works for both contexts
 export const createEmail = async (data: EmailData, userId?: string) => {
   let favBandReleases: any[] = [];
   let favGenreReleases: any[] = [];
@@ -43,6 +41,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       data.email_frequency
     );
   }
+  console.log("User: ", userId, "Favorite bands found: ", favBandReleases.length, "Favorite genres found: ", favGenreReleases.length)
 
   let text = "";
   let html = `

@@ -33,7 +33,7 @@ interface FiltersFormProps {
 export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   const { data: session } = useSession();
   const fullUser = useUser(session?.userId || "");
-  const filters = JSON.parse(fullUser.data?.posts_settings || "{}");
+  const filters = fullUser.data?.posts_settings || {};
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -56,7 +56,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
     };
     setIsOpen(false);
     await updateUserData({
-      posts_settings: JSON.stringify(filters),
+      posts_settings: filters, 
     });
     // Invalidate cache - this will automatically refetch with new filters
     queryClient.invalidateQueries({ queryKey: ["post-feed"] });

@@ -37,13 +37,8 @@ export default function EmailUpdatesPage() {
     if (!user?.email_settings) {
       return {}; // Return an empty object if no settings
     }
-    try {
-      return JSON.parse(user.email_settings);
-    } catch (error) {
-      console.error("Failed to parse email_settings JSON:", error);
-      return {}; // Return empty object or default on parsing error
-    }
-  }, [user?.email_settings]); // Dependency: recompute only if email_settings string changes
+    return user.email_settings;
+  }, [user?.email_settings]); // Dependency: recompute only if email_settings changes
 
   const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(
     // Initialize based on memoized filters
@@ -68,7 +63,7 @@ export default function EmailUpdatesPage() {
       try {
         // Use the useUpdateUser hook to update the user
         await updateUser.mutateAsync({
-          email_settings: JSON.stringify(updatedFilters),
+          email_settings: updatedFilters, 
         });
         setEmailUpdatesEnabled(checked);
         toast({ description: "Email updates setting updated." });
@@ -153,7 +148,7 @@ export default function EmailUpdatesPage() {
       try {
         // Use the useUpdateUser hook to update the user
         await updateUser.mutateAsync({
-          email_settings: JSON.stringify(updatedFilters),
+          email_settings: updatedFilters, 
         });
         toast({ description: "Email settings updated successfully." });
       } catch (error) {
