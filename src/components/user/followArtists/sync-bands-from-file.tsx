@@ -1,14 +1,27 @@
-import { FileUpload, validateTextFile } from "@/components/shared/upload-file-client-side";
+import {
+  FileUpload,
+  validateTextFile,
+} from "@/components/shared/upload-file-client-side";
 import { SyncBandListProps } from "./follow-artists-types";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  checkBandExists,
+  saveUserFavoriteAndUpdateFollowerCount,
+} from "@/lib/data/follow-artists-data";
+import { UnresolvedBands } from "./unresolved-bands";
 
 export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedBands, setProcessedBands] = useState<number>(0);
+  const [processingBand, setProcessingBand] = useState<string>("");
   const [totalBands, setTotalBands] = useState<number>(0);
+  const [unresolvedBands, setUnresolvedBands] = useState<string[]>([]);
+  const [isUnresolvedBandsDialogOpen, setIsUnresolvedBandsDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleFileSelect = (file: File | File[]) => {
     if (Array.isArray(file)) {
@@ -28,17 +41,24 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
     try {
       const fileContent = await readFileContent(uploadedFile);
       const bandNames = parseBandList(fileContent);
-      
-      setTotalBands(bandNames.length);
-      
-      for (const bandName of bandNames) {
-        await processBand(bandName.trim());
-        setProcessedBands(prev => prev + 1);
-      }
 
-      setIsOpen(false);
+      setTotalBands(bandNames.length);
+      let unresolvedBands: string[] = [];
+
+      for (const bandName of bandNames) {
+        const result = await processBand(bandName.trim());
+        if (!result) {
+          unresolvedBands = [...unresolvedBands, bandName];
+        }
+        setProcessedBands((prev) => prev + 1);
+      }
+      if (unresolvedBands.length > 0) {
+        setUnresolvedBands(unresolvedBands);
+        setIsUnresolvedBandsDialogOpen(true);
+      }
+      queryClient.invalidateQueries({ queryKey: ["favbands"] });
     } catch (error) {
-      console.error('Error processing band list:', error);
+      console.error("Error processing band list:", error);
     } finally {
       setIsProcessing(false);
     }
@@ -55,29 +75,24 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
 
   const parseBandList = (content: string): string[] => {
     return content
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
   };
 
   const processBand = async (bandName: string) => {
-    // TODO: Implement your band processing logic
-    // This could be:
-    // 1. Search for the band in your database
-    // 2. Add it to user's followed bands
-    // 3. Call an API endpoint
-    
-    console.log('Processing band:', bandName);
-    
-    // Example: Call your API to search/add the band
-    // const response = await fetch('/api/user/follow-band', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ bandName }),
-    // });
-    
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 100));
+    setProcessingBand(bandName);
+    const bands = await checkBandExists(bandName);
+    if (bands.length === 1) {
+      await saveUserFavoriteAndUpdateFollowerCount(bands[0].id);
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const handleDialogClose = () => {
+    setIsUnresolvedBandsDialogOpen(false);
   };
 
   return (
@@ -91,10 +106,10 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
       <p>{`for /d %i in ("C:\\MyMusicFolder\\*") do @echo %~nxi >> "C:\\MyMusicFolder\\bandlist.txt"`}</p>
       <p>Upload the generated bandlist.txt file</p>
 
-      <FileUpload 
-        compact 
+      <FileUpload
+        compact
         onFileSelect={handleFileSelect}
-        accept={{ 'text/*': ['.txt'], 'text/csv': ['.csv'] }}
+        accept={{ "text/*": [".txt"], "text/csv": [".csv"] }}
         validator={validateTextFile}
         maxSize={10 * 1024 * 1024} // 10MB
         noUpload={true} // Don't upload to server
@@ -109,12 +124,12 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
       {isProcessing && (
         <div className="text-sm text-blue-600 flex items-center gap-2 mt-2">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Processing bands: {processedBands}/{totalBands}
+          Processing bands: {processingBand} {processedBands}/{totalBands}
         </div>
       )}
 
-      <Button 
-        onClick={handleSyncBands} 
+      <Button
+        onClick={handleSyncBands}
         disabled={!uploadedFile || isProcessing}
         className="mt-4"
       >
@@ -127,6 +142,11 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
           <p>Sync bands</p>
         )}
       </Button>
+      <UnresolvedBands
+        unresolvedBands={unresolvedBands}
+        isOpen={isUnresolvedBandsDialogOpen}
+        onClose={handleDialogClose}
+      />
     </div>
   );
 }
