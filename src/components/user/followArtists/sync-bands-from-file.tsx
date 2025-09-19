@@ -112,9 +112,9 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
         </div>
         <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-md border border-green-200 dark:border-green-800 font-mono text-sm overflow-x-auto">
           <code className="text-green-700 dark:text-green-300">
-            Get-ChildItem -Path "C:\MyMusicFolder" -Directory | Select-Object
+            Get-ChildItem -Path &quot;C:\MyMusicFolder&quot; -Directory | Select-Object
             -ExpandProperty Name | Out-File -FilePath
-            "C:\MyMusicFolder\bandlist.txt" -Encoding UTF8
+            &quot;C:\MyMusicFolder\bandlist.txt&quot; -Encoding UTF8
           </code>
         </div>
       </div>
@@ -128,8 +128,8 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
         </div>
         <div className="bg-muted p-3 rounded-md border font-mono text-sm overflow-x-auto">
           <code>
-            chcp 65001 &gt;nul && for /d %i in ("C:\MyMusicFolder\*") do echo
-            %~nxi &gt;&gt; "C:\MyMusicFolder\bandlist.txt"
+            chcp 65001 &gt;nul && for /d %i in (&quot;C:\MyMusicFolder\*&quot;) do echo
+            %~nxi &gt;&gt; &quot;C:\MyMusicFolder\bandlist.txt&quot;
           </code>
         </div>
         <div className="flex items-start gap-2 mt-2">
@@ -151,11 +151,11 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
             <p className="text-xs text-blue-600 dark:text-blue-400">
               Change{" "}
               <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">
-                "C:\MyMusicFolder"
+                &quot;C:\MyMusicFolder&quot;
               </code>{" "}
               to your actual music folder path. For example:{" "}
               <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">
-                "E:\Music"
+                &quot;E:\Music&quot;
               </code>{" "}
             </p>
           </div>

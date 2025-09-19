@@ -177,7 +177,7 @@ export function FileUpload({
       }
       setIsProcessing(false);
     },
-    [files.length, onFileSelect, compact, validator, noUpload],
+    [onFileSelect, compact, validator, noUpload],
   )
 
   const removeFile = (index: number) => {
