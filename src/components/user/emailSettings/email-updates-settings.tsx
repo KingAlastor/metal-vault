@@ -35,13 +35,12 @@ export default function EmailUpdatesPage() {
 
   const filters = useMemo(() => {
     if (!user?.email_settings) {
-      return {}; // Return an empty object if no settings
+      return {};
     }
     return user.email_settings;
-  }, [user?.email_settings]); // Dependency: recompute only if email_settings changes
+  }, [user?.email_settings]);
 
   const [emailUpdatesEnabled, setEmailUpdatesEnabled] = useState(
-    // Initialize based on memoized filters
     !!filters.email_updates_enabled
   );
 
@@ -61,9 +60,8 @@ export default function EmailUpdatesPage() {
       };
 
       try {
-        // Use the useUpdateUser hook to update the user
         await updateUser.mutateAsync({
-          email_settings: updatedFilters, 
+          email_settings: updatedFilters,
         });
         setEmailUpdatesEnabled(checked);
         toast({ description: "Email updates setting updated." });
@@ -75,7 +73,7 @@ export default function EmailUpdatesPage() {
         });
       }
     },
-    [filters, updateUser, toast]
+    [filters, updateUser, toast, user]
   );
 
   const form = useForm<z.infer<typeof EmailFormSchema>>({
@@ -121,7 +119,7 @@ export default function EmailUpdatesPage() {
           email.html
         );
       }
-      
+
       toast({ description: "Sending test email..." });
       try {
         // Replace this with your actual email sending function
@@ -148,7 +146,7 @@ export default function EmailUpdatesPage() {
       try {
         // Use the useUpdateUser hook to update the user
         await updateUser.mutateAsync({
-          email_settings: updatedFilters, 
+          email_settings: updatedFilters,
         });
         toast({ description: "Email settings updated successfully." });
       } catch (error) {
