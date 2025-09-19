@@ -15,6 +15,7 @@ interface UploadedFile {
   error?: string
 }
 
+// Default image validation function
 const validateImage = (file: File): Promise<{ valid: boolean; error?: string; dimensions?: { width: number; height: number } }> => {
   return new Promise((resolve) => {
     // Check file type
@@ -65,12 +66,51 @@ const validateImage = (file: File): Promise<{ valid: boolean; error?: string; di
   })
 }
 
-interface FileUploadProps {
-  onFileSelect?: (file: File) => void;
-  compact?: boolean; // New prop for compact mode
+// Default text file validation function
+const validateTextFile = (file: File): Promise<{ valid: boolean; error?: string }> => {
+  return new Promise((resolve) => {
+    // Check file type
+    if (!file.type.startsWith('text/') && !file.name.endsWith('.txt') && !file.name.endsWith('.csv')) {
+      resolve({ valid: false, error: 'File must be a text file (.txt or .csv)' })
+      return
+    }
+
+    // Check file size (max 10MB for text files)
+    const maxSize = 10 * 1024 * 1024 // 10MB
+    if (file.size > maxSize) {
+      resolve({ valid: false, error: 'File too large. Maximum size: 10MB' })
+      return
+    }
+
+    resolve({ valid: true })
+  })
 }
 
-export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = {}) {
+interface FileUploadProps {
+  onFileSelect?: (file: File | File[]) => void;
+  compact?: boolean;
+  accept?: Record<string, string[]>; // File type configuration
+  maxSize?: number; // Max file size in bytes
+  validator?: (file: File) => Promise<{ valid: boolean; error?: string; dimensions?: { width: number; height: number } }>; // Custom validation function
+  multiple?: boolean; // Allow multiple files
+  uploadFunction?: (formData: FormData) => Promise<{ success: boolean; url?: string; filename?: string; error?: string }>; // Custom upload function
+  noUpload?: boolean; // Skip upload, just validate and select files
+  maxFiles?: number; // Maximum number of files to accept
+}
+
+export function FileUpload({
+  onFileSelect,
+  compact = false,
+  accept = {
+    'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif']
+  },
+  maxSize = 10 * 1024 * 1024, // 10MB default
+  validator = validateImage, // Default to image validation
+  multiple = !compact, // Single file in compact mode by default
+  uploadFunction,
+  noUpload = false,
+  maxFiles = multiple ? 10 : 1
+}: FileUploadProps = {}) {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -83,7 +123,7 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
       // In compact mode with callback, only handle the first file
       if (compact && onFileSelect) {
         const file = acceptedFiles[0];
-        const validation = await validateImage(file);
+        const validation = await validator(file);
         
         if (!validation.valid) {
           setFiles([{
@@ -99,8 +139,8 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
         // Set processing state and call callback
         setFiles([{
           file,
-          status: "success" as const,
-          progress: 100,
+          status: (noUpload ? "success" : "uploading") as "uploading" | "success",
+          progress: noUpload ? 100 : 0,
         }]);
         onFileSelect(file);
         setIsProcessing(false);
@@ -109,7 +149,7 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
       
       // Original logic for non-compact mode
       for (const file of acceptedFiles) {
-        const validation = await validateImage(file)
+        const validation = await validator(file)
         
         if (!validation.valid) {
           // Add file with error status
@@ -120,11 +160,11 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
             error: validation.error
           }])
         } else {
-          // Add file for upload
+          // Add file for processing
           const newFile = {
             file,
-            status: "uploading" as const,
-            progress: 0,
+            status: (noUpload ? "success" : "uploading") as "uploading" | "success",
+            progress: noUpload ? 100 : 0,
           }
           
           setFiles((prev) => [...prev, newFile])
@@ -132,71 +172,13 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
           // Call the callback if provided (for external handling)
           if (onFileSelect) {
             onFileSelect(file);
-          } else {
-            // Start upload (default behavior)
-            uploadToPublic(file, files.length)
           }
         }
       }
       setIsProcessing(false);
     },
-    [files.length, onFileSelect, compact],
+    [files.length, onFileSelect, compact, validator, noUpload],
   )
-
-  const uploadToPublic = async (file: File, index: number) => {
-    const formData = new FormData()
-    formData.append("file", file)
-
-    try {
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setFiles((prev) =>
-          prev.map((f, i) =>
-            i === index && f.status === "uploading" ? { ...f, progress: Math.min(f.progress + 10, 90) } : f,
-          ),
-        )
-      }, 100)
-
-      const response = await fetch("/api/promote/upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      clearInterval(progressInterval)
-
-      if (!response.ok) {
-        throw new Error("Upload failed")
-      }
-
-      const result = await response.json()
-
-      setFiles((prev) =>
-        prev.map((f, i) =>
-          i === index
-            ? {
-                ...f,
-                status: "success" as const,
-                progress: 100,
-                url: result.url,
-              }
-            : f,
-        ),
-      )
-    } catch (error) {
-      setFiles((prev) =>
-        prev.map((f, i) =>
-          i === index
-            ? {
-                ...f,
-                status: "error" as const,
-                progress: 0,
-                error: error instanceof Error ? error.message : "Upload failed",
-              }
-            : f,
-        ),
-      )
-    }
-  }
 
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index))
@@ -204,11 +186,10 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: !compact, // Single file in compact mode
-    maxSize: 10 * 1024 * 1024, // 10MB
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif']
-    }
+    multiple: multiple,
+    maxSize: maxSize,
+    accept: accept,
+    maxFiles: maxFiles
   })
 
   // Compact mode for forms
@@ -231,8 +212,8 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
             <p className="text-sm">Drop the image here...</p>
           ) : (
             <div>
-              <p className="text-sm mb-1">Click to select or drag & drop an image</p>
-              <p className="text-xs text-muted-foreground">Max 10MB • JPG, PNG, WebP, GIF</p>
+              <p className="text-sm mb-1">Click to select or drag & drop files</p>
+              <p className="text-xs text-muted-foreground">Max {Math.round(maxSize / (1024 * 1024))}MB • {Object.values(accept).flat().join(', ')}</p>
             </div>
           )}
         </div>
@@ -292,9 +273,9 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
             ) : (
               <div>
                 <p className="text-lg mb-2">Drag & drop files here, or click to select</p>
-                <p className="text-sm text-muted-foreground">Maximum file size: 10MB</p>
-                <p className="text-sm text-muted-foreground">Supported formats: .jpeg, .jpg, .png, .webp, .gif</p>
-                <p className="text-sm text-muted-foreground">Minimum dimensions: 300x300 pixels</p>
+                <p className="text-sm text-muted-foreground">Maximum file size: {Math.round(maxSize / (1024 * 1024))}MB</p>
+                <p className="text-sm text-muted-foreground">Supported formats: {Object.values(accept).flat().join(', ')}</p>
+                <p className="text-sm text-muted-foreground">Maximum files: {maxFiles}</p>
               </div>
             )}
           </div>
@@ -363,3 +344,6 @@ export function FileUpload({ onFileSelect, compact = false }: FileUploadProps = 
     </div>
   )
 }
+
+// Export validation functions for reuse
+export { validateImage, validateTextFile }

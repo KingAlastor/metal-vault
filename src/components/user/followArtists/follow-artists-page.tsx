@@ -95,7 +95,7 @@ export default function FollowArtistsPage() {
     inputPlaceholder: "Search band from database...",
     clearInput: true,
   };
-  useEffect(() => {
+/*   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (event.data.type === "AUTH_COMPLETE") {
         setIsSyncing(true);
@@ -148,9 +148,7 @@ export default function FollowArtistsPage() {
       alert("Failed to connect to Spotify. Please try again.");
       setIsSyncing(false);
     }
-  };
-
-  const handleBandListFileUpload = () => {};
+  }; */
 
   const handleDialogClose = () => {
     setIsBandsDialogOpen(false);
@@ -220,7 +218,6 @@ export default function FollowArtistsPage() {
                 <p>Import band list from file</p>
               )}
             </Button>
-            <p>{`for /d %i in ("E:\#Muusika\*") do @echo %~nxi >> "E:\#Muusika\folders.csv"`}</p>
             <UnresolvedBands
               unresolvedBands={unresolvedBands}
               isOpen={isBandsDialogOpen}
@@ -257,9 +254,7 @@ export default function FollowArtistsPage() {
               <DialogHeader>
                 <DialogTitle> Sync favorite bands from file</DialogTitle>
               </DialogHeader>
-              <SyncBandListFromFile
-                setIsOpen={setIsBandSyncListOpen}
-              />
+              <SyncBandListFromFile setIsOpen={setIsBandSyncListOpen} />
             </DialogContent>
           </Dialog>
         </>
@@ -273,9 +268,7 @@ export default function FollowArtistsPage() {
               <DrawerHeader className="text-left">
                 <DrawerTitle>Sync favorite bands from file</DrawerTitle>
               </DrawerHeader>
-              <SyncBandListFromFile
-                setIsOpen={setIsBandSyncListOpen}
-              />
+              <SyncBandListFromFile setIsOpen={setIsBandSyncListOpen} />
             </DrawerContent>
           </Drawer>
         </>

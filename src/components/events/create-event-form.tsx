@@ -88,6 +88,14 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  const handleFileSelect = (file: File | File[]) => {
+    if (Array.isArray(file)) {
+      setUploadedFile(file[0] || null);
+    } else {
+      setUploadedFile(file);
+    }
+  };
+
   const { data: genres } = useQuery({
     queryKey: ["genreTags"],
     queryFn: async () => {
@@ -294,7 +302,12 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         {/* Event Poster Upload */}
         <div className="space-y-2">
           <FormLabel>Event Poster</FormLabel>
-          <FileUpload compact onFileSelect={setUploadedFile} />
+          <FileUpload 
+            compact 
+            onFileSelect={handleFileSelect}
+            multiple={false}
+            maxFiles={1}
+          />
         </div>
         <div className="flex justify-end">
           <Button type="submit" disabled={isUploading || mutation.isPending}>

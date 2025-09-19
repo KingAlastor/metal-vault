@@ -1,5 +1,6 @@
 "use client"
 
+import { uploadPromotionFile, uploadMultipleFiles } from "../shared/upload-file-server-side";
 import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -17,7 +18,6 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FileUpload } from "../shared/upload-file-client-side"
-import { uploadPromotionFile } from "../shared/upload-file-server-side"
 
 // Define the form schema
 const promotionFormSchema = z.object({
@@ -36,7 +36,7 @@ export default function ToggleForm() {
   const [formType, setFormType] = useState<"bands" | "events">("bands")
   const [totalCost, setTotalCost] = useState<number>(0)
   const [isCalculating, setIsCalculating] = useState(false)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [uploadedFile, setUploadedFile] = useState<File | File[] | null>(null)
 
   const form = useForm<PromotionFormValues>({
     resolver: zodResolver(promotionFormSchema),
@@ -103,17 +103,22 @@ export default function ToggleForm() {
       
       // Add uploaded file if exists
       if (uploadedFile) {
-        formData.append("file", uploadedFile)
-      }
-      
-      const result = await uploadPromotionFile(formData)
-      if (result.success) {
-        form.reset()
-        setUploadedFile(null) // Clear uploaded file on success
-        // Success message or redirect here
-      } else {
-        // Handle error case
-        console.error("Upload failed:", result.error)
+        if (Array.isArray(uploadedFile)) {
+          // Handle multiple files
+          const uploadResult = await uploadMultipleFiles(formData, "promotion");
+          if (!uploadResult.success) {
+            console.error("Upload failed:", uploadResult.results);
+            // Handle error case
+          }
+        } else {
+          // Handle single file
+          const result = await uploadPromotionFile(formData);
+          if (result.success) {
+            // Success
+          } else {
+            console.error("Upload failed:", result.error);
+          }
+        }
       }
     } catch (error) {
       console.error("Error submitting promotion:", error)
@@ -349,11 +354,19 @@ export default function ToggleForm() {
                 </div>
               </div>
             )}
-            <FileUpload compact onFileSelect={setUploadedFile} />
+            <FileUpload 
+              compact 
+              onFileSelect={setUploadedFile}
+              multiple={true}
+              maxFiles={5}
+            />
             {uploadedFile && (
               <div className="text-sm text-green-600 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
-                File uploaded: {uploadedFile.name}
+                {Array.isArray(uploadedFile) 
+                  ? `${uploadedFile.length} file(s) selected`
+                  : `File selected: ${uploadedFile.name}`
+                }
               </div>
             )}
             {/* Submit Button */}

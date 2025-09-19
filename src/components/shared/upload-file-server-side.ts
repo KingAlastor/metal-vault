@@ -134,3 +134,46 @@ export async function uploadPromotionFile(formData: FormData) {
 export async function uploadEventImage(formData: FormData) {
   return uploadFile(formData, "event");
 }
+
+// Generic upload function for multiple files
+export async function uploadMultipleFiles(
+  formData: FormData, 
+  type: keyof typeof uploadConfigs
+): Promise<{ success: boolean; results: Array<{ url?: string; filename?: string; error?: string }> }> {
+  const results: Array<{ url?: string; filename?: string; error?: string }> = [];
+  
+  try {
+    // Get all file keys from formData
+    const fileKeys = Array.from(formData.keys()).filter(key => 
+      key.startsWith('file') || key.startsWith('file_')
+    );
+    
+    for (const key of fileKeys) {
+      const file = formData.get(key) as File;
+      if (!file) continue;
+      
+      // Create individual FormData for each file
+      const singleFileFormData = new FormData();
+      singleFileFormData.append('file', file);
+      
+      const result = await uploadFile(singleFileFormData, type);
+      results.push({
+        url: result.success ? result.url : undefined,
+        filename: result.success ? result.filename : undefined,
+        error: result.success ? undefined : result.error
+      });
+    }
+    
+    return {
+      success: results.every(r => !r.error),
+      results
+    };
+  } catch (error) {
+    return {
+      success: false,
+      results: [{
+        error: error instanceof Error ? error.message : "Failed to upload files"
+      }]
+    };
+  }
+}
