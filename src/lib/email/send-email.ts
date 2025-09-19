@@ -1,8 +1,5 @@
 "use server";
 
-// Environment variables are loaded by the worker process
-// No need to load them here as they're already available
-
 import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import nodemailer from "nodemailer";
 

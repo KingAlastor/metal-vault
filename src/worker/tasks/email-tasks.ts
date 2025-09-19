@@ -15,7 +15,7 @@ type UserWithEmailSettings = {
   id: string;
   name: string;
   email: string;
-  email_settings: string;
+  email_settings: EmailSettings; // Now JSONB object, not string
 };
 
 // Task to send scheduled emails to users based on their email settings
@@ -27,9 +27,10 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
       SELECT id, name, email, email_settings
       FROM users
       WHERE email_settings IS NOT NULL 
-      AND email_settings::text != 'null'
-      AND email_settings::text != '{}'
+      AND email_settings != 'null'::jsonb
+      AND email_settings != '{}'::jsonb
       AND email IS NOT NULL
+      AND email_settings @> '{"email_updates_enabled": true}'
     `;
 
     helpers.logger.info(`Found ${users.length} users with email settings`);
@@ -40,14 +41,7 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
 
     for (const user of users) {
       try {
-        let emailSettings: EmailSettings;
-        try {
-          emailSettings = JSON.parse(user.email_settings);
-        } catch (parseError) {
-          helpers.logger.warn(`Failed to parse email_settings for user ${user.id}: ${parseError}`);
-          emailsSkipped++;
-          continue;
-        }
+        const emailSettings: EmailSettings = user.email_settings;
 
         if (!emailSettings.email_updates_enabled) {
           helpers.logger.debug(`Email updates disabled for user ${user.id}`);
