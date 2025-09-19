@@ -20,7 +20,6 @@ export type UpcomingRelease = {
   releaseDate: Date;
   genreTags: string[];
   type: string;
-  status: string;
 };
 
 export async function getFavoriteBandReleasesForEmail(
@@ -39,7 +38,7 @@ export async function getFavoriteBandReleasesForEmail(
       WHERE user_id = ${userId}
     `;
     const bandIdArray = bandIds.map((row) => row.band_id);
-    const date = getFromAndToDates(frequency);
+    const dateRange = getFromAndToDates(frequency);
 
     if (bandIdArray.length === 0) {
       return [];
@@ -54,12 +53,11 @@ export async function getFavoriteBandReleasesForEmail(
         album_name as "title",  // Alias to match type
         release_date as "releaseDate",
         genre_tags as "genreTags",
-        type,
-        'active' as "status"  // Include status in SQL to match type
+        type
       FROM upcoming_releases
       WHERE band_id = ANY(${bandIdArray})
-      AND release_date >= ${date.from}
-      AND release_date <= ${date.to}
+      AND release_date >= ${dateRange.from}
+      AND release_date <= ${dateRange.to}
       ORDER BY release_date ASC
     `;
 
@@ -95,7 +93,7 @@ export async function getGenreReleasesForEmail(
       WHERE user_id = ${userId}
     `;
     const bandIdArray = bandIds.map((row) => row.band_id);
-    const date = getFromAndToDates(frequency);
+    const dateRange = getFromAndToDates(frequency);
 
     if (userGenreTags.length === 0) {
       return [];
@@ -110,8 +108,7 @@ export async function getGenreReleasesForEmail(
         album_name as "title",  // Alias to match type
         release_date as "releaseDate",
         genre_tags as "genreTags",
-        type,
-        'active' as "status"  // Include status in SQL to match type
+        type
       FROM upcoming_releases
       WHERE ${
         bandIdArray.length > 0 ? sql`band_id != ALL(${bandIdArray})` : sql`1=1`
@@ -122,8 +119,8 @@ export async function getGenreReleasesForEmail(
           ? sql`NOT (genre_tags && ${excludedGenreTags})`
           : sql`1=1`
       }
-      AND release_date >= ${date.from}
-      AND release_date <= ${date.to}
+      AND release_date >= ${dateRange.from}
+      AND release_date <= ${dateRange.to}
       ORDER BY release_date ASC
     `;
 
