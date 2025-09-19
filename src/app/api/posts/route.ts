@@ -12,8 +12,6 @@ export type PostsPageData = {
 
 export async function GET(req: NextRequest) {
   try {
-    console.log("Posts API - Fetching all posts with user filters");
-
     const session = await getSession();
     
     // Get filter settings from user's posts_settings (empty object if not logged in)
@@ -25,19 +23,13 @@ export async function GET(req: NextRequest) {
           favorite_genres: false,
           disliked_genres: false,
         };
-    
-    console.log("Posts API - Using filters:", filters);
-    
+        
     // Get ALL filtered posts - client handles all pagination
     const allPosts = await getAllPostsByFilters(filters);
 
-    console.log("Posts API - Response:", {
-      totalPosts: allPosts.length,
-    });
-
     const data: PostsPageData = {
       posts: allPosts,
-      next_cursor: null, // Client handles pagination entirely
+      next_cursor: null, // Client handles pagination 
       total_posts: allPosts.length,
     };
     return NextResponse.json(data);

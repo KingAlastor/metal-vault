@@ -109,7 +109,6 @@ export default function EmailUpdatesPage() {
         disliked_genres: data.disliked_genres ?? false,
       };
       const email = await createEmail(emailData);
-      console.log("email: ", email);
       if (email) {
         await sendMail(
           user!.id!,
@@ -122,8 +121,6 @@ export default function EmailUpdatesPage() {
 
       toast({ description: "Sending test email..." });
       try {
-        // Replace this with your actual email sending function
-        // await sendEmail(data);
         toast({ description: "Test email sent successfully!" });
       } catch (error) {
         console.error("Error sending test email:", error);

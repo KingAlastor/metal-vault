@@ -108,8 +108,6 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
 
     // Execute the query
     const releases = await finalSql;
-
-    console.log("Fetched releases count:", releases.length);
     
     // Map the results to match the UpcomingRelease type
     return releases.map(row => ({
