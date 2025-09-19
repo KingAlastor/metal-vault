@@ -135,7 +135,7 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
         <div className="flex items-start gap-2 mt-2">
           <p className="text-xs text-muted-foreground">
             <strong>⚠️ Known Issue:</strong> May corrupt special characters like
-            in "Mötley Crüe". Use PowerShell above for reliable results.
+            in &quot;Mötley Crüe&quot;. Use PowerShell above for reliable results.
           </p>
         </div>
       </div>

@@ -73,7 +73,7 @@ export default function EmailUpdatesPage() {
         });
       }
     },
-    [filters, updateUser, toast, user]
+    [filters, updateUser, toast]
   );
 
   const form = useForm<z.infer<typeof EmailFormSchema>>({
@@ -157,7 +157,7 @@ export default function EmailUpdatesPage() {
         });
       }
     },
-    [emailUpdatesEnabled, updateUser, toast, user]
+    [emailUpdatesEnabled, updateUser, toast]
   );
 
   return (
