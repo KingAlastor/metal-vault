@@ -124,7 +124,7 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
       {isProcessing && (
         <div className="text-sm text-blue-600 flex items-center gap-2 mt-2">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Processing bands: {processingBand} {processedBands}/{totalBands}
+          Processing: {processedBands}/{totalBands} {processingBand} 
         </div>
       )}
 
