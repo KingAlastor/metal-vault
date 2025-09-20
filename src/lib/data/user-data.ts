@@ -383,25 +383,25 @@ export async function updateUserData(data: UpdateUserData) {
   }
 
   if (data.email_settings !== undefined) {
-    updateParts.push(`email_settings = $${paramIndex}::jsonb`);
+    updateParts.push(`email_settings = $${paramIndex}`);
     values.push(data.email_settings);
     paramIndex++;
   }
 
   if (data.posts_settings !== undefined) {
-    updateParts.push(`posts_settings = $${paramIndex}::jsonb`);
+    updateParts.push(`posts_settings = $${paramIndex}`);
     values.push(data.posts_settings);
     paramIndex++;
   }
 
   if (data.events_settings !== undefined) {
-    updateParts.push(`events_settings = $${paramIndex}::jsonb`);
+    updateParts.push(`events_settings = $${paramIndex}`);
     values.push(data.events_settings);
     paramIndex++;
   }
 
   if (data.release_settings !== undefined) {
-    updateParts.push(`release_settings = $${paramIndex}::jsonb`);
+    updateParts.push(`release_settings = $${paramIndex}`);
     values.push(data.release_settings);
     paramIndex++;
   }
