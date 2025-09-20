@@ -353,82 +353,33 @@ export async function updateUserData(data: UpdateUserData) {
     return null;
   }
 
-  // Create dynamic SQL query parts
-  const updateParts = [];
-  const values = [];
-  let paramIndex = 1;
+  // Collect only fields that are not undefined
+  const updates: Record<string, any> = {};
 
-  if (data.user_name !== undefined) {
-    updateParts.push(`user_name = $${paramIndex}`);
-    values.push(data.user_name);
-    paramIndex++;
+  if (data.user_name !== undefined) updates.user_name = data.user_name;
+  if (data.location !== undefined) updates.location = data.location;
+  if (data.genre_tags !== undefined) updates.genre_tags = data.genre_tags;
+  if (data.excluded_genre_tags !== undefined) updates.excluded_genre_tags = data.excluded_genre_tags;
+  if (data.email_settings !== undefined) updates.email_settings = data.email_settings;
+  if (data.posts_settings !== undefined) updates.posts_settings = data.posts_settings;
+  if (data.events_settings !== undefined) updates.events_settings = data.events_settings;
+  if (data.release_settings !== undefined) updates.release_settings = data.release_settings;
+
+  if (Object.keys(updates).length === 0) {
+    return null; // Nothing to update
   }
-
-  if (data.location !== undefined) {
-    updateParts.push(`location = $${paramIndex}`);
-    values.push(data.location);
-    paramIndex++;
-  }
-
-  if (data.genre_tags !== undefined) {
-    updateParts.push(`genre_tags = $${paramIndex}`);
-    values.push(data.genre_tags);
-    paramIndex++;
-  }
-
-  if (data.excluded_genre_tags !== undefined) {
-    updateParts.push(`excluded_genre_tags = $${paramIndex}`);
-    values.push(data.excluded_genre_tags);
-    paramIndex++;
-  }
-
-  if (data.email_settings !== undefined) {
-    updateParts.push(`email_settings = $${paramIndex}`);
-    values.push(data.email_settings);
-    paramIndex++;
-  }
-
-  if (data.posts_settings !== undefined) {
-    updateParts.push(`posts_settings = $${paramIndex}`);
-    values.push(data.posts_settings);
-    paramIndex++;
-  }
-
-  if (data.events_settings !== undefined) {
-    updateParts.push(`events_settings = $${paramIndex}`);
-    values.push(data.events_settings);
-    paramIndex++;
-  }
-
-  if (data.release_settings !== undefined) {
-    updateParts.push(`release_settings = $${paramIndex}`);
-    values.push(data.release_settings);
-    paramIndex++;
-  }
-
-  if (updateParts.length === 0) {
-    return null; // No updates to perform
-  }
-
-  // Add updated_at timestamp
-  updateParts.push(`updated_at = NOW() AT TIME ZONE 'UTC'`);
-
-  // Construct the SQL query
-  const query = `
-    UPDATE users 
-    SET ${updateParts.join(", ")}
-    WHERE id = $${paramIndex}
-    RETURNING *
-  `;
-
-  values.push(session.userId);
 
   try {
-    const updatedUser = await sql.unsafe(query, values);
-    return updatedUser[0] || null;
+    const [updatedUser] = await sql`
+      UPDATE users
+      SET ${sql(updates)}, updated_at = NOW() AT TIME ZONE 'UTC'
+      WHERE id = ${session.userId}
+      RETURNING *
+    `;
+    return updatedUser || null;
   } catch (error) {
     console.error("Failed to update user data:", error);
-    throw error; // Let the API route handle the error
+    throw error;
   }
 }
 
