@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { toast, useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { createEmail } from "./create-email";
 import { sendMail } from "@/lib/email/send-email";
 import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
