@@ -195,7 +195,9 @@ export const fetchUnfollowedUsers = async (userId: string) => {
   }
 };
 
-export const getPostsFilterSettings = async (userId: string): Promise<PostsDataFilters> => {
+export const getPostsFilterSettings = async (
+  userId: string
+): Promise<PostsDataFilters> => {
   try {
     const userResult = await sql`
       SELECT posts_settings
@@ -331,19 +333,20 @@ export async function getRefreshTokenFromUserTokens(provider: string) {
   }
 }
 
-// Update the type definition
 export type UpdateUserData = {
-  email_settings?: any; // JSONB object
+  email_settings?: any;
   user_name?: string;
   location?: string;
   genre_tags?: string[];
   excluded_genre_tags?: string[];
   notifications?: string[];
-  posts_settings?: any; // JSONB object
-  events_settings?: any; // JSONB object
+  posts_settings?: any; 
+  events_settings?: any; 
   pending_actions?: string[];
-  release_settings?: any; // JSONB object
+  release_settings?: any; 
 };
+
+type UpdatePayload = Partial<UpdateUserData>;
 
 export async function updateUserData(data: UpdateUserData) {
   const session = await getSession();
@@ -353,20 +356,12 @@ export async function updateUserData(data: UpdateUserData) {
     return null;
   }
 
-  // Collect only fields that are not undefined
-  const updates: Record<string, any> = {};
-
-  if (data.user_name !== undefined) updates.user_name = data.user_name;
-  if (data.location !== undefined) updates.location = data.location;
-  if (data.genre_tags !== undefined) updates.genre_tags = data.genre_tags;
-  if (data.excluded_genre_tags !== undefined) updates.excluded_genre_tags = data.excluded_genre_tags;
-  if (data.email_settings !== undefined) updates.email_settings = data.email_settings;
-  if (data.posts_settings !== undefined) updates.posts_settings = data.posts_settings;
-  if (data.events_settings !== undefined) updates.events_settings = data.events_settings;
-  if (data.release_settings !== undefined) updates.release_settings = data.release_settings;
+  const updates = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v !== undefined)
+  ) as UpdatePayload;
 
   if (Object.keys(updates).length === 0) {
-    return null; // Nothing to update
+    return null;
   }
 
   try {
