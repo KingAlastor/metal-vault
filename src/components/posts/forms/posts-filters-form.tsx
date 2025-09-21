@@ -16,7 +16,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import { PostsDataFilters } from "@/lib/data/posts-data";
-import { useSession, useUser } from "@/lib/session/client-hooks";
+import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
 import { updateUserData } from "@/lib/data/user-data";
 
 const FormSchema = z.object({
@@ -34,7 +34,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   const { data: session } = useSession();
   const fullUser = useUser(session?.userId || "");
   const filters = fullUser.data?.posts_settings || {};
-
+  
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -46,6 +46,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   });
 
   const queryClient = useQueryClient();
+  const updateUser = useUpdateUser();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let filters: PostsDataFilters = {
@@ -55,9 +56,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
       disliked_genres: data.disliked_genres ?? false,
     };
     setIsOpen(false);
-    await updateUserData({
-      posts_settings: filters, 
-    });
+    await updateUser.mutateAsync({ posts_settings: filters });
     // Invalidate cache - this will automatically refetch with new filters
     queryClient.invalidateQueries({ queryKey: ["post-feed"] });
   }
