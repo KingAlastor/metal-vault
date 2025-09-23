@@ -16,12 +16,6 @@ export type EmailData = {
 };
 
 export const createEmail = async (data: EmailData, userId?: string) => {
-  console.log(
-    `[createEmail] Starting email creation for user ${
-      userId || "current session"
-    }, data:`,
-    data
-  );
   let favBandReleases: any[] = [];
   let favGenreReleases: any[] = [];
 
@@ -32,13 +26,9 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       throw new Error("User must be logged in to create email.");
     }
     userId = session.userId;
-    console.log(`[createEmail] Using session user ID: ${userId}`);
   }
 
   if (data.favorite_bands) {
-    console.log(
-      `[createEmail] Fetching favorite band releases for user ${userId}`
-    );
     favBandReleases = await getFavoriteBandReleasesForEmail(
       userId,
       data.email_frequency
@@ -46,18 +36,11 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   }
 
   if (data.favorite_genres) {
-    console.log(
-      `[createEmail] Fetching favorite genre releases for user ${userId}`
-    );
     favGenreReleases = await getGenreReleasesForEmail(
       userId,
       data.email_frequency
     );
   }
-
-  console.log(
-    `[createEmail] User: ${userId} Favorite bands found: ${favBandReleases.length} Favorite genres found: ${favGenreReleases.length}`
-  );
 
   if (favBandReleases.length === 0 && favGenreReleases.length === 0) {
     return { text: "", html: "" };
