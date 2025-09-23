@@ -30,22 +30,9 @@ export async function getFavoriteBandReleasesForEmail(
     `;
     const shard = userResult[0]?.shard || 0;
     console.log(`[getFavoriteBandReleasesForEmail] User shard: ${shard}`);
-
-    const bandIds = await sql`
-      SELECT band_id
-      FROM band_followers_${sql.unsafe(shard.toString())}
-      WHERE user_id = ${userId}
-    `;
-    const bandIdArray = bandIds.map((row) => row.band_id);
-    console.log(`[getFavoriteBandReleasesForEmail] Found ${bandIdArray.length} followed bands:`, bandIdArray);
     
     const dateRange = getFromAndToDates(frequency);
     console.log(`[getFavoriteBandReleasesForEmail] Date range from ${dateRange.from} to ${dateRange.to}`);
-
-    if (bandIdArray.length === 0) {
-      console.log(`[getFavoriteBandReleasesForEmail] No followed bands, returning empty array`);
-      return [];
-    }
 
     const releases = await sql<UpcomingRelease[]>`
       SELECT 
@@ -58,7 +45,11 @@ export async function getFavoriteBandReleasesForEmail(
         genre_tags as "genreTags",
         type
       FROM upcoming_releases
-      WHERE band_id = ANY(${bandIdArray})
+      WHERE band_id IN (
+        SELECT band_id
+        FROM band_followers_${sql.unsafe(shard.toString())}
+        WHERE user_id = ${userId}
+      )
       AND release_date >= ${dateRange.from}
       AND release_date <= ${dateRange.to}
       ORDER BY release_date ASC
@@ -93,14 +84,6 @@ export async function getGenreReleasesForEmail(
     const userGenreTags = user.genre_tags || [];
     const excludedGenreTags = user.excluded_genre_tags || [];
     console.log(`[getGenreReleasesForEmail] User shard: ${shard}, genres: ${userGenreTags.length}, excluded: ${excludedGenreTags.length}`);
-
-    const bandIds = await sql`
-      SELECT band_id
-      FROM band_followers_${sql.unsafe(shard.toString())}
-      WHERE user_id = ${userId}
-    `;
-    const bandIdArray = bandIds.map((row) => row.band_id);
-    console.log(`[getGenreReleasesForEmail] Found ${bandIdArray.length} followed bands to exclude`);
     
     const dateRange = getFromAndToDates(frequency);
     console.log(`[getGenreReleasesForEmail] Date range from ${dateRange.from} to ${dateRange.to}`);
@@ -121,9 +104,11 @@ export async function getGenreReleasesForEmail(
         genre_tags as "genreTags",
         type
       FROM upcoming_releases
-      WHERE ${
-        bandIdArray.length > 0 ? sql`band_id != ALL(${bandIdArray})` : sql`1=1`
-      }
+      WHERE band_id NOT IN (
+        SELECT band_id
+        FROM band_followers_${sql.unsafe(shard.toString())}
+        WHERE user_id = ${userId}
+      )
       AND genre_tags && ${userGenreTags}
       AND ${
         excludedGenreTags.length > 0

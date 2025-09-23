@@ -16,7 +16,12 @@ export type EmailData = {
 };
 
 export const createEmail = async (data: EmailData, userId?: string) => {
-  console.log(`[createEmail] Starting email creation for user ${userId || 'current session'}, data:`, data);
+  console.log(
+    `[createEmail] Starting email creation for user ${
+      userId || "current session"
+    }, data:`,
+    data
+  );
   let favBandReleases: any[] = [];
   let favGenreReleases: any[] = [];
 
@@ -31,7 +36,9 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   }
 
   if (data.favorite_bands) {
-    console.log(`[createEmail] Fetching favorite band releases for user ${userId}`);
+    console.log(
+      `[createEmail] Fetching favorite band releases for user ${userId}`
+    );
     favBandReleases = await getFavoriteBandReleasesForEmail(
       userId,
       data.email_frequency
@@ -39,14 +46,22 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   }
 
   if (data.favorite_genres) {
-    console.log(`[createEmail] Fetching favorite genre releases for user ${userId}`);
+    console.log(
+      `[createEmail] Fetching favorite genre releases for user ${userId}`
+    );
     favGenreReleases = await getGenreReleasesForEmail(
       userId,
       data.email_frequency
     );
   }
-  
-  console.log(`[createEmail] User: ${userId} Favorite bands found: ${favBandReleases.length} Favorite genres found: ${favGenreReleases.length}`);
+
+  console.log(
+    `[createEmail] User: ${userId} Favorite bands found: ${favBandReleases.length} Favorite genres found: ${favGenreReleases.length}`
+  );
+
+  if (favBandReleases.length === 0 && favGenreReleases.length === 0) {
+    return null;
+  }
 
   let text = "";
   let html = `
@@ -97,7 +112,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
 
     favBandReleases.forEach((band, index) => {
       const date = formatDateWithNamedMonth(band.releaseDate!);
-      const rowColor = index % 2 === 0 ? '#ffffff' : '#f1f3f4';
+      const rowColor = index % 2 === 0 ? "#ffffff" : "#f1f3f4";
       text += `\n- ${date} - ${band.bandName} - ${band.albumName}`;
       html += `
         <div style="background-color: ${rowColor}; padding: 15px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #e9ecef;">
@@ -134,7 +149,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       const genres = Array.isArray(band.genreTags)
         ? band.genreTags.join(", ")
         : band.genreTags;
-      const rowColor = index % 2 === 0 ? '#ffffff' : '#f1f3f4';
+      const rowColor = index % 2 === 0 ? "#ffffff" : "#f1f3f4";
       const genreArray = Array.isArray(band.genreTags)
         ? band.genreTags
         : [band.genreTags];
@@ -176,8 +191,10 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       </div>
     </div>
   `;
-  
-  console.log(`[createEmail] Email content generated successfully for user ${userId}. Text length: ${text.length}, HTML length: ${html.length}`);
+
+  console.log(
+    `[createEmail] Email content generated successfully for user ${userId}. Text length: ${text.length}, HTML length: ${html.length}`
+  );
   return {
     text,
     html,
