@@ -40,7 +40,7 @@ export async function getFavoriteBandReleasesForEmail(
     console.log(`[getFavoriteBandReleasesForEmail] Found ${bandIdArray.length} followed bands:`, bandIdArray);
     
     const dateRange = getFromAndToDates(frequency);
-    console.log(`[getFavoriteBandReleasesForEmail] Date range: ${dateRange.from.toISOString()} to ${dateRange.to.toISOString()}`);
+    console.log(`[getFavoriteBandReleasesForEmail] Date range from ${dateRange.from} to ${dateRange.to}`);
 
     if (bandIdArray.length === 0) {
       console.log(`[getFavoriteBandReleasesForEmail] No followed bands, returning empty array`);
@@ -59,8 +59,8 @@ export async function getFavoriteBandReleasesForEmail(
         type
       FROM upcoming_releases
       WHERE band_id = ANY(${bandIdArray})
-      AND release_date >= ${dateRange.from.toISOString()}
-      AND release_date <= ${dateRange.to.toISOString()}
+      AND release_date >= ${dateRange.from}
+      AND release_date <= ${dateRange.to}
       ORDER BY release_date ASC
     `;
 
@@ -103,7 +103,7 @@ export async function getGenreReleasesForEmail(
     console.log(`[getGenreReleasesForEmail] Found ${bandIdArray.length} followed bands to exclude`);
     
     const dateRange = getFromAndToDates(frequency);
-    console.log(`[getGenreReleasesForEmail] Date range: ${dateRange.from.toISOString()} to ${dateRange.to.toISOString()}`);
+    console.log(`[getGenreReleasesForEmail] Date range from ${dateRange.from} to ${dateRange.to}`);
 
     if (userGenreTags.length === 0) {
       console.log(`[getGenreReleasesForEmail] No favorite genres, returning empty array`);
@@ -130,8 +130,8 @@ export async function getGenreReleasesForEmail(
           ? sql`NOT (genre_tags && ${excludedGenreTags})`
           : sql`1=1`
       }
-      AND release_date >= ${dateRange.from.toISOString()}
-      AND release_date <= ${dateRange.to.toISOString()}
+      AND release_date >= ${dateRange.from}
+      AND release_date <= ${dateRange.to}
       ORDER BY release_date ASC
     `;
 

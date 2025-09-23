@@ -122,7 +122,7 @@ function getMonthIndex(month: string): number {
   return -1;
 }
 
-export function getFromAndToDates(period: string): { from: Date, to: Date } {
+export function getFromAndToDates(period: string): { from: string, to: string } {
   const today = new Date();
   const utcYear = today.getUTCFullYear();
   const utcMonth = today.getUTCMonth();
@@ -133,15 +133,15 @@ export function getFromAndToDates(period: string): { from: Date, to: Date } {
   if (period === 'W') {
     const fromDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 7, 0, 0, 0, 0));
     return {
-      from: fromDate,
-      to: toDate
+      from: fromDate.toISOString(),
+      to: toDate.toISOString()
     };
   } else if (period === 'M') {
     const fromDate = new Date(Date.UTC(utcYear, utcMonth - 1, 1, 0, 0, 0, 0));
     const lastDateOfPreviousMonth = new Date(Date.UTC(utcYear, utcMonth, 0, 0, 0, 0));
     return {
-      from: fromDate,
-      to: lastDateOfPreviousMonth
+      from: fromDate.toISOString(),
+      to: lastDateOfPreviousMonth.toISOString()
     };
   }
 
