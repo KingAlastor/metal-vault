@@ -47,14 +47,15 @@ export function formatTimeFromSeconds(totalSeconds: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-export function parseMetalArchivesDate(dateString: string): Date | null {
+export function parseMetalArchivesDate(dateString: string): string | null {
   if (!dateString) {
     return null;
   }
 
   // Handle "YYYY" format
   if (/^\d{4}$/.test(dateString)) {
-    return new Date(Date.UTC(parseInt(dateString), 0, 1)); // January 1st of the year
+    const date = new Date(Date.UTC(parseInt(dateString), 0, 1)); // January 1st of the year
+    return date.toISOString().split('T')[0];
   }
 
   // Handle "Month YYYY" format
@@ -65,7 +66,8 @@ export function parseMetalArchivesDate(dateString: string): Date | null {
       console.warn(`Could not parse month: ${month}`);
       return null;
     }
-    return new Date(Date.UTC(parseInt(year), monthIndex, 1));
+    const date = new Date(Date.UTC(parseInt(year), monthIndex, 1));
+    return date.toISOString().split('T')[0];
   }
 
   // Handle "Month Day, YYYY" format (e.g., "August 11th, 2023" or "January 2nd, 1996")
@@ -91,7 +93,8 @@ export function parseMetalArchivesDate(dateString: string): Date | null {
       console.warn(`Could not parse month: ${month}`);
       return null;
     }
-    return new Date(Date.UTC(parseInt(year), monthIndex, parseInt(day)));
+    const date = new Date(Date.UTC(parseInt(year), monthIndex, parseInt(day)));
+    return date.toISOString().split('T')[0];
   }
 
   console.warn(`Could not parse date string: ${dateString}`);
@@ -133,15 +136,15 @@ export function getFromAndToDates(period: string): { from: string, to: string } 
   if (period === 'W') {
     const fromDate = new Date(Date.UTC(utcYear, utcMonth, utcDate - 7, 0, 0, 0, 0));
     return {
-      from: fromDate.toISOString(),
-      to: toDate.toISOString()
+      from: fromDate.toISOString().split('T')[0],
+      to: toDate.toISOString().split('T')[0]
     };
   } else if (period === 'M') {
     const fromDate = new Date(Date.UTC(utcYear, utcMonth - 1, 1, 0, 0, 0, 0));
     const lastDateOfPreviousMonth = new Date(Date.UTC(utcYear, utcMonth, 0, 0, 0, 0));
     return {
-      from: fromDate.toISOString(),
-      to: lastDateOfPreviousMonth.toISOString()
+      from: fromDate.toISOString().split('T')[0],
+      to: lastDateOfPreviousMonth.toISOString().split('T')[0]
     };
   }
 

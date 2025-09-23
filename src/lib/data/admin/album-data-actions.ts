@@ -7,7 +7,7 @@ export async function updateAlbumsTableData(albumsData: {
   name_pretty?: string;
   archives_link: number;
   type?: string;
-  release_date?: Date;
+  release_date?: string;
   spotify_id?: string;
   updated_at?: Date;
 }) {

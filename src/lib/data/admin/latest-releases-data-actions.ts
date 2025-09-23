@@ -96,7 +96,7 @@ const extractBandDetails = async (band: Array<any>) => {
   const albumNamePrettyMatch = albumLink.match(/>([^<]+)<\/a>/);
   const albumName = albumNamePrettyMatch ? albumNamePrettyMatch[1] : "";
 
-  const releaseDate: Date = new Date(convertDateToISO(date));
+  const releaseDate: string = convertDateToISO(date);
 
   return {
     bandId,
@@ -118,7 +118,7 @@ type ReleaseData = {
   albumArchivesLink: number;
   genreTags: string[];
   type: string;
-  releaseDate: Date;
+  releaseDate: string;
 }[];
 
 const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {

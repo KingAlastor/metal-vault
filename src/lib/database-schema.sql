@@ -77,7 +77,7 @@ CREATE TABLE band_albums (
   name_pretty VARCHAR(255),
   archives_link BIGINT,
   type VARCHAR(255),
-  release_date TIMESTAMP WITH TIME ZONE,
+  release_date DATE,
   spotify_id VARCHAR(255),
   updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
@@ -108,7 +108,7 @@ CREATE TABLE upcoming_releases (
   band_archives_link BIGINT,
   album_archives_link BIGINT,
   type VARCHAR(255),
-  release_date TIMESTAMP WITH TIME ZONE,
+  release_date DATE,
   updated_at TIMESTAMP WITH TIME ZONE,
   UNIQUE (album_archives_link)
 );
