@@ -88,7 +88,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
     html += `
       <div style="margin-bottom: 40px;">
         <h2 class="email-header" style="color: #333; border-bottom: 3px solid #e74c3c; padding-bottom: 10px; margin-bottom: 20px;">
-          🎸 Latest Releases from Your Favorite Artists
+          Latest Releases from Your Favorite Artists
         </h2>
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
     `;
@@ -122,7 +122,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
             : ""
         }
         <h2 class="email-header" style="color: #333; border-bottom: 3px solid #f39c12; padding-bottom: 10px; margin-bottom: 20px;">
-          🎵 Latest Releases from Your Favorite Genres
+          Latest Releases from Your Favorite Genres
         </h2>
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
     `;
