@@ -16,6 +16,7 @@ export type EmailData = {
 };
 
 export const createEmail = async (data: EmailData, userId?: string) => {
+  console.log(`[createEmail] Starting email creation for user ${userId || 'current session'}, data:`, data);
   let favBandReleases: any[] = [];
   let favGenreReleases: any[] = [];
 
@@ -26,9 +27,11 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       throw new Error("User must be logged in to create email.");
     }
     userId = session.userId;
+    console.log(`[createEmail] Using session user ID: ${userId}`);
   }
 
   if (data.favorite_bands) {
+    console.log(`[createEmail] Fetching favorite band releases for user ${userId}`);
     favBandReleases = await getFavoriteBandReleasesForEmail(
       userId,
       data.email_frequency
@@ -36,12 +39,14 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   }
 
   if (data.favorite_genres) {
+    console.log(`[createEmail] Fetching favorite genre releases for user ${userId}`);
     favGenreReleases = await getGenreReleasesForEmail(
       userId,
       data.email_frequency
     );
   }
-  console.log("User: ", userId, "Favorite bands found: ", favBandReleases.length, "Favorite genres found: ", favGenreReleases.length)
+  
+  console.log(`[createEmail] User: ${userId} Favorite bands found: ${favBandReleases.length} Favorite genres found: ${favGenreReleases.length}`);
 
   let text = "";
   let html = `
@@ -171,6 +176,8 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       </div>
     </div>
   `;
+  
+  console.log(`[createEmail] Email content generated successfully for user ${userId}. Text length: ${text.length}, HTML length: ${html.length}`);
   return {
     text,
     html,
