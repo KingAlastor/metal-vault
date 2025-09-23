@@ -127,7 +127,7 @@ export default function EmailUpdatesPage() {
         toast({ description: "Failed to send test email." });
       }
     },
-    [toast]
+    [toast, user]
   );
   const onSubmit = useCallback(
     async (data: z.infer<typeof EmailFormSchema>) => {
