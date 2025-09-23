@@ -14,7 +14,7 @@ export default async function Page() {
         <section className="gdpr-section">
           <h2 className="text-lg font-semibold mb-3">1. What Information We Collect</h2>
           <p className="mb-3 text-gray-700">
-            We do not have our own password management system. Instead, we use third-party single sign-on (SSO) providers to manage your login and account creation. We collect and store the following personal information directly from these providers:
+            We use third-party single sign-on (SSO) providers to manage your login and account creation. We collect and store the following personal information directly from these providers:
           </p>
           <ul className="list-disc list-inside mb-3 text-gray-700 space-y-1">
             <li><strong>Your Name:</strong> As provided by your chosen SSO provider.</li>
@@ -39,13 +39,7 @@ export default async function Page() {
           <p className="mb-3 text-gray-700">
             We rely on third-party SSO providers to handle your authentication. These providers have their own terms of service and privacy policies, and they are responsible for the data they collect and manage on their platforms.
           </p>
-          <p className="mb-3 text-gray-700">When you use one of our SSO options, you are subject to the policies of that service. You can review their respective privacy policies here:</p>
-          <ul className="list-disc list-inside mb-3 text-gray-700 space-y-1">
-            <li>Google: [Link to Google's Privacy Policy]</li>
-            <li>Meta: [Link to Meta's Privacy Policy]</li>
-            <li>Discord: [Link to Discord's Privacy Policy]</li>
-            <li>Other: Please check the provider's official policy for details.</li>
-          </ul>
+          <p className="mb-3 text-gray-700">When you use one of our SSO options, you are subject to the policies of that service. You can review their respective privacy policies.</p>
           <p className="text-gray-700">We are not responsible for the privacy practices of these third-party services.</p>
         </section>
 

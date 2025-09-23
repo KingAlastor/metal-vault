@@ -26,11 +26,13 @@ export async function getFavoriteBandReleasesForEmail(
   userId: string,
   frequency: string
 ): Promise<UpcomingRelease[]> {
+  console.log(`[getFavoriteBandReleasesForEmail] Starting for user ${userId}, frequency: ${frequency}`);
   try {
     const userResult = await sql`
       SELECT shard FROM users WHERE id = ${userId}
     `;
     const shard = userResult[0]?.shard || 0;
+    console.log(`[getFavoriteBandReleasesForEmail] User shard: ${shard}`);
 
     const bandIds = await sql`
       SELECT band_id
@@ -38,9 +40,13 @@ export async function getFavoriteBandReleasesForEmail(
       WHERE user_id = ${userId}
     `;
     const bandIdArray = bandIds.map((row) => row.band_id);
+    console.log(`[getFavoriteBandReleasesForEmail] Found ${bandIdArray.length} followed bands:`, bandIdArray);
+    
     const dateRange = getFromAndToDates(frequency);
+    console.log(`[getFavoriteBandReleasesForEmail] Date range: ${dateRange.from} to ${dateRange.to}`);
 
     if (bandIdArray.length === 0) {
+      console.log(`[getFavoriteBandReleasesForEmail] No followed bands, returning empty array`);
       return [];
     }
 
@@ -61,6 +67,7 @@ export async function getFavoriteBandReleasesForEmail(
       ORDER BY release_date ASC
     `;
 
+    console.log(`[getFavoriteBandReleasesForEmail] Found ${releases.length} releases:`, releases.map(r => ({ id: r.id, title: r.title, date: r.releaseDate })));
     return releases;
   } catch (error) {
     console.error("Error fetching favorite band releases:", error);
@@ -72,20 +79,23 @@ export async function getGenreReleasesForEmail(
   userId: string,
   frequency: string
 ): Promise<UpcomingRelease[]> {
+  console.log(`[getGenreReleasesForEmail] Starting for user ${userId}, frequency: ${frequency}`);
   try {
     const userResult = await sql`
-      SELECT shard, genre_tags as "genreTags", excluded_genre_tags as "excludedGenreTags"
+      SELECT shard, genre_tags, excluded_genre_tags 
       FROM users 
       WHERE id = ${userId}
     `;
     const user = userResult[0];
     if (!user) {
+      console.log(`[getGenreReleasesForEmail] User not found: ${userId}`);
       return [];
     }
 
     const shard = user.shard || 0;
-    const userGenreTags = user.genreTags || [];
-    const excludedGenreTags = user.excludedGenreTags || [];
+    const userGenreTags = user.genre_tags || [];
+    const excludedGenreTags = user.excluded_genre_tags || [];
+    console.log(`[getGenreReleasesForEmail] User shard: ${shard}, genres: ${userGenreTags.length}, excluded: ${excludedGenreTags.length}`);
 
     const bandIds = await sql`
       SELECT band_id
@@ -93,9 +103,13 @@ export async function getGenreReleasesForEmail(
       WHERE user_id = ${userId}
     `;
     const bandIdArray = bandIds.map((row) => row.band_id);
+    console.log(`[getGenreReleasesForEmail] Found ${bandIdArray.length} followed bands to exclude`);
+    
     const dateRange = getFromAndToDates(frequency);
+    console.log(`[getGenreReleasesForEmail] Date range: ${dateRange.from} to ${dateRange.to}`);
 
     if (userGenreTags.length === 0) {
+      console.log(`[getGenreReleasesForEmail] No favorite genres, returning empty array`);
       return [];
     }
 
@@ -124,6 +138,7 @@ export async function getGenreReleasesForEmail(
       ORDER BY release_date ASC
     `;
 
+    console.log(`[getGenreReleasesForEmail] Found ${releases.length} releases:`, releases.map(r => ({ id: r.id, title: r.title, date: r.releaseDate })));
     return releases;
   } catch (error) {
     console.error("Error fetching favorite genre releases:", error);

@@ -25,6 +25,14 @@ CREATE TABLE users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
+CREATE TABLE user_gdpr_consent (
+  user_id VARCHAR(36) NOT NULL,
+  consent_given TIMESTAMP DEFAULT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE (user_id)
+
+)
+
 CREATE TABLE user_tokens (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(36) NOT NULL,
