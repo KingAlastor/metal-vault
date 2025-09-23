@@ -60,7 +60,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
   );
 
   if (favBandReleases.length === 0 && favGenreReleases.length === 0) {
-    return null;
+    return { text: "", html: "" };
   }
 
   let text = "";
