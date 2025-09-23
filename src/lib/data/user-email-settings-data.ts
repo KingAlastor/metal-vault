@@ -19,6 +19,8 @@ export type UpcomingRelease = {
   type: string;
 };
 
+// ... existing code ...
+
 export async function getFavoriteBandReleasesForEmail(
   userId: string,
   frequency: string
@@ -34,13 +36,37 @@ export async function getFavoriteBandReleasesForEmail(
     const dateRange = getFromAndToDates(frequency);
     console.log(`[getFavoriteBandReleasesForEmail] Date range from ${dateRange.from} to ${dateRange.to}`);
 
+    // Log the full SQL query for debugging
+    const tableName = `band_followers_${shard}`;
+    const fullQuery = `
+      SELECT 
+        id,
+        band_id as "bandId",
+        band_name as "bandName",
+        album_name as "albumName",
+        album_name as "title",
+        release_date as "releaseDate",
+        genre_tags as "genreTags",
+        type
+      FROM upcoming_releases
+      WHERE band_id IN (
+        SELECT band_id
+        FROM ${tableName}
+        WHERE user_id = '${userId}'
+      )
+      AND release_date >= '${dateRange.from}'
+      AND release_date <= '${dateRange.to}'
+      ORDER BY release_date ASC
+    `;
+    console.log(`[getFavoriteBandReleasesForEmail] Full SQL Query:`, fullQuery);
+
     const releases = await sql<UpcomingRelease[]>`
       SELECT 
         id,
         band_id as "bandId",
         band_name as "bandName",
         album_name as "albumName",
-        album_name as "title",  // Alias to match type
+        album_name as "title",
         release_date as "releaseDate",
         genre_tags as "genreTags",
         type
@@ -93,13 +119,40 @@ export async function getGenreReleasesForEmail(
       return [];
     }
 
+    // Log the full SQL query for debugging
+    const tableName = `band_followers_${shard}`;
+    const excludedCondition = excludedGenreTags.length > 0 ? `NOT (genre_tags && ARRAY${JSON.stringify(excludedGenreTags)})` : '1=1';
+    const fullQuery = `
+      SELECT 
+        id,
+        band_id as "bandId",
+        band_name as "bandName",
+        album_name as "albumName",
+        album_name as "title",
+        release_date as "releaseDate",
+        genre_tags as "genreTags",
+        type
+      FROM upcoming_releases
+      WHERE band_id NOT IN (
+        SELECT band_id
+        FROM ${tableName}
+        WHERE user_id = '${userId}'
+      )
+      AND genre_tags && ARRAY${JSON.stringify(userGenreTags)}
+      AND ${excludedCondition}
+      AND release_date >= '${dateRange.from}'
+      AND release_date <= '${dateRange.to}'
+      ORDER BY release_date ASC
+    `;
+    console.log(`[getGenreReleasesForEmail] Full SQL Query:`, fullQuery);
+
     const releases = await sql<UpcomingRelease[]>`
       SELECT 
         id,
         band_id as "bandId",
         band_name as "bandName",
         album_name as "albumName",
-        album_name as "title",  // Alias to match type
+        album_name as "title",
         release_date as "releaseDate",
         genre_tags as "genreTags",
         type
@@ -127,6 +180,8 @@ export async function getGenreReleasesForEmail(
     return [];
   }
 }
+
+// ... existing code ...
 
 export async function unsubscribeUser(userId: string) {
   try {
