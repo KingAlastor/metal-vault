@@ -45,7 +45,7 @@ export async function sendMail(
 
   try {
     const info = await transporter.sendMail({
-      from: process.env.AWS_SENDER_EMAIL,
+      from: `"Metal Vault" <${process.env.AWS_SENDER_EMAIL}>`,
       to: to,
       subject: subject,
       text: text,

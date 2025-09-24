@@ -294,8 +294,6 @@ export async function getAllPostsByFilters(
       LIMIT 500
     `;
 
-    console.log("Fetched ALL posts with filters:", posts.length);
-
     return posts.map((post: any) => ({
       ...post,
       is_favorite: followedBandIds.includes(post.band_id || ""),

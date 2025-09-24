@@ -47,6 +47,8 @@ import {
 } from "./tasks/sync-tasks";
 import { sendScheduledEmails } from "./tasks/email-tasks";
 import { runJob } from "./task-wrapper.js";
+import { Pool } from 'pg';
+import { runMigrations } from 'graphile-worker';
 
 async function main() {
   console.log("Current working directory:", process.cwd());
@@ -61,6 +63,37 @@ async function main() {
   if (!dbConnectionString) {
     throw new Error("DATABASE_URL environment variable is not set!");
   }
+
+  // Create connection pool with optimized settings
+  const pgPool = new Pool({
+    connectionString: dbConnectionString,
+    min: 0,        
+    max: 3,     
+    idleTimeoutMillis: 30000, 
+    connectionTimeoutMillis: 2000, 
+  });
+
+  pgPool.on('error', (err) => {
+    console.error('[WORKER] Unexpected pool error:', err);
+  });
+
+  pgPool.on('connect', (client) => {
+    console.log('[WORKER] New client connected');
+  });
+
+  pgPool.on('remove', (client) => {
+    console.log('[WORKER] Client removed from pool');
+  });
+
+  console.log('[WORKER] Starting database migrations...');
+  try {
+    await runMigrations({ pgPool });
+    console.log('[WORKER] Migrations completed successfully.');
+  } catch (migrationError) {
+    console.error('[WORKER] Migration failed:', migrationError);
+    throw migrationError;
+  }
+
   const shouldRunOnce = process.argv.includes("--once");  // Define the schedules for your tasks
   const crontab = [
     // Sync upcoming releases daily at 12:30 AM (before emails)
@@ -79,7 +112,7 @@ async function main() {
   ].join("\n");
   console.log("Starting worker...");
   const runner = await run({
-    connectionString: dbConnectionString,
+    pgPool,  
     concurrency: 2, // Allow 2 jobs: 1 scraping + 1 non-scraping (emails)
     // noHandleSignals: false, // Recommended to keep this false unless debugging
     pollInterval: 1000,
@@ -94,9 +127,8 @@ async function main() {
       send_monthly_emails: runJob("send_monthly_emails", sendScheduledEmails),
       sync_latest_bands: runJob("sync_latest_bands", syncLatestBands),
       sync_albums: runJob("sync_albums", syncAlbums),
-      // Add other task identifiers here if you create more tasks
+      // Add other task identifiers here 
     },
-    // Add the crontab for scheduled tasks
     crontab: crontab,
   });
 
