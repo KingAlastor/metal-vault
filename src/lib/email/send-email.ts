@@ -51,8 +51,8 @@ export async function sendMail(
       text: text,
       html: html,
       headers: {
-        "List-Unsubscribe":
-          "<https://www.metal-vault.com/api/email/unsubscribe?id=" + userId,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        "List-Unsubscribe": `<https://www.metal-vault.com/api/email/unsubscribe?id=${userId}>, <mailto:kingalastor@metal-vault.com?subject=unsubscribe:${to}>`,
       },
     });
 
