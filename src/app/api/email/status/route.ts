@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   if (body.email && body.status) {
-    await updateEmailAddressStatus(body.email, body.status);
+    await updateEmailAddressStatus(body.email, body.status.toUpperCase());
   }
 
   return Response.json({status: true})
