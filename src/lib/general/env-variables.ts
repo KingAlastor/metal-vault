@@ -36,6 +36,8 @@ export const fetchEnvironmentVariables = async (
       return process.env.AWS_SENDER_EMAIL || "";
     case "AWS_REGION":
       return process.env.AWS_REGION || "";
+    case "BEARER_TOKEN": 
+      return process.env.BEARER_TOKEN || "";
     default:
       throw new Error(`Unknown environment variable key: ${envKey}`);
   }

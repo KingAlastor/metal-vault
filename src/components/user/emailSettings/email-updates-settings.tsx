@@ -193,7 +193,7 @@ export default function EmailUpdatesPage() {
                           Email address for receving updates
                         </FormDescription>
                       </div>
-                      <FormControl>
+                        <FormControl>
                         <Input
                           type="email"
                           placeholder="Enter your preferred email"
@@ -202,6 +202,7 @@ export default function EmailUpdatesPage() {
                           onBlur={field.onBlur}
                           ref={field.ref}
                           className="w-32 sm:w-48 md:w-64"
+                          disabled={true}
                         />
                       </FormControl>
                     </FormItem>

@@ -99,7 +99,7 @@ export default function FollowArtistsPage() {
       <Tabs defaultValue="favorites">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="favorites">Favorite Bands</TabsTrigger>
-          <TabsTrigger value="unfollowed">Unfollowed Bands</TabsTrigger>
+          <TabsTrigger value="unfollowed">Hated Bands</TabsTrigger>
         </TabsList>
         <TabsContent value="favorites">
           <>

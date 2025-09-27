@@ -79,7 +79,7 @@ export async function getGenreReleasesForEmail(
     const shard = user.shard || 0;
     const userGenreTags = user.genre_tags || [];
     const excludedGenreTags = user.excluded_genre_tags || [];
-    
+
     const dateRange = getFromAndToDates(frequency);
 
     if (userGenreTags.length === 0) {
@@ -120,8 +120,6 @@ export async function getGenreReleasesForEmail(
   }
 }
 
-// ... existing code ...
-
 export async function unsubscribeUser(userId: string) {
   try {
     await sql`
@@ -131,5 +129,17 @@ export async function unsubscribeUser(userId: string) {
     `;
   } catch (error) {
     console.error("Error updating email settings:", error);
+  }
+}
+
+export async function updateEmailAddressStatus(email: string, status: string) {
+  try {
+    await sql`
+      UPDATE users
+      SET email_status = ${status}
+      WHERE email = ${email}
+    `;
+  } catch (error) {
+    console.error("Error updating email status:", error);
   }
 }

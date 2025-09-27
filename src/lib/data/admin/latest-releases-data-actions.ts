@@ -134,7 +134,6 @@ const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
       release_date: release.releaseDate,
     }));
 
-    // Use bulk insert 
     if (mappedData.length > 0) {
       await sql`
         INSERT INTO upcoming_releases ${sql(mappedData)}
