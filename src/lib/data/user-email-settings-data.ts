@@ -140,13 +140,13 @@ export async function updateEmailAddressStatus(email: string, status: string) {
       WHERE email = ${email}
     `;
 
-    if (userId.id) {
+    if (userId) {
       await sql`
       UPDATE users
       SET email_status = ${status}
       WHERE id = ${userId.id}
     `;
-      return { status: true };
+      return { status: true, message: "Status update successful" };
     } else {
       return { status: false, message: "Unknown email: ", email };
     }
