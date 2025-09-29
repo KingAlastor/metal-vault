@@ -31,6 +31,7 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
       AND email_settings != '{}'::jsonb
       AND email IS NOT NULL
       AND email_settings @> '{"email_updates_enabled": true}'
+      AND email_status = 'ACTIVE'
     `;
 
     helpers.logger.info(`Found ${users.length} users with email settings`);
