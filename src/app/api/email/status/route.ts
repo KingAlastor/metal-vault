@@ -11,10 +11,17 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  console.log("body: ", body);
-  if (body.email && body.status) {
-    await updateEmailAddressStatus(body.email, body.status.toUpperCase());
-  }
 
-  return Response.json({ status: true });
+  if (body.email && body.status) {
+    const result = await updateEmailAddressStatus(
+      body.email,
+      body.status.toUpperCase()
+    );
+    return Response.json({ status: result.status, message: result.message });
+  } else {
+    return Response.json({
+      status: false,
+      message: `Missing body email or status. Email: ${body.email}, Status: ${body.status}`,
+    });
+  }
 }

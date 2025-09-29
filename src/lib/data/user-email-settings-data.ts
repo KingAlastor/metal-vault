@@ -134,12 +134,25 @@ export async function unsubscribeUser(userId: string) {
 
 export async function updateEmailAddressStatus(email: string, status: string) {
   try {
-    await sql`
-      UPDATE users
-      SET email_status = ${status}
+    const [userId] = await sql`
+      SELECT id 
+      FROM users
       WHERE email = ${email}
     `;
+
+    if (userId.id) {
+      await sql`
+      UPDATE users
+      SET email_status = ${status}
+      WHERE id = ${userId.id}
+    `;
+      return { status: true };
+    } else {
+      return { status: false, message: "Unknown email: ", email };
+    }
   } catch (error) {
     console.error("Error updating email status:", error);
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    return { status: false, message: errorMsg };
   }
 }
