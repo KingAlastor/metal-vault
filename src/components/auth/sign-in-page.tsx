@@ -3,7 +3,7 @@ import { GoogleLogin } from "@/components/auth/google-login";
 
 export default function CustomOAuthSignIn() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="flex flex-col min-h-screen p-4">
       <div className="space-y-4">
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 max-w-md">
           <p className="text-sm text-gray-600">
