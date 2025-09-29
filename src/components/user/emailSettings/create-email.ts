@@ -164,7 +164,6 @@ export const createEmail = async (data: EmailData, userId?: string) => {
         </div>
       </div>
       <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 12px;">
-        <p>🤘 Stay heavy! 🤘</p>
         <p style="margin-top: 10px;">
           <a href="https://www.metal-vault.com/api/email/unsubscribe?id=${userId}" 
              style="color: #6c757d; text-decoration: underline; font-size: 11px;">
