@@ -146,9 +146,9 @@ export async function updateEmailAddressStatus(email: string, status: string) {
       SET email_status = ${status}
       WHERE id = ${userId.id}
     `;
-      return { status: true, message: "Status update successful" };
+      return { status: true, message: `Update successful. Status: ${status}` };
     } else {
-      return { status: false, message: "Unknown email: ", email };
+      return { status: false, message: `Unknown email: ${email}` };
     }
   } catch (error) {
     console.error("Error updating email status:", error);
