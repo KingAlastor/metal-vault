@@ -167,8 +167,12 @@ export async function updateUnsubscribeUserToken(
   userId: string,
   checked: boolean
 ) {
-  if (userId && checked) {
-    await sql`
+  try {
+    console.log(`[TOKEN] updateUnsubscribeUserToken called with userId: ${userId}, checked: ${checked}`);
+    
+    if (userId && checked) {
+      console.log('[TOKEN] Inserting/updating token...');
+      await sql`
         INSERT INTO user_tokens (user_id, unsubscribe_token)
         VALUES (${userId}, encode(gen_random_bytes(32), 'hex'))
         ON CONFLICT (user_id)
@@ -176,13 +180,25 @@ export async function updateUnsubscribeUserToken(
           unsubscribe_token = encode(gen_random_bytes(32), 'hex'),
           updated_at = NOW()
       `;
-  } else {
-    await sql`
-      DELETE FROM user_tokens
-      WHERE user_id = ${userId}
-    `;
+      console.log('[TOKEN] Token inserted/updated successfully');
+    } else {
+      console.log('[TOKEN] Deleting token...');
+      await sql`
+        DELETE FROM user_tokens
+        WHERE user_id = ${userId}
+      `;
+      console.log('[TOKEN] Token deleted successfully');
+    }
+  } catch (error) {
+    console.error("[TOKEN] Error in updateUnsubscribeUserToken:", error);
+    if (error instanceof Error) {
+      console.error("[TOKEN] Error message:", error.message);
+      console.error("[TOKEN] Error stack:", error.stack);
+    }
+    throw error; // Re-throw to propagate
   }
 }
+
 
 export async function getUnsubscribeTokenForUser(userId: string) {
   const [userTokenData] = await sql`
