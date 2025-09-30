@@ -1,6 +1,6 @@
 import { Task } from "graphile-worker";
 import sql from "@/lib/db";
-import { createEmail, EmailData } from "@/components/user/emailSettings/create-email";
+import { createEmail, EmailData } from "@/lib/email/create-email";
 import { sendMail } from "@/lib/email/send-email";
 
 type EmailSettings = {
