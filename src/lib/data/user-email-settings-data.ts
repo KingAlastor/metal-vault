@@ -122,7 +122,7 @@ export async function unsubscribeUser(unsub_token: string) {
   try {
     const [user] = await sql`
       SELECT user_id 
-      FROM user_tokens
+      FROM public.user_tokens
       WHERE unsubscribe_token = ${unsub_token}
     `;
 
@@ -168,34 +168,24 @@ export async function updateUnsubscribeUserToken(
   checked: boolean
 ) {
   try {
-    console.log(`[TOKEN] updateUnsubscribeUserToken called with userId: ${userId}, checked: ${checked}`);
-    
     if (userId && checked) {
-      console.log('[TOKEN] Inserting/updating token...');
       await sql`
-        INSERT INTO user_tokens (user_id, unsubscribe_token)
+        INSERT INTO public.user_tokens (user_id, unsubscribe_token)
         VALUES (${userId}, encode(gen_random_bytes(32), 'hex'))
         ON CONFLICT (user_id)
         DO UPDATE SET 
           unsubscribe_token = encode(gen_random_bytes(32), 'hex'),
           updated_at = NOW()
       `;
-      console.log('[TOKEN] Token inserted/updated successfully');
     } else {
-      console.log('[TOKEN] Deleting token...');
       await sql`
-        DELETE FROM user_tokens
+        DELETE FROM public.user_tokens
         WHERE user_id = ${userId}
       `;
-      console.log('[TOKEN] Token deleted successfully');
     }
   } catch (error) {
-    console.error("[TOKEN] Error in updateUnsubscribeUserToken:", error);
-    if (error instanceof Error) {
-      console.error("[TOKEN] Error message:", error.message);
-      console.error("[TOKEN] Error stack:", error.stack);
-    }
-    throw error; // Re-throw to propagate
+    console.error("Error updating unsubscribe token:", error);
+    throw error;
   }
 }
 
@@ -203,7 +193,7 @@ export async function updateUnsubscribeUserToken(
 export async function getUnsubscribeTokenForUser(userId: string) {
   const [userTokenData] = await sql`
     SELECT unsubscribe_token 
-    FROM user_tokens
+    FROM public.user_tokens
     WHERE user_id = ${userId}
   `;
 

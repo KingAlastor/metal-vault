@@ -61,25 +61,16 @@ export default function EmailUpdatesPage() {
       };
 
       try {
-        console.log('[TOGGLE] Updating user settings...');
         await updateUser.mutateAsync({
           email_settings: updatedFilters,
         });
-        console.log('[TOGGLE] User settings updated successfully');
 
-        console.log('[TOGGLE] Updating unsubscribe token...');
         await updateUnsubscribeUserToken(user!.id, checked);
-        console.log('[TOGGLE] Unsubscribe token updated successfully');
 
         setEmailUpdatesEnabled(checked);
         toast({ description: "Email updates setting updated." });
       } catch (error) {
-        console.error("[TOGGLE] Failed to update email updates setting:", error);
-        // Log more details for debugging
-        if (error instanceof Error) {
-          console.error("[TOGGLE] Error message:", error.message);
-          console.error("[TOGGLE] Error stack:", error.stack);
-        }
+        console.error("Failed to update email updates setting:", error);
         toast({
           description: "Failed to update email updates setting.",
           variant: "destructive",
