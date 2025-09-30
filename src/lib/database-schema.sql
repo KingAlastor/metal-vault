@@ -29,8 +29,9 @@ CREATE TABLE users (
 CREATE TABLE user_tokens (
   id SERIAL PRIMARY KEY,
   user_id VARCHAR(36) NOT NULL,
-  provider VARCHAR(255) NOT NULL,
-  refresh_token VARCHAR(255) NOT NULL,
+  provider VARCHAR(20) NOT NULL,
+  refresh_token VARCHAR(64) NOT NULL,
+  unsubscribe_token VARCHAR(64) UNIQUE,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE (user_id, provider),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()

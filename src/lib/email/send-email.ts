@@ -2,6 +2,7 @@
 
 import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import nodemailer from "nodemailer";
+import { getUnsubscribeTokenForUser } from "../data/user-email-settings-data";
 
 export async function sendMail(
   userId: string,
@@ -31,6 +32,8 @@ export async function sendMail(
     return { success: false, error: "Missing AWS SES configuration" };
   }
 
+  const unsubToken = getUnsubscribeTokenForUser(userId);
+
   const sesClient = new SESClient({
     region: process.env.AWS_REGION,
     credentials: {
@@ -52,7 +55,7 @@ export async function sendMail(
       html: html,
       headers: {
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        "List-Unsubscribe": `<https://www.metal-vault.com/api/email/unsubscribe?id=${userId}>, <mailto:kingalastor@metal-vault.com?subject=unsubscribe:${to}>`,
+        "List-Unsubscribe": `<https://www.metal-vault.com/api/email/unsubscribe?token=${unsubToken}>, <mailto:kingalastor@metal-vault.com?subject=unsubscribe:${to}>`,
       },
     });
 

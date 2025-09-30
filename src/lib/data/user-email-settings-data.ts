@@ -19,8 +19,6 @@ export type UpcomingRelease = {
   type: string;
 };
 
-// ... existing code ...
-
 export async function getFavoriteBandReleasesForEmail(
   userId: string,
   frequency: string
@@ -120,13 +118,21 @@ export async function getGenreReleasesForEmail(
   }
 }
 
-export async function unsubscribeUser(userId: string) {
+export async function unsubscribeUser(unsub_token: string) {
   try {
-    await sql`
+    const [user] = await sql`
+      SELECT user_id 
+      FROM user_tokens
+      WHERE unsubscribe_token = ${unsub_token}
+    `;
+
+    if (user.user_id) {
+      await sql`
       UPDATE users
       SET email_settings = jsonb_set(email_settings, '{email_updates_enabled}', 'false'::jsonb)
-      WHERE id = ${userId}
+      WHERE id = ${user.user_id}
     `;
+    }
   } catch (error) {
     console.error("Error updating email settings:", error);
   }
@@ -155,4 +161,33 @@ export async function updateEmailAddressStatus(email: string, status: string) {
     const errorMsg = error instanceof Error ? error.message : "Unknown error";
     return { status: false, message: errorMsg };
   }
+}
+
+export async function updateUnsubscribeUserToken(
+  userId: string,
+  checked: boolean
+) {
+  if (userId && checked) {
+    await sql`
+      INSERT INTO user_tokens (user_id, unsubscribe_token)
+      VALUES (${userId}, encode(gen_random_bytes(32), 'hex'))
+      ON CONFLICT (user_id)
+      DO UPDATE SET unsubscribe_token = encode(gen_random_bytes(32), 'hex')
+    `;
+  } else {
+    await sql`
+      DELETE FROM user_tokens
+      WHERE user_id = ${userId}
+    `;
+  }
+}
+
+export async function getUnsubscribeTokenForUser(userId: string) {
+  const [userTokenData] = await sql`
+    SELECT unsubscribe_token 
+    FROM user_tokens
+    WHERE user_id = ${userId}
+  `;
+
+  return userTokenData.unsubscribe_token;
 }

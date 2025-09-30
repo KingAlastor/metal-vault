@@ -20,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { createEmail } from "./create-email";
 import { sendMail } from "@/lib/email/send-email";
 import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
+import { updateUnsubscribeUserToken } from "@/lib/data/user-email-settings-data";
 
 export const EmailFormSchema = z.object({
   preferred_email: z.string(),
@@ -63,6 +64,7 @@ export default function EmailUpdatesPage() {
         await updateUser.mutateAsync({
           email_settings: updatedFilters,
         });
+        await updateUnsubscribeUserToken(user!.id, checked); 
         setEmailUpdatesEnabled(checked);
         toast({ description: "Email updates setting updated." });
       } catch (error) {
@@ -71,7 +73,7 @@ export default function EmailUpdatesPage() {
           description: "Failed to update email updates setting.",
           variant: "destructive",
         });
-      }
+      }     
     },
     [filters, updateUser, toast]
   );
