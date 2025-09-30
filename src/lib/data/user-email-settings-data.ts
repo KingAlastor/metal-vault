@@ -169,9 +169,13 @@ export async function updateUnsubscribeUserToken(
 ) {
   if (userId && checked) {
     await sql`
-      INSERT INTO user_tokens (user_id, unsubscribe_token)
-      VALUES (${userId}, encode(gen_random_bytes(32), 'hex'))
-    `;
+        INSERT INTO user_tokens (user_id, unsubscribe_token)
+        VALUES (${userId}, encode(gen_random_bytes(32), 'hex'))
+        ON CONFLICT (user_id)
+        DO UPDATE SET 
+          unsubscribe_token = encode(gen_random_bytes(32), 'hex'),
+          updated_at = NOW()
+      `;
   } else {
     await sql`
       DELETE FROM user_tokens
