@@ -28,7 +28,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
     }
     userId = session.userId;
   }
-  const unsubToken = getUnsubscribeTokenForUser(userId);
+  const unsubToken = await getUnsubscribeTokenForUser(userId);
 
   if (data.favorite_bands) {
     favBandReleases = await getFavoriteBandReleasesForEmail(
