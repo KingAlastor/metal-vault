@@ -4,6 +4,7 @@ import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
 import {
   getFavoriteBandReleasesForEmail,
   getGenreReleasesForEmail,
+  getUnsubscribeTokenForUser,
 } from "@/lib/data/user-email-settings-data";
 import { getSession } from "@/lib/session/server-actions";
 import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
@@ -27,6 +28,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
     }
     userId = session.userId;
   }
+  const unsubToken = getUnsubscribeTokenForUser(userId);
 
   if (data.favorite_bands) {
     favBandReleases = await getFavoriteBandReleasesForEmail(
@@ -165,7 +167,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
       </div>
       <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 12px;">
         <p style="margin-top: 10px;">
-          <a href="https://www.metal-vault.com/api/email/unsubscribe?id=${userId}" 
+          <a href="https://www.metal-vault.com/api/email/unsubscribe?token=${unsubToken}" 
              style="color: #6c757d; text-decoration: underline; font-size: 11px;">
             Unsubscribe 
           </a>
