@@ -38,6 +38,7 @@ const PostDropdownMenu = (post: Post) => {
   const unfollowUserMutation = useUnFollowUserPostMutation();
   const savePostMutation = useSavePostMutation();
   const unsavePostMutation = useUnSavePostMutation();
+  console.log("post: ", post);
 
   return (
     <>
@@ -75,10 +76,10 @@ const PostDropdownMenu = (post: Post) => {
               {hideMutation.isPending ? "Hiding..." : "Hide artist"}
             </div>
           </DropdownMenuItem>
-          {post.user_id != session?.userId && (
+          {!post.is_owner && (
             <>
               <DropdownMenuItem
-                onClick={() => unfollowUserMutation.mutate(post.user_id)}
+                onClick={() => unfollowUserMutation.mutate(post.id)}
               >
                 <div className="dropdown-options">Hide user</div>
               </DropdownMenuItem>
@@ -104,7 +105,7 @@ const PostDropdownMenu = (post: Post) => {
               </DropdownMenuItem>
             </>
           )}
-          {post.user_id === session?.userId && (
+          {post.is_owner && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsEditPostFormOpen(true)}>
@@ -115,7 +116,7 @@ const PostDropdownMenu = (post: Post) => {
               </DropdownMenuItem>
             </>
           )}
-          {post.user_id != session?.userId && (
+          {!post.is_owner && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsReportPostOpen(true)}>

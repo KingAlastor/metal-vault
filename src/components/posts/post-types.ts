@@ -7,7 +7,7 @@ type PostUser = {
 
 export type Post = {
   id: string;
-  user_id: string;
+  user_id?: string;
   band_id: string | null;
   band_name: string;
   title: string | null;
@@ -20,6 +20,7 @@ export type Post = {
   preview_url: string | null;
   is_favorite: boolean;
   is_saved: boolean;
+  is_owner: boolean; 
   user: PostUser;
 };
 

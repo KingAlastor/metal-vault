@@ -255,8 +255,7 @@ export async function getAllPostsByFilters(
           SELECT json_build_object(
             'name', u.name,
             'user_name', u.user_name,
-            'image', u.image,
-            'role', u.role
+            'image', u.image
           )
           FROM users u
           WHERE u.id = user_posts_active.user_id
@@ -308,11 +307,17 @@ export async function getAllPostsByFilters(
       LIMIT 500
     `;
 
-    return posts.map((post: any) => ({
-      ...post,
-      is_favorite: followedBandIds.includes(post.band_id || ""),
-      is_saved: savedPosts.includes(post.id),
-    })) as Post[];
+    return posts.map((post: any) => {
+      const is_owner = post.user_id === session.userId;
+      const { user_id, ...cleanPost } = post;
+
+      return {
+        ...cleanPost,
+        is_favorite: followedBandIds.includes(post.band_id || ""),
+        is_saved: savedPosts.includes(post.id),
+        is_owner,
+      };
+    }) as Post[];
   } catch (error) {
     console.error("Error fetching all posts:", error);
     if (error instanceof Error) {
@@ -429,7 +434,33 @@ export async function savePostReport(
   }
 }
 
-export async function hideUserPostsForUserById(userId: string) {
+export async function hideUserPostsForUserById(postId: string) {
+  const session = await getSession();
+
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || "unknown");
+    throw new Error("User must be logged in to hide user posts.");
+  }
+
+  const userId = await getUserIdByPostId(postId);
+
+  if (userId) {
+    try {
+      await sql`
+      INSERT INTO user_unfollowers_${session.userId} (user_id, unfollowed_user_id)
+      VALUES (${session.userId}, ${userId})
+      ON CONFLICT (user_id, unfollowed_user_id) DO NOTHING
+    `;
+
+      return userId;
+    } catch (error) {
+      console.error("Error hiding user posts:", error);
+      throw error;
+    }
+  }
+}
+
+async function getUserIdByPostId(postId: string) {
   const session = await getSession();
 
   if (!session.isLoggedIn || !session.userId) {
@@ -438,17 +469,18 @@ export async function hideUserPostsForUserById(userId: string) {
   }
 
   try {
-    await sql`
-      INSERT INTO user_unfollowers_${session.userId} (user_id, unfollowed_user_id)
-      VALUES (${session.userId}, ${userId})
-      ON CONFLICT (user_id, unfollowed_user_id) DO NOTHING
+    const [user] = await sql`
+      SELECT user_id 
+      FROM user_posts_active
+      WHERE id = ${postId}
     `;
 
-    return userId;
-  } catch (error) {
-    console.error("Error hiding user posts:", error);
-    throw error;
-  }
+    if (user) {
+      return user.user_id;
+    } else {
+      return null;
+    }
+  } catch (error) {}
 }
 
 export async function checkIfPostExists(bandId: string) {
