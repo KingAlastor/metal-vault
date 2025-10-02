@@ -201,14 +201,9 @@ export async function getAllPostsByFilters(
     try {
       savedPosts = await fetchUserSavedPosts();
       unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
+      followedBandIds = await fetchUserFavoriteBands();
+      unfollowedBandIds = await fetchUserUnfollowedBands();
 
-      // Fetch data based on filter settings (same logic as releases)
-      if (filters.favorite_bands) {
-        followedBandIds = await fetchUserFavoriteBands();
-      }
-      if (filters.disliked_bands) {
-        unfollowedBandIds = await fetchUserUnfollowedBands();
-      }
       if (filters.favorite_genres || filters.disliked_genres) {
         const user = await sql`
           SELECT genre_tags, excluded_genre_tags
@@ -313,7 +308,7 @@ export async function getAllPostsByFilters(
 
       return {
         ...cleanPost,
-        is_favorite: followedBandIds.includes(post.band_id || ""),
+        is_favorite: followedBandIds.includes(post.band_id),
         is_saved: savedPosts.includes(post.id),
         is_owner,
       };

@@ -38,7 +38,6 @@ const PostDropdownMenu = (post: Post) => {
   const unfollowUserMutation = useUnFollowUserPostMutation();
   const savePostMutation = useSavePostMutation();
   const unsavePostMutation = useUnSavePostMutation();
-  console.log("post: ", post);
 
   return (
     <>
