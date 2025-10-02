@@ -125,7 +125,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
         lastCheckedBandIdRef.current = bandIdRef.current;
         try {
           const exists = await checkIfPostExists(bandIdRef.current);
-          console.log("band exists: ", exists);
+
           if (exists) {
             setError("band_name", {
               type: "manual",

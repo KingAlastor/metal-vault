@@ -468,7 +468,7 @@ export async function checkIfPostExists(bandId: string) {
       WHERE band_id = ${bandId}
       AND post_date_time > ${timeWindow}
     `;
-    console.log("post: ", post)
+    
     if (post.id) {
       return true;
     } else {
