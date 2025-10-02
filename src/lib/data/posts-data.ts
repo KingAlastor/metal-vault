@@ -468,8 +468,8 @@ export async function checkIfPostExists(bandId: string) {
       WHERE band_id = ${bandId}
       AND post_date_time > ${timeWindow}
     `;
-    
-    if (post.id) {
+
+    if (post && post.id) {
       return true;
     } else {
       return false;
