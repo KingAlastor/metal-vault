@@ -44,6 +44,7 @@ const validYTLink = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
 const validSpotifyLink = /^(https?:\/\/)?(open\.spotify\.com)\/.+$/;
 const validBandcampLink = /^(https?:\/\/)?([a-z0-9]+\.bandcamp\.com)\/.+$/;
 
+// Zod only handles synchronous validation
 const FormSchema = z
   .object({
     post_message: z.string().optional(),
@@ -116,6 +117,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
   const lastCheckedBandIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    // Handles async form validation
     const checkPostExists = async () => {
       if (
         bandIdRef.current &&
