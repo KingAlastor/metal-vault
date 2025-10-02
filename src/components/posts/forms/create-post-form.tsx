@@ -28,7 +28,7 @@ import { useSubmitPostMutation } from "../hooks/use-submit-post-mutation";
 import { Post } from "../post-types";
 import { getGenres } from "@/lib/data/genres-data";
 import { SearchTermBand } from "@/lib/data/bands-data";
-import { PostProps } from "@/lib/data/posts-data";
+import { checkIfPostExists, PostProps } from "@/lib/data/posts-data";
 
 const initialFormState = {
   post_message: "",
@@ -102,9 +102,48 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
         }
       : initialFormState,
   });
-  const { reset, setValue, control, handleSubmit } = form;
+  const {
+    reset,
+    setValue,
+    control,
+    handleSubmit,
+    setError,
+    clearErrors,
+    watch,
+  } = form;
 
-  const mutation = useSubmitPostMutation();
+  const watchedBand = watch("band_name");
+  const lastCheckedBandIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const checkPostExists = async () => {
+      if (
+        bandIdRef.current &&
+        watchedBand &&
+        bandIdRef.current !== lastCheckedBandIdRef.current
+      ) {
+        lastCheckedBandIdRef.current = bandIdRef.current;
+        try {
+          const exists = await checkIfPostExists(bandIdRef.current);
+          console.log("band exists: ", exists);
+          if (exists) {
+            setError("band_name", {
+              type: "manual",
+              message:
+                "This band has already been posted in the last 72h. Please wait or select a different band.",
+            });
+          } else {
+            clearErrors("band_name");
+          }
+        } catch (error) {
+          console.error("Error checking if post exists:", error);
+        }
+      }
+    };
+
+    checkPostExists();
+  }),
+    [watchedBand, setError, clearErrors];
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const bandIdRef = useRef<string | null | undefined>(post?.band_id ?? null);
@@ -136,6 +175,8 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
   });
+
+  const mutation = useSubmitPostMutation();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
@@ -173,6 +214,7 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
     setValue("band_name", band.namePretty);
     setValue("genre_tags", band.genreTags);
     bandIdRef.current = band.bandId;
+    clearErrors("band_name");
   };
 
   return (

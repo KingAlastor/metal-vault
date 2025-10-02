@@ -201,7 +201,7 @@ export async function getAllPostsByFilters(
     try {
       savedPosts = await fetchUserSavedPosts();
       unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
-      
+
       // Fetch data based on filter settings (same logic as releases)
       if (filters.favorite_bands) {
         followedBandIds = await fetchUserFavoriteBands();
@@ -264,30 +264,44 @@ export async function getAllPostsByFilters(
       FROM user_posts_active
       WHERE (
         -- Always exclude unfollowed users (highest priority exclusion)
-        ${hasUnfollowedUsers ? sql`user_id != ALL(${unfollowedUsers})` : sql`1=1`}
+        ${
+          hasUnfollowedUsers
+            ? sql`user_id != ALL(${unfollowedUsers})`
+            : sql`1=1`
+        }
       )
       AND (
         -- Always exclude unfollowed bands (highest priority exclusion)
-        ${hasUnfollowedBands ? sql`band_id != ALL(${unfollowedBandIds})` : sql`1=1`}
+        ${
+          hasUnfollowedBands
+            ? sql`band_id != ALL(${unfollowedBandIds})`
+            : sql`1=1`
+        }
       )
       AND (
         -- Include if ANY of these conditions are met:
-        ${hasFollowedBands && hasFavoriteGenres ? 
-          sql`(band_id = ANY(${followedBandIds}) OR genre_tags && ${userFavoriteGenreTags || []})` :
-          hasFollowedBands ? 
-            sql`band_id = ANY(${followedBandIds})` :
-            hasFavoriteGenres ?
-              sql`genre_tags && ${userFavoriteGenreTags || []}` :
-              sql`1=1`
+        ${
+          hasFollowedBands && hasFavoriteGenres
+            ? sql`(band_id = ANY(${followedBandIds}) OR genre_tags && ${
+                userFavoriteGenreTags || []
+              })`
+            : hasFollowedBands
+            ? sql`band_id = ANY(${followedBandIds})`
+            : hasFavoriteGenres
+            ? sql`genre_tags && ${userFavoriteGenreTags || []}`
+            : sql`1=1`
         }
       )
       AND (
         -- Apply disliked genre exclusion, BUT followed bands are protected
-        ${hasDislikedGenres ? 
-          hasFollowedBands ?
-            sql`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${userDislikedGenreTags || []}))` :
-            sql`NOT (genre_tags && ${userDislikedGenreTags || []})` :
-          sql`1=1`
+        ${
+          hasDislikedGenres
+            ? hasFollowedBands
+              ? sql`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${
+                  userDislikedGenreTags || []
+                }))`
+              : sql`NOT (genre_tags && ${userDislikedGenreTags || []})`
+            : sql`1=1`
         }
       )
       ORDER BY post_date_time DESC
@@ -405,7 +419,9 @@ export async function savePostReport(
   try {
     await sql`
       INSERT INTO reported_posts (user_id, post_id, field, value, comment)
-      VALUES (${session.userId}, ${postId}, ${field || null}, ${value || null}, ${comment || null})
+      VALUES (${session.userId}, ${postId}, ${field || null}, ${
+      value || null
+    }, ${comment || null})
     `;
   } catch (error) {
     console.error("Error reporting post:", error);
@@ -431,6 +447,35 @@ export async function hideUserPostsForUserById(userId: string) {
     return userId;
   } catch (error) {
     console.error("Error hiding user posts:", error);
+    throw error;
+  }
+}
+
+export async function checkIfPostExists(bandId: string) {
+  const session = await getSession();
+
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || "unknown");
+    throw new Error("User must be logged in to hide user posts.");
+  }
+
+  try {
+    const timeWindow = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+
+    const [post] = await sql`
+      SELECT id 
+      FROM user_posts_active
+      WHERE band_id = ${bandId}
+      AND post_date_time > ${timeWindow}
+    `;
+    console.log("post: ", post)
+    if (post.id) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error("Error fetching band exists post:", error);
     throw error;
   }
 }
