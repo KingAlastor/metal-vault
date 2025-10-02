@@ -302,14 +302,17 @@ export async function getAllPostsByFilters(
       LIMIT 500
     `;
 
+    const followedBandsSet = new Set(followedBandIds);
+    const savedPostsSet = new Set(savedPosts);
+
     return posts.map((post: any) => {
       const is_owner = post.user_id === session.userId;
       const { user_id, ...cleanPost } = post;
 
       return {
         ...cleanPost,
-        is_favorite: followedBandIds.includes(post.band_id),
-        is_saved: savedPosts.includes(post.id),
+        is_favorite: followedBandsSet.has(post.band_id),
+        is_saved: savedPostsSet.has(post.id),
         is_owner,
       };
     }) as Post[];
