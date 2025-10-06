@@ -1,11 +1,10 @@
 import { SessionOptions } from 'iron-session'
 
 export interface SessionData {
-  userId?: string;
-  userShard?: string;
+  userId: string;
+  userShard: string;
   isLoggedIn: boolean;
   refreshToken?: string;
-  // Add any other session data you need
 }
 
 export const sessionOptions: SessionOptions = {

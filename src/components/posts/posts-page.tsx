@@ -31,7 +31,6 @@ export default function PostsPage() {
   // Get current filters from user settings
   const filters: PostsDataFilters = fullUser.data?.posts_settings || {
     favorite_bands: false,
-    disliked_bands: false,
     favorite_genres: false,
     disliked_genres: false,
   };
@@ -45,7 +44,7 @@ export default function PostsPage() {
     status,
     error,
   } = useInfiniteQuery({
-    queryKey: ["post-feed"],
+    queryKey: ["post-feed", filters],
     queryFn: async ({ pageParam }): Promise<PostsPageData> => {
       // If we already have all posts cached, paginate through them
       if (hasInitiallyFetchedRef.current && allPostsRef.current.length > 0) {

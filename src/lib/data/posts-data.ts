@@ -30,7 +30,6 @@ export type QueryParamProps = {
 
 export type PostsDataFilters = {
   favorite_bands?: boolean;
-  disliked_bands?: boolean;
   favorite_genres?: boolean;
   disliked_genres?: boolean;
 };
@@ -189,20 +188,18 @@ export async function getAllPostsByFilters(
   filters: PostsDataFilters
 ): Promise<Post[]> {
   const session = await getSession();
+  console.log(session);
+  const isLoggedIn = session && session.userId && session.userShard != null;
 
   let followedBandIds: string[] = [];
-  let unfollowedBandIds: string[] = [];
   let userFavoriteGenreTags: string[] | undefined = [];
   let userDislikedGenreTags: string[] | undefined = [];
   let savedPosts: string[] = [];
-  let unfollowedUsers: string[] = [];
 
   if (session.userId) {
     try {
       savedPosts = await fetchUserSavedPosts();
-      unfollowedUsers = (await fetchUnfollowedUsers(session.userId)) || [];
       followedBandIds = await fetchUserFavoriteBands();
-      unfollowedBandIds = await fetchUserUnfollowedBands();
 
       if (filters.favorite_genres || filters.disliked_genres) {
         const user = await sql`
@@ -222,13 +219,6 @@ export async function getAllPostsByFilters(
       return [];
     }
   }
-
-  // Simple checks: arrays are already safe (initialized as []) and filters already checked
-  const hasFollowedBands = followedBandIds.length > 0;
-  const hasUnfollowedBands = unfollowedBandIds.length > 0;
-  const hasFavoriteGenres = (userFavoriteGenreTags?.length ?? 0) > 0;
-  const hasDislikedGenres = (userDislikedGenreTags?.length ?? 0) > 0;
-  const hasUnfollowedUsers = unfollowedUsers.length > 0;
 
   try {
     // Use the same filtering logic as releases, but fetch ALL posts (limit 500)
@@ -259,42 +249,24 @@ export async function getAllPostsByFilters(
       WHERE (
         -- Always exclude unfollowed users (highest priority exclusion)
         ${
-          hasUnfollowedUsers
-            ? sql`user_id != ALL(${unfollowedUsers})`
+          isLoggedIn
+            ? sql`user_id NOT IN (
+              SELECT unfollowed_user_id 
+              FROM ${sql.unsafe(`user_unfollowers_${session.userShard}`)}
+              WHERE user_id = ${session.userId}
+          )`
             : sql`1=1`
         }
       )
       AND (
         -- Always exclude unfollowed bands (highest priority exclusion)
         ${
-          hasUnfollowedBands
-            ? sql`band_id != ALL(${unfollowedBandIds})`
-            : sql`1=1`
-        }
-      )
-      AND (
-        -- Include if ANY of these conditions are met:
-        ${
-          hasFollowedBands && hasFavoriteGenres
-            ? sql`(band_id = ANY(${followedBandIds}) OR genre_tags && ${
-                userFavoriteGenreTags || []
-              })`
-            : hasFollowedBands
-            ? sql`band_id = ANY(${followedBandIds})`
-            : hasFavoriteGenres
-            ? sql`genre_tags && ${userFavoriteGenreTags || []}`
-            : sql`1=1`
-        }
-      )
-      AND (
-        -- Apply disliked genre exclusion, BUT followed bands are protected
-        ${
-          hasDislikedGenres
-            ? hasFollowedBands
-              ? sql`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${
-                  userDislikedGenreTags || []
-                }))`
-              : sql`NOT (genre_tags && ${userDislikedGenreTags || []})`
+          isLoggedIn
+            ? sql`band_id NOT IN (
+              SELECT band_id 
+              FROM ${sql.unsafe(`band_unfollowers_${session.userShard}`)}
+              WHERE user_id = ${session.userId}
+          )`
             : sql`1=1`
         }
       )
@@ -304,18 +276,50 @@ export async function getAllPostsByFilters(
 
     const followedBandsSet = new Set(followedBandIds);
     const savedPostsSet = new Set(savedPosts);
+    const favoriteGenresSet = new Set(userFavoriteGenreTags || []);
+    const dislikedGenresSet = new Set(userDislikedGenreTags || []);
 
-    return posts.map((post: any) => {
-      const is_owner = post.user_id === session.userId;
-      const { user_id, ...cleanPost } = post;
+    const filteredPosts: Post[] = [];
 
-      return {
-        ...cleanPost,
-        is_favorite: followedBandsSet.has(post.band_id),
-        is_saved: savedPostsSet.has(post.id),
-        is_owner,
-      };
-    }) as Post[];
+    for (const post of posts) {
+      let shouldInclude = true;
+
+      const isFavoriteBand = followedBandsSet.has(post.band_id);
+      const isFavoriteGenre =
+        post.genre_tags.some((tag: string) => favoriteGenresSet.has(tag)) ||
+        false;
+      const isDislikedGenre =
+        post.genre_tags.some((tag: string) => dislikedGenresSet.has(tag)) ||
+        false;
+
+      if (filters.favorite_bands || filters.favorite_genres) {
+        shouldInclude =
+          (filters.favorite_bands && isFavoriteBand) ||
+          (filters.favorite_genres && isFavoriteGenre);
+      }
+
+      if (
+        filters.disliked_genres &&
+        isDislikedGenre &&
+        !(filters.favorite_bands && isFavoriteBand)
+      ) {
+        shouldInclude = false;
+      }
+
+      if (shouldInclude) {
+        const is_owner = post.user_id === session.userId;
+        const { user_id, ...cleanPost } = post;
+
+        filteredPosts.push({
+          ...cleanPost,
+          is_favorite: followedBandsSet.has(post.band_id),
+          is_saved: savedPostsSet.has(post.id),
+          is_owner,
+        } as Post);
+      }
+    }
+
+    return filteredPosts;
   } catch (error) {
     console.error("Error fetching all posts:", error);
     if (error instanceof Error) {
