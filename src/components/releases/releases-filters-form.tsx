@@ -24,7 +24,6 @@ import { updateUserData } from "@/lib/data/user-data";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
-  disliked_bands: z.boolean().default(false).optional(),
   favorite_genres: z.boolean().default(false).optional(),
   disliked_genres: z.boolean().default(false).optional(),
   genreTags: z.array(z.string()),
@@ -43,7 +42,6 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       favorite_bands: filters?.favorite_bands || false,
-      disliked_bands: filters?.disliked_bands || false,
       favorite_genres: filters?.favorite_genres || false,
       disliked_genres: filters?.disliked_genres || false,
       genreTags: Array.isArray(filters.genreTags) ? filters.genreTags : [],
@@ -70,13 +68,11 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let filters: {
       favorite_bands: boolean;
-      disliked_bands: boolean;
       favorite_genres: boolean;
       disliked_genres: boolean;
       genreTags?: string[];
     } = {
       favorite_bands: data.favorite_bands ?? false,
-      disliked_bands: data.disliked_bands ?? false,
       favorite_genres: data.favorite_genres ?? false,
       disliked_genres: data.disliked_genres ?? false,
     };
@@ -104,25 +100,6 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
                       Show my favorite artists
-                    </FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="disliked_bands"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Exclude my unfollowed artists
                     </FormLabel>
                   </div>
                   <FormControl>

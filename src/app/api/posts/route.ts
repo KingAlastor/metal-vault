@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
       ? await getPostsFilterSettings(session.userId)
       : {
           favorite_bands: false,
-          disliked_bands: false,
           favorite_genres: false,
           disliked_genres: false,
         };

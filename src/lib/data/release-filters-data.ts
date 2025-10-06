@@ -8,7 +8,6 @@ import { getFullUserData } from "./user-data";
 
 export type ReleasesFilters = {
   favorite_bands?: boolean;
-  disliked_bands?: boolean;
   favorite_genres?: boolean;
   disliked_genres?: boolean;
   genreTags?: string[];
@@ -39,9 +38,6 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
     filters = userData?.release_settings || {};
     if (filters.favorite_bands) {
       followedBandIds = await fetchUserFavoriteBands();
-    }
-    if (filters.disliked_bands) {
-      unfollowedBandIds = await fetchUserUnfollowedBands();
     }
     if (filters.favorite_genres) {
       userFavoriteGenreTags = userData?.genre_tags;

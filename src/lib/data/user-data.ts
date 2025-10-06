@@ -209,7 +209,6 @@ export const getPostsFilterSettings = async (
     }
     return {
       favorite_bands: false,
-      disliked_bands: false,
       favorite_genres: false,
       disliked_genres: false,
     };
@@ -217,7 +216,6 @@ export const getPostsFilterSettings = async (
     console.error("Error fetching user posts settings:", error);
     return {
       favorite_bands: false,
-      disliked_bands: false,
       favorite_genres: false,
       disliked_genres: false,
     };
