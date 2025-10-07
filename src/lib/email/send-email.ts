@@ -32,7 +32,7 @@ export async function sendMail(
     return { success: false, error: "Missing AWS SES configuration" };
   }
 
-  const unsubToken = getUnsubscribeTokenForUser(userId);
+  const unsubToken = await getUnsubscribeTokenForUser(userId);
 
   const sesClient = new SESClient({
     region: process.env.AWS_REGION,
