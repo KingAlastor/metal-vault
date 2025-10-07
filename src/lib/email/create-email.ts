@@ -166,14 +166,13 @@ export const createEmail = async (data: EmailData, userId?: string) => {
         </div>
       </div>
       <div style="text-align: center; margin-top: 20px; color: #6c757d; font-size: 12px;">
+        If you want the emails to go to your primary Inbox, drag & drop or move the email to your Inbox and select 'Yes' for all future emails. 
         <p style="margin-top: 10px;">
-          <strong>
             <a href="https://www.metal-vault.com/api/email/unsubscribe?token=${unsubToken}" 
               style="color: #007bff; text-decoration: underline; font-size: 11px;" 
               target="_blank" rel="noopener noreferrer">
               Unsubscribe
             </a>
-          </strong>
         </p>
       </div>
     </div>
