@@ -29,6 +29,8 @@ export const createEmail = async (data: EmailData, userId?: string) => {
     userId = session.userId;
   }
   const unsubToken = await getUnsubscribeTokenForUser(userId);
+  console.log("unsubscribeHref:", unsubToken);  // ✅ Debug: Check the full href
+
 
   if (data.favorite_bands) {
     favBandReleases = await getFavoriteBandReleasesForEmail(
