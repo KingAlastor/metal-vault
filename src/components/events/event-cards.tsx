@@ -38,7 +38,7 @@ export const EventCards = ({ events }: EventCardsProps) => {
                         : event.user.name}
                     </div>
                     <div className="xs-font">
-                      {formatDateAndTime(event.createdAt)}
+                      {formatDateAndTime(event.created_at)}
                     </div>
                   </div>
                 </div>

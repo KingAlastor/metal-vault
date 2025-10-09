@@ -7,14 +7,14 @@ import {
   AddEventProps,
   EventFilters,
   EventQueryParams,
-  Event as EventType
+  Event as EventType,
 } from "@/components/events/event-types";
 
 export const addOrUpdateEvent = async (event: AddEventProps) => {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to add or update events");
   }
 
@@ -39,7 +39,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
         WHERE id = ${event.id}
         RETURNING *
       `;
-      
+
       return updatedEvent[0];
     } else {
       // Create new event
@@ -90,7 +90,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
       // Combine event with user info
       return {
         ...updatedEvent[0],
-        user: userInfo[0]
+        user: userInfo[0],
       };
     }
   } catch (error) {
@@ -125,17 +125,27 @@ export const getEventsByFilters = async (
   const params: any[] = [];
 
   const today = new Date(new Date().setHours(0, 0, 0, 0));
-  conditions.push(`e.from_date >= '${today.toISOString()}'::timestamp with time zone`);
+  conditions.push(
+    `e.from_date >= '${today.toISOString()}'::timestamp with time zone`
+  );
 
   // Add condition for favorite genres
-  if (filters?.favorite_genres_only && userGenreTags && userGenreTags.length > 0) {
-    const genreTagsArray = `ARRAY[${userGenreTags.map((tag) => `'${tag}'`).join(", ")}]::text[]`;
+  if (
+    filters?.favorite_genres_only &&
+    userGenreTags &&
+    userGenreTags.length > 0
+  ) {
+    const genreTagsArray = `ARRAY[${userGenreTags
+      .map((tag) => `'${tag}'`)
+      .join(", ")}]::text[]`;
     conditions.push(`e.genre_tags && ${genreTagsArray}`);
   }
 
   // Handle cursor for pagination
   if (queryParams.cursor) {
-    conditions.push(`e.from_date > '${queryParams.cursor}'::timestamp with time zone`);
+    conditions.push(
+      `e.from_date > '${queryParams.cursor}'::timestamp with time zone`
+    );
   }
 
   const limitValue = queryParams.page_size + 1;
@@ -149,18 +159,18 @@ export const getEventsByFilters = async (
   const query = `
     SELECT
       e.id,
-      e.user_id AS "userId",
-      e.event_name AS "eventName",
+      e.user_id,
+      e.event_name,
       e.country,
       e.city,
-      e.from_date AS "fromDate",
-      e.to_date AS "toDate",
+      e.from_date,
+      e.to_date,
       e.bands,
-      e.band_ids AS "bandIds",
-      e.genre_tags AS "genreTags",
-      e.image_url AS "imageUrl",
+      e.band_ids,
+      e.genre_tags,
+      e.image_url,
       e.website,
-      e.created_at AS "createdAt",
+      e.created_at,
       (
         SELECT json_build_object(
           'name', u.name,
@@ -177,13 +187,17 @@ export const getEventsByFilters = async (
     LIMIT ${limitValue}
   `;
 
-
   try {
     const events = await sql.unsafe<EventType[]>(query, params);
-    return events.map((event) => ({
-      ...event,
-      isUserOwner: session.userId === event.userId,
-    }));
+    const filteredEvents: EventType[] = [];
+    for (const event of events) {
+      const { user_id, ...cleanEvent } = event;
+      filteredEvents.push({
+        ...cleanEvent,
+        is_owner: session.userId === event.user_id,
+      });
+    }
+    return filteredEvents;
   } catch (error) {
     console.error("Error fetching events:", error);
     if (error instanceof Error) {
@@ -195,12 +209,11 @@ export const getEventsByFilters = async (
   }
 };
 
-
 export const deleteEvent = async (eventId: string) => {
   const session = await getSession();
-  
+
   if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to delete events");
   }
 

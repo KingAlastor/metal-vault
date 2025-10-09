@@ -42,7 +42,7 @@ export const EventDropdownMenu = (event: Event) => {
           <DropdownMenuItem onClick={handleAddToFavoritesClick}>
             <div className="dropdown-options">Report event</div>
           </DropdownMenuItem>
-          {event.isUserOwner && (
+          {event.is_owner && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setIsEditEventFormgOpen(true)}>

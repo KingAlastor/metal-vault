@@ -14,20 +14,20 @@ type EventUser = {
 
 export type Event = {
   id: string;
-  userId: string, 
-  eventName: string;
+  user_id?: string, 
+  event_name: string;
   country?: string;
   city?: string;
-  fromDate: Date;
-  toDate: Date;
+  from_date: Date;
+  to_date: Date;
   bands: string[];
-  bandIds: string[];
-  genreTags: string[];
-  imageUrl: string | null;
+  band_ids: string[];
+  genre_tags: string[];
+  image_url: string | null;
   website: string | null;
-  createdAt: Date;
+  created_at: Date;
   user: EventUser;
-  isUserOwner: boolean;
+  is_owner: boolean;
 };
 
 export type AddEventProps = {

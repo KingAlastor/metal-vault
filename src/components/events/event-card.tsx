@@ -18,14 +18,14 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
   const [isBandsOpen, setIsBandsOpen] = useState(false);
   const size = useWindowSize();
   const favoriteMatchingBands = favbands
-    .filter((favband) => event.bandIds.includes(favband.id))
+    .filter((favband) => event.band_ids.includes(favband.id))
     .map((band) => band.namePretty)
     .sort((a, b) => a.localeCompare(b));
 
   const imagePath =
     process.env.NODE_ENV === "production"
-      ? `https://www.metal-vault.com/images/${event.imageUrl}`
-      : `/images/${event.imageUrl}`;
+      ? `https://www.metal-vault.com/images/${event.image_url}`
+      : `/images/${event.image_url}`;
 
   const eventDetails = (
     <div className="flex flex-col justify-between">
@@ -34,8 +34,8 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
           {event.country}, {event.city}
         </p>
         <p>
-          {formatDateWithNamedMonth(event.fromDate)} -{" "}
-          {formatDateWithNamedMonth(event.toDate)}
+          {formatDateWithNamedMonth(event.from_date)} -{" "}
+          {formatDateWithNamedMonth(event.to_date)}
         </p>
       </>
     </div>
@@ -55,12 +55,12 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
           className="underline decoration-1 no-underline-hover"
         >
           <p className="font-bold xxl-font w-full text-center mb-3 text-inherit">
-            {event.eventName}
+            {event.event_name}
           </p>
         </a>
       ) : (
         <p className="font-bold xxl-font w-full text-center mb-3">
-          {event.eventName}
+          {event.event_name}
         </p>
       )}
 
@@ -129,7 +129,7 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-3xl">
             <DialogTitle className="sr-only">
-              Event Image for {event.eventName}
+              Event Image for {event.event_name}
             </DialogTitle>
             <div className="relative w-full h-[80vh]">
               <Image
