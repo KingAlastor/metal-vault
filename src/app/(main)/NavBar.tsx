@@ -19,8 +19,8 @@ export default function NavBar() {
           <Image
             src="/Logo.svg"
             alt="Logo"
-            width={28}
-            height={28}
+            width={40}
+            height={40}
             className="mr-2"
           />
           <p className="font-bold max-xs:hidden"> Metal Vault</p>
