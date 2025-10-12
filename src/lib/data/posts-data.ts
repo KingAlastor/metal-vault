@@ -188,7 +188,6 @@ export async function getAllPostsByFilters(
   filters: PostsDataFilters
 ): Promise<Post[]> {
   const session = await getSession();
-  console.log(session);
   const isLoggedIn = session && session.userId && session.userShard != null;
 
   let followedBandIds: string[] = [];

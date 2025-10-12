@@ -55,7 +55,6 @@ export function AdminToolsTab() {
   const handleTestSql = async () => {
     setIsTestSql(true);
     const user = await testSqlQuery("WJZu5Uj4BhWFOZXbvEdl5AqIniNYg4SF");
-    console.log("user client: ", user);
     setIsTestSql(false);
   };
 

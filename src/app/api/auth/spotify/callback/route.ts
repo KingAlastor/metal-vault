@@ -23,7 +23,6 @@ export async function GET(request: Request) {
   try {
     // Exchange code for tokens
     const tokens = await getSpotifyTokens(code);
-    console.log("spotify tokens:", tokens);    // Handle popup flow - redirect to popup success page with tokens
     if (isPopup) {
       const successUrl = new URL('/auth/spotify/popup-success', request.url);
       successUrl.searchParams.set('token', tokens.access_token);
@@ -36,7 +35,6 @@ export async function GET(request: Request) {
     // Regular login flow - create session and redirect
     // Get user info
     const userInfo = await getSpotifyUserInfo(tokens.access_token);
-    console.log("spotify user info: ", userInfo);
 
     // Find or create user
     const user = await findOrCreateUser({
@@ -65,7 +63,6 @@ export async function GET(request: Request) {
     await session.save();
 
     // Redirect to dashboard or home page
-    console.log("url", request.url);
     return Response.redirect(new URL("/", request.url));  } catch (error) {
     console.error("OAuth error:", error);
     
