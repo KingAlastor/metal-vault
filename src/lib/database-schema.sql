@@ -71,7 +71,8 @@ EXECUTE FUNCTION bands_normalize_name();
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_bands_name_normalized_trgm
   ON bands USING gin (name_normalized gin_trgm_ops);
 
-
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_bands_name_pretty_trgm
+  ON bands USING gin (name_pretty gin_trgm_ops);
 
 CREATE TABLE bands_backup (
   id VARCHAR(36) PRIMARY KEY,
