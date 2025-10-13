@@ -37,6 +37,7 @@ CREATE TABLE bands (
   id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
   name VARCHAR(255) NOT NULL,
   name_pretty VARCHAR(255),
+  name_normalized TEXT,
   genre_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
   country VARCHAR(255),
   status VARCHAR(255),
@@ -47,6 +48,30 @@ CREATE TABLE bands (
   updated_at TIMESTAMP WITH TIME ZONE,
   UNIQUE (archives_link)
 );
+-- Adding extensions for unaccented band names
+CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Updates the values using the unaccented extension
+UPDATE bands SET name_normalized = lower(unaccent(name_pretty));
+
+CREATE OR REPLACE FUNCTION bands_normalize_name()
+RETURNS trigger AS $$
+BEGIN
+  NEW.normalized := lower(unaccent(NEW.name_pretty));
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bands_normalize_name_before_ins_upd
+BEFORE INSERT OR UPDATE OF name_pretty ON bands
+FOR EACH ROW
+EXECUTE FUNCTION bands_normalize_name();
+
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_bands_name_normalized_trgm
+  ON bands USING gin (name_normalized gin_trgm_ops);
+
+
 
 CREATE TABLE bands_backup (
   id VARCHAR(36) PRIMARY KEY,
