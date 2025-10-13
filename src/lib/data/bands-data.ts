@@ -50,11 +50,13 @@ export const getBandsBySearchTerm = async (
 type WhereCondition = "equals" | "contains" | "startsWith";
 
 const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
-  const query = {
-    equals: sql`name_pretty ILIKE ${searchTerm}`,
-    contains: sql`name_pretty ILIKE ${'%' + searchTerm + '%'}`,
-    startsWith: sql`name_pretty ILIKE ${searchTerm + '%'}`
-  };
+const normalizedTerm = searchTerm.toLowerCase();
+
+const query = {
+  equals: sql`name_pretty ILIKE ${searchTerm} OR name_normalized ILIKE ${normalizedTerm}`,
+  contains: sql`name_pretty ILIKE ${'%' + searchTerm + '%'} OR name_normalized ILIKE ${'%' + normalizedTerm + '%'}`,
+  startsWith: sql`name_pretty ILIKE ${searchTerm + '%'} OR name_normalized ILIKE ${normalizedTerm + '%'}`
+};
 
   return await sql`
     SELECT 
