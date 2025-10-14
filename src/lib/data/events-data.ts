@@ -9,6 +9,8 @@ import {
   EventQueryParams,
   Event as EventType,
 } from "@/components/events/event-types";
+import { getFullUserData } from "./user-data";
+import { fetchUserFavoriteBands } from "./follow-artists-data";
 
 export const addOrUpdateEvent = async (event: AddEventProps) => {
   const session = await getSession();
@@ -100,110 +102,126 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
 };
 
 export const getEventsByFilters = async (
-  filters: EventFilters,
   queryParams: EventQueryParams
 ): Promise<EventType[]> => {
+  console.log("getEventsByFilters called with queryParams:", queryParams);
   const session = await getSession();
+  const user = await getFullUserData(session.userId);
+  const filters = user?.events_settings || {};
+  console.log("Current filters from DB:", filters); // ✅ Debug log
 
-  let userGenreTags: string[] | null = null;
-
-  if (filters?.favorite_genres_only && session.userId) {
-    try {
-      const userResult = await sql<{ genre_tags: string[] | null }[]>`
-        SELECT genre_tags
-        FROM users
-        WHERE id = ${session.userId}
-      `;
-      userGenreTags = userResult[0]?.genre_tags ?? null;
-    } catch (error) {
-      console.error("Error fetching user genres:", error);
-      return [];
-    }
+  let followedBandIds: string[] = [];
+  if (session.userId) {
+    followedBandIds = await fetchUserFavoriteBands();
   }
-
-  const conditions: string[] = [];
-  const params: any[] = [];
 
   const today = new Date(new Date().setHours(0, 0, 0, 0));
-  conditions.push(
-    `e.from_date >= '${today.toISOString()}'::timestamp with time zone`
-  );
+  const limitValue = queryParams.page_size + 1;
+  console.log("Today:", today, "Limit value:", limitValue);
 
-  // Add condition for favorite genres
-  if (
-    filters?.favorite_genres_only &&
-    userGenreTags &&
-    userGenreTags.length > 0
-  ) {
-    const genreTagsArray = `ARRAY[${userGenreTags
-      .map((tag) => `'${tag}'`)
-      .join(", ")}]::text[]`;
-    conditions.push(`e.genre_tags && ${genreTagsArray}`);
+  // Build conditions using sql fragments
+  const conditions = [
+    sql`e.from_date >= ${today.toISOString()}::timestamp with time zone`,
+  ];
+
+  // Country filter (future-proof for multiple countries)
+  if (filters && filters.country && user?.location) {
+    // For now, single country; in future: user.location could be array
+    conditions.push(sql`e.country = ${user.location}`);
+    console.log("Added country filter:", user.location);
   }
 
-  // Handle cursor for pagination
+  // Cursor for pagination
   if (queryParams.cursor) {
     conditions.push(
-      `e.from_date > '${queryParams.cursor}'::timestamp with time zone`
+      sql`e.from_date > ${queryParams.cursor}::timestamp with time zone`
     );
+    console.log("Added cursor filter:", queryParams.cursor);
   }
 
-  const limitValue = queryParams.page_size + 1;
-
-  // Build the WHERE clause
-  let whereClause = "";
-  if (conditions.length > 0) {
-    whereClause = `WHERE ${conditions.join(" AND ")}`;
-  }
-
-  const query = `
-    SELECT
-      e.id,
-      e.user_id,
-      e.event_name,
-      e.country,
-      e.city,
-      e.from_date,
-      e.to_date,
-      e.bands,
-      e.band_ids,
-      e.genre_tags,
-      e.image_url,
-      e.website,
-      e.created_at,
-      (
-        SELECT json_build_object(
-          'name', u.name,
-          'user_name', u.user_name,
-          'image', u.image,
-          'role', u.role
-        )
-        FROM users u
-        WHERE u.id = e.user_id
-      ) AS user
-    FROM events e
-    ${whereClause}
-    ORDER BY e.from_date ASC, e.id ASC
-    LIMIT ${limitValue}
-  `;
+  // Join conditions with AND
+  const joinedConditions = conditions.reduce((acc, cond, i) =>
+    i === 0 ? cond : sql`${acc} AND ${cond}`
+  );
+  console.log("Joined conditions built");
 
   try {
-    const events = await sql.unsafe<EventType[]>(query, params);
+    const events = await sql`
+      SELECT
+        e.id,
+        e.user_id,
+        e.event_name,
+        e.country,
+        e.city,
+        e.from_date,
+        e.to_date,
+        e.bands,
+        e.band_ids,
+        e.genre_tags,
+        e.image_url,
+        e.website,
+        e.created_at,
+        (
+          SELECT json_build_object(
+            'name', u.name,
+            'user_name', u.user_name,
+            'image', u.image,
+            'role', u.role
+          )
+          FROM users u
+          WHERE u.id = e.user_id
+        ) AS user
+      FROM events e
+      WHERE ${joinedConditions}
+      ORDER BY e.from_date ASC, e.id ASC
+      LIMIT ${limitValue}
+    `;
+    console.log("Fetched events count:", events.length);
+
+    const followedBandsSet = new Set(followedBandIds);
+    const favoriteGenresSet = new Set(user?.genre_tags);
+    console.log(
+      "Followed bands set size:",
+      followedBandsSet.size,
+      "Favorite genres set size:",
+      favoriteGenresSet.size
+    );
+
     const filteredEvents: EventType[] = [];
     for (const event of events) {
-      const { user_id, ...cleanEvent } = event;
-      filteredEvents.push({
-        ...cleanEvent,
-        is_owner: session.userId === event.user_id,
-      });
+      let shouldInclude = true;
+
+      if (filters?.favorites_only || filters?.favorite_genres_only) {
+        const isFavoriteBand =
+          event.band_ids.some((id: any) => followedBandsSet.has(id)) || false;
+        const isFavoriteGenre =
+          event.genre_tags.some((tag: string) => favoriteGenresSet.has(tag)) ||
+          false;
+        console.log(
+          `Event ${event.id}: isFavoriteBand=${isFavoriteBand}, isFavoriteGenre=${isFavoriteGenre}`
+        );
+        shouldInclude =
+          ((filters.favorites_only ?? false) && isFavoriteBand) ||
+          ((filters.favorite_genres_only ?? false) && isFavoriteGenre);
+        console.log(
+          `Event ${event.id} shouldInclude after filters: ${shouldInclude}`
+        );
+      }
+
+      if (shouldInclude) {
+        const { user_id, ...cleanEvent } = event;
+        filteredEvents.push({
+          ...cleanEvent,
+          is_owner: session.userId === event.user_id,
+        } as EventType);
+      }
     }
+    console.log("Final filtered events count:", filteredEvents.length);
     return filteredEvents;
   } catch (error) {
     console.error("Error fetching events:", error);
     if (error instanceof Error) {
       console.error("Error stack:", error.stack);
-      console.error("Query:", query);
-      console.error("Params:", params);
     }
     return [];
   }

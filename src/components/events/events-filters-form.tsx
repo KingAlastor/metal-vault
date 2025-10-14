@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,10 +18,12 @@ import { Switch } from "@/components/ui/switch";
 import { EventFilters } from "@/components/events/event-types";
 import { getEventsByFilters } from "@/lib/data/events-data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useUpdateUser } from "@/lib/session/client-hooks";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
   favorite_genres_only: z.boolean().default(false).optional(),
+  country: z.boolean().default(false).optional(),
 });
 
 interface FiltersFormProps {
@@ -39,16 +42,18 @@ export function EventsFiltersForm({
     defaultValues: {
       favorites_only: filters?.favorites_only || false,
       favorite_genres_only: filters?.favorite_genres_only || false,
+      country: filters?.country || false,
     },
   });
 
   const queryClient = useQueryClient();
+  const updateUser = useUpdateUser();
 
   const mutation = useMutation({
-    mutationFn: (filters: EventFilters) =>
-      getEventsByFilters(filters, { cursor: undefined, page_size: 10 }),
+    mutationFn: () =>
+      getEventsByFilters({ cursor: undefined, page_size: 10 }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events-feed"] });
+      queryClient.resetQueries({ queryKey: ["events-feed"] });
     },
   });
 
@@ -57,10 +62,12 @@ export function EventsFiltersForm({
       let filters: EventFilters = {
         favorites_only: data.favorites_only ?? false,
         favorite_genres_only: data.favorite_genres_only ?? false,
+        country: data.country ?? false,
       };
       setIsOpen(false);
       setFilters(filters);
-      mutation.mutate(filters);
+      await updateUser.mutateAsync({ events_settings: filters });
+      mutation.mutate();
     };
     updateFilters();
   }
@@ -79,8 +86,8 @@ export function EventsFiltersForm({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Only show my favorite artists
+                    <FormLabel className="text-base ">
+                      Show events that include my favorite artists
                     </FormLabel>
                   </div>
                   <FormControl>
@@ -99,8 +106,30 @@ export function EventsFiltersForm({
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">
-                      Only show my favorite genres
+                      Show events that include my favorite genres
                     </FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Show events happening in my country
+                    </FormLabel>
+                    <FormDescription>
+                      Filter events based on country set up under your profile
+                    </FormDescription>
                   </div>
                   <FormControl>
                     <Switch

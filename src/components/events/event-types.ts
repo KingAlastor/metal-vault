@@ -46,7 +46,7 @@ export type AddEventProps = {
 export type EventFilters = {
   favorites_only?: boolean;
   favorite_genres_only?: boolean;
-  country?: string[];
+  country?: boolean;
 };
 
 export type EventQueryParams = {
