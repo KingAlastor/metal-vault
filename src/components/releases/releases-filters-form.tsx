@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutation";
 import { MultiSelectDropdown } from "../shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
-import { useSession, useUser } from "@/lib/session/client-hooks";
+import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
 import { updateUserData } from "@/lib/data/user-data";
 
 const FormSchema = z.object({
@@ -65,6 +65,8 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
     gcTime: 24 * 60 * 60 * 1000,
   });
 
+  const updateUser = useUpdateUser();
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let filters: {
       favorite_bands: boolean;
@@ -75,12 +77,9 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
       favorite_bands: data.favorite_bands ?? false,
       favorite_genres: data.favorite_genres ?? false,
       disliked_genres: data.disliked_genres ?? false,
+      genreTags: data.genreTags ?? [],
     };
-    await updateUserData({
-      release_settings: filters, 
-    });
-    queryClient.invalidateQueries({ queryKey: ["user", session?.userId] });
-
+    await updateUser.mutateAsync({ release_settings: filters });
     mutation.mutate();
   }
 

@@ -32,7 +32,6 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
   let userFavoriteGenreTags: string[] | undefined = [];
   let userDislikedGenreTags: string[] | undefined = [];
 
-
   if (session.userId) {
     userData = await getFullUserData(session.userId);
     filters = userData?.release_settings || {};
@@ -41,6 +40,12 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
     }
     if (filters.favorite_genres) {
       userFavoriteGenreTags = userData?.genre_tags;
+    }
+    if (filters.genreTags && filters.genreTags.length > 0) {
+      userFavoriteGenreTags = [
+        ...filters.genreTags,
+        ...(userFavoriteGenreTags || []),
+      ];
     }
     if (filters.disliked_genres) {
       userDislikedGenreTags = userData?.excluded_genre_tags;
@@ -51,10 +56,10 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
 
   try {
     // --- Build the SQL query with priority-based filtering logic ---
-    
+
     // Priority-Based Filtering Logic:
     // 1. Followed Bands (Highest Priority): Always include, overrides all genre rules
-    // 2. Unfollowed Bands (High Priority Exclusion): Always exclude, overrides all genre rules  
+    // 2. Unfollowed Bands (High Priority Exclusion): Always exclude, overrides all genre rules
     // 3. Favorite Genres (Conditional Inclusion): Include if no band rule applies
     // 4. Disliked Genres (Conditional Exclusion): Exclude if no band rule applies
 
@@ -77,26 +82,36 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
       WHERE release_date >= ${today}
       AND (
         -- Step 1: Always exclude unfollowed bands (highest priority exclusion)
-        ${hasUnfollowedBands ? sql`band_id != ALL(${unfollowedBandIds})` : sql`1=1`}
+        ${
+          hasUnfollowedBands
+            ? sql`band_id != ALL(${unfollowedBandIds})`
+            : sql`1=1`
+        }
       )
       AND (
         -- Step 2: Include if ANY of these conditions are met:
-        ${hasFollowedBands && hasFavoriteGenres ? 
-          sql`(band_id = ANY(${followedBandIds}) OR genre_tags && ${userFavoriteGenreTags || []})` :
-          hasFollowedBands ? 
-            sql`band_id = ANY(${followedBandIds})` :
-            hasFavoriteGenres ?
-              sql`genre_tags && ${userFavoriteGenreTags || []}` :
-              sql`1=1`
+        ${
+          hasFollowedBands && hasFavoriteGenres
+            ? sql`(band_id = ANY(${followedBandIds}) OR genre_tags && ${
+                userFavoriteGenreTags || []
+              })`
+            : hasFollowedBands
+            ? sql`band_id = ANY(${followedBandIds})`
+            : hasFavoriteGenres
+            ? sql`genre_tags && ${userFavoriteGenreTags || []}`
+            : sql`1=1`
         }
       )
       AND (
         -- Step 3: Apply disliked genre exclusion, BUT followed bands are protected
-        ${hasDislikedGenres ? 
-          hasFollowedBands ?
-            sql`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${userDislikedGenreTags || []}))` :
-            sql`NOT (genre_tags && ${userDislikedGenreTags || []})` :
-          sql`1=1`
+        ${
+          hasDislikedGenres
+            ? hasFollowedBands
+              ? sql`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${
+                  userDislikedGenreTags || []
+                }))`
+              : sql`NOT (genre_tags && ${userDislikedGenreTags || []})`
+            : sql`1=1`
         }
       )
       ORDER BY release_date ASC
@@ -104,15 +119,15 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
 
     // Execute the query
     const releases = await finalSql;
-    
+
     // Map the results to match the UpcomingRelease type
-    return releases.map(row => ({
+    return releases.map((row) => ({
       bandId: row.bandId,
       bandName: row.bandName,
       albumName: row.albumName,
       type: row.type,
       releaseDate: row.releaseDate,
-      genreTags: row.genreTags
+      genreTags: row.genreTags,
     }));
   } catch (error) {
     console.error("Error fetching releases by filters:", error);
