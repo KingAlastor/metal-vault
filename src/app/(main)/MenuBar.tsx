@@ -62,7 +62,7 @@ export default function MenuBar({ className }: MenuBarProps) {
           <span className="hidden lg:inline">Upcoming Releases</span>
         </Link>
       </Button>
-      <Button
+{/*       <Button
         variant="ghost"
         className="flex items-center justify-start gap-3 [&_svg]:!size-6"
         title="Recommendations"
@@ -78,7 +78,7 @@ export default function MenuBar({ className }: MenuBarProps) {
           />
           <span className="hidden lg:inline">Recommendations</span>
         </Link>
-      </Button>
+      </Button> */}
       <Button
         variant="ghost"
         className="flex items-center justify-start gap-3 [&_svg]:!size-6"
