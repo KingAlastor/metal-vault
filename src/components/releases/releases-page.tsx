@@ -13,13 +13,9 @@ import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import kyInstance from "@/lib/ky";
-import { useSession, useUser } from "@/lib/session/client-hooks";
 
 export default function ReleasesPage() {
-  const {data: session } = useSession();
-  const { data: user } = useUser(session?.userId);
   const [isOpen, setIsOpen] = useState(false);
-  const filters = user?.release_settings || {};
 
   const {
     data: releases,
@@ -45,18 +41,20 @@ export default function ReleasesPage() {
         <CollapsibleTrigger className="w-full rounded-lg border p-2 flex items-center bg-collapsible text-left">
           <Image src="/Filters.svg" alt="New Event" width={24} height={24} />
           <span className="flex-1 ml-3">Filters</span>
-          <div className="h-4 w-4">
-            <ChevronDown />
-          </div>
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <ReleasesFiltersForm
-             onClose={handleFormSubmit}
-          />
+          <ReleasesFiltersForm onClose={handleFormSubmit} />
         </CollapsibleContent>
       </Collapsible>
 
-      {isLoading &&  <p className="text-center text-muted-foreground">Loading</p>}
+      {isLoading && (
+        <p className="text-center text-muted-foreground">Loading</p>
+      )}
       {error && <>Error: {error.message}</>}
 
       <ReleasesDataTable columns={columns} data={releases || []} />

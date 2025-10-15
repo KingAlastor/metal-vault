@@ -33,6 +33,7 @@ interface MultiSelectDropdownProps {
   onChange: (selectedValues: string[]) => void;
   value?: string[];
   triggerText?: string;
+  disabled?: boolean;
 }
 
 export function MultiSelectDropdown({
@@ -42,6 +43,7 @@ export function MultiSelectDropdown({
   onChange,
   value = [],
   triggerText = "Select options",
+  disabled,
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false);
 
@@ -53,14 +55,20 @@ export function MultiSelectDropdown({
   };
 
   const handleRemove = (optionValue: string) => {
-    onChange(value.filter((v) => v !== optionValue))
-  }
+    onChange(value.filter((v) => v !== optionValue));
+  };
 
   return (
     <div className="flex flex-col space-y-2">
       <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="h-8 justify-start" aria-expanded={open}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 justify-start"
+            aria-expanded={open}
+            disabled
+          >
             {triggerText}
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -72,7 +80,7 @@ export function MultiSelectDropdown({
               <CommandEmpty>{emptyMessage}</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => {
-                  const isSelected = value.includes(option.value)
+                  const isSelected = value.includes(option.value);
                   return (
                     <CommandItem
                       key={option.value}
@@ -82,14 +90,16 @@ export function MultiSelectDropdown({
                       <div
                         className={cn(
                           "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                          isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible",
+                          isSelected
+                            ? "bg-primary text-primary-foreground"
+                            : "opacity-50 [&_svg]:invisible"
                         )}
                       >
                         <Check className={cn("h-4 w-4")} />
                       </div>
                       <span>{option.label}</span>
                     </CommandItem>
-                  )
+                  );
                 })}
               </CommandGroup>
             </CommandList>
@@ -97,7 +107,10 @@ export function MultiSelectDropdown({
               <>
                 <CommandSeparator />
                 <CommandGroup>
-                  <CommandItem onSelect={() => onChange([])} className="justify-center text-center">
+                  <CommandItem
+                    onSelect={() => onChange([])}
+                    className="justify-center text-center"
+                  >
                     Clear filters
                   </CommandItem>
                 </CommandGroup>
@@ -109,18 +122,26 @@ export function MultiSelectDropdown({
       {value.length > 0 && (
         <div className="overflow-y-auto max-h-[100px] w-full rounded-md border p-1">
           {value.map((optionValue) => {
-            const option = options.find((o) => o.value === optionValue)
+            const option = options.find((o) => o.value === optionValue);
             return (
-              <div key={optionValue} className="flex justify-between items-center mb-1">
+              <div
+                key={optionValue}
+                className="flex justify-between items-center mb-1"
+              >
                 <span className=" m-font ml-1">{option?.label}</span>
-                <Button variant="ghost" size="sm" onClick={() => handleRemove(optionValue)} className="h-5 w-6 p-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemove(optionValue)}
+                  className="h-5 w-6 p-0"
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-            )
+            );
           })}
         </div>
       )}
     </div>
-  )
+  );
 }

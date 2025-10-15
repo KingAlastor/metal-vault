@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,7 +33,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
   const { data: session } = useSession();
   const fullUser = useUser(session?.userId || "");
   const filters = fullUser.data?.posts_settings || {};
-  
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -64,20 +65,29 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
       >
         <>
           <div className="space-y-1 rounded-lg border p-2">
+            {!session?.isLoggedIn && <p>Log in to use filters</p>}
             <FormField
               control={form.control}
               name="favorite_bands"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base s-font">
+                    <FormLabel
+                      className={`text-base ${
+                        !session?.isLoggedIn ? "text-gray-400" : ""
+                      }`}
+                    >
                       <p className="m-font">Show my favorite artists</p>
                     </FormLabel>
+                    <FormDescription>
+                      Favorites override any genre filters
+                    </FormDescription>
                   </div>
                   <FormControl>
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!session?.isLoggedIn}
                     />
                   </FormControl>
                 </FormItem>
@@ -89,7 +99,11 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base s-font">
+                    <FormLabel
+                      className={`text-base ${
+                        !session?.isLoggedIn ? "text-gray-400" : ""
+                      }`}
+                    >
                       <p className="m-font">Use my favorite genres</p>
                     </FormLabel>
                   </div>
@@ -97,6 +111,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!session?.isLoggedIn}
                     />
                   </FormControl>
                 </FormItem>
@@ -108,7 +123,11 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base s-font">
+                    <FormLabel
+                      className={`text-base ${
+                        !session?.isLoggedIn ? "text-gray-400" : ""
+                      }`}
+                    >
                       <p className="m-font">Exclude my disliked genres</p>
                     </FormLabel>
                   </div>
@@ -116,13 +135,18 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!session?.isLoggedIn}
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit" className="h-8">
+              <Button
+                type="submit"
+                className="h-8"
+                disabled={form.formState.isSubmitting || !session?.isLoggedIn}
+              >
                 Apply
               </Button>
             </div>

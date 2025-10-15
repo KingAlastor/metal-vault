@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,7 +21,6 @@ import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutati
 import { MultiSelectDropdown } from "../shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
 import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
-import { updateUserData } from "@/lib/data/user-data";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
@@ -36,7 +36,7 @@ interface FiltersFormProps {
 export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
   const { data: session } = useSession();
   const { data: user } = useUser(session?.userId);
-  const queryClient = useQueryClient();
+
   const filters = user?.release_settings || {};
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -81,6 +81,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
     };
     await updateUser.mutateAsync({ release_settings: filters });
     mutation.mutate();
+    onClose();
   }
 
   return (
@@ -91,20 +92,29 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
       >
         <>
           <div className="space-y-4 rounded-lg border p-4">
+            {!session?.isLoggedIn && <p>Log in to use filters</p>}
             <FormField
               control={form.control}
               name="favorite_bands"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
+                    <FormLabel
+                      className={`text-base ${
+                        !session?.isLoggedIn ? "text-gray-400" : ""
+                      }`}
+                    >
                       Show my favorite artists
                     </FormLabel>
+                    <FormDescription>
+                      Favorites override any genre filters
+                    </FormDescription>
                   </div>
                   <FormControl>
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!session?.isLoggedIn}
                     />
                   </FormControl>
                 </FormItem>
@@ -116,7 +126,11 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
+                    <FormLabel
+                      className={`text-base ${
+                        !session?.isLoggedIn ? "text-gray-400" : ""
+                      }`}
+                    >
                       Use my favorite genres
                     </FormLabel>
                   </div>
@@ -124,6 +138,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!session?.isLoggedIn}
                     />
                   </FormControl>
                 </FormItem>
@@ -135,7 +150,11 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">
+                    <FormLabel
+                      className={`text-base ${
+                        !session?.isLoggedIn ? "text-gray-400" : ""
+                      }`}
+                    >
                       Exclude my disliked genres
                     </FormLabel>
                   </div>
@@ -143,6 +162,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!session?.isLoggedIn}
                     />
                   </FormControl>
                 </FormItem>
@@ -153,6 +173,13 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
               name="genreTags"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
+                  <FormLabel
+                    className={`text-base ${
+                      !session?.isLoggedIn ? "text-gray-400" : ""
+                    }`}
+                  >
+                    Add any additional genres
+                  </FormLabel>
                   <FormControl>
                     <MultiSelectDropdown
                       options={genres || []}
@@ -162,6 +189,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                       }}
                       value={field.value}
                       triggerText="Select genres"
+                      disabled={!session?.isLoggedIn}
                     />
                   </FormControl>
                   <FormMessage />
@@ -170,7 +198,10 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
             />
 
             <div className="flex justify-end">
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting || !session?.isLoggedIn}
+              >
                 Apply
               </Button>
             </div>
