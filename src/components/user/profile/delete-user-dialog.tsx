@@ -37,6 +37,7 @@ export function DeleteUserDialog({ open, onClose }: DeleteUserDialogProps) {
           <DialogTitle>Delete account?</DialogTitle>
           <DialogDescription>
             Are you sure you want to delete your account? This action cannot be undone.
+            Everything related to your user will be deleted.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
