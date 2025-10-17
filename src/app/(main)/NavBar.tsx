@@ -8,6 +8,7 @@ import { useSession } from "@/lib/session/client-hooks";
 
 export default function NavBar() {
   const { data: session } = useSession();
+  console.log("navbar session fetch: ", session)
 
   return (
     <header className="sticky top-0 z-10 bg-card shadow-sm">
@@ -25,7 +26,7 @@ export default function NavBar() {
           />
           <p className="font-bold max-xs:hidden"> Metal Vault</p>
         </Link>
-        {session?.isLoggedIn ? (
+        {!!session?.userId ? (
           <>
             <UserMenu />
           </>
