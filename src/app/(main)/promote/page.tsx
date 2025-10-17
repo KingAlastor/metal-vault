@@ -1,5 +1,5 @@
-import PromoteForm from "@/components/promote/promote-form";
+import PromoteFormPage from "@/components/promote/promote-page";
 
 export default function Home() {
-  return <PromoteForm />;
+  return <PromoteFormPage />;
 }

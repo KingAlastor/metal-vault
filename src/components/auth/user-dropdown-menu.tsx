@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Lock, LogOut, Settings, Music, Mail, Pencil } from "lucide-react";
+import { Lock, LogOut, Settings, Music, Mail, Pencil, Pin, Megaphone } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
@@ -60,9 +60,21 @@ export function UserMenu() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
+            <Link href="/user/followArtists">
+              <Pin className="mr-2 h-4 w-4" />
+              <span className="dropdown-options">Pinned Posts</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link href="/user/profile">
               <Settings className="mr-2 h-4 w-4" />
               <span className="dropdown-options">Profile</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/promote">
+              <Megaphone className="mr-2 h-4 w-4" />
+              <span className="dropdown-options">Promote</span>
             </Link>
           </DropdownMenuItem>
           {user?.data?.role === "admin" && (
