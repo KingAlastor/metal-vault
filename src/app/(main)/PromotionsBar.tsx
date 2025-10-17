@@ -147,7 +147,7 @@ export default function PromotionsBar({ className }: PromotionsBarProps) {
       <CarouselComponent
         ads={eventAds}
         title="Event Promotions"
-        autoplayDelay={8000}
+        autoplayDelay={6000}
       />
     </div>
   );

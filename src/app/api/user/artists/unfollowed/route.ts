@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session/server-actions";
 import { logUnauthorizedAccess } from "@/lib/loggers/auth-log";
-import { fetchUnfollowedUsers } from "@/lib/data/user-data";
 import { fetchUserUnfollowedBandsFullData } from "@/lib/data/unfollow-artists-data";
 
 export async function GET() {

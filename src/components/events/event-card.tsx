@@ -28,15 +28,23 @@ export const EventCard = ({ event, favbands }: EventCardProps) => {
       : `/images/${event.image_url}`;
 
   const eventDetails = (
-    <div className="flex flex-col justify-between">
+    <div className="flex flex-col">
       <>
-        <p>
-          {event.country}, {event.city}
-        </p>
-        <p>
-          {formatDateWithNamedMonth(event.from_date)} -{" "}
-          {formatDateWithNamedMonth(event.to_date)}
-        </p>
+        <>
+          <p>{event.venue}</p>
+          <p>
+            {event.city}, {event.country}
+          </p>
+        </>
+
+        {event.from_date === event.to_date ? (
+          formatDateWithNamedMonth(event.from_date)
+        ) : (
+          <p>
+            {formatDateWithNamedMonth(event.from_date)} -{" "}
+            {formatDateWithNamedMonth(event.to_date)}
+          </p>
+        )}
       </>
     </div>
   );

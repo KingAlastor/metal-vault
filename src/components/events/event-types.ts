@@ -18,6 +18,7 @@ export type Event = {
   event_name: string;
   country?: string;
   city?: string;
+  venue?: string;
   from_date: Date;
   to_date: Date;
   bands: string[];
@@ -35,6 +36,7 @@ export type AddEventProps = {
   eventName: string;
   country: string;
   city: string;
+  venue: string;
   dateRange: { from: Date; to: Date };
   bands: string[];
   bandIds?: string[];
