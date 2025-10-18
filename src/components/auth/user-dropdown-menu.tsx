@@ -27,7 +27,6 @@ export function UserMenu() {
 
   const handleLogout = async () => {
     await logout();
-    await queryClient.invalidateQueries({ queryKey: ["session"] });
     queryClient.clear();
     router.refresh();
   };
