@@ -80,7 +80,7 @@ export default function ProfileSettingsForm() {
     } catch (error) {
       toast({
         variant: "destructive",
-        description: "An error occurred. Please try again.",
+        description: `An error occurred: ${error}` 
       });
     }
   }
