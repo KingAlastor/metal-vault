@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Countries, type Country } from "@/lib/enums";
+import { Countries } from "@/lib/enums";
 
 interface CountrySelectDropdownProps {
   control: Control<any>;
@@ -29,7 +29,7 @@ interface CountrySelectDropdownProps {
 export function CountrySelectDropdown({
   control,
   name,
-  placeholder = "Select location",
+  placeholder = "Select country",
 }: CountrySelectDropdownProps) {
   const [open, setOpen] = useState(false);
   const {
