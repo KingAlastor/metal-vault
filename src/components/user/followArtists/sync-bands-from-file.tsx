@@ -24,7 +24,7 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
     useState(false);
   const queryClient = useQueryClient();
 
-  const handleFileSelect = (file: File | File[]) => {
+  const handleFileSelect = (file: File | File[] | null) => {
     if (Array.isArray(file)) {
       setUploadedFile(file[0] || null);
     } else {
@@ -164,7 +164,6 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
 
       <p className="text-sm mb-1">Upload the generated bandlist.txt file</p>
       <FileUpload
-        compact
         onFileSelect={handleFileSelect}
         accept={{ "text/*": [".txt"], "text/csv": [".csv"] }}
         validator={validateTextFile}
