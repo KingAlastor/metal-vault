@@ -33,6 +33,7 @@ const initialFormState = {
   eventName: "",
   country: "",
   city: "",
+  venue: "",
   bands: [] as string[],
   genreTags: [] as string[],
   fromDate: "",
@@ -45,6 +46,7 @@ const FormSchema = z.object({
   eventName: z.string(),
   country: z.string(),
   city: z.string(),
+  venue: z.string(),
   bands: z.array(z.string(), {
     message: "Please enter a band name",
   }),
@@ -64,16 +66,17 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
     resolver: zodResolver(FormSchema),
     defaultValues: event
       ? {
-          eventName: event.eventName,
-          country: event.country,
-          city: event.city,
-          bands: event.bands,
-          genreTags: event.genreTags,
+          eventName: event.event_name ?? "",
+          country: event.country ?? "",
+          city: event.city ?? "",
+          venue: event.venue ?? "",
+          bands: event.bands ?? "",
+          genreTags: event.genre_tags ?? [],
           dateRange:
-            event?.fromDate && event?.toDate
-              ? { from: new Date(event.fromDate), to: new Date(event.toDate) }
+            event?.from_date && event?.to_date
+              ? { from: new Date(event.from_date), to: new Date(event.to_date) }
               : { from: new Date(), to: new Date() },
-          imageUrl: event.imageUrl ?? "",
+          imageUrl: event.image_url ?? "",
           website: event.website ?? "",
         }
       : initialFormState,
@@ -83,12 +86,12 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
   const mutation = useSubmitEventMutation();
 
-  const [bandsIds, setBandIds] = useState<string[]>(event?.bandIds ?? []);
+  const [bandsIds, setBandIds] = useState<string[]>(event?.band_ids ?? []);
   const [bands, setBands] = useState<string[]>(event?.bands ?? []);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileSelect = (file: File | File[]) => {
+  const handleFileSelect = (file: File | File[] | null) => {
     if (Array.isArray(file)) {
       setUploadedFile(file[0] || null);
     } else {
@@ -227,13 +230,25 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
             render={({ field }) => (
               <FormItem className="w-1/2">
                 <FormControl>
-                  <Input placeholder="City..." {...field} />
+                  <Input placeholder="City" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
+        <FormField
+          control={control}
+          name="venue"
+          render={({ field }) => (
+            <FormItem className="w-1/2">
+              <FormControl>
+                <Input placeholder="Venue" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={control}
           name="bands"
@@ -302,8 +317,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         {/* Event Poster Upload */}
         <div className="space-y-2">
           <FormLabel>Event Poster</FormLabel>
-          <FileUpload 
-            compact 
+          <FileUpload
             onFileSelect={handleFileSelect}
             multiple={false}
             maxFiles={1}
