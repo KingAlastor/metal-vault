@@ -1,5 +1,6 @@
 import {
   FileUpload,
+  UploadedFile,
   validateTextFile,
 } from "@/components/shared/upload-file-client-side";
 import { SyncBandListProps } from "./follow-artists-types";
@@ -14,7 +15,7 @@ import {
 import { UnresolvedBands } from "./unresolved-bands";
 
 export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedBands, setProcessedBands] = useState<number>(0);
   const [processingBand, setProcessingBand] = useState<string>("");
@@ -24,23 +25,19 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
     useState(false);
   const queryClient = useQueryClient();
 
-  const handleFileSelect = (file: File | File[] | null) => {
-    if (Array.isArray(file)) {
-      setUploadedFile(file[0] || null);
-    } else {
-      setUploadedFile(file);
-    }
+  const handleFileSelect = (files: UploadedFile[]) => {
+    setUploadedFiles(files);
   };
 
   const handleSyncBands = async () => {
-    if (!uploadedFile) return;
+    if (uploadedFiles.length === 0) return;
 
     setIsProcessing(true);
     setProcessedBands(0);
     setTotalBands(0);
 
     try {
-      const fileContent = await readFileContent(uploadedFile);
+      const fileContent = await readFileContent(uploadedFiles[0].file);
       const bandNames = parseBandList(fileContent);
 
       setTotalBands(bandNames.length);
@@ -168,12 +165,13 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
         accept={{ "text/*": [".txt"], "text/csv": [".csv"] }}
         validator={validateTextFile}
         maxSize={10 * 1024 * 1024} // 10MB
+        maxFiles={1}
         noUpload={true} // Don't upload to server
       />
-      {uploadedFile && (
+      {uploadedFiles.length > 0 && (
         <div className="text-sm text-green-600 flex items-center gap-2">
           <CheckCircle className="h-4 w-4" />
-          File selected: {uploadedFile.name}
+          File selected: {uploadedFiles[0].file.name}
         </div>
       )}
       {isProcessing && (
@@ -184,7 +182,7 @@ export function SyncBandListFromFile({ setIsOpen }: SyncBandListProps) {
       )}
       <Button
         onClick={handleSyncBands}
-        disabled={!uploadedFile || isProcessing}
+  disabled={uploadedFiles.length === 0 || isProcessing}
         className="mt-4"
       >
         {isProcessing ? (

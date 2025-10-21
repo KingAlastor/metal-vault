@@ -25,8 +25,8 @@ import { DateRangePicker } from "../shared/date-range-picker";
 import { BandList } from "./band-list";
 import { getGenres } from "@/lib/data/genres-data";
 import { SearchTermBand } from "@/lib/data/bands-data";
-import { FileUpload } from "../shared/upload-file-client-side";
-import { uploadEventImage } from "../shared/upload-file-server-side";
+import { FileUpload, UploadedFile } from "../shared/upload-file-client-side";
+import { uploadFiles } from "../shared/upload-file-server-side";
 import { useToast } from "../ui/use-toast";
 
 const initialFormState = {
@@ -88,16 +88,8 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
 
   const [bandsIds, setBandIds] = useState<string[]>(event?.band_ids ?? []);
   const [bands, setBands] = useState<string[]>(event?.bands ?? []);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-
-  const handleFileSelect = (file: File | File[] | null) => {
-    if (Array.isArray(file)) {
-      setUploadedFile(file[0] || null);
-    } else {
-      setUploadedFile(file);
-    }
-  };
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const { data: genres } = useQuery({
     queryKey: ["genreTags"],
@@ -118,19 +110,20 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
     try {
       let imageUrl = data.imageUrl;
 
-      if (uploadedFile) {
+      if (uploadedFiles.length > 0) {
         setIsUploading(true);
         const fileFormData = new FormData();
-        fileFormData.append("file", uploadedFile);
+        fileFormData.append("file", uploadedFiles[0].file);
 
-        const uploadResult = await uploadEventImage(fileFormData);
-        if (uploadResult.success && uploadResult.filename) {
-          imageUrl = uploadResult.filename;
+        const uploadResult = await uploadFiles(fileFormData, "event");
+        const [firstResult] = uploadResult.results;
+        if (uploadResult.success && firstResult?.filename) {
+          imageUrl = firstResult.filename;
         } else {
           setIsUploading(false);
           toast({
             title: "Error",
-            description: uploadResult.error,
+            description: firstResult?.error ?? "Failed to upload image",
             variant: "destructive",
           });
           return;
@@ -148,7 +141,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
       mutation.mutate(formData, {
         onSuccess: () => {
           reset(initialFormState);
-          setUploadedFile(null);
+          setUploadedFiles([]);
           setOpen(false);
         },
       });
@@ -318,8 +311,7 @@ export function CreateEventForm({ setOpen, event }: CreateEventFormProps) {
         <div className="space-y-2">
           <FormLabel>Event Poster</FormLabel>
           <FileUpload
-            onFileSelect={handleFileSelect}
-            multiple={false}
+            onFileSelect={setUploadedFiles}
             maxFiles={1}
           />
         </div>

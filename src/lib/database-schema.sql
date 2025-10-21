@@ -303,7 +303,9 @@ CREATE TABLE ad_details (
   ad_target_id VARCHAR(36) NOT NULL,
   ad_target_type VARCHAR(50) NOT NULL,
   user_id VARCHAR(36) NOT NULL,
-  filename VARCHAR(255), 
+  filename_desktop VARCHAR(255), 
+  filename_mobile VARCHAR(255), 
+  ad_content JSONB DEFAULT '{}'::JSONB,
   total_impressions_available INT DEFAULT 1,
   total_impressions INT DEFAULT 0,
   start_date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -314,24 +316,6 @@ CREATE TABLE ad_details (
 );
 
 CREATE INDEX idx_ad_details_ad_target_id ON ad_details (ad_target_id);
-
-CREATE TABLE ad_stats (
-  id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
-  ad_target_id VARCHAR(36) NOT NULL,
-  ad_target_type VARCHAR(50) NOT NULL,
-  user_id VARCHAR(36) NOT NULL,
-  impressions_source JSONB DEFAULT '{}'::JSONB,
-  impressions_by_source JSONB DEFAULT '{}'::JSONB,
-  total_impressions_available INT DEFAULT 1,
-  total_impressions INT DEFAULT 0,
-  ad_content JSONB DEFAULT '{}'::JSONB,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-);
-
-CREATE INDEX idx_ad_stats_ad_target_id ON ad_stats (ad_target_id);
-CREATE INDEX idx_ad_stats_start_date ON ad_stats (start_date);
 
 -- Function to increment a key in a JSONB object
 CREATE OR REPLACE FUNCTION jsonb_increment(

@@ -5,8 +5,9 @@ import { useDropzone } from "react-dropzone";
 import { Upload, File, X, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface UploadedFile {
+export type UploadedFile = {
   file: File;
+  dimensions?: { width: number; height: number };
   status: "uploading" | "success" | "error";
   progress: number;
   url?: string;
@@ -100,7 +101,7 @@ const validateTextFile = (
 };
 
 interface FileUploadProps {
-  onFileSelect?: (file: File | File[] | null) => void;
+  onFileSelect?: (files: UploadedFile[]) => void;
   accept?: Record<string, string[]>; // File type configuration
   maxSize?: number; // Max file size in bytes
   validator?: (
@@ -110,9 +111,8 @@ interface FileUploadProps {
     error?: string;
     dimensions?: { width: number; height: number };
   }>; // Custom validation function
-  multiple?: boolean; // Allow multiple files
-  noUpload?: boolean; // Skip upload, just validate and select files
   maxFiles?: number; // Maximum number of files to accept
+  noUpload?: boolean; // Skip upload, just validate and select files
 }
 
 export function FileUpload({
@@ -120,14 +120,15 @@ export function FileUpload({
   accept = {
     "image/*": [".jpeg", ".jpg", ".png", ".webp", ".gif"],
   },
-  maxSize = 10 * 1024 * 1024, // 10MB default
-  validator = validateImage, // Default to image validation
-  multiple = false,
-  noUpload = false,
+  maxSize = 10 * 1024 * 1024, // 10MB 
+  validator = validateImage, 
   maxFiles,
+  noUpload = false,
 }: FileUploadProps = {}) {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const resolvedMaxFiles = maxFiles ?? 1;
+  const allowMultiple = resolvedMaxFiles !== 1;
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -135,7 +136,6 @@ export function FileUpload({
 
       setIsProcessing(true);
       const nextEntries: UploadedFile[] = [];
-      const validatedFiles: File[] = [];
 
       for (const file of acceptedFiles) {
         const validation = await validator(file);
@@ -150,48 +150,51 @@ export function FileUpload({
         } else {
           nextEntries.push({
             file,
-            status: (noUpload ? "success" : "uploading"),
+            dimensions: validation.dimensions,
+            status: noUpload ? "success" : "uploading",
             progress: noUpload ? 100 : 0,
           });
-          validatedFiles.push(file);
         }
       }
 
-      setFiles((prev) => [...prev, ...nextEntries]);
+      setFiles((prev) => {
+        const slotsRemaining = resolvedMaxFiles
+          ? Math.max(resolvedMaxFiles - prev.length, 0)
+          : nextEntries.length;
+        const entriesToAdd =
+          resolvedMaxFiles && resolvedMaxFiles !== Infinity
+            ? nextEntries.slice(0, slotsRemaining)
+            : nextEntries;
+
+        if (entriesToAdd.length === 0) {
+          return prev;
+        }
+
+        return [...prev, ...entriesToAdd];
+      });
       setIsProcessing(false);
     },
-    [noUpload, validator]
+    [noUpload, resolvedMaxFiles, validator]
   );
 
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const resolvedMaxFiles = maxFiles ?? (multiple ? 10 : 1);
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple,
+    multiple: allowMultiple,
     maxSize,
     accept,
     maxFiles: resolvedMaxFiles,
   });
 
   useEffect(() => {
-    if (!onFileSelect) {
-      return;
-    }
+    if (!onFileSelect) return;
 
-    const successfulFiles = files
-      .filter((item) => item.status !== "error")
-      .map((item) => item.file);
-
-    if (multiple) {
-      onFileSelect(successfulFiles.length > 0 ? successfulFiles : null);
-    } else {
-      onFileSelect(successfulFiles[successfulFiles.length - 1] ?? null);
-    }
-  }, [files, multiple, onFileSelect]);
+    const successfulEntries = files.filter((item) => item.status !== "error");
+    onFileSelect(successfulEntries);
+  }, [files, onFileSelect]);
 
   return (
     <div className="w-full">
@@ -217,7 +220,8 @@ export function FileUpload({
           <div>
             <p className="text-sm mb-1">Click to select or drag & drop files</p>
             <p className="text-xs text-muted-foreground">
-              Max {Math.round(maxSize / (1024 * 1024))}MB • {Object.values(accept).flat().join(", ")}
+              Max {Math.round(maxSize / (1024 * 1024))}MB •{" "}
+              {Object.values(accept).flat().join(", ")}
             </p>
             <p className="text-xs text-muted-foreground">
               Up to {resolvedMaxFiles} file{resolvedMaxFiles > 1 ? "s" : ""}
@@ -229,7 +233,10 @@ export function FileUpload({
       {files.length > 0 && (
         <div className="mt-3 space-y-2">
           {files.map((uploadFile, index) => (
-            <div key={`${uploadFile.file.name}-${index}`} className="flex items-center space-x-2 text-sm">
+            <div
+              key={`${uploadFile.file.name}-${index}`}
+              className="flex items-center space-x-2 text-sm"
+            >
               <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="flex-1 truncate">{uploadFile.file.name}</span>
 
@@ -258,13 +265,15 @@ export function FileUpload({
             </div>
           ))}
 
-          {files.map(
-            (uploadFile, index) =>
-              uploadFile.status === "error" && uploadFile.error ? (
-                <p key={`error-${uploadFile.file.name}-${index}`} className="text-xs text-red-600">
-                  {uploadFile.error}
-                </p>
-              ) : null
+          {files.map((uploadFile, index) =>
+            uploadFile.status === "error" && uploadFile.error ? (
+              <p
+                key={`error-${uploadFile.file.name}-${index}`}
+                className="text-xs text-red-600"
+              >
+                {uploadFile.error}
+              </p>
+            ) : null
           )}
         </div>
       )}

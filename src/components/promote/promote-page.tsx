@@ -1,12 +1,24 @@
-"use client"
+"use client";
 
-import PromoteForm from "./promote-form"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PromoteBandForm from "./promote-band-form";
+import { PromoteEventForm } from "./promote-event-form";
 
-
-export default function Formpage() {
+export default function PromoteFormPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <PromoteForm />
-    </main>
-  )
+    <>
+      <Tabs defaultValue="band_promo">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="band_promo">Band promotion</TabsTrigger>
+          <TabsTrigger value="event_promo">Event Promotion</TabsTrigger>
+        </TabsList>
+        <TabsContent value="band_promo">
+          <PromoteBandForm />
+        </TabsContent>
+        <TabsContent value="event_promo">
+          <PromoteEventForm />
+        </TabsContent>
+      </Tabs>
+    </>
+  );
 }

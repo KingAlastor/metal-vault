@@ -5,7 +5,6 @@ import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import {
   AddEventProps,
-  EventFilters,
   EventQueryParams,
   Event as EventType,
 } from "@/components/events/event-types";
@@ -31,6 +30,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
           event_name = ${event.eventName},
           country = ${event.country},
           city = ${event.city},
+          venue = ${event.venue},
           from_date = ${event.dateRange.from},
           to_date = ${event.dateRange.to},
           bands = ${event.bands},
@@ -104,11 +104,9 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
 export const getEventsByFilters = async (
   queryParams: EventQueryParams
 ): Promise<EventType[]> => {
-  console.log("getEventsByFilters called with queryParams:", queryParams);
   const session = await getSession();
   const user = await getFullUserData(session.userId);
   const filters = user?.events_settings || {};
-  console.log("Current filters from DB:", filters); // ✅ Debug log
 
   let followedBandIds: string[] = [];
   if (session.userId) {
@@ -117,7 +115,6 @@ export const getEventsByFilters = async (
 
   const today = new Date(new Date().setHours(0, 0, 0, 0));
   const limitValue = queryParams.page_size + 1;
-  console.log("Today:", today, "Limit value:", limitValue);
 
   // Build conditions using sql fragments
   const conditions = [
@@ -128,7 +125,6 @@ export const getEventsByFilters = async (
   if (filters && filters.country && user?.location) {
     // For now, single country; in future: user.location could be array
     conditions.push(sql`e.country = ${user.location}`);
-    console.log("Added country filter:", user.location);
   }
 
   // Cursor for pagination
@@ -136,14 +132,12 @@ export const getEventsByFilters = async (
     conditions.push(
       sql`e.from_date > ${queryParams.cursor}::timestamp with time zone`
     );
-    console.log("Added cursor filter:", queryParams.cursor);
   }
 
   // Join conditions with AND
   const joinedConditions = conditions.reduce((acc, cond, i) =>
     i === 0 ? cond : sql`${acc} AND ${cond}`
   );
-  console.log("Joined conditions built");
 
   try {
     const events = await sql`
@@ -153,6 +147,7 @@ export const getEventsByFilters = async (
         e.event_name,
         e.country,
         e.city,
+        e.venue,
         e.from_date,
         e.to_date,
         e.bands,
@@ -176,16 +171,9 @@ export const getEventsByFilters = async (
       ORDER BY e.from_date ASC, e.id ASC
       LIMIT ${limitValue}
     `;
-    console.log("Fetched events count:", events.length);
 
     const followedBandsSet = new Set(followedBandIds);
     const favoriteGenresSet = new Set(user?.genre_tags);
-    console.log(
-      "Followed bands set size:",
-      followedBandsSet.size,
-      "Favorite genres set size:",
-      favoriteGenresSet.size
-    );
 
     const filteredEvents: EventType[] = [];
     for (const event of events) {
@@ -216,7 +204,6 @@ export const getEventsByFilters = async (
         } as EventType);
       }
     }
-    console.log("Final filtered events count:", filteredEvents.length);
     return filteredEvents;
   } catch (error) {
     console.error("Error fetching events:", error);
@@ -248,3 +235,41 @@ export const deleteEvent = async (eventId: string) => {
     throw error;
   }
 };
+
+export type SearchTermEvent = {
+  id: string, 
+  event_name: string,
+  eventData: string,
+};
+
+export async function getEventsBySearchTerm(searchTerm: string) {
+    const session = await getSession();
+
+  if (!session.isLoggedIn || !session.userId) {
+    logUnauthorizedAccess(session.userId || "unknown");
+    throw new Error("User must be logged in to delete events");
+  }
+
+  try {
+    const events = await sql`
+      SELECT 
+      id, event_name, country, city, venue, from_date, to_date 
+      FROM events
+      WHERE event_name ILIKE ${'%' + searchTerm + '%'}
+    `;
+    if (events) {
+    const formattedEvents = events.map((event) => ({
+      id: event.id,
+      event_name: event.event_name,
+      eventData: `${event.event_name} - ${event.venue}/${event.city}/${event.country}`
+    }))
+
+    return formattedEvents; 
+  } else {
+    return [];
+  }
+  } catch (error) {
+    console.error("Failed to fetch events: ", error)
+    return [];
+  }
+}

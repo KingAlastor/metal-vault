@@ -15,23 +15,25 @@ interface UploadConfig {
 
 const uploadConfigs: Record<string, UploadConfig> = {
   promotion: {
-    directory: process.env.NODE_ENV === 'production' 
-      ? path.resolve(process.cwd(), '../..', 'images')
-      : path.resolve(process.cwd(), 'public', 'images'),
+    directory:
+      process.env.NODE_ENV === "production"
+        ? path.resolve(process.cwd(), "../..", "images")
+        : path.resolve(process.cwd(), "public", "images"),
     filenamePrefix: "promotion",
     maxWidth: 1200,
     maxHeight: 1200,
     quality: 80,
   },
   event: {
-    directory: process.env.NODE_ENV === 'production' 
-      ? path.resolve(process.cwd(), '../..', 'images')
-      : path.resolve(process.cwd(), 'public', 'images'),
+    directory:
+      process.env.NODE_ENV === "production"
+        ? path.resolve(process.cwd(), "../..", "images")
+        : path.resolve(process.cwd(), "public", "images"),
     filenamePrefix: "event",
     maxWidth: 1200,
     maxHeight: 1200,
     quality: 80,
-  }
+  },
 };
 
 async function uploadFile(
@@ -127,53 +129,52 @@ async function uploadFile(
   }
 }
 
-export async function uploadPromotionFile(formData: FormData) {
-  return uploadFile(formData, "promotion");
-}
+export type UploadedFiles = {
+  success: boolean;
+  results: Array<{ url?: string; filename?: string; error?: string }>;
+};
 
-export async function uploadEventImage(formData: FormData) {
-  return uploadFile(formData, "event");
-}
-
-// Generic upload function for multiple files
-export async function uploadMultipleFiles(
-  formData: FormData, 
+export async function uploadFiles(
+  formData: FormData,
   type: keyof typeof uploadConfigs
-): Promise<{ success: boolean; results: Array<{ url?: string; filename?: string; error?: string }> }> {
-  const results: Array<{ url?: string; filename?: string; error?: string }> = [];
-  
+): Promise<UploadedFiles> {
+  const results: Array<{ url?: string; filename?: string; error?: string }> =
+    [];
+
   try {
-    // Get all file keys from formData
-    const fileKeys = Array.from(formData.keys()).filter(key => 
-      key.startsWith('file') || key.startsWith('file_')
-    );
-    
-    for (const key of fileKeys) {
-      const file = formData.get(key) as File;
-      if (!file) continue;
-      
-      // Create individual FormData for each file
+    const files = formData
+      .getAll("file")
+      .filter((value): value is File => value instanceof File);
+
+    if (files.length === 0) {
+      throw new Error("No files received");
+    }
+
+    for (const file of files) {
       const singleFileFormData = new FormData();
-      singleFileFormData.append('file', file);
-      
+      singleFileFormData.append("file", file);
+
       const result = await uploadFile(singleFileFormData, type);
       results.push({
         url: result.success ? result.url : undefined,
         filename: result.success ? result.filename : undefined,
-        error: result.success ? undefined : result.error
+        error: result.success ? undefined : result.error,
       });
     }
-    
+
     return {
-      success: results.every(r => !r.error),
-      results
+      success: results.every((entry) => !entry.error),
+      results,
     };
   } catch (error) {
     return {
       success: false,
-      results: [{
-        error: error instanceof Error ? error.message : "Failed to upload files"
-      }]
+      results: [
+        {
+          error:
+            error instanceof Error ? error.message : "Failed to upload files",
+        },
+      ],
     };
   }
 }
