@@ -1,3 +1,9 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "GDPR",
+};
+
 export default async function Page() {
   return (
     <div className="gdpr-policy max-w-4xl mx-auto p-6 text-sm">

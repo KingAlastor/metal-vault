@@ -1,4 +1,9 @@
 import PostsPage from "@/components/posts/posts-page";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "User",
+};
 
 export default async function Home() {  
   return (
