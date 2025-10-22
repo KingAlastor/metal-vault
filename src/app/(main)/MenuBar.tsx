@@ -90,47 +90,6 @@ export default function MenuBar({ className }: MenuBarProps) {
           <span className="hidden lg:inline">Events</span>
         </Link>
       </Button>
-      {size.width > 640 ? (
-        <>
-          <Button
-            variant="ghost"
-            className="flex items-center justify-start gap-3 w-full [&_svg]:!size-6"
-            title="Create Post"
-            onClick={handleCreatePostClick}
-          >
-            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} className="shrink-0"/>
-            <span className="hidden lg:inline">Create Post</span>
-          </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Create Post</DialogTitle>
-              </DialogHeader>
-              <CreatePostForm setOpen={setOpen} />
-            </DialogContent>
-          </Dialog>
-        </>
-      ) : (
-        <>
-          <Button
-            variant="ghost"
-            className="flex items-center justify-start gap-3 w-full [&_svg]:!size-6"
-            title="Create Post"
-            onClick={handleCreatePostClick}
-          >
-            <Image src="/NewPost.svg" alt="New Post" width={24} height={24} className="shrink-0"/>
-            <span className="hidden lg:inline">Create Post</span>
-          </Button>
-          <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerContent>
-              <DrawerHeader className="text-left">
-                <DrawerTitle>Create Post</DrawerTitle>
-              </DrawerHeader>
-              <CreatePostForm setOpen={setOpen} />
-            </DrawerContent>
-          </Drawer>
-        </>
-      )}
     </div>
   );
 }

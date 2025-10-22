@@ -9,20 +9,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { CreateEventForm } from "./create-event-form";
 import {
   Drawer,
   DrawerContent,
   DrawerTitle,
-  DrawerTrigger,
   DrawerHeader,
+  DrawerTrigger,
 } from "../ui/drawer";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { useState } from "react";
+import { CreatePostForm } from "./forms/create-post-form";
 import { useSession } from "@/lib/session/client-hooks";
 import { useRouter } from "next/navigation";
 
-export const CreateEventCard = () => {
+export const CreatePostCard = () => {
   const size = useWindowSize();
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
@@ -44,18 +44,18 @@ export const CreateEventCard = () => {
             <Button
               variant="ghost"
               className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
-              title="Create Event"
+              title="Create Post"
               onClick={handleCreatePostClick}
             >
               <Image src="/NewPost.svg" alt="New Post" width={24} height={24} />
-              <span className="ml-1">Create Event</span>
+              <span className="ml-1">Create Post</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[528px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle> Create Event</DialogTitle>
+              <DialogTitle> Create Post</DialogTitle>
             </DialogHeader>
-            <CreateEventForm setOpen={setOpen} />
+            <CreatePostForm setOpen={setOpen} />
           </DialogContent>
         </Dialog>
       ) : (
@@ -64,7 +64,7 @@ export const CreateEventCard = () => {
             <Button
               variant="ghost"
               className="w-full rounded-lg border p-2 flex justify-start items-center bg-collapsible hover:bg-accent hover:text-accent-foreground"
-              title="Create Event"
+              title="Create Post"
               onClick={handleCreatePostClick}
             >
               <Image
@@ -73,15 +73,15 @@ export const CreateEventCard = () => {
                 width={24}
                 height={24}
               />
-              <span className="ml-1">Create Event</span>
+              <span className="ml-1">Create Post</span>
             </Button>
           </DrawerTrigger>
           <DrawerContent className="max-h-[90vh] overflow-y-auto">
             <DrawerHeader className="text-left">
-              <DrawerTitle>Create Event</DrawerTitle>
+              <DrawerTitle>Create Post</DrawerTitle>
             </DrawerHeader>
             <div className="px-4 pb-4">
-              <CreateEventForm setOpen={setOpen} />
+              <CreatePostForm setOpen={setOpen} />
             </div>
           </DrawerContent>
         </Drawer>
