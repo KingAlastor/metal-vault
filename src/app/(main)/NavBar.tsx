@@ -8,23 +8,23 @@ import { useSession } from "@/lib/session/client-hooks";
 
 export default function NavBar() {
   const { data: session } = useSession();
-  console.log("navbar session fetch: ", session)
+  console.log("navbar session fetch: ", session);
 
   return (
     <header className="sticky top-0 z-10 bg-card shadow-sm">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-1.5 py-1.5">
         <Link
           href="/"
-          className="flex items-center text-2xl font-bold text-primary"
+          className="flex items-end text-2xl font-bold text-primary leading-none"
         >
           <Image
             src="/Logo.svg"
             alt="Logo"
             width={40}
             height={40}
-            className="mr-2"
+            className="mr-1"
           />
-          <p className="font-bold max-xs:hidden"> Metal Vault</p>
+          <span className="tracking-tight max-xs:hidden">etal Vault</span>
         </Link>
         {!!session?.userId ? (
           <>
