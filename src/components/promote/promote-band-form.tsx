@@ -170,7 +170,6 @@ export default function PromoteBandForm() {
       const formData = new FormData();
 
       if (uploadedFiles.length > 0) {
-        console.log("uploaded files: ", uploadedFiles);
         const validatedPromotionImages = validatePromotionImages(uploadedFiles);
         if (validatedPromotionImages.length > 0) {
           validatedPromotionImages.forEach((file) =>
@@ -178,7 +177,6 @@ export default function PromoteBandForm() {
           );
         }
         const uploadResult = await uploadFiles(formData, "promotion");
-        console.log("upload result: ", uploadResult);
         if (!uploadResult.success) {
           const firstError = uploadResult.results.find(
             (result) => result.error
