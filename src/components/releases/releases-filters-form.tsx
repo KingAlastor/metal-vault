@@ -92,7 +92,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
       >
         <>
           <div className="space-y-4 rounded-lg border p-4">
-            {!session?.isLoggedIn && <p>Log in to use filters</p>}
+            {!session?.userId && <p>Log in to use filters</p>}
             <FormField
               control={form.control}
               name="favorite_bands"
@@ -101,7 +101,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       Show my favorite artists
@@ -114,7 +114,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -128,7 +128,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       Use my favorite genres
@@ -138,7 +138,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -152,7 +152,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       Exclude my disliked genres
@@ -162,7 +162,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -175,7 +175,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                 <FormItem className="flex flex-col">
                   <FormLabel
                     className={`text-base ${
-                      !session?.isLoggedIn ? "text-gray-400" : ""
+                      !session?.userId ? "text-gray-400" : ""
                     }`}
                   >
                     Add any additional genres
@@ -189,7 +189,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
                       }}
                       value={field.value}
                       triggerText="Select genres"
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                   <FormMessage />
@@ -200,7 +200,7 @@ export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
             <div className="flex justify-end">
               <Button
                 type="submit"
-                disabled={form.formState.isSubmitting || !session?.isLoggedIn}
+                disabled={form.formState.isSubmitting || !session?.userId}
               >
                 Apply
               </Button>
