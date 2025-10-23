@@ -123,18 +123,19 @@ type ReleaseData = {
 
 const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
   try {
-    const mappedData = releasesData.map((release) => ({
-      band_id: release.bandId,
-      band_name: release.bandName || null,
-      album_name: release.albumName,
-      genre_tags: release.genreTags || [],
-      band_archives_link: release.bandArchivesLink,
-      album_archives_link: release.albumArchivesLink,
-      type: release.type,
-      release_date: release.releaseDate,
-    }));
+    if (releasesData.length > 0) {
+      const mappedData = releasesData.map((release) => ({
+        band_id: release.bandId,
+        band_name: release.bandName || null,
+        album_name: release.albumName,
+        genre_tags: release.genreTags || [],
+        band_archives_link: release.bandArchivesLink,
+        album_archives_link: release.albumArchivesLink,
+        type: release.type,
+        release_date: release.releaseDate,
+        updated_at: sql`NOW() AT TIME ZONE 'UTC'` as unknown as string,
+      }));
 
-    if (mappedData.length > 0) {
       await sql`
         INSERT INTO upcoming_releases ${sql(mappedData)}
         ON CONFLICT (album_archives_link) DO NOTHING
