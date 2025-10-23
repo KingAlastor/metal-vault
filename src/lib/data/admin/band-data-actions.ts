@@ -8,24 +8,23 @@ export type BandsData = {
   country: string;
   status: string;
   archives_link: number;
-  updated_at?: string; 
+  updated_at?: string;
 }[];
 
 export const updateBandsTableData = async (bandsData: BandsData) => {
   try {
     if (!bandsData || bandsData.length === 0) {
       console.log("No band data provided to update or insert.");
-      return; 
+      return;
     }
     const currentTime = new Date().toISOString(); // Current ISO timestamp in UTC
 
     // Add updated_at to each band object
-    const bandsDataWithTimestamp = bandsData.map(band => ({
+    const bandsDataWithTimestamp = bandsData.map((band) => ({
       ...band,
       genre_tags: band.genre_tags,
       updated_at: currentTime,
-    }));    console.log('First band object:', bandsDataWithTimestamp[0]); // Debug log
-    console.log('Number of bands:', bandsDataWithTimestamp.length); // Debug log
+    }));
 
     for (const band of bandsDataWithTimestamp) {
       await sql`
@@ -54,4 +53,3 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
     throw error;
   }
 };
-

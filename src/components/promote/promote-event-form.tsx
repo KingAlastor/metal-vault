@@ -22,7 +22,7 @@ import {
 
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { CalendarIcon, CheckCircle } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { FileUpload, UploadedFile } from "../shared/upload-file-client-side";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
@@ -81,7 +81,7 @@ export function PromoteEventForm() {
       <CardHeader>
         <CardTitle>Create Promotion</CardTitle>
         <CardDescription>
-          Set up a promotion campaign for your band
+          Set up a promotion campaign for your event
         </CardDescription>
       </CardHeader>
       <CardContent>

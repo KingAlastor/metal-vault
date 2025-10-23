@@ -1,7 +1,8 @@
 "use server";
 
-import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
+import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 import nodemailer from "nodemailer";
+import type { TransportOptions } from "nodemailer";
 import { getUnsubscribeTokenForUser } from "../data/user-email-settings-data";
 
 export async function sendMail(
@@ -34,7 +35,7 @@ export async function sendMail(
 
   const unsubToken = await getUnsubscribeTokenForUser(userId);
 
-  const sesClient = new SESClient({
+  const sesClient = new SESv2Client({
     region: process.env.AWS_REGION,
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY!,
@@ -43,8 +44,8 @@ export async function sendMail(
   });
 
   const transporter = nodemailer.createTransport({
-    SES: { ses: sesClient, aws: { SendRawEmailCommand } },
-  });
+    SESv2: { ses: sesClient, aws: { SendEmailCommand } },
+  } as TransportOptions);
 
   try {
     const info = await transporter.sendMail({
