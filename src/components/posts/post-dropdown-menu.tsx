@@ -95,11 +95,11 @@ const PostDropdownMenu = (post: Post) => {
                 <div className="dropdown-options">
                   {post.is_saved
                     ? unsavePostMutation.isPending
-                      ? "Unsaving..."
-                      : "Unsave Post"
+                      ? "Unpinning..."
+                      : "Unpin Post"
                     : savePostMutation.isPending
-                    ? "Saving..."
-                    : "Save Post"}
+                    ? "Pinning..."
+                    : "Pin Post"}
                 </div>
               </DropdownMenuItem>
             </>

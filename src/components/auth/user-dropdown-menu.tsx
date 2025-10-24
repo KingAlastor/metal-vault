@@ -61,7 +61,7 @@ export function UserMenu() {
           <DropdownMenuItem asChild>
             <Link href="/user/pinned">
               <Pin className="mr-2 h-4 w-4" />
-              <span className="dropdown-options">Pinned Posts/Events</span>
+              <span className="dropdown-options">Pinned</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
