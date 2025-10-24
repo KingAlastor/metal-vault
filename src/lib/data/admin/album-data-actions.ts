@@ -76,13 +76,13 @@ export async function updateAlbumTracksDataTable(
 }
 
 export async function getBandLinks() {
-  const sixtyDaysAgo = new Date(Date.now() - 2 * 30 * 24 * 60 * 60 * 1000);
+  const ninetyDaysAgo = new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000);
 
   try {
     const archivesLinks = await sql`
       SELECT id, name, archives_link
       FROM bands
-      WHERE (last_album_sync IS NULL OR last_album_sync < ${sixtyDaysAgo})
+      WHERE (last_album_sync IS NULL OR last_album_sync < ${ninetyDaysAgo})
       AND archives_link IS NOT NULL
       AND archives_link > 0
       LIMIT 4000
