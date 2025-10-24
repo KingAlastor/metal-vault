@@ -61,8 +61,13 @@ export async function updateAlbumTracksDataTable(
   }[]
 ) {
   try {
+    const mappedTracks = tracks.map((track) => ({
+      ...track,
+      updated_at: sql`NOW() AT TIME ZONE 'UTC'` as unknown as string,
+    }));
+
     await sql`
-      INSERT INTO album_tracks ${sql(tracks)}
+      INSERT INTO album_tracks ${sql(mappedTracks)}
     `;
   } catch (error) {
     console.error("Error creating album tracks:", error);
