@@ -67,7 +67,7 @@ export function MultiSelectDropdown({
             size="sm"
             className="h-8 justify-start"
             aria-expanded={open}
-            disabled
+            disabled={disabled}
           >
             {triggerText}
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
