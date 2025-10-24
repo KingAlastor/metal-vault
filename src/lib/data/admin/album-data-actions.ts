@@ -8,7 +8,6 @@ export async function updateAlbumsTableData(albumsData: {
   archives_link: number;
   type?: string;
   release_date?: string;
-  spotify_id?: string;
   updated_at?: Date;
 }) {
   try {
@@ -56,7 +55,6 @@ export async function updateAlbumTracksDataTable(
     title: string;
     track_number?: number;
     duration?: number;
-    spotify_id?: string;
     updated_at?: Date;
   }[]
 ) {

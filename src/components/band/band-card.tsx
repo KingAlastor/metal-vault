@@ -41,7 +41,6 @@ export const BandCard = () => {
         <p>Genres: {band.genre_tags.join(", ")}</p>
         <p>Status: {band.status}</p>
         <p>Followers: {band.followers}</p>
-        <p>Spotify: {band.spotify_id || "N/A"}</p>
         <AlbumList albums={band.albums || []} />
       </div>
     </Card>

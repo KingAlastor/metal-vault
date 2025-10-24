@@ -43,7 +43,6 @@ CREATE TABLE bands (
   status VARCHAR(255),
   followers INT DEFAULT 0,
   archives_link BIGINT NOT NULL,
-  spotify_id VARCHAR(255),
   last_album_sync TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE,
   UNIQUE (archives_link)
@@ -83,7 +82,6 @@ CREATE TABLE bands_backup (
   status VARCHAR(255),
   followers INT DEFAULT 0,
   archives_link BIGINT,
-  spotify_id VARCHAR(255)
 );
 
 CREATE TABLE band_albums (
@@ -94,7 +92,6 @@ CREATE TABLE band_albums (
   archives_link BIGINT,
   type VARCHAR(255),
   release_date DATE,
-  spotify_id VARCHAR(255),
   updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
   UNIQUE (archives_link)
@@ -109,7 +106,6 @@ CREATE TABLE album_tracks (
   title VARCHAR(255) NOT NULL,
   track_number INT,
   duration INT,
-  spotify_id VARCHAR(255),
   updated_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
   FOREIGN KEY (album_id) REFERENCES band_albums(id) ON DELETE CASCADE
