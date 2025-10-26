@@ -44,7 +44,7 @@ export async function sendMail(
   });
 
   const transporter = nodemailer.createTransport({
-    SESv2: { ses: sesClient, aws: { SendEmailCommand } },
+    SES: { ses: sesClient, aws: { SendEmailCommand } },
   } as TransportOptions);
 
   try {
