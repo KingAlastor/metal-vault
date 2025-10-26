@@ -26,7 +26,6 @@ import { useUnSavePostMutation } from "./hooks/use-unsave-post-mutation";
 import { useSession } from "@/lib/session/client-hooks";
 
 const PostDropdownMenu = (post: Post) => {
-  const { data: session } = useSession();
   const size = useWindowSize();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditPostOpen, setIsEditPostFormOpen] = useState(false);
