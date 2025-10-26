@@ -35,7 +35,6 @@ async function fetchJsonData(browser: Browser, url: string, retries = 3): Promis
       }
 
       console.log(`🔍 RESPONSE STATUS: ${response.status()}, URL: ${response.url()}`);
-      console.log(`🔍 RESPONSE HEADERS:`, response.headers());
 
       if (!response.ok()) {
         const responseText = await response.text();

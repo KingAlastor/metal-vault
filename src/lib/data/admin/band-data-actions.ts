@@ -12,21 +12,13 @@ export type BandsData = {
 }[];
 
 export const updateBandsTableData = async (bandsData: BandsData) => {
-  try {
-    if (!bandsData || bandsData.length === 0) {
-      console.log("No band data provided to update or insert.");
-      return;
-    }
-    const currentTime = new Date().toISOString(); // Current ISO timestamp in UTC
+  if (!bandsData || bandsData.length === 0) {
+    console.log("No band data provided to update or insert.");
+    return;
+  }
 
-    // Add updated_at to each band object
-    const bandsDataWithTimestamp = bandsData.map((band) => ({
-      ...band,
-      genre_tags: band.genre_tags,
-      updated_at: currentTime,
-    }));
-
-    for (const band of bandsDataWithTimestamp) {
+  for (const band of bandsData) {
+    try {
       await sql`
         INSERT INTO bands (
           name,
@@ -43,13 +35,19 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
           ${band.country},
           ${band.status},
           ${band.archives_link},
-          ${band.updated_at}
+          NOW() AT TIME ZONE 'UTC'
         )
         ON CONFLICT (archives_link) DO NOTHING
       `;
+    } catch (error) {
+      console.error(
+        "Failed to insert band: ",
+        band.name,
+        "; Archives link: ",
+        band.archives_link
+      );
+      console.error("Error updating bands table data:", error);
+      throw error;
     }
-  } catch (error) {
-    console.error("Error updating bands table data:", error);
-    throw error;
   }
 };
