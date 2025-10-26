@@ -5,9 +5,9 @@ import { fetchUserUnfollowedBandsFullData } from "@/lib/data/unfollow-artists-da
 
 export async function GET() {
   const session = await getSession();
-  
-  if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+
+  if (!session.userId) {
+    logUnauthorizedAccess(session.userId || "unknown");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -16,6 +16,9 @@ export async function GET() {
     return NextResponse.json(unfollowedArtists);
   } catch (error) {
     console.error("Error fetching unfollowed artists:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

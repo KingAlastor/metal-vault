@@ -15,14 +15,15 @@ import { PostsPageData } from "@/app/api/posts/route";
 import InfiniteScrollContainer from "../shared/infinite-scroll-container";
 import { PostsLoadingSkeleton } from "./posts-loading-skeleton";
 import Image from "next/image";
-import { useSession, useUser } from "@/lib/session/client-hooks";
+import { useUser } from "@/lib/session/client-hooks";
 import { PostsDataFilters } from "@/lib/data/posts-data";
 import { Post } from "./post-types";
 import { CreatePostCard } from "./create-post-card";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export default function PostsPage() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const fullUser = useUser(session?.userId || "");
 
   // Store all posts in a ref for client-side pagination

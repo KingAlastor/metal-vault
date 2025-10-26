@@ -1,48 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import useWindowSize from "@/lib/hooks/get-window-size";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { useState } from "react";
-import { CreatePostForm } from "@/components/posts/forms/create-post-form";
-import { useSession } from "@/lib/session/client-hooks";
-import { useRouter } from "next/navigation";
 
 interface MenuBarProps {
   className?: string;
 }
 
 export default function MenuBar({ className }: MenuBarProps) {
-  const size = useWindowSize();
-  const [open, setOpen] = useState(false);
-
-  const { data: session } = useSession();
-  const router = useRouter();
-
-  const handleCreatePostClick = () => {
-    // doesn't work
-    if (!session?.userId) {
-      router.push("/signin");
-    } else {
-      setOpen(true);
-    }
-  };
-
   return (
     <div className={className}>
       <Button
@@ -62,7 +28,7 @@ export default function MenuBar({ className }: MenuBarProps) {
           <span className="hidden lg:inline">Upcoming Releases</span>
         </Link>
       </Button>
-{/*       <Button
+      {/*       <Button
         variant="ghost"
         className="flex items-center justify-start gap-3 [&_svg]:!size-6"
         title="Recommendations"
@@ -86,7 +52,13 @@ export default function MenuBar({ className }: MenuBarProps) {
         asChild
       >
         <Link href="/events">
-          <Image src="/Events.svg" alt="Events" width={24} height={24} className="shrink-0"/>
+          <Image
+            src="/Events.svg"
+            alt="Events"
+            width={24}
+            height={24}
+            className="shrink-0"
+          />
           <span className="hidden lg:inline">Events</span>
         </Link>
       </Button>

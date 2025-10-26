@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { useSession, useUser } from "@/lib/session/client-hooks";
+import { useUser } from "@/lib/session/client-hooks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kyInstance from "@/lib/ky";
 import { DataTableBand } from "./follow-artists-types";
@@ -30,9 +30,10 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { SyncBandListFromFile } from "./sync-bands-from-file";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export default function FollowArtistsPage() {
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const user = useUser(session?.userId);
   const size = useWindowSize();
 

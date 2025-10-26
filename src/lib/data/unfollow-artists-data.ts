@@ -16,7 +16,7 @@ export type Band = {
 export async function fetchUserUnfollowedBands(): Promise<string[]> {
   const session = await getSession();
   
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || 'unknown');
     throw new Error("User must be logged in to access unfollowed bands.");
   }
@@ -45,7 +45,7 @@ export async function fetchUserUnfollowedBands(): Promise<string[]> {
 export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
   const session = await getSession();
   
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     return [];
   }
 
@@ -87,7 +87,7 @@ export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
 export async function deleteUnfollowBand(bandId: string): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
   
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     return { success: false, error: "User is not logged in" };
   }
 

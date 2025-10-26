@@ -18,7 +18,8 @@ import { Switch } from "@/components/ui/switch";
 import { EventFilters } from "@/components/events/event-types";
 import { getEventsByFilters } from "@/lib/data/events-data";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSession, useUpdateUser } from "@/lib/session/client-hooks";
+import { useUpdateUser } from "@/lib/session/client-hooks";
+import { useSessionContext } from "@/app/SessionProvider";
 
 const FormSchema = z.object({
   favorites_only: z.boolean().default(false).optional(),
@@ -46,7 +47,7 @@ export function EventsFiltersForm({
     },
   });
 
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
 
   const queryClient = useQueryClient();
   const updateUser = useUpdateUser();
@@ -81,7 +82,7 @@ export function EventsFiltersForm({
       >
         <>
           <div className="space-y-1 rounded-lg border p-2">
-            {!session?.isLoggedIn && <p>Log in to use filters</p>}
+            {!session?.userId && <p>Log in to use filters</p>}
             <FormField
               control={form.control}
               name="favorites_only"
@@ -90,7 +91,7 @@ export function EventsFiltersForm({
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       Show events that include my favorite artists
@@ -100,7 +101,7 @@ export function EventsFiltersForm({
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -114,7 +115,7 @@ export function EventsFiltersForm({
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       Show events that include my favorite genres
@@ -124,7 +125,7 @@ export function EventsFiltersForm({
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -138,12 +139,12 @@ export function EventsFiltersForm({
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       Show events happening in my country
                     </FormLabel>
-                    <FormDescription >
+                    <FormDescription>
                       Filter events based on country set up under your profile
                     </FormDescription>
                   </div>
@@ -151,7 +152,7 @@ export function EventsFiltersForm({
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -161,7 +162,7 @@ export function EventsFiltersForm({
               <Button
                 type="submit"
                 className="h-8"
-                disabled={form.formState.isSubmitting || !session?.isLoggedIn}
+                disabled={form.formState.isSubmitting || !session?.userId}
               >
                 Apply
               </Button>

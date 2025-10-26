@@ -9,12 +9,17 @@ export type FeedbackData = {
   comment: string;
 };
 
-export async function postUserFeedback(data: FeedbackData): Promise<{ success: boolean; error?: string }> {
+export async function postUserFeedback(
+  data: FeedbackData
+): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
-  
-  if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
-    return { success: false, error: "User must be logged in to post feedback." };
+
+  if (!session.userId) {
+    logUnauthorizedAccess(session.userId || "unknown");
+    return {
+      success: false,
+      error: "User must be logged in to post feedback.",
+    };
   }
 
   try {
@@ -39,11 +44,13 @@ export async function postUserFeedback(data: FeedbackData): Promise<{ success: b
   }
 }
 
-export async function getUserFeedback(): Promise<Array<FeedbackData & { id: string; createdAt: Date }>> {
+export async function getUserFeedback(): Promise<
+  Array<FeedbackData & { id: string; createdAt: Date }>
+> {
   const session = await getSession();
-  
-  if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+
+  if (!session.userId) {
+    logUnauthorizedAccess(session.userId || "unknown");
     return [];
   }
 
@@ -59,11 +66,11 @@ export async function getUserFeedback(): Promise<Array<FeedbackData & { id: stri
       ORDER BY created_at DESC
     `;
 
-    return feedback.map(row => ({
+    return feedback.map((row) => ({
       id: row.id,
       title: row.title,
       comment: row.comment,
-      createdAt: row.createdAt
+      createdAt: row.createdAt,
     }));
   } catch (error) {
     console.error("Error fetching user feedback:", error);
@@ -71,12 +78,17 @@ export async function getUserFeedback(): Promise<Array<FeedbackData & { id: stri
   }
 }
 
-export async function deleteUserFeedback(feedbackId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteUserFeedback(
+  feedbackId: string
+): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
-  
-  if (!session.isLoggedIn || !session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
-    return { success: false, error: "User must be logged in to delete feedback." };
+
+  if (!session.userId) {
+    logUnauthorizedAccess(session.userId || "unknown");
+    return {
+      success: false,
+      error: "User must be logged in to delete feedback.",
+    };
   }
 
   try {

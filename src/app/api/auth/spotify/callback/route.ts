@@ -52,7 +52,6 @@ export async function GET(request: Request) {
     // Store user data in the session
     session.userId = user.id;
     session.userShard = user.shard;
-    session.isLoggedIn = true;
 
     // Store the refresh token 
     if (tokens.refresh_token) {

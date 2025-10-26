@@ -1,32 +1,36 @@
-'use client';
+"use client";
 
-import { GoogleLogin as GoogleOAuthLogin } from '@react-oauth/google';
-import { useRouter } from 'next/navigation';
+import { GoogleLogin as GoogleOAuthLogin } from "@react-oauth/google";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 export function GoogleLogin() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleSuccess = async (credentialResponse: any) => {
-    // Send the credential to your server for verification and session creation
-    const res = await fetch('/api/auth/google/signin', {
-      method: 'POST',
+    // Send the credential to the server for verification and session creation
+    const res = await fetch("/api/auth/google/signin", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ credential: credentialResponse.credential }),
     });
 
     if (res.ok) {
-      // Force a full page reload to ensure all server components re-render
-      window.location.href = '/';
+      const jsonResponse = await res.json(); // ensure API returns the payload
+      queryClient.setQueryData(["session"], jsonResponse.session);
+      router.replace("/");
+      return;
     } else {
-      console.error('Login failed');
+      console.error("Login failed");
       // Handle login failure on the client-side if needed
     }
   };
 
   const handleError = () => {
-    console.log('Login Failed');
+    console.log("Login Failed");
   };
 
   return (

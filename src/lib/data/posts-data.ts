@@ -37,7 +37,7 @@ export type PostsDataFilters = {
 export async function addOrUpdatePost(post: PostProps) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to create or update posts.");
   }
@@ -165,7 +165,7 @@ export async function addOrUpdatePost(post: PostProps) {
 export async function deletePost(postId: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to delete posts.");
   }
@@ -331,7 +331,7 @@ export async function getAllPostsByFilters(
 export async function hideArtistForUserById(bandId: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to hide artists");
   }
@@ -373,7 +373,7 @@ export async function hideArtistForUserById(bandId: string) {
 export async function addPostToSavedPosts(postId: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to save posts.");
   }
@@ -393,7 +393,7 @@ export async function addPostToSavedPosts(postId: string) {
 export async function removePostFromSavedPosts(postId: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to unsave posts.");
   }
@@ -417,7 +417,7 @@ export async function savePostReport(
 ) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to report posts.");
   }
@@ -438,7 +438,7 @@ export async function savePostReport(
 export async function hideUserPostsForUserById(postId: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to hide user posts.");
   }
@@ -464,7 +464,7 @@ export async function hideUserPostsForUserById(postId: string) {
 async function getUserIdByPostId(postId: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to hide user posts.");
   }
@@ -487,7 +487,7 @@ async function getUserIdByPostId(postId: string) {
 export async function checkIfPostExists(bandId: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to hide user posts.");
   }

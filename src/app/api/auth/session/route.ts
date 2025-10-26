@@ -5,7 +5,6 @@ export async function GET() {
   try {
     const session = await getSession();
     return NextResponse.json({
-      isLoggedIn: session.isLoggedIn,
       userId: session.userId,
       userShard: session.userShard,
       refreshToken: session.refreshToken,

@@ -17,16 +17,14 @@ import { EventCards } from "./event-cards";
 import { CreateEventCard } from "./create-event-card";
 import Image from "next/image";
 import { EventsLoadingSkeleton } from "./events-loading-skeleton";
-import { useSession } from "@/lib/session/client-hooks";
 import { useUser } from "@/lib/session/client-hooks";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export function EventsPage() {
-  const {data: session } = useSession();
+  const { session: session } = useSessionContext();
   const user = useUser(session?.userId);
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState(
-    user?.data?.events_settings || {}
-  );
+  const [filters, setFilters] = useState(user?.data?.events_settings || {});
 
   const {
     data,
@@ -52,7 +50,7 @@ export function EventsPage() {
   });
 
   const events: Event[] = data?.pages.flatMap((page) => page.events) || [];
-  
+
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       <CreateEventCard />

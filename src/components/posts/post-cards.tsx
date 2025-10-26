@@ -14,7 +14,7 @@ import PostLinkIcons from "./post-link-icons";
 import { PostCard } from "./post-card";
 import { formatDateAndTime } from "@/lib/general/dateTime";
 import { Post, PostsProps } from "./post-types";
-import { useSession } from "@/lib/session/client-hooks";
+import { useSessionContext } from "@/app/SessionProvider";
 
 const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
   {
@@ -35,8 +35,7 @@ const audioLinks: { source: keyof Post; logo: string; alt: string }[] = [
 ];
 
 export const Posts = ({ posts }: PostsProps) => {
-  const { data: session } = useSession();
-  const loggedIn = session?.isLoggedIn;
+  const { session: session } = useSessionContext();
   return (
     <>
       {posts.map((post) => {
@@ -50,14 +49,16 @@ export const Posts = ({ posts }: PostsProps) => {
                   </div>
                   <div className="flex flex-col pl-2">
                     <>
-                      {post.user.user_name ? post.user.user_name : post.user.name}
+                      {post.user.user_name
+                        ? post.user.user_name
+                        : post.user.name}
                     </>
                     <div className="xs-font">
                       {formatDateAndTime(post.post_date_time)}
                     </div>
                   </div>
                 </div>
-                {loggedIn && <PostDropdownMenu {...post} />}
+                {session?.userId && <PostDropdownMenu {...post} />}
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">

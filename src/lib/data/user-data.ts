@@ -135,7 +135,7 @@ export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
 
 export const getFullUserData = async (userId: string) => {
   const session = await getSession();
-  if (!session.isLoggedIn) {
+  if (!session.userId) {
     logUnauthorizedAccess(userId);
     return null;
   }
@@ -154,7 +154,7 @@ export const getFullUserData = async (userId: string) => {
 
 export const fetchUnfollowedUsers = async (userId: string) => {
   const session = await getSession();
-  if (!session.isLoggedIn) {
+  if (!session.userId) {
     logUnauthorizedAccess(userId);
     return null;
   }
@@ -290,7 +290,7 @@ export const getPostsFilters = async (userId: string) => {
 export async function fetchUserSavedPosts() {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     return [];
   }
@@ -312,7 +312,7 @@ export async function fetchUserSavedPosts() {
 export async function getRefreshTokenFromUserTokens(provider: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     return null;
   }
@@ -338,10 +338,10 @@ export type UpdateUserData = {
   genre_tags?: string[];
   excluded_genre_tags?: string[];
   notifications?: string[];
-  posts_settings?: any; 
-  events_settings?: any; 
+  posts_settings?: any;
+  events_settings?: any;
   pending_actions?: string[];
-  release_settings?: any; 
+  release_settings?: any;
 };
 
 type UpdatePayload = Partial<UpdateUserData>;
@@ -349,7 +349,7 @@ type UpdatePayload = Partial<UpdateUserData>;
 export async function updateUserData(data: UpdateUserData) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     return null;
   }
@@ -379,7 +379,7 @@ export async function updateUserData(data: UpdateUserData) {
 export async function deleteUser() {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
@@ -398,7 +398,7 @@ export async function deleteUser() {
 export async function deleteUserPendingAction(action: string) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }

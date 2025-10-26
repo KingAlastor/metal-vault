@@ -14,7 +14,7 @@ import { fetchUserFavoriteBands } from "./follow-artists-data";
 export const addOrUpdateEvent = async (event: AddEventProps) => {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to add or update events");
   }
@@ -217,7 +217,7 @@ export const getEventsByFilters = async (
 export const deleteEvent = async (eventId: string) => {
   const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to delete events");
   }
@@ -245,7 +245,7 @@ export type SearchTermEvent = {
 export async function getEventsBySearchTerm(searchTerm: string) {
     const session = await getSession();
 
-  if (!session.isLoggedIn || !session.userId) {
+  if (!session.userId) {
     logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to delete events");
   }

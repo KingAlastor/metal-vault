@@ -3,7 +3,6 @@ import { SessionOptions } from 'iron-session'
 export interface SessionData {
   userId: string;
   userShard: string;
-  isLoggedIn: boolean;
   refreshToken?: string;
 }
 

@@ -20,7 +20,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useApplyReleaseFiltersMutation } from "./hooks/use-apply-filters-mutation";
 import { MultiSelectDropdown } from "../shared/multiselect-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
-import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
+import { useUpdateUser, useUser } from "@/lib/session/client-hooks";
+import { useSessionContext } from "@/app/SessionProvider";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
@@ -34,7 +35,7 @@ interface FiltersFormProps {
 }
 
 export function ReleasesFiltersForm({ onClose }: FiltersFormProps) {
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const { data: user } = useUser(session?.userId);
 
   const filters = user?.release_settings || {};

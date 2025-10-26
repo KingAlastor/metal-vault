@@ -19,13 +19,13 @@ import {
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { useState } from "react";
 import { CreatePostForm } from "./forms/create-post-form";
-import { useSession } from "@/lib/session/client-hooks";
 import { useRouter } from "next/navigation";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export const CreatePostCard = () => {
   const size = useWindowSize();
   const [open, setOpen] = useState(false);
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const router = useRouter();
 
   const handleCreatePostClick = () => {

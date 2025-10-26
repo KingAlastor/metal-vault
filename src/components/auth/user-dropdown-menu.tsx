@@ -9,19 +9,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Lock, LogOut, Settings, Music, Mail, Pencil, Pin, Megaphone } from "lucide-react";
+import {
+  Lock,
+  LogOut,
+  Settings,
+  Music,
+  Mail,
+  Pencil,
+  Pin,
+  Megaphone,
+} from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import UserAvatar from "./user-avatar";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useSession, useUser } from "@/lib/session/client-hooks";
+import { useUser } from "@/lib/session/client-hooks";
 import { logout } from "@/lib/session/server-actions";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export function UserMenu() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: session, isLoading } = useSession();
+  const { session: session } = useSessionContext();
 
   const user = useUser(session?.userId);
 
@@ -30,10 +40,6 @@ export function UserMenu() {
     queryClient.clear();
     router.refresh();
   };
-
-  if (isLoading) {
-    return <button disabled>Loading...</button>;
-  }
 
   return (
     <DropdownMenu>

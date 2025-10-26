@@ -23,7 +23,6 @@ import { useUnFollowUserPostMutation } from "./hooks/use-unfollow-user-posts-mut
 import { ReportPostForm } from "./forms/report-post-form";
 import { useSavePostMutation } from "./hooks/use-save-post-mutation";
 import { useUnSavePostMutation } from "./hooks/use-unsave-post-mutation";
-import { useSession } from "@/lib/session/client-hooks";
 
 const PostDropdownMenu = (post: Post) => {
   const size = useWindowSize();

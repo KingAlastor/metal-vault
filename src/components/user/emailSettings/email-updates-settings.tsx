@@ -19,8 +19,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 import { createEmail } from "../../../lib/email/create-email";
 import { sendMail } from "@/lib/email/send-email";
-import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
+import { useUpdateUser, useUser } from "@/lib/session/client-hooks";
 import { updateUnsubscribeUserToken } from "@/lib/data/user-email-settings-data";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export const EmailFormSchema = z.object({
   preferred_email: z.string(),
@@ -31,7 +32,7 @@ export const EmailFormSchema = z.object({
 });
 
 export default function EmailUpdatesPage() {
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const { data: user } = useUser(session?.userId);
 
   const filters = useMemo(() => {

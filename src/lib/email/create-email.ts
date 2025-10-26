@@ -22,7 +22,7 @@ export const createEmail = async (data: EmailData, userId?: string) => {
 
   if (!userId) {
     const session = await getSession();
-    if (!session.isLoggedIn || !session.userId) {
+    if (!session.userId) {
       logUnauthorizedAccess(session.userId || "unknown");
       throw new Error("User must be logged in to create email.");
     }

@@ -8,11 +8,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { followArtistByBandId } from "@/lib/data/follow-artists-data";
-import { useSession } from "@/lib/session/client-hooks";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export type BandAlbum = {
   bandId: string;
@@ -25,14 +24,14 @@ export type BandAlbum = {
 
 // Separate component for the actions dropdown
 const ActionsDropdown = ({ bandAlbum }: { bandAlbum: BandAlbum }) => {
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
 
   const handleAddToFavoritesClick = async () => {
     await followArtistByBandId(bandAlbum.bandId);
   };
 
   // Don't render if user is not logged in
-  if (!session?.isLoggedIn) {
+  if (!session?.userId) {
     return null;
   }
 
@@ -48,7 +47,7 @@ const ActionsDropdown = ({ bandAlbum }: { bandAlbum: BandAlbum }) => {
         <DropdownMenuItem onClick={handleAddToFavoritesClick}>
           <div className="dropdown-options">Follow Artist</div>
         </DropdownMenuItem>
-        {/* Add new item add album My albums */} 
+        {/* Add new item add album My albums */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -92,7 +91,8 @@ export const columns: ColumnDef<BandAlbum>[] = [
       const dateFormatted: string = getFullDate(dateFull);
       return <>{dateFormatted}</>;
     },
-  },  {
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       const bandAlbum = row.original;

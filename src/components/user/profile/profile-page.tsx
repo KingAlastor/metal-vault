@@ -5,12 +5,13 @@ import { DeleteUserDialog } from "./delete-user-dialog";
 import { Button } from "@/components/ui/button";
 import ProfileSettingsForm from "./profile-settings-form";
 import { FirstTimeUserNotice } from "@/components/shared/first-time-user-notice";
-import { useSession, useUser } from "@/lib/session/client-hooks";
+import { useUser } from "@/lib/session/client-hooks";
 import { logout } from "@/lib/session/server-actions";
 import { deleteUserPendingAction, updateUserData } from "@/lib/data/user-data";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const { data: user } = useUser(session?.userId);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 

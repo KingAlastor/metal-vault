@@ -1,32 +1,10 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { SessionData } from './config';
 import kyInstance from '../ky';
 import { FullUser, updateUserData } from '../data/user-data';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { UpdateUserData } from '../data/user-data';
-
-/**
- * Client-side hook to get the current session
- * Uses React Query to cache and manage the session state
- */
-export function useSession() {
-  return useQuery({
-    queryKey: ['session'],
-    queryFn: async () => {
-      const data = await kyInstance.get('/api/auth/session').json<SessionData>();
-      return {
-        isLoggedIn: data.isLoggedIn,
-        userId: data.userId,
-        userShard: data.userShard,
-        refreshToken: data.refreshToken,
-      } as SessionData;
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: true,
-  });
-}
 
 /**
  * Client-side hook to get user data

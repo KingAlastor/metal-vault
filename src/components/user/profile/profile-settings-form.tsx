@@ -17,9 +17,10 @@ import { MultiSelectDropdown } from "@/components/shared/multiselect-dropdown";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CountrySelectDropdown } from "@/components/shared/select-country-dropdown";
 import { getGenres } from "@/lib/data/genres-data";
-import { useSession, useUser } from "@/lib/session/client-hooks";
+import { useUser } from "@/lib/session/client-hooks";
 import { updateUserData } from "@/lib/data/user-data";
 import { useEffect } from "react";
+import { useSessionContext } from "@/app/SessionProvider";
 
 export const FormSchema = z.object({
   user_name: z.string().trim().min(1, "Cannot be empty"),
@@ -30,7 +31,7 @@ export const FormSchema = z.object({
 
 export default function ProfileSettingsForm() {
   const { toast } = useToast();
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const user = useUser(session?.userId);
   const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -80,7 +81,7 @@ export default function ProfileSettingsForm() {
     } catch (error) {
       toast({
         variant: "destructive",
-        description: `An error occurred: ${error}` 
+        description: `An error occurred: ${error}`,
       });
     }
   }

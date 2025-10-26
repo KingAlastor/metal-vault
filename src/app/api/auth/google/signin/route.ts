@@ -37,10 +37,9 @@ export async function POST(request: NextRequest) {
     const session = await getSession();
     session.userId = user.id;
     session.userShard = user.shard;
-    session.isLoggedIn = true;
     await session.save();
 
-    return NextResponse.json({ message: 'Authentication successful', user }, { status: 200 });
+    return NextResponse.json({ message: 'Authentication successful', session }, { status: 200 });
 
   } catch (error) {
     console.error("Google sign-in error:", error);

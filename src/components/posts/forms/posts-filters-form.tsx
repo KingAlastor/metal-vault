@@ -17,7 +17,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import { PostsDataFilters } from "@/lib/data/posts-data";
-import { useSession, useUpdateUser, useUser } from "@/lib/session/client-hooks";
+import { useUpdateUser, useUser } from "@/lib/session/client-hooks";
+import { useSessionContext } from "@/app/SessionProvider";
 
 const FormSchema = z.object({
   favorite_bands: z.boolean().default(false).optional(),
@@ -30,7 +31,7 @@ interface FiltersFormProps {
 }
 
 export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
-  const { data: session } = useSession();
+  const { session: session } = useSessionContext();
   const fullUser = useUser(session?.userId || "");
   const filters = fullUser.data?.posts_settings || {};
 
@@ -65,7 +66,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
       >
         <>
           <div className="space-y-1 rounded-lg border p-2">
-            {!session?.isLoggedIn && <p>Log in to use filters</p>}
+            {!session?.userId && <p>Log in to use filters</p>}
             <FormField
               control={form.control}
               name="favorite_bands"
@@ -74,7 +75,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       <p className="m-font">Show my favorite artists</p>
@@ -87,7 +88,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -101,7 +102,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       <p className="m-font">Use my favorite genres</p>
@@ -111,7 +112,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -125,7 +126,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                   <div className="space-y-0.5">
                     <FormLabel
                       className={`text-base ${
-                        !session?.isLoggedIn ? "text-gray-400" : ""
+                        !session?.userId ? "text-gray-400" : ""
                       }`}
                     >
                       <p className="m-font">Exclude my disliked genres</p>
@@ -135,7 +136,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={!session?.isLoggedIn}
+                      disabled={!session?.userId}
                     />
                   </FormControl>
                 </FormItem>
@@ -145,7 +146,7 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
               <Button
                 type="submit"
                 className="h-8"
-                disabled={form.formState.isSubmitting || !session?.isLoggedIn}
+                disabled={form.formState.isSubmitting || !session?.userId}
               >
                 Apply
               </Button>
