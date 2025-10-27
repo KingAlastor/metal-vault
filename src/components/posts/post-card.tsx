@@ -3,8 +3,15 @@ import Link from "next/link";
 import useWindowSize from "@/lib/hooks/get-window-size";
 import { formatDateWithNamedMonth } from "@/lib/general/dateTime";
 import { Post } from "./post-types";
+import PostDropdownMenu from "./post-dropdown-menu";
+import { SessionData } from "@/lib/session/config";
 
-export const PostCard = (post: Post) => {
+type PostCardProps = {
+  post: Post;
+  session: SessionData | null;
+};
+
+export const PostCard = ({ post, session }: PostCardProps) => {
   const { name, artist, releaseDate, type, imageUrl } = post.title
     ? JSON.parse(post.title)
     : {};
@@ -23,8 +30,7 @@ export const PostCard = (post: Post) => {
   }
 
   return (
-    <div className="spotify-card p-2">
-      <span className="m-font">{post.post_content}</span>
+    <div className="spotify-card">
       {audioUrl ? (
         size.width > 640 ? (
           <div className="flex">
@@ -55,9 +61,9 @@ export const PostCard = (post: Post) => {
               style={{ height: "158px" }}
             >
               <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
-                <>
-                  {name && <p className="font-bold">{name}</p>}
-                  {artist && <p>{artist}</p>}
+                <div>
+                  <h1 className="font-bold xxl-font">{post.band_name}</h1>
+                  {name && <p className="l-font">{name}</p>}
                   {releaseDate && (
                     <p className="s-font">
                       {formatDateWithNamedMonth(releaseDate)}
@@ -67,14 +73,18 @@ export const PostCard = (post: Post) => {
                   {post.genre_tags && (
                     <p className="s-font">{post.genre_tags.join(", ")}</p>
                   )}
-                </>
+                </div>
               </Link>
+              <span className="s-font italic">{post.post_content}</span>
               {post.preview_url && (
                 <audio controls className="mt-2">
                   <source src={post.preview_url} type="audio/mpeg" />
                   Your browser does not support the audio element.
                 </audio>
               )}
+            </div>
+            <div className="ml-auto">
+              {session?.userId && <PostDropdownMenu {...post} />}
             </div>
           </div>
         ) : size.width <= 640 && size.width > 400 ? (
@@ -105,8 +115,8 @@ export const PostCard = (post: Post) => {
               <div className="flex flex-col justify-between ml-4">
                 <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
                   <>
-                    {name && <p className="font-bold">{name}</p>}
-                    {artist && <p>{artist}</p>}
+                    <h1 className="font-bold l-font">{post.band_name}</h1>
+                    {name && <p className="m-font">{name}</p>}
                     {releaseDate && (
                       <p className="s-font">
                         {formatDateWithNamedMonth(releaseDate)}
@@ -154,8 +164,8 @@ export const PostCard = (post: Post) => {
             <div className="flex flex-col justify-between mt-4 w-full text-left">
               <Link href={audioUrl} target="_blank" rel="noopener noreferrer">
                 <>
-                  {name && <p className="font-bold">{name}</p>}
-                  {artist && <p>{artist}</p>}
+                  <h1 className="font-bold l-font">{post.band_name}</h1>
+                  {name && <p className="m-font">{name}</p>}
                   {releaseDate && (
                     <p className="s-font">
                       {formatDateWithNamedMonth(releaseDate)}

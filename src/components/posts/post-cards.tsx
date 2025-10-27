@@ -42,27 +42,10 @@ export const Posts = ({ posts }: PostsProps) => {
         return (
           <Card key={post.id} className="mb-4 w-full">
             <CardHeader className="p-4 pt-2 pb-1">
-              <div className="flex justify-between items-center">
-                <div className="flex">
-                  <div className="flex justify-center items-center">
-                    <UserAvatar avatarUrl={post.user.image} size={30} />
-                  </div>
-                  <div className="flex flex-col pl-2">
-                    <>
-                      {post.user.user_name
-                        ? post.user.user_name
-                        : post.user.name}
-                    </>
-                    <div className="xs-font">
-                      {formatDateAndTime(post.post_date_time)}
-                    </div>
-                  </div>
-                </div>
-                {session?.userId && <PostDropdownMenu {...post} />}
-              </div>
+              <div className="flex justify-between items-center"></div>
             </CardHeader>
             <CardContent className="p-4 pt-1 pb-1">
-              <PostCard {...post} />
+              <PostCard post={post} session={session} />
             </CardContent>
             <CardFooter className="p-4 pt-1 pb-2">
               <div className="flex justify-between items-center w-full">
@@ -78,6 +61,14 @@ export const Posts = ({ posts }: PostsProps) => {
                         />
                       )
                   )}
+                </div>
+                <div className="flex flex-col items-end text-right">
+                  <div className="s-font">
+                    {post.user.user_name ? post.user.user_name : post.user.name}
+                  </div>
+                  <div className="xs-font">
+                    {formatDateAndTime(post.post_date_time)}
+                  </div>
                 </div>
               </div>
             </CardFooter>
