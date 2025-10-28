@@ -186,14 +186,14 @@ export function CreatePostForm({ setOpen, post }: CreatePostFormProps) {
       const formData: PostProps = {
         id: post?.id ?? "",
         band_name: data.band_name,
-        bandId: bandIdRef.current,
+        band_id: bandIdRef.current,
         title: JSON.stringify(linkData?.title),
-        genreTags: data.genre_tags,
+        genre_tags: data.genre_tags,
         post_message: data.post_message,
         yt_link: data.yt_link,
         spotify_link: data.spotify_link,
         bandcamp_link: data.bandcamp_link,
-        previewUrl: linkData?.previewUrl,
+        preview_url: linkData?.previewUrl,
       };
 
       mutation.mutate(formData, {

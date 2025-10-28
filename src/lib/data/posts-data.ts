@@ -13,14 +13,14 @@ import { Post } from "@/components/posts/post-types";
 export type PostProps = {
   id?: string;
   band_name: string;
-  bandId?: string | null;
+  band_id?: string | null;
   title?: string;
-  genreTags: string[];
+  genre_tags: string[];
   post_message?: string;
   yt_link?: string;
   spotify_link?: string;
   bandcamp_link?: string;
-  previewUrl?: string;
+  preview_url?: string;
 };
 
 export type QueryParamProps = {
@@ -49,35 +49,33 @@ export async function addOrUpdatePost(post: PostProps) {
       updatedPost = await sql`
         UPDATE user_posts_active
         SET 
-          band_id = ${post.bandId || null},
+          band_id = ${post.band_id || null},
           band_name = ${post.band_name},
           title = ${post.title || null},
-          genre_tags = ${post.genreTags},
+          genre_tags = ${post.genre_tags},
           post_content = ${post.post_message || null},
           yt_link = ${post.yt_link || null},
           spotify_link = ${post.spotify_link || null},
           bandcamp_link = ${post.bandcamp_link || null},
-          preview_url = ${post.previewUrl || null}
+          preview_url = ${post.preview_url || null}
         WHERE id = ${post.id}
         RETURNING 
           id,
-          user_id as "userId",
-          band_id as "bandId",
-          band_name as "bandName",
+          user_id,
+          band_id,
+          band_name,
           title,
-          genre_tags as "genreTags",
-          post_content as "postContent",
-          yt_link as "YTLink",
-          spotify_link as "SpotifyLink",
-          bandcamp_link as "BandCampLink",
-          preview_url as "previewUrl",
-          post_date_time as "postDateTime",
+          genre_tags,
+          post_content,
+          yt_link,
+          spotify_link,
+          bandcamp_link,
+          preview_url,
+          post_date_time,
           (
             SELECT json_build_object(
               'name', u.name,
-              'user_name', u.user_name,
-              'image', u.image,
-              'role', u.role
+              'user_name', u.user_name
             )
             FROM users u
             WHERE u.id = user_posts_active.user_id
@@ -99,36 +97,34 @@ export async function addOrUpdatePost(post: PostProps) {
           post_date_time
         ) VALUES (
           ${session.userId},
-          ${post.bandId || null},
+          ${post.band_id || null},
           ${post.band_name},
           ${post.title || null},
-          ${post.genreTags},
+          ${post.genre_tags},
           ${post.post_message || null},
           ${post.yt_link || null},
           ${post.spotify_link || null},
           ${post.bandcamp_link || null},
-          ${post.previewUrl || null},
+          ${post.preview_url || null},
           NOW() AT TIME ZONE 'UTC'
         )
         RETURNING 
           id,
-          user_id as "userId",
-          band_id as "bandId",
-          band_name as "bandName",
+          user_id,
+          band_id,
+          band_name,
           title,
-          genre_tags as "genreTags",
-          post_content as "postContent",
-          yt_link as "YTLink",
-          spotify_link as "SpotifyLink",
-          bandcamp_link as "BandCampLink",
-          preview_url as "previewUrl",
-          post_date_time as "postDateTime",
+          genre_tags,
+          post_content,
+          yt_link,
+          spotify_link,
+          bandcamp_link,
+          preview_url,
+          post_date_time,
           (
             SELECT json_build_object(
               'name', u.name,
-              'user_name', u.user_name,
-              'image', u.image,
-              'role', u.role
+              'user_name', u.user_name
             )
             FROM users u
             WHERE u.id = user_posts_active.user_id
@@ -136,25 +132,18 @@ export async function addOrUpdatePost(post: PostProps) {
       `;
     }
 
-    const isFav = await checkFavoriteExists(post.bandId);
+    const isFav = await checkFavoriteExists(post.band_id);
+
+    const { user_id, ...postWithoutUserId } = updatedPost[0];
+    const is_owner = session.userId === user_id ? true : false;
 
     const result = {
-      ...updatedPost[0],
+      ...postWithoutUserId,
       is_favorite: isFav,
       is_saved: false,
-      user_id: updatedPost[0].userId,
-      band_id: updatedPost[0].bandId,
-      band_name: updatedPost[0].bandName,
-      genre_tags: updatedPost[0].genreTags,
-      post_content: updatedPost[0].postContent,
-      yt_link: updatedPost[0].YTLink,
-      spotify_link: updatedPost[0].SpotifyLink,
-      bandcamp_link: updatedPost[0].BandCampLink,
-      preview_url: updatedPost[0].previewUrl,
-      post_date_time: updatedPost[0].postDateTime,
-      user: updatedPost[0].user,
+      is_owner,
     } as Post;
-
+    console.log("result: ", result);
     return result;
   } catch (error) {
     console.error("Error updating or creating post:", error);
