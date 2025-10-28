@@ -41,10 +41,7 @@ export const Posts = ({ posts }: PostsProps) => {
       {posts.map((post) => {
         return (
           <Card key={post.id} className="mb-4 w-full">
-            <CardHeader className="p-4 pt-2 pb-1">
-              <div className="flex justify-between items-center"></div>
-            </CardHeader>
-            <CardContent className="p-4 pt-1 pb-1">
+            <CardContent className="p-3 pt-3 pb-1">
               <PostCard post={post} session={session} />
             </CardContent>
             <CardFooter className="p-4 pt-1 pb-2">
