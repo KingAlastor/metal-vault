@@ -55,7 +55,12 @@ export function PostsFiltersForm({ setIsOpen }: FiltersFormProps) {
     };
     setIsOpen(false);
     await updateUser.mutateAsync({ posts_settings: filters });
-    queryClient.resetQueries({ queryKey: ["post-feed"] });
+
+    await queryClient.removeQueries({ queryKey: ["post-feed"], exact: true });
+    await queryClient.invalidateQueries({
+      queryKey: ["post-feed"],
+      refetchType: "active",
+    });
   }
 
   return (

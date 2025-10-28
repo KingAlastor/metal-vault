@@ -46,7 +46,7 @@ export default function PostsPage() {
     status,
     error,
   } = useInfiniteQuery({
-    queryKey: ["post-feed", filters],
+    queryKey: ["post-feed"],
     queryFn: async ({ pageParam }): Promise<PostsPageData> => {
       // If we already have all posts cached, paginate through them
       if (hasInitiallyFetchedRef.current && allPostsRef.current.length > 0) {
