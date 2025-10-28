@@ -20,7 +20,7 @@ export function useUnSavePostMutation() {
           pages: old.pages.map((page: any) => ({
             ...page,
             posts: page.posts.map((post: any) =>
-              post.id === postId ? { ...post, isSaved: false } : post
+              post.id === postId ? { ...post, is_saved: false } : post
             ),
           })),
         };

@@ -15,15 +15,15 @@ export function useFollowArtistPostMutation() {
 
       // Snapshot the previous value
       const previousPosts = queryClient.getQueryData(["post-feed"]);
-
       // Optimistically update to the new value
       queryClient.setQueryData(["post-feed"], (old: any) => {
+        if (!old?.pages) return old;
         return {
           ...old,
           pages: old.pages.map((page: any) => ({
             ...page,
             posts: page.posts.map((post: any) =>
-              post.bandId === bandId ? { ...post, isFavorite: true } : post
+              post.band_id === bandId ? { ...post, is_favorite: true } : post
             ),
           })),
         };

@@ -20,7 +20,7 @@ export function useSavePostMutation() {
           pages: old.pages.map((page: any) => ({
             ...page,
             posts: page.posts.map((post: any) =>
-              post.id === postId ? { ...post, isSaved: true } : post
+              post.id === postId ? { ...post, is_saved: true } : post
             ),
           })),
         };

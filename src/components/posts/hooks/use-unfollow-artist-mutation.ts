@@ -23,7 +23,7 @@ export function useUnFollowArtistPostMutation() {
           pages: old.pages.map((page: any) => ({
             ...page,
             posts: page.posts.map((post: any) =>
-              post.bandId === bandId ? { ...post, isFavorite: false } : post
+              post.band_id === bandId ? { ...post, is_favorite: false } : post
             ),
           })),
         };
