@@ -2,6 +2,20 @@
 
 import axios from "axios";
 
+// Function if it's needed to switch over to embedded link
+export const fetchSpotifyEmbedData = async (spotifyLink: string) => {
+  const fullurl = `https://open.spotify.com/oembed?url=${spotifyLink}`;
+
+  const response = await axios.get(fullurl);
+
+  const { id, type } = extractSpotifyIdAndType(spotifyLink);
+
+  return {
+    data: response.data,
+    type,
+  };
+};
+
 export const fetchSpotifyData = async (spotifyLink: string) => {
   const accessToken = await getAccessToken();
 
@@ -85,7 +99,7 @@ export const getFollowedArtistsFromSpotify = async (token: string) => {
   if (!token) {
     throw new Error("Token empty");
   }
-  
+
   let artists: Artist[] = [];
   let nextUrl = "https://api.spotify.com/v1/me/following?type=artist&limit=50";
 
