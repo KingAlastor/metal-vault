@@ -5,6 +5,7 @@ import sql from "@/lib/db";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { updateBandsTableData, type BandsData } from "./band-data-actions";
+import { insertMany } from "../sql-helpers/insert-many";
 
 export async function syncUpcomingReleaseDataFromArchives() {
   const timestamp = Date.now();
@@ -52,94 +53,98 @@ const extractBandDetails = async (band: Array<any>) => {
   if (type === "Split") return;
 
   const archivesLinkMatch = bandLink.match(/\/(\d+)/);
-  const bandArchivesLink = archivesLinkMatch ? archivesLinkMatch[1] : "";
-  const bandDetails = await getBandByArchivesLink(bandArchivesLink);
-  let bandName = "";
-  let genreTags = [];
+  const band_archives_link = archivesLinkMatch
+    ? parseInt(archivesLinkMatch[1], 10)
+    : undefined;
 
-  let bandId = bandDetails?.id!;
+  if (!band_archives_link) return;
+  let bandDetails = band_archives_link
+    ? await getBandByArchivesLink(band_archives_link)
+    : null;
+  let band_name = "";
+  let genre_tags = [];
 
-  if (!bandId) {
+  let band_id = bandDetails?.id!;
+
+  if (!bandDetails) {
     let bandsData: BandsData = [];
     const bandNameMatch = bandLink.match(/\/bands\/([^\/]+)\//);
-    const name = bandNameMatch ? bandNameMatch[1] : null;
-    const country = await getBandOriginFromArchives(bandLink);
-    const bandNamePrettyMatch = bandLink.match(/>([^<]+)<\/a>/);
-    bandName = bandNamePrettyMatch ? bandNamePrettyMatch[1] : "";
+    const name = bandNameMatch ? bandNameMatch[1] : "Unknown";
 
-    const genre = genres.replace(/ Metal|\(early\)|\(later\)/g, "").trim();
-    genreTags = genre.split(/\/|;|,/).map((tag: string) => tag.trim());
+    const country = await getBandOriginFromArchives(bandLink);
+
+    const bandNamePrettyMatch = bandLink.match(/>([^<]+)<\/a>/);
+    band_name = bandNamePrettyMatch ? bandNamePrettyMatch[1] : name;
+
+    genre_tags = (genres as string)
+      .replace(/ Metal|\(early\)|\(later\)/g, "")
+      .trim()
+      .split(/\/|;|,/)
+      .map((tag: string) => tag.trim());
 
     const bandDataObject = {
       name: name,
-      name_pretty: bandName,
-      genre_tags: genreTags,
+      name_pretty: band_name,
+      genre_tags,
       country: country,
       status: "Active",
-      archives_link: parseInt(bandArchivesLink, 10),
+      archives_link: band_archives_link,
     };
 
     bandsData.push(bandDataObject);
     if (bandsData.length > 0) {
       await updateBandsTableData(bandsData);
     }
-    const bandDetails = await getBandByArchivesLink(bandArchivesLink);
-    bandId = bandDetails?.id!;
+    const bandDetails = await getBandByArchivesLink(band_archives_link);
+    band_id = bandDetails?.id!;
   } else {
-    bandName = bandDetails?.name_pretty || bandDetails?.name || "";
-    genreTags = bandDetails?.genre_tags || [];
+    band_name = bandDetails?.name_pretty || bandDetails?.name || "";
+    genre_tags = bandDetails?.genre_tags || [];
   }
 
   const matches = albumLink.match(/\/albums\/([^\/]+)\/([^\/]+)\/(\d+)/);
-  const albumArchivesLink = matches[3];
+  const album_archives_link = matches[3];
 
   const albumNamePrettyMatch = albumLink.match(/>([^<]+)<\/a>/);
-  const albumName = albumNamePrettyMatch ? albumNamePrettyMatch[1] : "";
+  const album_name = albumNamePrettyMatch ? albumNamePrettyMatch[1] : "";
 
-  const releaseDate: string = convertDateToISO(date);
+  const release_date: string = convertDateToISO(date);
+  const updated_at = new Date().toISOString();
 
   return {
-    bandId,
-    bandName,
-    albumName,
+    band_id,
+    band_name,
+    album_name,
     type,
-    bandArchivesLink,
-    albumArchivesLink,
-    genreTags,
-    releaseDate,
+    band_archives_link,
+    album_archives_link,
+    genre_tags,
+    release_date,
+    updated_at,
   };
 };
 
 type ReleaseData = {
-  bandId: string;
-  bandName: string;
-  albumName: string;
-  bandArchivesLink: number;
-  albumArchivesLink: number;
-  genreTags: string[];
-  type: string;
-  releaseDate: string;
+  band_id: string;
+  band_name: string;
+  album_name: string;
+  band_archives_link?: number;
+  album_archives_link?: number;
+  genre_tags?: string[];
+  type?: string;
+  release_date?: string;
+  updated_at?: string;
 }[];
 
 const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
   try {
     if (releasesData.length > 0) {
-      const mappedData = releasesData.map((release) => ({
-        band_id: release.bandId,
-        band_name: release.bandName || null,
-        album_name: release.albumName,
-        genre_tags: release.genreTags || [],
-        band_archives_link: release.bandArchivesLink,
-        album_archives_link: release.albumArchivesLink,
-        type: release.type,
-        release_date: release.releaseDate,
-        updated_at: sql`NOW() AT TIME ZONE 'UTC'` as unknown as string,
-      }));
-
-      await sql`
-        INSERT INTO upcoming_releases ${sql(mappedData)}
-        ON CONFLICT (album_archives_link) DO NOTHING
-      `;
+      await insertMany(
+        "upcoming_releases",
+        releasesData,
+        "album_archives_link",
+        ["updated_at"]
+      );
     }
   } catch (error) {
     console.error("Error updating upcoming releases table data:", error);
