@@ -1,3 +1,5 @@
+"use server";
+
 import sql from "@/lib/db";
 
 export async function insertMany<T extends Record<string, any>>(
@@ -7,12 +9,18 @@ export async function insertMany<T extends Record<string, any>>(
   updateColumns?: (keyof T)[],
   chunkSize = 1000
 ) {
-  if (!rows.length) return;
+  if (!rows.length) {
+    console.log(`insertMany: No rows to insert for table ${tableName}`);
+    return;
+  }
 
   const columns = Object.keys(rows[0]);
+  console.log(`insertMany: Inserting ${rows.length} rows into ${tableName} with columns:`, columns);
+  console.log(`insertMany: Chunk size: ${chunkSize}, Conflict key: ${String(conflictKey)}, Update columns:`, updateColumns);
 
   for (let i = 0; i < rows.length; i += chunkSize) {
     const chunk = rows.slice(i, i + chunkSize);
+    console.log(`insertMany: Processing chunk ${Math.floor(i / chunkSize) + 1}/${Math.ceil(rows.length / chunkSize)} (${chunk.length} rows)`);
 
     const rowFragments = chunk.map(
       (row) =>
@@ -21,6 +29,7 @@ export async function insertMany<T extends Record<string, any>>(
             const val = row[col];
             if (Array.isArray(val)) {
               const type = detectPgArrayType(val);
+              console.log(`insertMany: Array column ${col} detected as type: ${type}`);
               return sql.array(val, type);
             }
             return val;
@@ -59,8 +68,12 @@ export async function insertMany<T extends Record<string, any>>(
       `;
     }
 
+    console.log(`insertMany: Executing query for chunk ${Math.floor(i / chunkSize) + 1}`);
     await sql`${query}`;
+    console.log(`insertMany: Successfully processed chunk ${Math.floor(i / chunkSize) + 1}`);
   }
+
+  console.log(`insertMany: Completed insertion of all ${rows.length} rows into ${tableName}`);
 }
 
 function detectPgArrayType(arr: any[]): string {
