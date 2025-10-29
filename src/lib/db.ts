@@ -15,5 +15,4 @@ if (!databaseUrl) {
 
 const sql = postgres(databaseUrl, {});
 
-export const queryRunner = postgres(databaseUrl, {}); 
-export { postgres as queryBuilder }; 
+export default sql;

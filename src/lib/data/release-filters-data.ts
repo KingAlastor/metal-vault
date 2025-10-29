@@ -1,6 +1,6 @@
 "use server";
 
-import { queryRunner } from "../db";
+import sql from "../db";
 import { getSession } from "../session/server-actions";
 import { fetchUserFavoriteBands } from "./follow-artists-data";
 import { fetchUserUnfollowedBands } from "./unfollow-artists-data";
@@ -70,7 +70,7 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
     const hasDislikedGenres = (userDislikedGenreTags?.length ?? 0) > 0;
 
     // --- Construct and execute the final SQL query ---
-    const finalSql = queryRunner`
+    const finalSql = sql`
       SELECT
         band_id as "bandId",
         band_name as "bandName",
@@ -84,22 +84,22 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
         -- Step 1: Always exclude unfollowed bands (highest priority exclusion)
         ${
           hasUnfollowedBands
-            ? queryRunner`band_id != ALL(${unfollowedBandIds})`
-            : queryRunner`1=1`
+            ? sql`band_id != ALL(${unfollowedBandIds})`
+            : sql`1=1`
         }
       )
       AND (
         -- Step 2: Include if ANY of these conditions are met:
         ${
           hasFollowedBands && hasFavoriteGenres
-            ? queryRunner`(band_id = ANY(${followedBandIds}) OR genre_tags && ${
+            ? sql`(band_id = ANY(${followedBandIds}) OR genre_tags && ${
                 userFavoriteGenreTags || []
               })`
             : hasFollowedBands
-            ? queryRunner`band_id = ANY(${followedBandIds})`
+            ? sql`band_id = ANY(${followedBandIds})`
             : hasFavoriteGenres
-            ? queryRunner`genre_tags && ${userFavoriteGenreTags || []}`
-            : queryRunner`1=1`
+            ? sql`genre_tags && ${userFavoriteGenreTags || []}`
+            : sql`1=1`
         }
       )
       AND (
@@ -107,11 +107,11 @@ export async function getReleasesByFilters(): Promise<UpcomingRelease[]> {
         ${
           hasDislikedGenres
             ? hasFollowedBands
-              ? queryRunner`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${
+              ? sql`(band_id = ANY(${followedBandIds}) OR NOT (genre_tags && ${
                   userDislikedGenreTags || []
                 }))`
-              : queryRunner`NOT (genre_tags && ${userDislikedGenreTags || []})`
-            : queryRunner`1=1`
+              : sql`NOT (genre_tags && ${userDislikedGenreTags || []})`
+            : sql`1=1`
         }
       )
       ORDER BY release_date ASC

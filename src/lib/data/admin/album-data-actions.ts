@@ -1,5 +1,5 @@
 "use server";
-import { queryRunner } from "@/lib/db";
+import sql from "@/lib/db";
 
 export async function updateAlbumsTableData(albumsData: {
   band_id: string;
@@ -21,7 +21,7 @@ export async function updateAlbumsTableData(albumsData: {
         ? albumsData.name_pretty.substring(0, 255)
         : albumsData.name_pretty;
 
-    const result = await queryRunner`
+    const result = await sql`
       INSERT INTO band_albums (
         band_id,
         name,
@@ -61,11 +61,11 @@ export async function updateAlbumTracksDataTable(
   try {
     const mappedTracks = tracks.map((track) => ({
       ...track,
-      updated_at: queryRunner`NOW() AT TIME ZONE 'UTC'` as unknown as string,
+      updated_at: sql`NOW() AT TIME ZONE 'UTC'` as unknown as string,
     }));
 
-    await queryRunner`
-      INSERT INTO album_tracks ${queryRunner(mappedTracks)}
+    await sql`
+      INSERT INTO album_tracks ${sql(mappedTracks)}
     `;
   } catch (error) {
     console.error("Error creating album tracks:", error);
@@ -77,7 +77,7 @@ export async function getBandLinks() {
   const ninetyDaysAgo = new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000);
 
   try {
-    const archivesLinks = await queryRunner`
+    const archivesLinks = await sql`
       SELECT id, name, archives_link
       FROM bands
       WHERE (last_album_sync IS NULL OR last_album_sync < ${ninetyDaysAgo})
@@ -95,7 +95,7 @@ export async function getBandLinks() {
 
 export async function getAlbumId(bandId: string, archivesLink: number) {
   try {
-    const albumId = await queryRunner`
+    const albumId = await sql`
       SELECT id
       FROM band_albums
       WHERE band_id = ${bandId} AND archives_link = ${archivesLink}
@@ -109,7 +109,7 @@ export async function getAlbumId(bandId: string, archivesLink: number) {
 
 export async function updateBandsLastSync(id: string) {
   try {
-    await queryRunner`
+    await sql`
       UPDATE bands
       SET last_album_sync = NOW() AT TIME ZONE 'UTC'
       WHERE id = ${id}
@@ -122,7 +122,7 @@ export async function updateBandsLastSync(id: string) {
 
 export async function getAlbumExists(archivesLink: number) {
   try {
-    const result = await queryRunner`
+    const result = await sql`
       SELECT id
       FROM band_albums
       WHERE archives_link = ${archivesLink}

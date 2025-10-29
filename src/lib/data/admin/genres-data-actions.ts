@@ -1,5 +1,5 @@
 "use server";
-import { queryRunner } from "@/lib/db";
+import sql from "@/lib/db";
 
 export const syncGenresTableFromBands = async () => {
   const genreTags = await getDistinctGenreTags();
@@ -10,7 +10,7 @@ export const syncGenresTableFromBands = async () => {
 };
 
 const getDistinctGenreTags = async () => {
-  const result = await queryRunner`
+  const result = await sql`
     SELECT DISTINCT UNNEST(genre_tags) AS genres 
     FROM bands 
     ORDER BY genres ASC
@@ -19,14 +19,14 @@ const getDistinctGenreTags = async () => {
 };
 
 const clearGenreTagsTable = async () => {
-  await queryRunner`
+  await sql`
     TRUNCATE TABLE genre_tags
   `;
 };
 
 const updateGenreTagsTable = async (genreTags: string[]) => {
-  await queryRunner`
+  await sql`
     INSERT INTO genre_tags (genres)
-    VALUES ${queryRunner(genreTags.map((tag) => [tag]))} 
+    VALUES ${sql(genreTags.map((tag) => [tag]))} 
   `;
 };

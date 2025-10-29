@@ -1,6 +1,6 @@
 "use server";
 
-import {queryRunner} from "../db";
+import sql from "../db";
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import {
@@ -24,7 +24,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
 
     if (event.id) {
       // Update existing event
-      updatedEvent = await queryRunner`
+      updatedEvent = await sql`
         UPDATE events
         SET 
           event_name = ${event.eventName},
@@ -45,7 +45,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
       return updatedEvent[0];
     } else {
       // Create new event
-      updatedEvent = await queryRunner`
+      updatedEvent = await sql`
         INSERT INTO events (
           id,
           user_id,
@@ -79,7 +79,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
       `;
 
       // Get user info for the created event
-      const userInfo = await queryRunner`
+      const userInfo = await sql`
         SELECT
           name,
           user_name,
@@ -116,31 +116,31 @@ export const getEventsByFilters = async (
   const today = new Date(new Date().setHours(0, 0, 0, 0));
   const limitValue = queryParams.page_size + 1;
 
-  // Build conditions using queryRunner fragments
+  // Build conditions using sql fragments
   const conditions = [
-    queryRunner`e.from_date >= ${today.toISOString()}::timestamp with time zone`,
+    sql`e.from_date >= ${today.toISOString()}::timestamp with time zone`,
   ];
 
   // Country filter (future-proof for multiple countries)
   if (filters && filters.country && user?.location) {
     // For now, single country; in future: user.location could be array
-    conditions.push(queryRunner`e.country = ${user.location}`);
+    conditions.push(sql`e.country = ${user.location}`);
   }
 
   // Cursor for pagination
   if (queryParams.cursor) {
     conditions.push(
-      queryRunner`e.from_date > ${queryParams.cursor}::timestamp with time zone`
+      sql`e.from_date > ${queryParams.cursor}::timestamp with time zone`
     );
   }
 
   // Join conditions with AND
   const joinedConditions = conditions.reduce((acc, cond, i) =>
-    i === 0 ? cond : queryRunner`${acc} AND ${cond}`
+    i === 0 ? cond : sql`${acc} AND ${cond}`
   );
 
   try {
-    const events = await queryRunner`
+    const events = await sql`
       SELECT
         e.id,
         e.user_id,
@@ -223,7 +223,7 @@ export const deleteEvent = async (eventId: string) => {
   }
 
   try {
-    const deletedEvent = await queryRunner`
+    const deletedEvent = await sql`
       DELETE FROM events
       WHERE id = ${eventId}
       RETURNING *
@@ -251,7 +251,7 @@ export async function getEventsBySearchTerm(searchTerm: string) {
   }
 
   try {
-    const events = await queryRunner`
+    const events = await sql`
       SELECT 
       id, event_name, country, city, venue, from_date, to_date 
       FROM events

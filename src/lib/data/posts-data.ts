@@ -1,6 +1,6 @@
 "use server";
 
-import { queryRunner } from "../db";
+import sql from "../db";
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import { checkFavoriteExists } from "./follow-artists-data";
@@ -46,7 +46,7 @@ export async function addOrUpdatePost(post: PostProps) {
     let updatedPost;
 
     if (post.id) {
-      updatedPost = await queryRunner`
+      updatedPost = await sql`
         UPDATE user_posts_active
         SET 
           band_id = ${post.band_id || null},
@@ -82,7 +82,7 @@ export async function addOrUpdatePost(post: PostProps) {
           ) as user
       `;
     } else {
-      updatedPost = await queryRunner`
+      updatedPost = await sql`
         INSERT INTO user_posts_active (
           user_id,
           band_id,
@@ -160,7 +160,7 @@ export async function deletePost(postId: string) {
   }
 
   try {
-    const deletedPost = await queryRunner`
+    const deletedPost = await sql`
       DELETE FROM user_posts_active
       WHERE id = ${postId}
       RETURNING *
@@ -190,7 +190,7 @@ export async function getAllPostsByFilters(
       followedBandIds = await fetchUserFavoriteBands();
 
       if (filters.favorite_genres || filters.disliked_genres) {
-        const user = await queryRunner`
+        const user = await sql`
           SELECT genre_tags, excluded_genre_tags
           FROM users
           WHERE id = ${session.userId}
@@ -210,7 +210,7 @@ export async function getAllPostsByFilters(
 
   try {
     // Use the same filtering logic as releases, but fetch ALL posts (limit 500)
-    const posts = await queryRunner`
+    const posts = await sql`
       SELECT
         id,
         user_id,
@@ -238,28 +238,24 @@ export async function getAllPostsByFilters(
         -- Always exclude unfollowed users (highest priority exclusion)
         ${
           isLoggedIn
-            ? queryRunner`user_id NOT IN (
+            ? sql`user_id NOT IN (
               SELECT unfollowed_user_id 
-              FROM ${queryRunner.unsafe(
-                `user_unfollowers_${session.userShard}`
-              )}
+              FROM ${sql.unsafe(`user_unfollowers_${session.userShard}`)}
               WHERE user_id = ${session.userId}
           )`
-            : queryRunner`1=1`
+            : sql`1=1`
         }
       )
       AND (
         -- Always exclude unfollowed bands (highest priority exclusion)
         ${
           isLoggedIn
-            ? queryRunner`band_id NOT IN (
+            ? sql`band_id NOT IN (
               SELECT band_id 
-              FROM ${queryRunner.unsafe(
-                `band_unfollowers_${session.userShard}`
-              )}
+              FROM ${sql.unsafe(`band_unfollowers_${session.userShard}`)}
               WHERE user_id = ${session.userId}
           )`
-            : queryRunner`1=1`
+            : sql`1=1`
         }
       )
       ORDER BY post_date_time DESC
@@ -329,7 +325,7 @@ export async function hideArtistForUserById(bandId: string) {
     throw new Error("User must be logged in to hide artists");
   }
 
-  const user = await queryRunner`
+  const user = await sql`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -339,7 +335,7 @@ export async function hideArtistForUserById(bandId: string) {
 
   try {
     // Start a transaction
-    await queryRunner.begin(async (trx) => {
+    await sql.begin(async (trx) => {
       // Add the band to the unfollowers table
       await trx.unsafe(
         `INSERT INTO ${unfollowersTableName} (user_id, band_id)
@@ -372,7 +368,7 @@ export async function addPostToSavedPosts(postId: string) {
   }
 
   try {
-    await queryRunner`
+    await sql`
       INSERT INTO user_posts_saved (user_id, post_id)
       VALUES (${session.userId}, ${postId})
       ON CONFLICT (user_id, post_id) DO NOTHING
@@ -392,7 +388,7 @@ export async function removePostFromSavedPosts(postId: string) {
   }
 
   try {
-    await queryRunner`
+    await sql`
       DELETE FROM user_posts_saved
       WHERE user_id = ${session.userId} AND post_id = ${postId}
     `;
@@ -416,7 +412,7 @@ export async function savePostReport(
   }
 
   try {
-    await queryRunner`
+    await sql`
       INSERT INTO reported_posts (user_id, post_id, field, value, comment)
       VALUES (${session.userId}, ${postId}, ${field || null}, ${
       value || null
@@ -440,7 +436,7 @@ export async function hideUserPostsForUserById(postId: string) {
 
   if (userId) {
     try {
-      await queryRunner`
+      await sql`
       INSERT INTO user_unfollowers_${session.userId} (user_id, unfollowed_user_id)
       VALUES (${session.userId}, ${userId})
       ON CONFLICT (user_id, unfollowed_user_id) DO NOTHING
@@ -463,7 +459,7 @@ async function getUserIdByPostId(postId: string) {
   }
 
   try {
-    const [user] = await queryRunner`
+    const [user] = await sql`
       SELECT user_id 
       FROM user_posts_active
       WHERE id = ${postId}
@@ -488,7 +484,7 @@ export async function checkIfPostExists(bandId: string) {
   try {
     const timeWindow = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
 
-    const [post] = await queryRunner`
+    const [post] = await sql`
       SELECT id 
       FROM user_posts_active
       WHERE band_id = ${bandId}

@@ -1,16 +1,16 @@
 "use server";
 
-import { queryRunner } from "@/lib/db";
+import sql from "@/lib/db";
 
 export const getUniqueGenres = async () => {
-  const genres = await queryRunner<{ unique_genre: string }[]>`
+  const genres = await sql<{ unique_genre: string }[]>`
     SELECT DISTINCT unnest(genre_tags) AS unique_genre 
     FROM bands
   `;
   const uniqueGenres: string[] = [];
 
   for (const genre of genres) {
-    const genreValues = genre.unique_genre.split(",");
+    const genreValues = genre.unique_genre.split(',');
 
     for (const value of genreValues) {
       if (!uniqueGenres.includes(value.trim())) {
@@ -27,7 +27,7 @@ export type Genre = {
 };
 
 export const getGenres = async (): Promise<Genre[]> => {
-  return await queryRunner<Genre[]>`
+  return await sql<Genre[]>`
     SELECT genres FROM genre_tags
   `;
 };

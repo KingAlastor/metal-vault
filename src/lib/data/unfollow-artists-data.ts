@@ -1,6 +1,6 @@
 "use server";
 
-import { queryRunner } from "../db";
+import sql from "../db";
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 
@@ -15,13 +15,13 @@ export type Band = {
 
 export async function fetchUserUnfollowedBands(): Promise<string[]> {
   const session = await getSession();
-
+  
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || 'unknown');
     throw new Error("User must be logged in to access unfollowed bands.");
   }
 
-  const user = await queryRunner`
+  const user = await sql`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -29,13 +29,13 @@ export async function fetchUserUnfollowedBands(): Promise<string[]> {
   const tableName = `band_unfollowers_${shard}`;
 
   try {
-    const unfollowedBands = await queryRunner`
+    const unfollowedBands = await sql`
       SELECT band_id as "bandId"
-      FROM ${queryRunner.unsafe(tableName)}
+      FROM ${sql.unsafe(tableName)}
       WHERE user_id = ${session.userId}
     `;
 
-    return unfollowedBands.map((band) => band.bandId);
+    return unfollowedBands.map(band => band.bandId);
   } catch (error) {
     console.error("Error fetching unfollowed bands:", error);
     throw error;
@@ -44,12 +44,12 @@ export async function fetchUserUnfollowedBands(): Promise<string[]> {
 
 export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
   const session = await getSession();
-
+  
   if (!session.userId) {
     return [];
   }
 
-  const user = await queryRunner`
+  const user = await sql`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -57,7 +57,7 @@ export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
   const tableName = `band_unfollowers_${shard}`;
 
   try {
-    const unfollowedBands = await queryRunner`
+    const unfollowedBands = await sql`
       SELECT 
         b.id,
         b.name_pretty as "namePretty",
@@ -65,18 +65,18 @@ export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
         b.genre_tags as "genreTags",
         b.followers,
         b.status
-      FROM ${queryRunner.unsafe(tableName)} buf
+      FROM ${sql.unsafe(tableName)} buf
       JOIN bands b ON b.id = buf.band_id
       WHERE buf.user_id = ${session.userId}
     `;
 
-    return unfollowedBands.map((row) => ({
+    return unfollowedBands.map(row => ({
       id: row.id,
       namePretty: row.namePretty,
       country: row.country,
       genreTags: row.genreTags,
       followers: row.followers,
-      status: row.status,
+      status: row.status
     }));
   } catch (error) {
     console.error("Error fetching unfollowed bands full data:", error);
@@ -84,16 +84,14 @@ export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
   }
 }
 
-export async function deleteUnfollowBand(
-  bandId: string
-): Promise<{ success: boolean; error?: string }> {
+export async function deleteUnfollowBand(bandId: string): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
-
+  
   if (!session.userId) {
     return { success: false, error: "User is not logged in" };
   }
 
-  const user = await queryRunner`
+  const user = await sql`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -101,8 +99,8 @@ export async function deleteUnfollowBand(
   const tableName = `band_unfollowers${shard}`;
 
   try {
-    await queryRunner`
-      DELETE FROM ${queryRunner.unsafe(tableName)}
+    await sql`
+      DELETE FROM ${sql.unsafe(tableName)}
       WHERE user_id = ${session.userId} AND band_id = ${bandId}
     `;
 
