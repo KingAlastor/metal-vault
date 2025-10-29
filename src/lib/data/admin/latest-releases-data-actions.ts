@@ -1,7 +1,7 @@
 "use server";
 
 import { convertDateToISO } from "@/lib/general/dateTime";
-import sql from "@/lib/db";
+import { queryRunner } from "@/lib/db";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { updateBandsTableData, type BandsData } from "./band-data-actions";
@@ -133,11 +133,11 @@ const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
         album_archives_link: release.albumArchivesLink,
         type: release.type,
         release_date: release.releaseDate,
-        updated_at: sql`NOW() AT TIME ZONE 'UTC'` as unknown as string,
+        updated_at: queryRunner`NOW() AT TIME ZONE 'UTC'` as unknown as string,
       }));
 
-      await sql`
-        INSERT INTO upcoming_releases ${sql(mappedData)}
+      await queryRunner`
+        INSERT INTO upcoming_releases ${queryRunner(mappedData)}
         ON CONFLICT (album_archives_link) DO NOTHING
       `;
     }
@@ -149,7 +149,7 @@ const updateUpcomingReleasesTableData = async (releasesData: ReleaseData) => {
 
 const getBandByArchivesLink = async (archivesLink: number) => {
   try {
-    const band = await sql`
+    const band = await queryRunner`
       SELECT * FROM bands 
       WHERE archives_link = ${archivesLink}
     `;

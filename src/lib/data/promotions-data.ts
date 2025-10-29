@@ -1,7 +1,7 @@
 "use server";
 
 import { JSONValue } from "postgres";
-import sql from "../db";
+import { queryRunner } from "../db";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import { getSession } from "../session/server-actions";
 
@@ -12,7 +12,7 @@ export type Ad = {
 };
 
 export async function fetchActiveAds(): Promise<Ad[] | undefined> {
-  const ads = (await sql`
+  const ads = (await queryRunner`
     SELECT * FROM ad_details
   `) as Ad[];
 
@@ -42,7 +42,7 @@ export async function addPromotion(promotionFormData: PromotionFormData) {
   }
 
   try {
-    await sql`
+    await queryRunner`
       INSERT INTO ad_details (
         ad_target_id,
         ad_target_type,
@@ -67,7 +67,7 @@ export async function addPromotion(promotionFormData: PromotionFormData) {
         ${promotionFormData.filename_mobile},
         ${
           promotionFormData.ad_content
-            ? sql.json(promotionFormData.ad_content)
+            ? queryRunner.json(promotionFormData.ad_content)
             : null
         },
         NOW() AT TIME ZONE 'UTC'

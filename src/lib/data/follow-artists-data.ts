@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "../db";
+import { queryRunner } from "../db";
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 
@@ -15,9 +15,9 @@ export type Band = {
 
 export async function fetchBandsByFilters(search: string): Promise<Band[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
@@ -71,11 +71,11 @@ export async function fetchBandsByFilters(search: string): Promise<Band[]> {
       name_pretty ILIKE '/%'
     `;
   } else {
-    whereCondition = `name_pretty ILIKE ${search + '%'}`;
+    whereCondition = `name_pretty ILIKE ${search + "%"}`;
   }
 
   try {
-    const response = await sql<Band[]>`
+    const response = await queryRunner<Band[]>`
       SELECT 
         id,
         name_pretty as "namePretty",
@@ -84,7 +84,7 @@ export async function fetchBandsByFilters(search: string): Promise<Band[]> {
         followers,
         status
       FROM bands 
-      WHERE ${sql.unsafe(whereCondition)}
+      WHERE ${queryRunner.unsafe(whereCondition)}
       ORDER BY name ASC
     `;
 
@@ -97,35 +97,37 @@ export async function fetchBandsByFilters(search: string): Promise<Band[]> {
 
 export async function fetchUserFavoriteBands(): Promise<string[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
-  const favorites = await sql`
+  const favorites = await queryRunner`
     SELECT band_id as "bandId"
-    FROM ${sql.unsafe(tableName)}
+    FROM ${queryRunner.unsafe(tableName)}
     WHERE user_id = ${session.userId}
   `;
 
-  return favorites.map(band => band.bandId);
+  return favorites.map((band) => band.bandId);
 }
 
-export async function fetchUserFavBandsFullData(): Promise<(Band & { rating: number })[]> {
+export async function fetchUserFavBandsFullData(): Promise<
+  (Band & { rating: number })[]
+> {
   const session = await getSession();
-  
+
   if (!session.userId) {
     return [];
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
-  const favorites = await sql`
+  const favorites = await queryRunner`
     SELECT 
       b.id,
       b.name_pretty as "namePretty",
@@ -134,81 +136,83 @@ export async function fetchUserFavBandsFullData(): Promise<(Band & { rating: num
       b.followers,
       b.status,
       bf.rating
-    FROM ${sql.unsafe(tableName)} bf
+    FROM ${queryRunner.unsafe(tableName)} bf
     JOIN bands b ON b.id = bf.band_id
     WHERE bf.user_id = ${session.userId}
   `;
 
-  return favorites.map(row => ({
+  return favorites.map((row) => ({
     id: row.id,
     namePretty: row.namePretty,
     country: row.country,
     genreTags: row.genreTags,
     followers: row.followers,
     status: row.status,
-    rating: row.rating
+    rating: row.rating,
   }));
 }
 
 export async function saveUserFavorites(favorites: string[]): Promise<void> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
   if (favorites && favorites.length > 0) {
     // Delete existing favorites
-    await sql`
-      DELETE FROM ${sql.unsafe(tableName)}
+    await queryRunner`
+      DELETE FROM ${queryRunner.unsafe(tableName)}
       WHERE user_id = ${session.userId}
     `;
 
     // Insert new favorites
-    const values = favorites.map(bandId => 
-      `(${session.userId}, ${bandId})`
-    ).join(',');
+    const values = favorites
+      .map((bandId) => `(${session.userId}, ${bandId})`)
+      .join(",");
 
-    await sql`
-      INSERT INTO ${sql.unsafe(tableName)} (user_id, band_id)
-      VALUES ${sql.unsafe(values)}
+    await queryRunner`
+      INSERT INTO ${queryRunner.unsafe(tableName)} (user_id, band_id)
+      VALUES ${queryRunner.unsafe(values)}
       ON CONFLICT (user_id, band_id) DO NOTHING
     `;
   }
 }
 
-export async function saveUserFavoriteAndUpdateFollowerCount(bandId: string): Promise<void> {
+export async function saveUserFavoriteAndUpdateFollowerCount(
+  bandId: string
+): Promise<void> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
   // Check if favorite exists
-  const existingRecord = await sql`
-    SELECT 1 FROM ${sql.unsafe(tableName)}
+  const existingRecord = await queryRunner`
+    SELECT 1 FROM ${queryRunner.unsafe(tableName)}
     WHERE user_id = ${session.userId} AND band_id = ${bandId}
   `;
 
   if (!existingRecord.length) {
     try {
       // Add favorite
-      await sql`
-        INSERT INTO ${sql.unsafe(tableName)} (user_id, band_id)
+      await queryRunner`
+        INSERT INTO ${queryRunner.unsafe(tableName)} (user_id, band_id)
         VALUES (${session.userId}, ${bandId})
         ON CONFLICT (user_id, band_id) DO NOTHING
       `;
 
       // Increment follower count
-      await sql`
+      await queryRunner`
         UPDATE bands
         SET followers = followers + 1
         WHERE id = ${bandId}
@@ -219,15 +223,17 @@ export async function saveUserFavoriteAndUpdateFollowerCount(bandId: string): Pr
   }
 }
 
-export async function deleteFavoriteArtist(bandId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteFavoriteArtist(
+  bandId: string
+): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
-  const user = await sql`
+  const user = await queryRunner`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -235,13 +241,13 @@ export async function deleteFavoriteArtist(bandId: string): Promise<{ success: b
   const tableName = `band_followers_${shard}`;
 
   try {
-    await sql`
-      DELETE FROM ${sql.unsafe(tableName)}
+    await queryRunner`
+      DELETE FROM ${queryRunner.unsafe(tableName)}
       WHERE user_id = ${session.userId} AND band_id = ${bandId}
     `;
 
     // Decrement follower count
-    await sql`
+    await queryRunner`
       UPDATE bands
       SET followers = followers - 1
       WHERE id = ${bandId}
@@ -254,15 +260,18 @@ export async function deleteFavoriteArtist(bandId: string): Promise<{ success: b
   }
 }
 
-export async function updateBandRating(bandId: string, rating: number): Promise<void> {
+export async function updateBandRating(
+  bandId: string,
+  rating: number
+): Promise<void> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
-  const user = await sql`
+  const user = await queryRunner`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -270,8 +279,8 @@ export async function updateBandRating(bandId: string, rating: number): Promise<
   const tableName = `band_followers_${shard}`;
 
   try {
-    await sql`
-      UPDATE ${sql.unsafe(tableName)}
+    await queryRunner`
+      UPDATE ${queryRunner.unsafe(tableName)}
       SET rating = ${rating}
       WHERE user_id = ${session.userId} AND band_id = ${bandId}
     `;
@@ -280,16 +289,18 @@ export async function updateBandRating(bandId: string, rating: number): Promise<
   }
 }
 
-export async function checkBandExists(bandNamePretty: string): Promise<{ id: string }[]> {
+export async function checkBandExists(
+  bandNamePretty: string
+): Promise<{ id: string }[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
   try {
-    return await sql`
+    return await queryRunner`
       SELECT id
       FROM bands
       WHERE name_pretty ILIKE ${bandNamePretty}
@@ -300,17 +311,19 @@ export async function checkBandExists(bandNamePretty: string): Promise<{ id: str
   }
 }
 
-export async function checkFavoriteExists(bandId: string | null | undefined): Promise<boolean> {
+export async function checkFavoriteExists(
+  bandId: string | null | undefined
+): Promise<boolean> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User is not logged in");
   }
 
   if (!bandId) return false;
 
-  const user = await sql`
+  const user = await queryRunner`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -318,8 +331,8 @@ export async function checkFavoriteExists(bandId: string | null | undefined): Pr
   const tableName = `band_followers_${shard}`;
 
   try {
-    const favorite = await sql`
-      SELECT 1 FROM ${sql.unsafe(tableName)}
+    const favorite = await queryRunner`
+      SELECT 1 FROM ${queryRunner.unsafe(tableName)}
       WHERE user_id = ${session.userId} AND band_id = ${bandId}
     `;
 
@@ -332,13 +345,13 @@ export async function checkFavoriteExists(bandId: string | null | undefined): Pr
 
 export async function followArtistByBandId(bandId: string) {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown");
     throw new Error("User must be logged in to follow artists");
   }
 
-  const user = await sql`
+  const user = await queryRunner`
     SELECT shard FROM users WHERE id = ${session.userId}
   `;
 
@@ -348,14 +361,14 @@ export async function followArtistByBandId(bandId: string) {
   try {
     // @ts-ignore - postgres-js has incomplete types for template literals with dynamic table names
     // This is safe as tableName is constructed from validated user shard
-    await sql`
-      INSERT INTO ${sql.unsafe(tableName)} (user_id, band_id)
+    await queryRunner`
+      INSERT INTO ${queryRunner.unsafe(tableName)} (user_id, band_id)
       VALUES (${session.userId}, ${bandId})
       ON CONFLICT (user_id, band_id) DO NOTHING
     `;
 
     // Increment follower count
-    await sql`
+    await queryRunner`
       UPDATE bands
       SET followers = followers + 1
       WHERE id = ${bandId}

@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "../db";
+import { queryRunner } from "../db";
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 
@@ -23,7 +23,7 @@ export async function postUserFeedback(
   }
 
   try {
-    await sql`
+    await queryRunner`
       INSERT INTO user_feedback (
         user_id,
         title,
@@ -55,7 +55,7 @@ export async function getUserFeedback(): Promise<
   }
 
   try {
-    const feedback = await sql`
+    const feedback = await queryRunner`
       SELECT 
         id,
         title,
@@ -93,7 +93,7 @@ export async function deleteUserFeedback(
 
   try {
     // Verify the feedback belongs to the user
-    const feedback = await sql`
+    const feedback = await queryRunner`
       SELECT 1 FROM user_feedback
       WHERE id = ${feedbackId} AND user_id = ${session.userId}
     `;
@@ -102,7 +102,7 @@ export async function deleteUserFeedback(
       return { success: false, error: "Feedback not found or unauthorized." };
     }
 
-    await sql`
+    await queryRunner`
       DELETE FROM user_feedback
       WHERE id = ${feedbackId} AND user_id = ${session.userId}
     `;

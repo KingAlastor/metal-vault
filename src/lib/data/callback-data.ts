@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "../db";
+import { queryRunner } from "../db";
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 
@@ -16,7 +16,7 @@ export const saveRefreshTokenToUserTokens = async (
   }
 
   try {
-    await sql`
+    await queryRunner`
       INSERT INTO user_tokens (
         user_id,
         provider,

@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "@/lib/db";
+import { queryRunner } from "../db";
 import { AlbumTrack, Band, BandAlbum } from "@/lib/database-schema-types";
 
 export type SearchTermBand = {
@@ -53,12 +53,12 @@ const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
 const normalizedTerm = searchTerm.toLowerCase();
 
 const query = {
-  equals: sql`name_pretty ILIKE ${searchTerm} OR name_normalized ILIKE ${normalizedTerm}`,
-  contains: sql`name_pretty ILIKE ${'%' + searchTerm + '%'} OR name_normalized ILIKE ${'%' + normalizedTerm + '%'}`,
-  startsWith: sql`name_pretty ILIKE ${searchTerm + '%'} OR name_normalized ILIKE ${normalizedTerm + '%'}`
+  equals: queryRunner`name_pretty ILIKE ${searchTerm} OR name_normalized ILIKE ${normalizedTerm}`,
+  contains: queryRunner`name_pretty ILIKE ${'%' + searchTerm + '%'} OR name_normalized ILIKE ${'%' + normalizedTerm + '%'}`,
+  startsWith: queryRunner`name_pretty ILIKE ${searchTerm + '%'} OR name_normalized ILIKE ${normalizedTerm + '%'}`
 };
 
-  return await sql`
+  return await queryRunner`
     SELECT 
       id,
       name_pretty,
@@ -73,13 +73,13 @@ const query = {
 
 export const getFullBandDataById = async (bandId: string): Promise<Band>  => {
   // Query 1: Get band data
-  const bandArray = await sql<Band[]>`
+  const bandArray = await queryRunner<Band[]>`
     SELECT * FROM bands WHERE id = ${bandId} LIMIT 1
   `;
   const band = bandArray[0];
 
   // Query 2: Get albums
-  const albums = await sql<BandAlbum[]>`
+  const albums = await queryRunner<BandAlbum[]>`
     SELECT 
       id, name, name_pretty, release_date
     FROM band_albums 
@@ -88,7 +88,7 @@ export const getFullBandDataById = async (bandId: string): Promise<Band>  => {
   `;
 
   // Query 3: Get tracks for all albums
-  const tracks = await sql<AlbumTrack[]>`
+  const tracks = await queryRunner<AlbumTrack[]>`
     SELECT 
       at.id, at.album_id, at.title, 
       at.track_number, at.duration

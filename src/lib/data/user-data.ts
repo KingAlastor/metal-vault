@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "@/lib/db";
+import { queryRunner } from "@/lib/db";
 import { MaxTableShards } from "@/lib/enums";
 import { PostsDataFilters } from "./posts-data";
 
@@ -77,13 +77,13 @@ export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
 
   try {
     // Try to find existing user
-    let user = await sql`
+    let user = await queryRunner`
       SELECT * FROM users WHERE email = ${email}
     `;
 
     if (user.length === 0) {
       // Calculate shard for new user
-      const userCount = await sql`
+      const userCount = await queryRunner`
         SELECT COUNT(*) as count FROM users
       `;
       const totalUsers = Number(userCount[0].count);
@@ -94,7 +94,7 @@ export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
       const pendingActions = ["firstLogin", "syncFollowers"];
 
       // Create new user
-      user = await sql`
+      user = await queryRunner`
         INSERT INTO users 
         (email, name, image, email_verified, role, shard, pending_actions) 
         VALUES (
@@ -145,7 +145,7 @@ export const getFullUserData = async (userId: string) => {
     return null;
   }
 
-  const fullUser = await sql<FullUser[]>`
+  const fullUser = await queryRunner<FullUser[]>`
     SELECT * FROM users WHERE id = ${userId}
   `;
 
@@ -184,7 +184,7 @@ export const fetchUnfollowedUsers = async (userId: string) => {
       WHERE user_id = $1
     `;
 
-    const unfollowedUsers = await sql.unsafe(query, [user.id]);
+    const unfollowedUsers = await queryRunner.unsafe(query, [user.id]);
 
     return unfollowedUsers
       .map((row) => row.unfollowed_user_id)
@@ -199,7 +199,7 @@ export const getPostsFilterSettings = async (
   userId: string
 ): Promise<PostsDataFilters> => {
   try {
-    const userResult = await sql`
+    const userResult = await queryRunner`
       SELECT posts_settings
       FROM users
       WHERE id = ${userId}
@@ -224,7 +224,7 @@ export const getPostsFilterSettings = async (
 
 export const getPostsFilters = async (userId: string) => {
   try {
-    const userResult = await sql<
+    const userResult = await queryRunner<
       { shard: number | null; genre_tags: string[] | null }[]
     >`
       SELECT
@@ -252,7 +252,7 @@ export const getPostsFilters = async (userId: string) => {
       };
     }
 
-    const savedPostsResult = await sql<{ post_id: string }[]>`
+    const savedPostsResult = await queryRunner<{ post_id: string }[]>`
       SELECT post_id
       FROM user_posts_saved
       WHERE user_id = ${userId}
@@ -265,8 +265,8 @@ export const getPostsFilters = async (userId: string) => {
       WHERE user_id = $1
     `;
 
-    // Execute using sql.unsafe
-    const favoriteBandsResult = await sql.unsafe<{ band_id: string }[]>(
+    // Execute using queryRunner.unsafe
+    const favoriteBandsResult = await queryRunner.unsafe<{ band_id: string }[]>(
       favoriteBandsQuery,
       [userId]
     );
@@ -296,7 +296,7 @@ export async function fetchUserSavedPosts() {
   }
 
   try {
-    const savedPosts = await sql`
+    const savedPosts = await queryRunner`
       SELECT post_id
       FROM user_posts_saved
       WHERE user_id = ${session.userId}
@@ -318,7 +318,7 @@ export async function getRefreshTokenFromUserTokens(provider: string) {
   }
 
   try {
-    const token = await sql`
+    const token = await queryRunner`
       SELECT refresh_token
       FROM user_tokens
       WHERE user_id = ${session.userId} AND provider = ${provider}
@@ -363,9 +363,9 @@ export async function updateUserData(data: UpdateUserData) {
   }
 
   try {
-    const [updatedUser] = await sql`
+    const [updatedUser] = await queryRunner`
       UPDATE users
-      SET ${sql(updates)}, updated_at = NOW() AT TIME ZONE 'UTC'
+      SET ${queryRunner(updates)}, updated_at = NOW() AT TIME ZONE 'UTC'
       WHERE id = ${session.userId}
       RETURNING *
     `;
@@ -385,7 +385,7 @@ export async function deleteUser() {
   }
 
   try {
-    await sql`
+    await queryRunner`
       DELETE FROM users 
       WHERE id = ${session.userId}
     `;
@@ -403,7 +403,7 @@ export async function deleteUserPendingAction(action: string) {
     throw new Error("User is not logged in");
   }
 
-  await sql`
+  await queryRunner`
     UPDATE users
     SET pending_actions = array_remove(pending_actions, ${action}),
         updated_at = NOW() AT TIME ZONE 'UTC'

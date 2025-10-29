@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "../db";
+import { queryRunner } from "../db";
 import { getFromAndToDates } from "../general/dateTime";
 
 export type ReleasesFilters = {
@@ -24,14 +24,14 @@ export async function getFavoriteBandReleasesForEmail(
   frequency: string
 ): Promise<UpcomingRelease[]> {
   try {
-    const userResult = await sql`
+    const userResult = await queryRunner`
       SELECT shard FROM users WHERE id = ${userId}
     `;
     const shard = userResult[0]?.shard || 0;
 
     const dateRange = getFromAndToDates(frequency);
 
-    const releases = await sql<UpcomingRelease[]>`
+    const releases = await queryRunner<UpcomingRelease[]>`
       SELECT 
         id,
         band_id as "bandId",
@@ -44,7 +44,7 @@ export async function getFavoriteBandReleasesForEmail(
       FROM upcoming_releases
       WHERE band_id IN (
         SELECT band_id
-        FROM band_followers_${sql.unsafe(shard.toString())}
+        FROM band_followers_${queryRunner.unsafe(shard.toString())}
         WHERE user_id = ${userId}
       )
       AND release_date >= ${dateRange.from}
@@ -64,7 +64,7 @@ export async function getGenreReleasesForEmail(
   frequency: string
 ): Promise<UpcomingRelease[]> {
   try {
-    const userResult = await sql`
+    const userResult = await queryRunner`
       SELECT shard, genre_tags, excluded_genre_tags 
       FROM users 
       WHERE id = ${userId}
@@ -84,7 +84,7 @@ export async function getGenreReleasesForEmail(
       return [];
     }
 
-    const releases = await sql<UpcomingRelease[]>`
+    const releases = await queryRunner<UpcomingRelease[]>`
       SELECT 
         id,
         band_id as "bandId",
@@ -97,14 +97,14 @@ export async function getGenreReleasesForEmail(
       FROM upcoming_releases
       WHERE band_id NOT IN (
         SELECT band_id
-        FROM band_followers_${sql.unsafe(shard.toString())}
+        FROM band_followers_${queryRunner.unsafe(shard.toString())}
         WHERE user_id = ${userId}
       )
       AND genre_tags && ${userGenreTags}
       AND ${
         excludedGenreTags.length > 0
-          ? sql`NOT (genre_tags && ${excludedGenreTags})`
-          : sql`1=1`
+          ? queryRunner`NOT (genre_tags && ${excludedGenreTags})`
+          : queryRunner`1=1`
       }
       AND release_date >= ${dateRange.from}
       AND release_date <= ${dateRange.to}
@@ -120,14 +120,14 @@ export async function getGenreReleasesForEmail(
 
 export async function unsubscribeUser(unsub_token: string) {
   try {
-    const [user] = await sql`
+    const [user] = await queryRunner`
       SELECT user_id 
       FROM public.user_tokens
       WHERE unsubscribe_token = ${unsub_token}
     `;
 
     if (user.user_id) {
-      await sql`
+      await queryRunner`
       UPDATE users
       SET email_settings = jsonb_set(email_settings, '{email_updates_enabled}', 'false'::jsonb)
       WHERE id = ${user.user_id}
@@ -140,14 +140,14 @@ export async function unsubscribeUser(unsub_token: string) {
 
 export async function updateEmailAddressStatus(email: string, status: string) {
   try {
-    const [userId] = await sql`
+    const [userId] = await queryRunner`
       SELECT id 
       FROM users
       WHERE email = ${email}
     `;
 
     if (userId) {
-      await sql`
+      await queryRunner`
       UPDATE users
       SET email_status = ${status}
       WHERE id = ${userId.id}
@@ -169,7 +169,7 @@ export async function updateUnsubscribeUserToken(
 ) {
   try {
     if (userId && checked) {
-      await sql`
+      await queryRunner`
         INSERT INTO public.user_tokens (user_id, unsubscribe_token)
         VALUES (${userId}, encode(gen_random_bytes(32), 'hex'))
         ON CONFLICT (user_id)
@@ -178,7 +178,7 @@ export async function updateUnsubscribeUserToken(
           updated_at = NOW()
       `;
     } else {
-      await sql`
+      await queryRunner`
         DELETE FROM public.user_tokens
         WHERE user_id = ${userId}
       `;
@@ -189,9 +189,8 @@ export async function updateUnsubscribeUserToken(
   }
 }
 
-
 export async function getUnsubscribeTokenForUser(userId: string) {
-  const [userTokenData] = await sql`
+  const [userTokenData] = await queryRunner`
     SELECT unsubscribe_token 
     FROM public.user_tokens
     WHERE user_id = ${userId}

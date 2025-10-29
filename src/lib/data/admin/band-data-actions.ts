@@ -1,5 +1,5 @@
 "use server";
-import sql from "@/lib/db";
+import { queryRunner } from "@/lib/db";
 
 export type BandsData = {
   name: string;
@@ -19,7 +19,7 @@ export const updateBandsTableData = async (bandsData: BandsData) => {
 
   for (const band of bandsData) {
     try {
-      await sql`
+      await queryRunner`
         INSERT INTO bands (
           name,
           name_pretty,
