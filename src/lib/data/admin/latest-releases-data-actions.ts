@@ -1,7 +1,6 @@
 "use server";
 
 import sql from "@/lib/db";
-import { insertMany } from "../sql-helpers/insert-many";
 
 export interface UpcomingReleaseRecord {
   band_id: number;
@@ -33,16 +32,49 @@ export async function updateUpcomingReleasesTableData(
     return;
   }
 
+  const validReleases = releasesData.filter(
+    (release) => typeof release.album_archives_link === "number"
+  );
+
+  if (validReleases.length === 0) {
+    console.log(
+      "updateUpcomingReleasesTableData: Skipping insert, no releases with album_archives_link"
+    );
+    return;
+  }
+
   try {
     console.log(
-      `updateUpcomingReleasesTableData: Upserting ${releasesData.length} releases`
+      `updateUpcomingReleasesTableData: Upserting ${validReleases.length} releases`
     );
-    await insertMany(
-      "upcoming_releases",
-      releasesData,
-      "album_archives_link",
-      ["updated_at"]
-    );
+    const now = new Date().toISOString();
+    const rows = validReleases.map((release) => [
+      release.band_id,
+      release.band_name ?? null,
+      release.album_name ?? null,
+      release.band_archives_link ?? null,
+      release.album_archives_link!,
+      release.genre_tags ?? null,
+      release.type ?? null,
+      release.release_date ?? null,
+      now,
+    ]) as unknown[];
+
+    await sql`
+      INSERT INTO upcoming_releases (
+        band_id,
+        band_name,
+        album_name,
+        band_archives_link,
+        album_archives_link,
+        genre_tags,
+        type,
+        release_date,
+        updated_at
+      ) VALUES ${sql(rows as any)}
+      ON CONFLICT (album_archives_link) DO UPDATE
+      SET updated_at = EXCLUDED.updated_at
+    `;
     console.log("updateUpcomingReleasesTableData: Completed upsert successfully");
   } catch (error) {
     console.error(
