@@ -12,12 +12,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["../../types", "./node_modules/@types"],
     "baseUrl": "../..",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["./**/*.ts", "../lib/**/*.ts", "../../types/**/*.d.ts"],
+  "include": ["./**/*.ts", "../lib/**/*.ts"],
   "exclude": ["node_modules"]
 }
