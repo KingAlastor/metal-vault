@@ -4,7 +4,7 @@ import {
   syncLatestBandAdditionsFromArchives,
 } from "./band-sync";
 import { syncAlbumDataFromArchives } from "./album-sync";
-import { syncUpcomingReleaseDataFromArchives } from "../../lib/data/admin/latest-releases-data-actions";
+import { syncUpcomingReleaseDataFromArchives } from "./releases-sync";
 
 // Task to sync all bands (potentially long running)
 export const syncAllBands: Task = async (payload, helpers) => {
