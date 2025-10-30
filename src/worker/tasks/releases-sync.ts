@@ -47,8 +47,6 @@ const JSON_RETRIES = 3;
 const HTML_RETRIES = 3;
 
 export async function syncUpcomingReleaseDataFromArchives(): Promise<void> {
-	console.log("[releases-sync] Starting upcoming release data sync from Metal Archives");
-
 	let browser: Browser | null = null;
 	const today = new Date().toISOString().split("T")[0];
 	const baseUrl =
@@ -78,48 +76,28 @@ export async function syncUpcomingReleaseDataFromArchives(): Promise<void> {
 		while (hasMoreData) {
 			pageNumber += 1;
 			const url = `${baseUrl}${offset}${commonParams}&_=${Date.now()}`;
-			console.log(
-				`[releases-sync] Processing page ${pageNumber} (offset ${offset}) -> ${url}`
-			);
 
 			try {
 				const json = await fetchJsonData(browser, url, JSON_RETRIES);
 				const rows: any[] = Array.isArray(json?.aaData) ? json.aaData : [];
-				console.log(
-					`[releases-sync] Retrieved ${rows.length} releases from Metal Archives`
-				);
 
 				const releases: UpcomingReleaseRecord[] = [];
 
 				for (let index = 0; index < rows.length; index++) {
 					const row = rows[index];
-					console.log(
-						`[releases-sync] Processing release ${index + 1}/${rows.length} on page ${pageNumber}`
-					);
 					const record = await extractReleaseRecord(row, browser);
 					if (record) {
 						releases.push(record);
-						console.log(
-							`[releases-sync] Prepared ${record.band_name} - ${record.album_name}`
-						);
-					} else {
-						console.log("[releases-sync] Skipped release due to missing data");
 					}
 				}
 
 				if (releases.length > 0) {
 					await updateUpcomingReleasesTableData(releases);
 					totalProcessed += releases.length;
-					console.log(
-						`[releases-sync] Upserted ${releases.length} releases (total processed ${totalProcessed})`
-					);
-				} else {
-					console.log("[releases-sync] No releases to persist for this page");
 				}
 
 				if (rows.length < JSON_PAGE_SIZE) {
 					hasMoreData = false;
-					console.log("[releases-sync] Fetched final page of data");
 				} else {
 					offset += JSON_PAGE_SIZE;
 				}
@@ -132,14 +110,10 @@ export async function syncUpcomingReleaseDataFromArchives(): Promise<void> {
 					}
 
 			const wait = getRespectfulDelay();
-			console.log(`[releases-sync] Waiting ${wait}ms before next request...`);
 			await delay(wait);
 		}
 
-		console.log(
-			`[releases-sync] Sync complete. Pages: ${pageNumber}, Releases processed: ${totalProcessed}`
-		);
-		} catch (error) {
+	} catch (error) {
 		console.error(
 			"[releases-sync] Critical error encountered during upcoming releases sync:",
 			error
@@ -166,7 +140,6 @@ async function extractReleaseRecord(
 
 		const releaseType = typeof typeRaw === "string" ? typeRaw.trim() : "";
 		if (releaseType.toLowerCase() === "split") {
-			console.log("[releases-sync] Skipping Split release");
 			return null;
 		}
 
@@ -218,9 +191,6 @@ async function extractReleaseRecord(
 		const parsedGenres = parseGenres(typeof genresRaw === "string" ? genresRaw : "");
 
 		if (!existingBand) {
-			console.log(
-				`[releases-sync] Band not found for archives link ${bandArchivesLink}, creating`
-			);
 			const country = await getBandOriginFromArchives(bandHref, browser);
 			const bandPayload: BandsData = [
 				{
@@ -348,7 +318,6 @@ async function fetchJsonData(
 			);
 			if (attempt < retries) {
 				const wait = getBackoffDelay(attempt);
-				console.log(`[releases-sync] Waiting ${wait}ms before retrying JSON fetch`);
 				await delay(wait);
 			} else {
 				throw error;
@@ -393,7 +362,6 @@ async function fetchHtmlContent(
 			);
 			if (attempt < retries) {
 				const wait = getBackoffDelay(attempt);
-				console.log(`[releases-sync] Waiting ${wait}ms before retrying HTML fetch`);
 				await delay(wait);
 			} else {
 				throw error;
@@ -506,9 +474,6 @@ async function launchBrowser(): Promise<Browser> {
 			throw new Error("chrome-aws-lambda returned empty executable path");
 		}
 	} catch (error) {
-		console.log(
-			"[releases-sync] chrome-aws-lambda executable not available, trying system Chrome..."
-		);
 		const systemPaths = [
 			"/usr/bin/google-chrome-stable",
 			"/usr/bin/google-chrome",
@@ -522,7 +487,6 @@ async function launchBrowser(): Promise<Browser> {
 			try {
 				if (fs.existsSync(path)) {
 					launchOptions.executablePath = path;
-					console.log(`[releases-sync] Using system Chrome at: ${path}`);
 					break;
 				}
 			} catch (_) {

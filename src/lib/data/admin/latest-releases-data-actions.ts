@@ -26,29 +26,12 @@ export async function updateUpcomingReleasesTableData(
   releasesData: UpcomingReleaseRecord[]
 ): Promise<void> {
   if (!releasesData || releasesData.length === 0) {
-    console.log(
-      "updateUpcomingReleasesTableData: No releases to insert into upcoming_releases"
-    );
-    return;
-  }
-
-  const validReleases = releasesData.filter(
-    (release) => typeof release.album_archives_link === "number"
-  );
-
-  if (validReleases.length === 0) {
-    console.log(
-      "updateUpcomingReleasesTableData: Skipping insert, no releases with album_archives_link"
-    );
     return;
   }
 
   try {
-    console.log(
-      `updateUpcomingReleasesTableData: Upserting ${validReleases.length} releases`
-    );
     const now = new Date().toISOString();
-    const rows = validReleases.map((release) => [
+    const rows = releasesData.map((release) => [
       release.band_id,
       release.band_name ?? null,
       release.album_name ?? null,
@@ -75,7 +58,6 @@ export async function updateUpcomingReleasesTableData(
       ON CONFLICT (album_archives_link) DO UPDATE
       SET updated_at = EXCLUDED.updated_at
     `;
-    console.log("updateUpcomingReleasesTableData: Completed upsert successfully");
   } catch (error) {
     console.error(
       "updateUpcomingReleasesTableData: Failed to upsert upcoming releases:",
@@ -97,15 +79,6 @@ export async function getBandByArchivesLink(
     `;
 
     const result = band[0] ?? null;
-    if (result) {
-      console.log(
-        `getBandByArchivesLink: Found band ${result.name_pretty ?? result.name}`
-      );
-    } else {
-      console.log(
-        `getBandByArchivesLink: No band found for archives link ${archivesLink}`
-      );
-    }
     return result;
   } catch (error) {
     console.error(
