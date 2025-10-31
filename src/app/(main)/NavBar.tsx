@@ -8,7 +8,7 @@ import { useSessionContext } from "../SessionProvider";
 
 export default function NavBar() {
   const { session: session } = useSessionContext();
-
+  console.log("navbar session: ", session)
   return (
     <header className="sticky top-0 z-10 bg-card shadow-sm">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-1.5 py-1.5">

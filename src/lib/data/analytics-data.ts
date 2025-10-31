@@ -45,7 +45,6 @@ export async function saveAnalyticsSession(data: AnalyticsSessionData) {
 
     // Insert events safely
     for (const event of events) {
-      console.log("events: ", event);
       await tx.unsafe(
         `INSERT INTO analytics_events (session_id, path, event, created_at, data)
          VALUES ($1, $2, $3, to_timestamp($4 / 1000.0), $5)`,
