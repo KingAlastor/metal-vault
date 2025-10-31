@@ -1,5 +1,5 @@
 "use server";
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 
 export async function updateAlbumsTableData(albumsData: {
   band_id: string;

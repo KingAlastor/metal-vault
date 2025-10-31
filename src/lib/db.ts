@@ -13,6 +13,4 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL environment variable is not set in db.ts!");
 }
 
-const sql = postgres(databaseUrl, {});
-
-export default sql;
+export const sql = postgres(databaseUrl, {});

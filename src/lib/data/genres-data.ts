@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 
 export const getUniqueGenres = async () => {
   const genres = await sql<{ unique_genre: string }[]>`
@@ -10,7 +10,7 @@ export const getUniqueGenres = async () => {
   const uniqueGenres: string[] = [];
 
   for (const genre of genres) {
-    const genreValues = genre.unique_genre.split(',');
+    const genreValues = genre.unique_genre.split(",");
 
     for (const value of genreValues) {
       if (!uniqueGenres.includes(value.trim())) {

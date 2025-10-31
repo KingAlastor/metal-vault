@@ -1,5 +1,5 @@
 import { Task } from "graphile-worker";
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 import { createEmail, EmailData } from "@/lib/email/create-email";
 import { sendMail } from "@/lib/email/send-email";
 
@@ -21,7 +21,7 @@ type UserWithEmailSettings = {
 // Task to send scheduled emails to users based on their email settings
 export const sendScheduledEmails: Task = async (payload, helpers) => {
   helpers.logger.info("Starting scheduled email task...");
-    try {
+  try {
     // Fetch all users with email_settings
     const users = await sql<UserWithEmailSettings[]>`
       SELECT id, name, email, email_settings
@@ -57,23 +57,27 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
           continue;
         }
 
-        helpers.logger.info(`Processing email for user ${user.id} (${recipientEmail})`);       
+        helpers.logger.info(
+          `Processing email for user ${user.id} (${recipientEmail})`
+        );
         const emailData: EmailData = {
           preferred_email: recipientEmail,
           email_frequency: emailSettings.email_frequency || "W",
           favorite_bands: emailSettings.favorite_bands || false,
           favorite_genres: emailSettings.favorite_genres || false,
-        };       
+        };
         const emailContent = await createEmail(emailData, user.id);
 
         if (!emailContent.text || emailContent.text.trim() === "") {
           helpers.logger.debug(`No content to send for user ${user.id}`);
           emailsSkipped++;
           continue;
-        }      
-        const subject = `Metal Vault Newsletter - ${emailSettings.email_frequency === 'W' ? 'Weekly' : 'Monthly'} Update`;
+        }
+        const subject = `Metal Vault Newsletter - ${
+          emailSettings.email_frequency === "W" ? "Weekly" : "Monthly"
+        } Update`;
         const result = await sendMail(
-          user.id, 
+          user.id,
           recipientEmail,
           subject,
           emailContent.text,
@@ -81,8 +85,10 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
         );
 
         if (result.success) {
-          helpers.logger.info(`Email sent successfully to user ${user.id} (${recipientEmail})`);
-          
+          helpers.logger.info(
+            `Email sent successfully to user ${user.id} (${recipientEmail})`
+          );
+
           try {
             await sql`
               UPDATE users 
@@ -91,26 +97,30 @@ export const sendScheduledEmails: Task = async (payload, helpers) => {
             `;
             helpers.logger.debug(`Updated last_email_sent for user ${user.id}`);
           } catch (updateError) {
-            helpers.logger.warn(`Failed to update last_email_sent for user ${user.id}: ${updateError}`);
+            helpers.logger.warn(
+              `Failed to update last_email_sent for user ${user.id}: ${updateError}`
+            );
           }
-          
+
           emailsSent++;
         } else {
-          helpers.logger.error(`Failed to send email to user ${user.id}: ${result.error}`);
+          helpers.logger.error(
+            `Failed to send email to user ${user.id}: ${result.error}`
+          );
           emailsFailed++;
         }
 
         // Add a small delay between emails to avoid overwhelming the email service
-        await new Promise(resolve => setTimeout(resolve, 100));
-
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (userError) {
         helpers.logger.error(`Error processing user ${user.id}: ${userError}`);
         emailsFailed++;
       }
     }
 
-    helpers.logger.info(`Email task completed. Sent: ${emailsSent}, Skipped: ${emailsSkipped}, Failed: ${emailsFailed}`);
-
+    helpers.logger.info(
+      `Email task completed. Sent: ${emailsSent}, Skipped: ${emailsSkipped}, Failed: ${emailsFailed}`
+    );
   } catch (error) {
     helpers.logger.error(`Scheduled email task failed: ${error}`);
     throw error; // Re-throw so graphile-worker knows the job failed

@@ -1,10 +1,11 @@
 # Query Guide
 
 ## Do not use single quotes for values as they are used as strings and bypass sanitazation
+
 ## ${value} is called template literal tagging and parameterized query
 
 ```typescript
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 
 export const getUserById = async (id: string) => {
   const user = await sql`SELECT * FROM users WHERE id = ${id}`;
@@ -33,7 +34,11 @@ export const testSqlQuery = async (id: string): Promise<User | undefined> => {
 ## Using transactions for a query
 
 ```typescript
-export const transferFunds = async (fromUserId: string, toUserId: string, amount: number) => {
+export const transferFunds = async (
+  fromUserId: string,
+  toUserId: string,
+  amount: number
+) => {
   try {
     await sql.begin(async (sql) => {
       await sql`UPDATE users SET name = ${newName} WHERE id = ${userId}`;
@@ -49,7 +54,7 @@ export const transferFunds = async (fromUserId: string, toUserId: string, amount
 
 ## Loading query from a file
 
-```typescript 
+```typescript
 // src/sql/get_user_by_id.sql
 SELECT * FROM users WHERE id = $1
 
@@ -63,25 +68,28 @@ export const getUserById = async (id: string) => {
 
 ```typescript
 export const isValidUserId = async (userId: string): Promise<boolean> => {
-  const result = await sql`SELECT EXISTS (SELECT 1 FROM users WHERE id = ${userId})`;
+  const result =
+    await sql`SELECT EXISTS (SELECT 1 FROM users WHERE id = ${userId})`;
   return result[0].exists;
 };
 
-// 
+//
 import { isValidUserId } from "@/lib/db_helpers";
 
-if (!await isValidUserId(userId)) {
+if (!(await isValidUserId(userId))) {
   return { success: false, error: "Invalid user ID" };
 }
 ```
 
 ## Complex filtering example
+
 ## sql.identifier is crucial for preventing SQL injection when using dynamic identifiers (like column names for sorting). It properly escapes the identifier.
+
 ## LIKE operator: Be very careful when using the LIKE operator with user-provided input. Always escape the input to prevent SQL injection. In this example, we're using template literals to embed the search term, which postgres.js will escape. However, consider using a full-text search index for more complex search requirements.
 
-```typescript 
+```typescript
 // src/lib/posts.ts
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 import { Post } from "@/lib/db_types"; // Assuming you have a Post interface
 
 interface PostFilters {
@@ -93,7 +101,9 @@ interface PostFilters {
   sortOrder?: "asc" | "desc";
 }
 
-export const getPostsWithFilters = async (filters: PostFilters): Promise<Post[]> => {
+export const getPostsWithFilters = async (
+  filters: PostFilters
+): Promise<Post[]> => {
   let query = sql<Post>`SELECT * FROM posts WHERE 1=1`; // Start with a base query
 
   if (filters.userId) {
@@ -119,7 +129,9 @@ export const getPostsWithFilters = async (filters: PostFilters): Promise<Post[]>
     sortOrder = "asc";
   }
 
-  query = sql<Post>`${query} ORDER BY ${sql.identifier([orderBy])} ${sortOrder === "asc" ? sql`ASC` : sql`DESC`}`;
+  query = sql<Post>`${query} ORDER BY ${sql.identifier([orderBy])} ${
+    sortOrder === "asc" ? sql`ASC` : sql`DESC`
+  }`;
 
   const posts = await query;
   return posts;

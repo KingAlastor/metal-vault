@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 import { MaxTableShards } from "@/lib/enums";
 import { PostsDataFilters } from "./posts-data";
 

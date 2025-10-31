@@ -1,8 +1,8 @@
 "use server";
 
-import sql from "../db";
+import { sql } from "../db";
 
-export type JobStatus = 'started' | 'completed' | 'failed';
+export type JobStatus = "started" | "completed" | "failed";
 
 export interface JobLogEntry {
   id?: number;
@@ -28,7 +28,12 @@ export interface JobStats {
 }
 
 // Create job start entry
-export async function createJobStart(taskName: string, payload?: any, jobId?: string, workerId?: string): Promise<number> {
+export async function createJobStart(
+  taskName: string,
+  payload?: any,
+  jobId?: string,
+  workerId?: string
+): Promise<number> {
   try {
     const result = await sql`
       INSERT INTO graphile_worker.job_history (
@@ -45,15 +50,18 @@ export async function createJobStart(taskName: string, payload?: any, jobId?: st
     `;
     return result[0].id;
   } catch (error) {
-    console.error('Failed to create job start entry:', error);
+    console.error("Failed to create job start entry:", error);
     return -1; // Return invalid ID on error
   }
 }
 
 // Update job completion
-export async function updateJobCompletion(logId: number, duration?: number): Promise<void> {
+export async function updateJobCompletion(
+  logId: number,
+  duration?: number
+): Promise<void> {
   if (logId <= 0) return; // Skip if invalid log ID
-  
+
   try {
     await sql`
       UPDATE graphile_worker.job_history 
@@ -63,14 +71,18 @@ export async function updateJobCompletion(logId: number, duration?: number): Pro
       WHERE id = ${logId}
     `;
   } catch (error) {
-    console.error('Failed to update job completion:', error);
+    console.error("Failed to update job completion:", error);
   }
 }
 
 // Update job failure
-export async function updateJobFailure(logId: number, errorMessage: string, duration?: number): Promise<void> {
+export async function updateJobFailure(
+  logId: number,
+  errorMessage: string,
+  duration?: number
+): Promise<void> {
   if (logId <= 0) return; // Skip if invalid log ID
-  
+
   try {
     await sql`
       UPDATE graphile_worker.job_history 
@@ -81,14 +93,14 @@ export async function updateJobFailure(logId: number, errorMessage: string, dura
       WHERE id = ${logId}
     `;
   } catch (error) {
-    console.error('Failed to update job failure:', error);
+    console.error("Failed to update job failure:", error);
   }
 }
 
 // Get job history with optional filters
 export async function getJobHistory(
-  taskName?: string, 
-  status?: JobStatus, 
+  taskName?: string,
+  status?: JobStatus,
   limit: number = 100,
   offset: number = 0
 ): Promise<JobLogEntry[]> {
@@ -106,7 +118,9 @@ export async function getJobHistory(
       params.push(status);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';    const result = await sql<JobLogEntry[]>`
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    const result = await sql<JobLogEntry[]>`
       SELECT * FROM graphile_worker.job_history 
       ${sql.unsafe(whereClause)}
       ORDER BY started_at DESC 
@@ -115,7 +129,7 @@ export async function getJobHistory(
 
     return result;
   } catch (error) {
-    console.error('Failed to get job history:', error);
+    console.error("Failed to get job history:", error);
     return [];
   }
 }
@@ -140,13 +154,16 @@ export async function getJobStats(hours: number = 24): Promise<JobStats[]> {
 
     return result;
   } catch (error) {
-    console.error('Failed to get job stats:', error);
+    console.error("Failed to get job stats:", error);
     return [];
   }
 }
 
 // Get recent job failures for monitoring
-export async function getRecentJobFailures(hours: number = 24, limit: number = 50): Promise<JobLogEntry[]> {
+export async function getRecentJobFailures(
+  hours: number = 24,
+  limit: number = 50
+): Promise<JobLogEntry[]> {
   try {
     const result = await sql<JobLogEntry[]>`
       SELECT 
@@ -160,7 +177,7 @@ export async function getRecentJobFailures(hours: number = 24, limit: number = 5
 
     return result;
   } catch (error) {
-    console.error('Failed to get recent job failures:', error);
+    console.error("Failed to get recent job failures:", error);
     return [];
   }
 }
@@ -178,13 +195,15 @@ export async function getRunningJobs(): Promise<JobLogEntry[]> {
 
     return result;
   } catch (error) {
-    console.error('Failed to get running jobs:', error);
+    console.error("Failed to get running jobs:", error);
     return [];
   }
 }
 
 // Clean up old job history entries
-export async function cleanupOldJobHistory(daysToKeep: number = 30): Promise<number> {
+export async function cleanupOldJobHistory(
+  daysToKeep: number = 30
+): Promise<number> {
   try {
     const result = await sql`
       DELETE FROM graphile_worker.job_history 
@@ -194,7 +213,7 @@ export async function cleanupOldJobHistory(daysToKeep: number = 30): Promise<num
 
     return result.length;
   } catch (error) {
-    console.error('Failed to cleanup old job history:', error);
+    console.error("Failed to cleanup old job history:", error);
     return 0;
   }
 }

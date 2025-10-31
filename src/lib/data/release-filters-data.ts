@@ -1,9 +1,8 @@
 "use server";
 
-import sql from "../db";
+import { sql } from "../db";
 import { getSession } from "../session/server-actions";
 import { fetchUserFavoriteBands } from "./follow-artists-data";
-import { fetchUserUnfollowedBands } from "./unfollow-artists-data";
 import { getFullUserData } from "./user-data";
 
 export type ReleasesFilters = {

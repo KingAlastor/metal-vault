@@ -1,7 +1,7 @@
 "use server";
 
 import { JSONValue } from "postgres";
-import sql from "../db";
+import { sql } from "../db";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import { getSession } from "../session/server-actions";
 

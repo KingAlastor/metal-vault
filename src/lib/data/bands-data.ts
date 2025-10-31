@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 import { AlbumTrack, Band, BandAlbum } from "@/lib/database-schema-types";
 
 export type SearchTermBand = {
@@ -50,13 +50,17 @@ export const getBandsBySearchTerm = async (
 type WhereCondition = "equals" | "contains" | "startsWith";
 
 const fetchBands = async (searchTerm: string, condition: WhereCondition) => {
-const normalizedTerm = searchTerm.toLowerCase();
+  const normalizedTerm = searchTerm.toLowerCase();
 
-const query = {
-  equals: sql`name_pretty ILIKE ${searchTerm} OR name_normalized ILIKE ${normalizedTerm}`,
-  contains: sql`name_pretty ILIKE ${'%' + searchTerm + '%'} OR name_normalized ILIKE ${'%' + normalizedTerm + '%'}`,
-  startsWith: sql`name_pretty ILIKE ${searchTerm + '%'} OR name_normalized ILIKE ${normalizedTerm + '%'}`
-};
+  const query = {
+    equals: sql`name_pretty ILIKE ${searchTerm} OR name_normalized ILIKE ${normalizedTerm}`,
+    contains: sql`name_pretty ILIKE ${
+      "%" + searchTerm + "%"
+    } OR name_normalized ILIKE ${"%" + normalizedTerm + "%"}`,
+    startsWith: sql`name_pretty ILIKE ${
+      searchTerm + "%"
+    } OR name_normalized ILIKE ${normalizedTerm + "%"}`,
+  };
 
   return await sql`
     SELECT 
@@ -71,7 +75,7 @@ const query = {
   `;
 };
 
-export const getFullBandDataById = async (bandId: string): Promise<Band>  => {
+export const getFullBandDataById = async (bandId: string): Promise<Band> => {
   // Query 1: Get band data
   const bandArray = await sql<Band[]>`
     SELECT * FROM bands WHERE id = ${bandId} LIMIT 1
@@ -99,12 +103,12 @@ export const getFullBandDataById = async (bandId: string): Promise<Band>  => {
   `;
 
   // Combine the results in memory
-  const albumsWithTracks = albums.map(album => ({
+  const albumsWithTracks = albums.map((album) => ({
     ...album,
-    album_tracks: tracks.filter(track => track.album_id === album.id)
+    album_tracks: tracks.filter((track) => track.album_id === album.id),
   }));
   return {
     ...band,
-    albums: albumsWithTracks
+    albums: albumsWithTracks,
   };
 };

@@ -1,5 +1,5 @@
 "use server";
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 
 export const syncGenresTableFromBands = async () => {
   const genreTags = await getDistinctGenreTags();

@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "../db";
+import { sql } from "../db";
 import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import { checkFavoriteExists } from "./follow-artists-data";

@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "@/lib/db";
+import { sql } from "@/lib/db";
 
 export const testSqlQuery = async (id: string) => {
   const user = await sql`

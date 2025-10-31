@@ -1,6 +1,6 @@
 "use server";
 
-import sql from "../db";
+import { sql } from "../db";
 import { getFromAndToDates } from "../general/dateTime";
 
 export type ReleasesFilters = {
@@ -188,7 +188,6 @@ export async function updateUnsubscribeUserToken(
     throw error;
   }
 }
-
 
 export async function getUnsubscribeTokenForUser(userId: string) {
   const [userTokenData] = await sql`
