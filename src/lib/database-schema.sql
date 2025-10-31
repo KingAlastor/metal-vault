@@ -395,6 +395,7 @@ CREATE TABLE analytics_events (
   id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
   session_id UUID NOT NULL REFERENCES analytics_sessions(id) ON DELETE CASCADE,
   path TEXT,                         
-  event TEXT,                     
+  event TEXT,  
+  data JSONB;                   
   created_at TIMESTAMP DEFAULT NOW()
 );
