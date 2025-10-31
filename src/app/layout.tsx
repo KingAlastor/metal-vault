@@ -6,6 +6,7 @@ import ThemeWrapper from "./ThemeProvider";
 import GoogleProvider from "./GoogleProvider";
 import { SessionProvider } from "./SessionProvider";
 import { getSession } from "@/lib/session/server-actions";
+import { AnalyticsTracker } from "@/components/analytics/analytics-tracker";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,6 +34,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <AnalyticsTracker isUser={!!session?.userId} />
+
         <GoogleProvider>
           <ReactQueryProvider>
             <SessionProvider initialSession={userSessionData}>

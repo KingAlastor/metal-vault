@@ -378,3 +378,23 @@ CREATE TABLE ad_billing (
 );
 
   CREATE INDEX idx_ad_billing_user ON ad_billing (user_id);
+
+CREATE TABLE analytics_sessions (
+  session_id UUID PRIMARY KEY,               
+  is_user BOOLEAN DEFAULT FALSE,   
+  started_at TIMESTAMP NOT NULL,     
+  ended_at TIMESTAMP NOT NULL,       
+  duration_sec INT,                   
+  pages_viewed INT DEFAULT 0,        
+  clicked_signin BOOLEAN DEFAULT FALSE, 
+  flush_reason TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE analytics_events (
+  id VARCHAR(36) PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID NOT NULL REFERENCES analytics_sessions(id) ON DELETE CASCADE,
+  path TEXT,                         
+  event TEXT,                     
+  created_at TIMESTAMP DEFAULT NOW()
+);

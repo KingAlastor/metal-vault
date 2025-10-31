@@ -9,6 +9,8 @@ export function GoogleLogin() {
   const queryClient = useQueryClient();
 
   const handleSuccess = async (credentialResponse: any) => {
+    // Track sign in
+    (window as any).analytics.trackSigninClick?.({ provider: "google" });
     // Send the credential to the server for verification and session creation
     const res = await fetch("/api/auth/google/signin", {
       method: "POST",
