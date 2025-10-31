@@ -15,9 +15,9 @@ export type Band = {
 
 export async function fetchBandsByFilters(search: string): Promise<Band[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown", "fetchBandsByFilters");
     throw new Error("User is not logged in");
   }
 
@@ -71,7 +71,7 @@ export async function fetchBandsByFilters(search: string): Promise<Band[]> {
       name_pretty ILIKE '/%'
     `;
   } else {
-    whereCondition = `name_pretty ILIKE ${search + '%'}`;
+    whereCondition = `name_pretty ILIKE ${search + "%"}`;
   }
 
   try {
@@ -97,13 +97,16 @@ export async function fetchBandsByFilters(search: string): Promise<Band[]> {
 
 export async function fetchUserFavoriteBands(): Promise<string[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "fetchUserFavoriteBands"
+    );
     throw new Error("User is not logged in");
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
   const favorites = await sql`
@@ -112,17 +115,19 @@ export async function fetchUserFavoriteBands(): Promise<string[]> {
     WHERE user_id = ${session.userId}
   `;
 
-  return favorites.map(band => band.bandId);
+  return favorites.map((band) => band.bandId);
 }
 
-export async function fetchUserFavBandsFullData(): Promise<(Band & { rating: number })[]> {
+export async function fetchUserFavBandsFullData(): Promise<
+  (Band & { rating: number })[]
+> {
   const session = await getSession();
-  
+
   if (!session.userId) {
     return [];
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
   const favorites = await sql`
@@ -139,26 +144,26 @@ export async function fetchUserFavBandsFullData(): Promise<(Band & { rating: num
     WHERE bf.user_id = ${session.userId}
   `;
 
-  return favorites.map(row => ({
+  return favorites.map((row) => ({
     id: row.id,
     namePretty: row.namePretty,
     country: row.country,
     genreTags: row.genreTags,
     followers: row.followers,
     status: row.status,
-    rating: row.rating
+    rating: row.rating,
   }));
 }
 
 export async function saveUserFavorites(favorites: string[]): Promise<void> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown", "saveUserFavorites");
     throw new Error("User is not logged in");
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
   if (favorites && favorites.length > 0) {
@@ -169,9 +174,9 @@ export async function saveUserFavorites(favorites: string[]): Promise<void> {
     `;
 
     // Insert new favorites
-    const values = favorites.map(bandId => 
-      `(${session.userId}, ${bandId})`
-    ).join(',');
+    const values = favorites
+      .map((bandId) => `(${session.userId}, ${bandId})`)
+      .join(",");
 
     await sql`
       INSERT INTO ${sql.unsafe(tableName)} (user_id, band_id)
@@ -181,15 +186,20 @@ export async function saveUserFavorites(favorites: string[]): Promise<void> {
   }
 }
 
-export async function saveUserFavoriteAndUpdateFollowerCount(bandId: string): Promise<void> {
+export async function saveUserFavoriteAndUpdateFollowerCount(
+  bandId: string
+): Promise<void> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "saveUserFavoriteAndUpdateFollowerCount"
+    );
     throw new Error("User is not logged in");
   }
 
-  const shard = session.userShard || "0"; 
+  const shard = session.userShard || "0";
   const tableName = `band_followers_${shard}`;
 
   // Check if favorite exists
@@ -219,11 +229,13 @@ export async function saveUserFavoriteAndUpdateFollowerCount(bandId: string): Pr
   }
 }
 
-export async function deleteFavoriteArtist(bandId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteFavoriteArtist(
+  bandId: string
+): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown", "deleteFavoriteArtist");
     throw new Error("User is not logged in");
   }
 
@@ -254,11 +266,14 @@ export async function deleteFavoriteArtist(bandId: string): Promise<{ success: b
   }
 }
 
-export async function updateBandRating(bandId: string, rating: number): Promise<void> {
+export async function updateBandRating(
+  bandId: string,
+  rating: number
+): Promise<void> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown", "updateBandRating");
     throw new Error("User is not logged in");
   }
 
@@ -280,11 +295,13 @@ export async function updateBandRating(bandId: string, rating: number): Promise<
   }
 }
 
-export async function checkBandExists(bandNamePretty: string): Promise<{ id: string }[]> {
+export async function checkBandExists(
+  bandNamePretty: string
+): Promise<{ id: string }[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown", "checkBandExists");
     throw new Error("User is not logged in");
   }
 
@@ -300,11 +317,13 @@ export async function checkBandExists(bandNamePretty: string): Promise<{ id: str
   }
 }
 
-export async function checkFavoriteExists(bandId: string | null | undefined): Promise<boolean> {
+export async function checkFavoriteExists(
+  bandId: string | null | undefined
+): Promise<boolean> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown", "checkFavoriteExists");
     throw new Error("User is not logged in");
   }
 
@@ -332,9 +351,9 @@ export async function checkFavoriteExists(bandId: string | null | undefined): Pr
 
 export async function followArtistByBandId(bandId: string) {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(session.userId || "unknown", "followArtistByBandId");
     throw new Error("User must be logged in to follow artists");
   }
 

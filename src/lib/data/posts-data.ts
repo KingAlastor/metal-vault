@@ -5,9 +5,7 @@ import { getSession } from "../session/server-actions";
 import { logUnauthorizedAccess } from "../loggers/auth-log";
 import { checkFavoriteExists } from "./follow-artists-data";
 import { fetchUserFavoriteBands } from "./follow-artists-data";
-import { fetchUserUnfollowedBands } from "./unfollow-artists-data";
-import { fetchUnfollowedUsers, fetchUserSavedPosts } from "./user-data";
-import { UserPostsActive } from "../database-schema-types";
+import { fetchUserSavedPosts } from "./user-data";
 import { Post } from "@/components/posts/post-types";
 
 export type PostProps = {
@@ -38,7 +36,7 @@ export async function addOrUpdatePost(post: PostProps) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "addOrUpdatePost");
     throw new Error("User must be logged in to create or update posts.");
   }
 
@@ -155,7 +153,7 @@ export async function deletePost(postId: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "deletePost");
     throw new Error("User must be logged in to delete posts.");
   }
 
@@ -321,7 +319,7 @@ export async function hideArtistForUserById(bandId: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "hideArtistForUserById");
     throw new Error("User must be logged in to hide artists");
   }
 
@@ -363,7 +361,7 @@ export async function addPostToSavedPosts(postId: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "addPostToSavedPosts");
     throw new Error("User must be logged in to save posts.");
   }
 
@@ -383,7 +381,10 @@ export async function removePostFromSavedPosts(postId: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "removePostFromSavedPosts"
+    );
     throw new Error("User must be logged in to unsave posts.");
   }
 
@@ -407,7 +408,7 @@ export async function savePostReport(
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "savePostReport");
     throw new Error("User must be logged in to report posts.");
   }
 
@@ -428,7 +429,10 @@ export async function hideUserPostsForUserById(postId: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "hideUserPostsForUserById"
+    );
     throw new Error("User must be logged in to hide user posts.");
   }
 
@@ -454,7 +458,7 @@ async function getUserIdByPostId(postId: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "getUserIdByPostId");
     throw new Error("User must be logged in to hide user posts.");
   }
 
@@ -477,7 +481,7 @@ export async function checkIfPostExists(bandId: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "checkIfPostExists");
     throw new Error("User must be logged in to hide user posts.");
   }
 

@@ -15,7 +15,7 @@ export async function postUserFeedback(
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "postUserFeedback");
     return {
       success: false,
       error: "User must be logged in to post feedback.",
@@ -50,7 +50,7 @@ export async function getUserFeedback(): Promise<
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "getUserFeedback");
     return [];
   }
 
@@ -84,7 +84,7 @@ export async function deleteUserFeedback(
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "deleteUserFeedback");
     return {
       success: false,
       error: "User must be logged in to delete feedback.",

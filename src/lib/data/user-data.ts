@@ -136,12 +136,12 @@ export const findOrCreateUser = async (userInfo: OAuthUserInfo) => {
 export const getFullUserData = async (userId: string) => {
   const session = await getSession();
   if (!session.userId) {
-    logUnauthorizedAccess(userId);
+    logUnauthorizedAccess(userId, "getFullUserData");
     return null;
   }
 
   if (!session.userId || userId !== session.userId) {
-    logWrongUserAccess(userId, session.userId || "unknown");
+    logWrongUserAccess(userId, session.userId || "unknown", "getFullUserData");
     return null;
   }
 
@@ -155,12 +155,16 @@ export const getFullUserData = async (userId: string) => {
 export const fetchUnfollowedUsers = async (userId: string) => {
   const session = await getSession();
   if (!session.userId) {
-    logUnauthorizedAccess(userId);
+    logUnauthorizedAccess(userId, "fetchUnfollowedUsers");
     return null;
   }
 
-  if (!session.userId || userId !== session.userId) {
-    logWrongUserAccess(userId, session.userId || "unknown");
+  if (userId !== session.userId) {
+    logWrongUserAccess(
+      userId,
+      session.userId || "unknown",
+      "fetchUnfollowedUsers"
+    );
     return null;
   }
 
@@ -291,7 +295,7 @@ export async function fetchUserSavedPosts() {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "fetchUserSavedPosts");
     return [];
   }
 
@@ -313,7 +317,10 @@ export async function getRefreshTokenFromUserTokens(provider: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "getRefreshTokenFromUserTokens"
+    );
     return null;
   }
 
@@ -350,7 +357,7 @@ export async function updateUserData(data: UpdateUserData) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "updateUserData");
     return null;
   }
 
@@ -380,7 +387,7 @@ export async function deleteUser() {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "deleteUser");
     throw new Error("User is not logged in");
   }
 
@@ -399,7 +406,10 @@ export async function deleteUserPendingAction(action: string) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "deleteUserPendingAction"
+    );
     throw new Error("User is not logged in");
   }
 

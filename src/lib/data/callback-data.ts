@@ -11,7 +11,7 @@ export const saveRefreshTokenToUserTokens = async (
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "callback-data");
     throw new Error("User must be logged in to save refresh token");
   }
 

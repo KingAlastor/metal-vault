@@ -15,9 +15,12 @@ export type Band = {
 
 export async function fetchUserUnfollowedBands(): Promise<string[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || 'unknown');
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "fetchUserUnfollowedBands"
+    );
     throw new Error("User must be logged in to access unfollowed bands.");
   }
 
@@ -35,7 +38,7 @@ export async function fetchUserUnfollowedBands(): Promise<string[]> {
       WHERE user_id = ${session.userId}
     `;
 
-    return unfollowedBands.map(band => band.bandId);
+    return unfollowedBands.map((band) => band.bandId);
   } catch (error) {
     console.error("Error fetching unfollowed bands:", error);
     throw error;
@@ -44,7 +47,7 @@ export async function fetchUserUnfollowedBands(): Promise<string[]> {
 
 export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
   const session = await getSession();
-  
+
   if (!session.userId) {
     return [];
   }
@@ -70,13 +73,13 @@ export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
       WHERE buf.user_id = ${session.userId}
     `;
 
-    return unfollowedBands.map(row => ({
+    return unfollowedBands.map((row) => ({
       id: row.id,
       namePretty: row.namePretty,
       country: row.country,
       genreTags: row.genreTags,
       followers: row.followers,
-      status: row.status
+      status: row.status,
     }));
   } catch (error) {
     console.error("Error fetching unfollowed bands full data:", error);
@@ -84,9 +87,11 @@ export async function fetchUserUnfollowedBandsFullData(): Promise<Band[]> {
   }
 }
 
-export async function deleteUnfollowBand(bandId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteUnfollowBand(
+  bandId: string
+): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
-  
+
   if (!session.userId) {
     return { success: false, error: "User is not logged in" };
   }

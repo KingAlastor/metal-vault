@@ -8,6 +8,7 @@ import { useSessionContext } from "../SessionProvider";
 
 export default function NavBar() {
   const { session: session } = useSessionContext();
+  console.log("navbar session: ", session)
 
   return (
     <header className="sticky top-0 z-10 bg-card shadow-sm">

@@ -37,7 +37,7 @@ export async function addPromotion(promotionFormData: PromotionFormData) {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "addPromotion");
     throw new Error("User must be logged in.");
   }
 

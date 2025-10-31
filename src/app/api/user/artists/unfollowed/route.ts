@@ -7,7 +7,10 @@ export async function GET() {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(
+      session.userId || "unknown",
+      "user-artists-unfollowed-api"
+    );
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

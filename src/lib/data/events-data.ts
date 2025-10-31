@@ -15,7 +15,7 @@ export const addOrUpdateEvent = async (event: AddEventProps) => {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "addOrUpdateEvent");
     throw new Error("User must be logged in to add or update events");
   }
 
@@ -218,7 +218,7 @@ export const deleteEvent = async (eventId: string) => {
   const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "deleteEvent");
     throw new Error("User must be logged in to delete events");
   }
 
@@ -237,16 +237,16 @@ export const deleteEvent = async (eventId: string) => {
 };
 
 export type SearchTermEvent = {
-  id: string, 
-  event_name: string,
-  eventData: string,
+  id: string;
+  event_name: string;
+  eventData: string;
 };
 
 export async function getEventsBySearchTerm(searchTerm: string) {
-    const session = await getSession();
+  const session = await getSession();
 
   if (!session.userId) {
-    logUnauthorizedAccess(session.userId || "unknown");
+    logUnauthorizedAccess(session.userId || "unknown", "getEventsBySearchTerm");
     throw new Error("User must be logged in to delete events");
   }
 
@@ -255,21 +255,21 @@ export async function getEventsBySearchTerm(searchTerm: string) {
       SELECT 
       id, event_name, country, city, venue, from_date, to_date 
       FROM events
-      WHERE event_name ILIKE ${'%' + searchTerm + '%'}
+      WHERE event_name ILIKE ${"%" + searchTerm + "%"}
     `;
     if (events) {
-    const formattedEvents = events.map((event) => ({
-      id: event.id,
-      event_name: event.event_name,
-      eventData: `${event.event_name} - ${event.venue}/${event.city}/${event.country}`
-    }))
+      const formattedEvents = events.map((event) => ({
+        id: event.id,
+        event_name: event.event_name,
+        eventData: `${event.event_name} - ${event.venue}/${event.city}/${event.country}`,
+      }));
 
-    return formattedEvents; 
-  } else {
-    return [];
-  }
+      return formattedEvents;
+    } else {
+      return [];
+    }
   } catch (error) {
-    console.error("Failed to fetch events: ", error)
+    console.error("Failed to fetch events: ", error);
     return [];
   }
 }
